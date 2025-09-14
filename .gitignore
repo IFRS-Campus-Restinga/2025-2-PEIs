@@ -1,3 +1,16 @@
+# nossas plataformas portateis
+python/
+node/
+git/
+frontpei/node_modules/
+# outros comuns
+*.log
+*.sqlite3
+*.pyc
+__pycache__/
+
+# pra originais do ricardo
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
