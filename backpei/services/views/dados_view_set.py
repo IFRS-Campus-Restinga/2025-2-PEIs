@@ -8,8 +8,3 @@ class DadosViewSet(ModelViewSet):
     serializer_class = DadosSerializer
     permission_classes = [BackendTokenPermission]
 
-class CursoViewSet(ModelViewSet):
-    queryset = Curso.objects.all()
-    serializer_class = CursoSerializer
-    permission_classes = [BackendTokenPermission]
-
