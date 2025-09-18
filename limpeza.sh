@@ -2,6 +2,7 @@
 APAGAR="frontpei/node_modules
 backpei/db.sqlite3
 backpei/backpei/__pycache__
+backpei/pei/__pycache__
 backpei/pei/migrations/__pycache__
 backpei/pei/migrations/0001_initial.py
 backpei/pei/models/__pycache__
