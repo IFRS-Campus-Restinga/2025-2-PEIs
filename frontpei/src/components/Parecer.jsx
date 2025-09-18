@@ -71,7 +71,6 @@ function Pareceres() {
 
     try {
       await DBPARECERES.post("/", novo); 
-      await recuperaPareceres();
       setTexto("");
       setPeriodoSelecionado("");
       setProfessorSelecionado("");

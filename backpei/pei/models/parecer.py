@@ -15,7 +15,7 @@ class Parecer(BaseModel):
         related_name="pareceres"
     )
     texto = models.TextField(
-        validators=[MaxLengthValidator(1000)], 
+        #validators=[MaxLengthValidator(1000)], 
         help_text="Tu tem 1000 caracteres para escrever"
     )
     data = models.DateField(auto_now_add=True)
