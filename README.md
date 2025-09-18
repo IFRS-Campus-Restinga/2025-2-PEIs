@@ -47,6 +47,10 @@ e no outro você vai subir o frontend com o script sobeReact.py. Assim sendo, no
 e apagando o banco. Já no seu segundo terminal nós iremos levantar o react. Considerando que ele estará na pasta "dev2", rode esse comando:</p>
 <pre>.\python\python.exe .\sobeReact.py</pre>
 <p>Caso você já tenha a pasta node_modules no projeto (não vai ter quando vier do github), o script vai ter perguntar se quer apagar ela e baixar os pacotes de novo. Então pronto,
-você pode acessar <b>localhost:5173</b> no seu navegador para usar o sistema.</p>
-<b>ATENÇÃO:</b> Sempre você quiser apagar tudo que fez e começar limpo de novo a partir do repositório, você pode apagar tudo da pasta "dev2" e manter apenas as pastas "git", "node" e "python"
-que haviam vindo do ZIP "plataformas.zip". Então faça o git clone novamente a partir do ponto 2 desse tutorial.
+você pode acessar <b>http://localhost:5173</b> no seu navegador para usar o sistema.</p>
+<b>ATENÇÃO:</b> Sempre que você quiser apagar tudo que fez e começar limpo de novo a partir do repositório, você pode apagar tudo da pasta "dev2" e manter apenas as pastas "git", "node" e
+"python" que haviam vindo do ZIP "plataformas.zip". Então faça o git clone novamente a partir do ponto 2 desse tutorial.
+
+<p><b>4. Salvando seu progresso no github:</b></p>
+<p>Se você não criou sua branch, <a href="https://github.com/IFRS-Campus-Restinga/2025-2-PEIs/branches">clique nesse link</a> e vá em "New branch" no canto superior direito, criando uma branch
+com seu nome a partir da main.</p>
