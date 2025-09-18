@@ -35,6 +35,7 @@ return ( <>
 <GoogleOAuthProvider clientId="1050578287576-b870ajrmae9eioc0k2mumod0digo54fd.apps.googleusercontent.com">
   { logado ? (
     <div>
+      {console.log("DEBUG usuario:", usuario)}
       <div>Olá, {usuario.nome} ({usuario.email}).<br />
       <button onClick={() => { setUsuario(null); setLogado(false); }}>Logout</button></div>
       <hr />
