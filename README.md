@@ -5,7 +5,7 @@
 <p>Os seguintes passos devem ser executados para realização do download do sistema e colocá-lo no ar, seja para fins de teste ou avaliação (como para os professores)
 ou mesmo para continuar o desenvolvimento a partir da branch main.</p>
 
-<p><b>1. Download das plataformas:></b></p>
+<p><b>1. Download das plataformas:</b></p>
 <p>É necessário estar usando Windows, faça o download do arquivo ZIP abaixo. <i>"Mas eu tenho um MacBook/Linux, não uso Windows."</i>
 Para fazer uso completo da automação criada para desenvolvimento, vai ser necessário estar usando Windows. Use uma máquina do campus ou uma VM, a delimitação de sistema operacional
 foi criada justamente para a uniformidade do ambiente e baseada no uso pessoal da equipe de desenvolvimento e das máquinas do campus. Segue o link de download:</p>
@@ -26,18 +26,27 @@ e descompactar lá dentro. Simples assim.</p>
 <p>Isso usa nosso git portátil para baixar o conteúdo da branch main. Perceba que o git tenta evitar sobrescrita de arquivos criando uma nova pasta "2025-2-PEIs" com todo conteúdo
 que veio do repositório lá dentro. Você pode entrar na pasta, recortar tudo e colar na mesma pasta "dev2" onde você descompactou as plataformas, depois apague a pasta "2025-2-PEIs"
 que estará vazia. O seu diretório "dev2" estará correto se contiver a seguinte lista de arquivos e pastas:</p>
-<p>.git - pasta de metadados do github, é oculta, importante ter certeza que veio junto</p>
-<p>backpei - pasta do projeto django do backend</p>
-<p>frontpei - pasta do projeto reac do frontend</p>
-<p>git - pasta de toda a plataforma git</p>
-<p>node - pasta da plataforma node onde roda o frontednd</p>
-<p>python - pasta do python que contém inclusive nossos middlewares</p>
-<p>.gitignore - arquivo com a lista de coisas que não devem ir para o repositório</p>
-<p>LICENSE - arquivo genérico dizendo qual o tipo de licença do nosso código</p>
-<p>limpeza.sh - script bash opcional que limpa arquivos desnecessários</p>
-<p>README.md - documentação do projeto, é isso que você está lendo aqui</p>
-<p>sobeDjango.py - script de inicialização do projeto django</p>
-<p>sobeReact.py - script de inicialização do projeto react</p>
+<ul><li>.git - pasta de metadados do github, é oculta, importante ter certeza que veio junto</li>
+<li>backpei - pasta do projeto django do backend</li>
+<li>frontpei - pasta do projeto react do frontend</li>
+<li>git - pasta de toda a plataforma git</li>
+<li>node - pasta da plataforma node onde roda o frontend</li>
+<li>python - pasta do python que contém inclusive nossos middlewares</li>
+<li>.gitignore - arquivo com a lista de coisas que não devem ir para o repositório</li>
+<li>LICENSE - arquivo genérico dizendo qual o tipo de licença do nosso código</li>
+<li>limpeza.sh - script bash opcional que limpa arquivos desnecessários</li>
+<li>README.md - documentação do projeto, é isso que você está lendo aqui</li>
+<li>sobeDjango.py - script de inicialização do projeto django</li>
+<li>sobeReact.py - script de inicialização do projeto react</li></ul>
 
 <p><b>3. Inicializar os webservers:</b></p>
-<p></p>
+<p>Você deve utilizar dois terminais powershell no vscode para prender os processos dos webservers em cada um deles. Em um terminal você vai subir o REST do django, com o script sobeDjango.py
+e no outro você vai subir o frontend com o script sobeReact.py. Assim sendo, no primeiro terminal, considerando que ele está na pasta "dev2", utilize esse comando:</p>
+<pre>.\python\python.exe .\sobeDjango.py</pre>
+<p>Pode responder que sim para as perguntas de refazer o migrate e apagar o banco. Toda vez que você modificar models significativamente, é bom rodar esse script de novo zerando as migrações
+e apagando o banco. Já no seu segundo terminal nós iremos levantar o react. Considerando que ele estará na pasta "dev2", rode esse comando:</p>
+<pre>.\python\python.exe .\sobeReact.py</pre>
+<p>Caso você já tenha a pasta node_modules no projeto (não vai ter quando vier do github), o script vai ter perguntar se quer apagar ela e baixar os pacotes de novo. Então pronto,
+você pode acessar <b>localhost:5173</b> no seu navegador para usar o sistema.</p>
+<b>ATENÇÃO:</b> Sempre você quiser apagar tudo que fez e começar limpo de novo a partir do repositório, você pode apagar tudo da pasta "dev2" e manter apenas as pastas "git", "node" e "python"
+que haviam vindo do ZIP "plataformas.zip". Então faça o git clone novamente a partir do ponto 2 desse tutorial.
