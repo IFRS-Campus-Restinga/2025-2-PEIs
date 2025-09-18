@@ -92,7 +92,7 @@ dos casos nós sempre faremos todos juntos em aula.</p>
 <p>É bem provável que ao final de cada sprint, com o progresso de todos salvo na main, além de apagar os arquivos do seu computador você também queira resetar sua branch para ficar igual ao main.
 É possível simplesmente apagar ela na interface web e criar de novo. Ou então pode ser dado os seguintes comandos, desde que com muita cautela. Comece apagando seu conteúdo local, então execute:</p>
 
-<pre>.\git\bin\git.exe clone -b MinhaBranch https://github.com/IFRS-Campus-Restinga/2025-2-PEIs.git
+<pre>.\git\bin\git.exe clone https://github.com/IFRS-Campus-Restinga/2025-2-PEIs.git
 .\git\bin\git.exe checkout MinhaBranch <== pelo amor de deus
 .\git\bin\git.exe branch -a <== confirme mil vezes que é a sua
 .\git\bin\git.exe reset --hard main
