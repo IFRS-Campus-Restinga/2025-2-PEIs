@@ -5,7 +5,8 @@
 <p>Os seguintes passos devem ser executados para realização do download do sistema e colocá-lo no ar, seja para fins de teste ou avaliação (como para os professores)
 ou mesmo para continuar o desenvolvimento a partir da branch main.</p>
 
-<p><b><u>1. Download das plataformas:</u></b> É necessário estar usando Windows, faça o download do arquivo ZIP abaixo. <i>"Mas eu tenho um MacBook/Linux, não uso Windows."</i>
+<p><b>1. Download das plataformas:></b></p>
+<p>É necessário estar usando Windows, faça o download do arquivo ZIP abaixo. <i>"Mas eu tenho um MacBook/Linux, não uso Windows."</i>
 Para fazer uso completo da automação criada para desenvolvimento, vai ser necessário estar usando Windows. Use uma máquina do campus ou uma VM, a delimitação de sistema operacional
 foi criada justamente para a uniformidade do ambiente e baseada no uso pessoal da equipe de desenvolvimento e das máquinas do campus. Segue o link de download:</p>
 
@@ -19,7 +20,24 @@ a realizar alguns comandos manualmente. Por exemplo, toda vez que você baixar o
 não na pasta do projeto. Enfim, só há vantagens em usar essas plataformas comuns e apenas mais transtorno em tentar seguir isolado delas. Basta criar o seu diretório (como "dev2")
 e descompactar lá dentro. Simples assim.</p>
 
-<p><b><u>2. Download do projeto atual:</u></b> Abra a sua pasta "dev2" no vscode e abra um terminal de powershell. Considerando que o terminal sempre abre na pasta do projeto, use o seguinte
-comando para fazer o download da branch main:</p>
-<pre></pre>
+<p><b>2. Download do projeto atual:</b></p>
+<p>Abra a sua pasta "dev2" no vscode e abra um terminal de powershell. Considerando que o terminal sempre abre na pasta do projeto, use o seguinte comando para fazer o download:</p>
+<pre>.\git\bin\git.exe clone https://github.com/IFRS-Campus-Restinga/2025-2-PEIs.git</pre>
+<p>Isso usa nosso git portátil para baixar o conteúdo da branch main. Perceba que o git tenta evitar sobrescrita de arquivos criando uma nova pasta "2025-2-PEIs" com todo conteúdo
+que veio do repositório lá dentro. Você pode entrar na pasta, recortar tudo e colar na mesma pasta "dev2" onde você descompactou as plataformas, depois apague a pasta "2025-2-PEIs"
+que estará vazia. O seu diretório "dev2" estará correto se contiver a seguinte lista de arquivos e pastas:</p>
+<p>.git - pasta de metadados do github, é oculta, importante ter certeza que veio junto</p>
+<p>backpei - pasta do projeto django do backend</p>
+<p>frontpei - pasta do projeto reac do frontend</p>
+<p>git - pasta de toda a plataforma git</p>
+<p>node - pasta da plataforma node onde roda o frontednd</p>
+<p>python - pasta do python que contém inclusive nossos middlewares</p>
+<p>.gitignore - arquivo com a lista de coisas que não devem ir para o repositório</p>
+<p>LICENSE - arquivo genérico dizendo qual o tipo de licença do nosso código</p>
+<p>limpeza.sh - script bash opcional que limpa arquivos desnecessários</p>
+<p>README.md - documentação do projeto, é isso que você está lendo aqui</p>
+<p>sobeDjango.py - script de inicialização do projeto django</p>
+<p>sobeReact.py - script de inicialização do projeto react</p>
+
+<p><b>3. Inicializar os webservers:</b></p>
 <p></p>
