@@ -22,10 +22,14 @@ e descompactar lá dentro. Simples assim.</p>
 
 <p><b>2. Download do projeto atual:</b></p>
 <p>Abra a sua pasta "dev2" no vscode e abra um terminal de powershell. Considerando que o terminal sempre abre na pasta do projeto, use o seguinte comando para fazer o download:</p>
+
 <pre>.\git\bin\git.exe clone https://github.com/IFRS-Campus-Restinga/2025-2-PEIs.git</pre>
-<p>Isso usa nosso git portátil para baixar o conteúdo da branch main. Perceba que o git tenta evitar sobrescrita de arquivos criando uma nova pasta "2025-2-PEIs" com todo conteúdo
-que veio do repositório lá dentro. Você pode entrar na pasta, recortar tudo e colar na mesma pasta "dev2" onde você descompactou as plataformas, depois apague a pasta "2025-2-PEIs"
-que estará vazia. O seu diretório "dev2" estará correto se contiver a seguinte lista de arquivos e pastas:</p>
+
+<p><b>OBS:</b> Considere <b>!!! SEMPRE !!!</b> todos os comandos como sendo executados em um terminal powershell do vscode estando parado na pasta geral do projeto (aqui chamada "dev2")!</p>
+<p>O comando acima usa nosso git portátil para baixar o conteúdo da branch main. É bem possível que você precise autenticar no github para continuar, melhor é já deixar o navegador logado.
+Perceba também que o git tenta evitar sobrescrita de arquivos criando uma nova pasta "2025-2-PEIs" com todo conteúdo que veio do repositório lá dentro. Você pode entrar na pasta, recortar
+tudo e colar na mesma pasta "dev2" onde você descompactou as plataformas, depois apague a pasta "2025-2-PEIs" que estará vazia. O seu diretório "dev2" estará correto se contiver a seguinte
+lista de arquivos e pastas:</p>
 <ul><li>.git - pasta de metadados do github, é oculta, importante ter certeza que veio junto</li>
 <li>backpei - pasta do projeto django do backend</li>
 <li>frontpei - pasta do projeto react do frontend</li>
@@ -42,15 +46,45 @@ que estará vazia. O seu diretório "dev2" estará correto se contiver a seguint
 <p><b>3. Inicializar os webservers:</b></p>
 <p>Você deve utilizar dois terminais powershell no vscode para prender os processos dos webservers em cada um deles. Em um terminal você vai subir o REST do django, com o script sobeDjango.py
 e no outro você vai subir o frontend com o script sobeReact.py. Assim sendo, no primeiro terminal, considerando que ele está na pasta "dev2", utilize esse comando:</p>
+
 <pre>.\python\python.exe .\sobeDjango.py</pre>
+
 <p>Pode responder que sim para as perguntas de refazer o migrate e apagar o banco. Toda vez que você modificar models significativamente, é bom rodar esse script de novo zerando as migrações
 e apagando o banco. Já no seu segundo terminal nós iremos levantar o react. Considerando que ele estará na pasta "dev2", rode esse comando:</p>
+
 <pre>.\python\python.exe .\sobeReact.py</pre>
+
 <p>Caso você já tenha a pasta node_modules no projeto (não vai ter quando vier do github), o script vai ter perguntar se quer apagar ela e baixar os pacotes de novo. Então pronto,
 você pode acessar <b>http://localhost:5173</b> no seu navegador para usar o sistema.</p>
-<b>ATENÇÃO:</b> Sempre que você quiser apagar tudo que fez e começar limpo de novo a partir do repositório, você pode apagar tudo da pasta "dev2" e manter apenas as pastas "git", "node" e
-"python" que haviam vindo do ZIP "plataformas.zip". Então faça o git clone novamente a partir do ponto 2 desse tutorial.
+<p><b>ATENÇÃO:</b> Sempre que você quiser apagar tudo que fez e começar limpo de novo a partir do repositório, você pode apagar tudo da pasta "dev2" e manter apenas as pastas "git", "node" e
+"python" que haviam vindo do ZIP "plataformas.zip". Então faça o git clone novamente a partir do ponto 2 desse tutorial.</p>
 
 <p><b>4. Salvando seu progresso no github:</b></p>
 <p>Se você não criou sua branch, <a href="https://github.com/IFRS-Campus-Restinga/2025-2-PEIs/branches">clique nesse link</a> e vá em "New branch" no canto superior direito, criando uma branch
-com seu nome a partir da main.</p>
+com seu nome a partir da main.</p> Sempre que você faz o git clone, ele faz o download de todas as branchs mas você trabalha na default, que é a main. Você pode sair usando sua própria branch
+com o seguinte comando:</p>
+
+<pre>.\git\bin\git.exe clone -b NomeDaBranch https://github.com/IFRS-Campus-Restinga/2025-2-PEIs.git</pre>
+
+<p>Você pode ver a branch que está usando com o comando abaixo. Apenas lembre que o comando deve ser dado onde está a pasta oculta .git, então a cada clone a prática recomendada para nosso projeto
+é mover todo o conteúdo da pasta "2025-2-PEIs" que é criada pelo clone para o mesmo local onde estão suas pastas das plataformas "git", "node", e "python". Depois apague a pasta vazia. Segue
+o comando que vê sua branch atual:</p>
+
+<pre>.\git\bin\git.exe branch -a</pre>
+
+<p>Você pode trocar muito facilmente de branch com o seguinte comando:</p>
+
+<pre>.\git\bin\git.exe checkout main</pre>
+
+<p>No exemplo acima, supondo que você estava na sua branch, você volta para a main. Os próprios arquivos exibidos pelo vscode vão mudar e você sempre pode confirmar onde está com o "branch -a".</p>
+<p><b>Agora importante:</b>Você sempre vai commitar <b>!!! NA SUA PRÓPRIA BRANCH !!!</b> sempre, pra isso SEMPRE garanta que você está nela com o branch -a e você pode salvar seu progresso
+com os seguintes comandos:</p>
+
+<pre>.\git\bin\git.exe checkout MinhaBranch <== te liga
+.\git\bin\git.exe branch -a <== confirme que está na sua
+.\git\bin\git.exe add .
+.\git\bin\git.exe commit -m "escreva brevemente o que fez"
+.\git\bin\git.exe push origin MinhaBranch
+</pre>
+
+<p>Pode conferir pelo site do github que tudo deu certo.</p>
