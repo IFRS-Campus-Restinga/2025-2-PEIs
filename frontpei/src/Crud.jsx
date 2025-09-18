@@ -1,116 +1,179 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+// Base da API
+const DB_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/services/";
+
+// Configuração das tabelas
+const tabelas = {
+  pessoa: { endpoint: "pessoa/", campos: ["nome", "categoria"] },
+  curso: { endpoint: "curso/", campos: ["nome", "nivel"], choices: { nivel: ["MEDIO", "SUPERIOR", "TECNICO"] } },
+  disciplina: { endpoint: "disciplina/", campos: ["nome", "cursos"] },
+  componenteCurricular: { endpoint: "componenteCurricular/", campos: ["objetivos", "conteudo_prog", "metodologia", "cursos", "disciplinas"] },
+  documentacaoComplementar: { endpoint: "documentacaoComplementar/", campos: ["autor", "tipo", "caminho"] }
+};
 
 function Crud() {
+  const [dados, setDados] = useState({});
+  const [erroBanco, setErroBanco] = useState(false);
+  const [tabelaSelecionada, setTabelaSelecionada] = useState("pessoa");
 
-// ------------------------------------------------------------
-// criando instancia do axios baseado no .env
-const DB = axios.create({ baseURL: import.meta.env.VITE_API_URL })
+  // Formulários dinâmicos
+  const [form, setForm] = useState({
+    pessoa: { nome: "", categoria: 1 },
+    curso: { nome: "", nivel: "MEDIO" },
+    disciplina: { nome: "", cursos: [] },
+    componenteCurricular: { objetivos: "", conteudo_prog: "", metodologia: "", cursos: [], disciplinas: [] },
+    documentacaoComplementar: { autor: "", tipo: "", caminho: "" }
+  });
 
+  // ------------------------------------------------------------
+  async function recuperaTabela(tabela) {
+    try {
+      const resposta = await axios.get(`${DB_BASE}${tabelas[tabela].endpoint}`);
+      setDados(prev => ({ ...prev, [tabela]: resposta.data }));
+      setErroBanco(false);
+    } catch (erro) {
+      console.error(`Erro ao buscar ${tabela}:`, erro);
+      setErroBanco(true);
+    }
+  }
 
-// ------------------------------------------------------------
-// declaracao dos estados 
-const [pessoas, setPessoas] = useState([])
-const [erroBanco, setErroBanco] = useState(false)
-// estados para o formulario de cadastro
-const [nome, setNome] = useState("")
-const [categoria, setCategoria] = useState(1)
+  // ------------------------------------------------------------
+  async function adicionaRegistro(event) {
+    event.preventDefault();
+    const novo = { ...form[tabelaSelecionada] };
 
+    try {
+      await axios.post(`${DB_BASE}${tabelas[tabelaSelecionada].endpoint}`, novo);
+      await recuperaTabela(tabelaSelecionada);
+      // limpa o formulário
+      setForm(prev => ({
+        ...prev,
+        [tabelaSelecionada]: Object.fromEntries(
+          Object.keys(prev[tabelaSelecionada]).map(k =>
+            [k, Array.isArray(prev[tabelaSelecionada][k]) ? [] : (k === "categoria" ? 1 : (k === "nivel" ? "MEDIO" : ""))]
+          )
+        )
+      }));
+      setErroBanco(false);
+    } catch (erro) {
+      console.error(`Erro ao criar ${tabelaSelecionada}:`, erro);
+      setErroBanco(true);
+      alert(`Falha ao cadastrar ${tabelaSelecionada}!`);
+    }
+  }
 
-// ------------------------------------------------------------
-// funcao pra recuperar todas as pessoas
-async function recuperaPessoas() {
-  try {
-    const resposta = await DB.get("/")
-    setPessoas(resposta.data)
-    setErroBanco(false)
-  // se tiver dado erro
-  } catch (erro) { console.error("Erro ao buscar pessoas:", erro)
-    setErroBanco(true) } }
+  // ------------------------------------------------------------
+  useEffect(() => {
+    recuperaTabela(tabelaSelecionada);
+    // Para popular selects de ManyToMany
+    if (["disciplina", "componenteCurricular"].includes(tabelaSelecionada)) {
+      recuperaTabela("curso");
+      recuperaTabela("disciplina");
+    }
+  }, [tabelaSelecionada]);
 
+  // ------------------------------------------------------------
+  return (
+    <>
 
-// ------------------------------------------------------------
-// funcao para adicionar uma nova pessoa
-async function adicionaPessoa(event) {
-  // evita reload do form
-  event.preventDefault()
-  // validações simples no frontend
-  const nomeTrim = nome.trim()
-  const catNum = Number(categoria)
-  if (nomeTrim.length < 7) {
-    alert("O nome precisa ter ao menos 7 caracteres.")
-    return }
-  if (![1,2,3].includes(catNum)) {
-    alert("Categoria inválida. Escolha 1, 2 ou 3.")
-    return }
-  // passou nas validacoes
-  const novo = { nome: nomeTrim, categoria: catNum }
-  try {
-    // vamos salvar
-    await DB.post("/", novo)
-    // atualiza a lista pegando o novo cadastro
-    await recuperaPessoas()
-    // limpa o formulario
-    setNome("")
-    setCategoria(1)
-    setErroBanco(false)
-  // se caiu aqui deu ruim
-  } catch (erro) {
-    console.error("Erro ao criar pessoa:", erro)
-    setErroBanco(true)
-    alert("Falha ao cadastrar a pessoa!")
-  } }
+    <img src='./src/assets/logo.png' style={{ height: 225, width: 150 }} />
+    <h1>Prova de Conceito do PEI</h1>
 
+      <h1>CRUD Dinâmico PEI</h1>
 
-// ------------------------------------------------------------
-// funcoes para carregar na inicializacao
-useEffect(() => {
-  recuperaPessoas()
-}, [])
+      {/* Botões de seleção */}
+      <div>
+        {Object.keys(tabelas).map(tab => (
+          <button
+            key={tab}
+            onClick={() => setTabelaSelecionada(tab)}
+            style={{ margin: "0 5px", fontWeight: tabelaSelecionada === tab ? "bold" : "normal" }}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
 
-// ------------------------------------------------------------
-return ( <>
+      <hr />
+      <h2>Adicionar {tabelaSelecionada}</h2>
+      <form onSubmit={adicionaRegistro}>
+        {tabelas[tabelaSelecionada].campos.map(campo => (
+          <div key={campo} style={{ marginBottom: 10 }}>
+            <label>{campo}:</label><br />
+            {/* Se campo tiver choices */}
+            {tabelas[tabelaSelecionada].choices?.[campo] ? (
+              <select
+                value={form[tabelaSelecionada][campo]}
+                onChange={e =>
+                  setForm(prev => ({
+                    ...prev,
+                    [tabelaSelecionada]: { ...prev[tabelaSelecionada], [campo]: e.target.value }
+                  }))
+                }
+              >
+                {tabelas[tabelaSelecionada].choices[campo].map(opt => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            ) : Array.isArray(form[tabelaSelecionada][campo]) ? (
+              // ManyToMany selects
+              <select
+                multiple
+                value={form[tabelaSelecionada][campo]}
+                onChange={e => {
+                  const selected = Array.from(e.target.selectedOptions, option => Number(option.value));
+                  setForm(prev => ({
+                    ...prev,
+                    [tabelaSelecionada]: { ...prev[tabelaSelecionada], [campo]: selected }
+                  }));
+                }}
+              >
+                {(campo === "cursos" ? dados.curso : dados.disciplina)?.map(item => (
+                  <option key={item.id} value={item.id}>
+                    {item.nome}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={form[tabelaSelecionada][campo]}
+                onChange={e =>
+                  setForm(prev => ({
+                    ...prev,
+                    [tabelaSelecionada]: { ...prev[tabelaSelecionada], [campo]: e.target.value }
+                  }))
+                }
+              />
+            )}
+          </div>
+        ))}
+        <button type="submit">Adicionar</button>
+      </form>
 
-  <img src='./src/assets/logo.png' style={{ height: 225, width: 150 }} />
-  <h1>Prova de Conceito do PEI</h1>
+      <hr />
+      <h2>Dados cadastrados ({tabelaSelecionada})</h2>
+      {erroBanco ? (
+        <p>Não foi possível acessar o backend do Django...</p>
+      ) : (
+        <div>
+          {dados[tabelaSelecionada]?.map((item, idx) => (
+            <div key={idx}>
+              {Object.entries(item).map(([k, v]) => (
+                <span key={k} style={{ marginRight: 10 }}>
+                  <b>{k}:</b> {Array.isArray(v) ? v.join(", ") : v.toString()}
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
 
-  { /* ------------------------------------------------------ */ }
-  { /* cadastro de pessoa */ }
-  <hr /><h2>Cadastrar pessoa</h2>
-  <form onSubmit={adicionaPessoa}>
-    <label>Nome:</label>
-    <br />
-    <input
-      type="text"
-      value={nome}
-      onChange={(e) => setNome(e.target.value)}
-      placeholder="Digite o nome (min. 7 caracteres)" />
-    <br /><br />
-    <label>Categoria:</label><br />
-    <select value={categoria} onChange={(e) => setCategoria(e.target.value)}>
-      <option value={1}>1</option>
-      <option value={2}>2</option>
-      <option value={3}>3</option>
-    </select>
-    <br /><br />
-    <button type="submit">Adicionar</button>
-    </form>
-
-  { /* ------------------------------------------------------ */ }
-  { /* visualizacao dos dados do backend */ }
-  <hr /><h2>Dados cadastrados:</h2>
-  { erroBanco ? ( <p>Não foi possível acessar o backend do django...</p> ) : (
-  pessoas.map(pessoa => (
-    <div key={pessoa.id}>
-      <p><b>Nome:</b> {pessoa.nome} | <b>Categoria:</b> {pessoa.categoria}</p>
-    </div>
-  ) ) ) }
-
-  { /* ------------------------------------------------------ */ }
-  <hr /><h2>Área de visualização bruta dos dados:</h2>
-  <p>Status de erro: {JSON.stringify(erroBanco, null, 2)}</p>
-  <p>Dados do model <b>Pessoa</b>:</p>
-  <pre>{JSON.stringify(pessoas, null, 2)}</pre>
-
-</> ) }
-export default Crud
+export default Crud;

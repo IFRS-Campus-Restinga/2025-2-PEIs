@@ -1,1 +1,6 @@
-from .dados_serializer import *
+from .pessoa import PessoaSerializer
+from .ataDeAcompanhamento import AtaDeAcompanhamentoSerializer
+from .componenteCurricular import ComponenteCurricularSerializer
+from .curso import CursoSerializer
+from .disciplina import DisciplinaSerializer
+from .documentacaoComplementar import DocumentacaoComplementarSerializer

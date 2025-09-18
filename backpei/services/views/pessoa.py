@@ -1,9 +1,9 @@
 from rest_framework.viewsets import ModelViewSet
-from ..serializers import *
-from pei.models import *
+from ..serializers.pessoa import PessoaSerializer
+from pei.models import Pessoa
 from ..permissions import BackendTokenPermission
 
-class DadosViewSet(ModelViewSet):
+class PessoaViewSet(ModelViewSet):
     queryset = Pessoa.objects.all()
-    serializer_class = DadosSerializer
+    serializer_class = PessoaSerializer
     permission_classes = [BackendTokenPermission]

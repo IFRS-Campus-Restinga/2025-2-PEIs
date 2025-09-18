@@ -1,1 +1,6 @@
-from .dados_view_set import *
+from .pessoa import PessoaViewSet
+from .ataDeAcompanhamento import AtaDeAcompanhamentoViewSet
+from .componenteCurricular import ComponenteCurricularViewSet
+from .curso import CursoViewSet
+from .disciplina import DisciplinaViewSet
+from .documentacaoComplementar import DocumentacaoComplementarViewSet
