@@ -3,6 +3,7 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
 import { useState } from 'react'
 import Crud from './Crud.jsx'
+import CrudDisciplina from './components/CrudDisciplina.jsx'
 
 function App() {
 
@@ -38,7 +39,8 @@ return ( <>
       <div>Olá, {usuario.nome} ({usuario.email}).<br />
       <button onClick={() => { setUsuario(null); setLogado(false); }}>Logout</button></div>
       <hr />
-      <Crud />
+      <CrudDisciplina/>
+      
     </div>
   ) : (  
     <div style={{
