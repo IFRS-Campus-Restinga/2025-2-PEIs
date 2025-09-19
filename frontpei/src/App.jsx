@@ -6,6 +6,8 @@ import Crud from './Crud.jsx'
 import Pareceres from "./components/Parecer";
 import PEIPeriodoLetivo from "./components/PEIPeriodoLetivo";
 import { Routes, Route } from "react-router-dom";
+import Header from './components/Header.jsx'
+import Footer from './components/Footer.jsx'
 
 function App() {
   const [usuario, setUsuario] = useState(null)
@@ -51,22 +53,22 @@ function App() {
   return (
     <GoogleOAuthProvider clientId="1050578287576-b870ajrmae9eioc0k2mumod0digo54fd.apps.googleusercontent.com">
       { logado ? (
-        <div>
-          <div>
-            Olá, {usuario.nome} ({usuario.email}).<br />
-            <button onClick={logout}>Logout</button>
-          </div>
+        <div className="app-container">
+          <Header usuario={usuario} logado={logado} logout={logout} />
           <hr />
           
+          <main className='main-content'>
           <Routes>
             <Route path="/" element={<Crud />} />
             <Route path="/pareceres" element={<Pareceres />} />
             <Route path="/periodo" element={<PEIPeriodoLetivo />} />
           </Routes>
+          </main>
+          <Footer/>
 
         </div>
       ) : (  
-        <div style={{
+         <div style={{
           position: 'fixed',
           top: '30%',
           left: '50%',
@@ -80,7 +82,7 @@ function App() {
           <GoogleLogin onSuccess={sucessoLoginGoogle} onError={erroLoginGoogle} />
         </div>
       )}
-    </GoogleOAuthProvider>
+    </GoogleOAuthProvider>   
   )
 }
 

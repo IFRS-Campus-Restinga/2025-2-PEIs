@@ -68,8 +68,6 @@ function Crud() {
 
   return (
     <>
-      <img src="./src/assets/logo.png" style={{ height: 225, width: 150 }} />
-      <h1>Prova de Conceito do PEI</h1>
 
       <hr />
       <h2>Cadastrar pessoa</h2>
