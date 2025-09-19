@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import PEIPeriodoLetivo from "../components/PEIPeriodoLetivo"; 
-import Crud from "../Crud";
+import { Link } from "react-router-dom";
 
 function Pareceres() {
-  const [voltarCrud, setVoltarCrud] = useState(false);
-
   const DBPERIODO = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
   const DBPARECERES = axios.create({ baseURL: import.meta.env.VITE_PEIPARECERES_URL });
   const DBPROF = axios.create({ baseURL: import.meta.env.VITE_PROFESSOR_URL });
@@ -85,9 +82,6 @@ function Pareceres() {
     recuperaProfessores();
   }, []);
 
-  if (voltarCrud) {
-    return <Crud />;
-  }
   return (
     <>
       <img src="./src/assets/logo.png" style={{ height: 225, width: 150 }} />
@@ -141,9 +135,9 @@ function Pareceres() {
         <button type="submit">Adicionar parecer</button>
       </form>
 
-      <button onClick={() => setVoltarCrud(true)} style={{ marginTop: "20px" }}>
-      Voltar
-    </button>
+      <button>
+        <Link to="/">Voltar</Link>
+      </button>
     </>
   );
 }

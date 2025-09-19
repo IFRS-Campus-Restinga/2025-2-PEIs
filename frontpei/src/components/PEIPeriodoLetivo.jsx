@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Crud from '../Crud.jsx'
+import { Link } from "react-router-dom";
 
 function PEIPeriodoLetivo() {
   const [periodos, setPeriodos] = useState([]);
   const [erro, setErro] = useState(false);
   const DB = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
-  const [voltarCrud, setVoltarCrud] = useState(false);
 
  
   useEffect(() => {
@@ -32,10 +31,6 @@ function PEIPeriodoLetivo() {
 
     carregarPeriodos();
   }, []);
-
-  if (voltarCrud) {
-    return <Crud />;
-  }
 
   return (
   <div>
@@ -73,9 +68,10 @@ function PEIPeriodoLetivo() {
       ))
     )}
 
-    <button onClick={() => setVoltarCrud(true)} style={{ marginTop: "20px" }}>
-      Voltar
+    <button>
+      <Link to="/">Voltar</Link>
     </button>
+
   </div>
 );
 

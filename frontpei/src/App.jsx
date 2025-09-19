@@ -3,6 +3,9 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
 import { useState, useEffect } from 'react'
 import Crud from './Crud.jsx'
+import Pareceres from "./components/Parecer";
+import PEIPeriodoLetivo from "./components/PEIPeriodoLetivo";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
   const [usuario, setUsuario] = useState(null)
@@ -54,7 +57,13 @@ function App() {
             <button onClick={logout}>Logout</button>
           </div>
           <hr />
-          <Crud />
+          
+          <Routes>
+            <Route path="/" element={<Crud />} />
+            <Route path="/pareceres" element={<Pareceres />} />
+            <Route path="/periodo" element={<PEIPeriodoLetivo />} />
+          </Routes>
+
         </div>
       ) : (  
         <div style={{

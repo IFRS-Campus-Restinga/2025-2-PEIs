@@ -2,16 +2,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import PEIPeriodoLetivo from "./components/PEIPeriodoLetivo";
 import Pareceres from "./components/Parecer";
+import { Link } from "react-router-dom";
 
 function Crud() {
-  
-  const [mostrarPeriodo, setMostrarPeriodo] = useState(false);
-  const [adicionaParecer, setAdicionaParecer] = useState(false);
-
-  
   const DB = axios.create({ baseURL: import.meta.env.VITE_API_URL });
 
-   
   const [pessoas, setPessoas] = useState([]);
   const [erroBanco, setErroBanco] = useState(false);
   const [nome, setNome] = useState("");
@@ -71,14 +66,6 @@ function Crud() {
     recuperaPessoas();
   }, []);
 
-  if (mostrarPeriodo) {
-    return <PEIPeriodoLetivo />;
-  }
-
-  if (adicionaParecer) {
-    return <Pareceres />;
-  }
-
   return (
     <>
       <img src="./src/assets/logo.png" style={{ height: 225, width: 150 }} />
@@ -121,15 +108,12 @@ function Crud() {
         ))
       )}
 
-      <button
-        onClick={() => setMostrarPeriodo(true)}
-        style={{ marginRight: "10px" }}
-      >
-        Ir para Período Letivo
+      <button style={{ marginRight: "10px" }}>
+        <Link to="/periodo">Ir para Período Letivo</Link>
       </button>
 
-      <button onClick={() => setAdicionaParecer(true)}>
-        Adicionar Parecer
+      <button>
+        <Link to="/pareceres">Adicionar Parecer</Link>
       </button>
 
 
