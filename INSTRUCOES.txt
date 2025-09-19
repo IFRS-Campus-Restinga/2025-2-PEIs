@@ -1,0 +1,64 @@
+
+Senhores, para carregar o ambiente, o script agora é em python, terá de ser dado o seguinte comando:
+
+(no diretório do projeto todo 'dev2')
+.\python\python.exe ambiente.py
+
+Ele realiza algumas automações, por hora refaz o migrate do django e levanta os web servers.
+
+##########################
+## MONTAGEM DO AMBIENTE ##
+##########################
+
+- Feito o download do python portátil pra windows 64 em https://www.python.org/downloads/windows/
+- Realizado o download do 3.13.7 a versão estável mais recente
+- Feito o download do script https://bootstrap.pypa.io/get-pip.py
+- Executar ele com o python para fazer o download do pip
+- Descomentar o "import site" no arquivo python313._pth na raíz do diretório do python
+- Instalados django e django rest framework com o pip
+- Criado projeto backpei para concentrar todo backend python
+- Foi necessário incluir a linha abaixo logo no começo do manage.py pro ambiente portátil:
+- sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+- Criado app services para ser o rest e um app pei
+- Outras configurações básicas já realizadas no settings.py
+- Quanto ao node, realizado download standalone LTS 22.18.0
+- Tive de realizar ajustes temporários pra instalação do ambiente, abaixo:
+- $env:PATH = "$(Get-Location)\node;$env:PATH" (pra testar: Write-Host "PATH atual: $env:PATH")
+- npm config set strict-ssl false (isso por particularidade da minha internet, desabilita https)
+- Com o vite foi instalado react + javascript
+
+############################
+## ANOTAÇÕES DA NORMATIVA ##
+############################
+
+Plano Educacional Individualizado - PEI
+
+Alunos podem apresentar condições diversas que motivam o PEI.
+
+É um plano e registro das estratégias que visam promover acessibilidade curricular e que são necessárias para o estudante alcançar as expectativas de aprendizagem definidas para ele.
+
+Neste instrumento devem ser registrados os conhecimentos e habilidades prévios que identificam o repertório de partida, para que seja possível acompanhar a evolução em direção aos objetivos, e planejar novas estratégias de ensino e aprendizagem.
+
+É uma proposta pedagógica compartilhada, que deve ser construída de forma colaborativa pelos profissionais da instituição de ensino, pais e/ou responsáveis e, quando possível, pelo próprio estudante.
+
+A identificação de estudantes com necessidades educacionais específicas poderá ocorrer das seguintes formas: na matrícula, espontânea (iniciativa do aluno ou familiar) e por identificação de professor ou técnico.
+
+Possibilidade opcional de incluir laudo médico (?)
+
+NAPNE/NAAf como gestor do processo, perfil central. O Setor Pedagógico, a Assistência Estudantil e o NAPNE (ou NAAf) serão responsáveis por coletar e registrar informações sobre o estudante: as possíveis necessidades de recursos específicos (tecnologia assistiva e/ou material acessível) e os procedimentos adotados, até então, para a inclusão desses estudantes nas instituições pelas quais passaram.
+
+Todo estudante precisa aceitar o processo do PEI.
+
+O Setor de Registros Acadêmicos deverá encaminhar as informações dos estudantes, que ingressaram na instituição via reserva de vagas para pessoa com deficiência, ou que declararam ter alguma necessidade educacional específica, ao NAPNE (ou NAAf), ao Setor Pedagógico e à Assistência Estudantil. A recusa por parte desses alunos deve ser ser formalizada por meio de uma declaração (Anexo II).
+
+possibilidade escolher recursos específicos: material, assistente
+
+Art. 7º O PEI deverá ser elaborado a partir das informações coletadas junto aos responsáveis e ao estudante, e construído de forma colaborativa, entre o NAPNE (ou NAAf), Setor Pedagógico, Assistência Estudantil e corpo docente do curso no qual o estudante ingressou.
+
+Deverá ser previsto pelos docentes horário de atendimento individualizado para os estudantes com necessidades educacionais específicas.
+
+encontros períodicos por trimestre entre napne e professores
+
+O PEI deverá ser entregue no NAPNE/NAAf ou Setor Pedagógico, ao final de cada etapa do período letivo (trimestre ou semestre), que deverá manter uma pasta com o registro de todas as adaptações razoáveis desenvolvidas pelos docentes a cada estudante com necessidades educacionais específicas, com vistas a promover a acessibilidade curricular.
+
+Ao final do curso, os registros de todas as adaptações razoáveis e/ou acessibilidades curriculares deverão ser arquivados na pasta do estudante, localizada no setor de Registros Acadêmicos.
