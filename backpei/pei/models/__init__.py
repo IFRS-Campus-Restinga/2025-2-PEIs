@@ -1,2 +1,4 @@
 from .pessoa import *
-from .pei_central import *
+from .parecer import *
+from .PEIPeriodoLetivo import *
+from .professor import *

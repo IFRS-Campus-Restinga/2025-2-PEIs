@@ -1,0 +1,16 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.user-info {
+  padding: 10px 20px;
+  background: #f9f9f9;
+  border-bottom: 1px solid #ddd;
+}
+
+.main-content {
+  flex: 1; /* ocupa o espaço entre Header e Footer */
+  padding: 20px;
+}
