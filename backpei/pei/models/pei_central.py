@@ -52,5 +52,7 @@ class PeiCentral(BaseModel):
         verbose_name = "Status",
     )
 
+    """COMENTÁRIO PRA MUDAR O BRANCH """
+
     def __str__(self):
         return f"{self.historico_do_aluno}, {self.necessidades_educacionais_especificas}, {self.habilidades}, {self.dificuldades_apresentadas}, {self.adaptacoes}, {self.status_pei}"
