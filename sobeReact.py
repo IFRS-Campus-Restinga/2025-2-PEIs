@@ -20,7 +20,16 @@ def roda(cmd, cwd=None, show=True, ambiente=None):
     subprocess.run(cmd, cwd=cwd, check=False, env=env, stdout=sys.stdout, stderr=sys.stderr)
 
 # ------------------------------------------
-# apagando pasta node_modules se existir
+# apenas pergunta sim ou nao
+def pergunta(msg):
+    while True:
+        resp = input(f"{msg} (s/n): ").strip().lower()
+        if resp in ["s", "n"]:
+            return resp == "s"
+        print("Opcao invalida. Digite apenas 's' ou 'n'.")
+
+# ------------------------------------------
+# apagando pasta node_modules
 def apagar(caminho):
     if os.path.isdir(caminho):
         shutil.rmtree(caminho, ignore_errors=True)
@@ -35,7 +44,12 @@ vaiApagar = [
     os.path.join(baseDir, "frontpei", "node_modules"),
 ]
 for item in vaiApagar:
-    apagar(item)
+    if os.path.exists(item):
+        if pergunta("Apagar a pasta node_modules?"):
+            apagar(item)
+            roda([rodanpm, "install"], cwd=os.path.join(baseDir, "frontpei"), ambiente={"PATH": f"{os.path.join(baseDir,'node')};{os.environ['PATH']}"})
+    else:
+        roda([rodanpm, "install"], cwd=os.path.join(baseDir, "frontpei"), ambiente={"PATH": f"{os.path.join(baseDir,'node')};{os.environ['PATH']}"})
 
 # ------------------------------------------
 # recriando e printando versoes de tudo
@@ -43,7 +57,6 @@ print(f"\n***********************************************\n")
 print(f"Diretorio de trabalho: {baseDir}")
 roda([os.path.join(baseDir, "node", "node.exe"), "--version"])
 roda([rodanpm, "--version"])
-roda([rodanpm, "install"], cwd=os.path.join(baseDir, "frontpei"), ambiente={"PATH": f"{os.path.join(baseDir,'node')};{os.environ['PATH']}"})
 roda([rodanpm, "list", "vite"], cwd=os.path.join(baseDir, "frontpei"), ambiente={"PATH": f"{os.path.join(baseDir,'node')};{os.environ['PATH']}"})
 roda([rodanpm, "list", "react"], cwd=os.path.join(baseDir, "frontpei"), ambiente={"PATH": f"{os.path.join(baseDir,'node')};{os.environ['PATH']}"})
 roda([rodanpm, "list", "axios"], cwd=os.path.join(baseDir, "frontpei"), ambiente={"PATH": f"{os.path.join(baseDir,'node')};{os.environ['PATH']}"})
