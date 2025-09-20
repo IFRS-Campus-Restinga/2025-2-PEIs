@@ -1,0 +1,203 @@
+<h1>Sistema PEI - Documentação</h1>
+
+<h2>Como iniciar</h2>
+
+<p>Os seguintes passos devem ser executados para realização do download do sistema e colocá-lo no ar, seja para fins de teste ou avaliação (como para os professores)
+ou mesmo para continuar o desenvolvimento a partir da branch main.</p>
+
+<h3>1. Download das plataformas:</h3>
+<pÉ necessário estar usando Windows, faça o download do arquivo ZIP abaixo. <i>"Mas eu tenho um MacBook/Linux, não uso Windows."</i>
+Para fazer uso completo da automação criada para desenvolvimento, vai ser necessário estar usando Windows. Use uma máquina do campus ou uma VM, a delimitação de sistema operacional
+foi criada justamente para a uniformidade do ambiente e baseada no uso pessoal da equipe de desenvolvimento e das máquinas do campus. Segue o link de download:</p>
+
+<a href="https://drive.google.com/file/d/1YuVCgy0Zeid9icHX5Ltqh11OpNqjQxHr">https://drive.google.com/file/d/1YuVCgy0Zeid9icHX5Ltqh11OpNqjQxHr</a>
+
+<p>Basta criar uma pasta qualquer e descompactar o conteúdo do ZIP, logo após ele é dispensável. Usaremos como exemplo uma pasta chamada "dev2" criada na área de trabalho. O ZIP vai
+lhe fornecer todo o ambiente Python, Node e Git que é dependência para nosso projeto. Não é necessária nenhuma instalação e nenhuma alteração será feita na sua instalação de Windows,
+realmente é só deixar as pastas dentro da sua pasta geral "dev2".</p> <i>"Eu já tenho essas três plataformas instaladas, posso usar as que já possuo?"</i> Até pode, mas isso vai te obrigar
+a realizar alguns comandos manualmente. Por exemplo, toda vez que você baixar o conteúdo do repositório do github, você precisaria gerar manualmente o token do superuser do Django
+(mais sobre isso depois). Também precisa ter certeza que seu python possui todas as bibliotecas que estamos usando, pois diferente do node, o python salva elas dentro da plataforma e
+não na pasta do projeto. Enfim, só há vantagens em usar essas plataformas comuns e apenas mais transtorno em tentar seguir isolado delas. Basta criar o seu diretório (como "dev2")
+e descompactar lá dentro. Simples assim.</p>
+
+<h3>2. Download do projeto atual:</h3>
+<p>Abra a sua pasta "dev2" no vscode e abra um terminal de powershell. Considerando que o terminal sempre abre na pasta do projeto, use o seguinte comando para fazer o download:</p>
+
+<pre>.\git\bin\git.exe clone https://github.com/IFRS-Campus-Restinga/2025-2-PEIs.git</pre>
+
+<p><b>OBS:</b> Considere <b>!!! SEMPRE !!!</b> todos os comandos como sendo executados em um terminal powershell do vscode estando parado na pasta geral do projeto (aqui chamada "dev2")!</p>
+<p>O comando acima usa nosso git portátil para baixar o conteúdo da branch main. É bem possível que você precise autenticar no github para continuar, melhor é já deixar o navegador logado.
+Perceba também que o git tenta evitar sobrescrita de arquivos criando uma nova pasta "2025-2-PEIs" com todo conteúdo que veio do repositório lá dentro. Você pode entrar na pasta, recortar
+tudo e colar na mesma pasta "dev2" onde você descompactou as plataformas, depois apague a pasta "2025-2-PEIs" que estará vazia. O seu diretório "dev2" estará correto se contiver a seguinte
+lista de arquivos e pastas:</p>
+<ul><li>.git - pasta de metadados do github, é oculta, importante ter certeza que veio junto</li>
+<li>backpei - pasta do projeto django do backend</li>
+<li>frontpei - pasta do projeto react do frontend</li>
+<li>git - pasta de toda a plataforma git</li>
+<li>node - pasta da plataforma node onde roda o frontend</li>
+<li>python - pasta do python que contém inclusive nossos middlewares</li>
+<li>.gitignore - arquivo com a lista de coisas que não devem ir para o repositório</li>
+<li>LICENSE - arquivo genérico dizendo qual o tipo de licença do nosso código</li>
+<li>limpeza.sh - script bash opcional que limpa arquivos desnecessários</li>
+<li>README.md - documentação do projeto, é isso que você está lendo aqui</li>
+<li>sobeDjango.py - script de inicialização do projeto django</li>
+<li>sobeReact.py - script de inicialização do projeto react</li></ul>
+
+<h3>3. Inicializar os webservers:</h3>
+<p>Você deve utilizar dois terminais powershell no vscode para prender os processos dos webservers em cada um deles. Em um terminal você vai subir o REST do django, com o script sobeDjango.py
+e no outro você vai subir o frontend com o script sobeReact.py. Assim sendo, no primeiro terminal, considerando que ele está na pasta "dev2", utilize esse comando:</p>
+
+<pre>.\python\python.exe .\sobeDjango.py</pre>
+
+<p>Pode responder que sim para as perguntas de refazer o migrate e apagar o banco. Toda vez que você modificar models significativamente, é bom rodar esse script de novo zerando as migrações
+e apagando o banco. Já no seu segundo terminal nós iremos levantar o react. Considerando que ele estará na pasta "dev2", rode esse comando:</p>
+
+<pre>.\python\python.exe .\sobeReact.py</pre>
+
+<p>Caso você já tenha a pasta node_modules no projeto (não vai ter quando vier do github), o script vai perguntar se quer apagar ela e baixar os pacotes de novo. Então pronto, você pode
+acessar <b>http://localhost:5173</b> no seu navegador para usar o sistema.</p>
+<p><b>ATENÇÃO:</b> Sempre que você quiser apagar tudo que fez e começar limpo de novo a partir do repositório, você pode apagar tudo da pasta "dev2" e manter apenas as pastas "git", "node" e
+"python" que haviam vindo do ZIP "plataformas.zip". Então faça o git clone novamente a partir do ponto 2 desse tutorial.</p>
+
+<h2>Usando o Github:</h2>
+<p>Se você não criou sua branch, <a href="https://github.com/IFRS-Campus-Restinga/2025-2-PEIs/branches">clique nesse link</a> e vá em "New branch" no canto superior direito, criando uma branch
+com seu nome a partir da main.</p> Sempre que você faz o git clone, ele faz o download de todas as branchs mas você trabalha na default, que é a main. Você pode sair usando sua própria branch
+com o seguinte comando:</p>
+
+<pre>.\git\bin\git.exe clone -b MinhaBranch https://github.com/IFRS-Campus-Restinga/2025-2-PEIs.git</pre>
+
+<p>Você pode ver a branch que está usando com o comando abaixo. Apenas lembre que o comando deve ser dado onde está a pasta oculta .git, então a cada clone a prática recomendada para nosso projeto
+é mover todo o conteúdo da pasta "2025-2-PEIs" que é criada pelo clone para o mesmo local onde estão suas pastas das plataformas "git", "node", e "python". Depois apague a pasta vazia. Segue
+o comando que vê sua branch atual:</p>
+
+<pre>.\git\bin\git.exe branch -a</pre>
+
+<p>Você pode trocar muito facilmente de branch com o seguinte comando:</p>
+
+<pre>.\git\bin\git.exe checkout main</pre>
+
+<p>No exemplo acima, supondo que você estava na sua branch, você volta para a main. Os próprios arquivos exibidos pelo vscode vão mudar e você sempre pode confirmar onde está com o "branch -a".</p>
+<p><b>Agora importante:</b> Você sempre vai commitar <b>!!! NA SUA PRÓPRIA BRANCH !!!</b> sempre, pra isso SEMPRE garanta que você está nela com o branch -a e você pode salvar seu progresso
+com os seguintes comandos:</p>
+
+<pre>.\git\bin\git.exe checkout MinhaBranch <== te liga
+.\git\bin\git.exe branch -a <== confirme que está na sua
+.\git\bin\git.exe add .
+.\git\bin\git.exe commit -m "escreva brevemente o que fez"
+.\git\bin\git.exe push origin MinhaBranch
+</pre>
+
+<p>Pode conferir pelo site do github que tudo deu certo. Para atualizar a main, ou nós usaremos pull requests que precisam de aprovação de todo o time, ou vamos fazer inserções pontuais. Em qualquer
+dos casos nós sempre faremos todos juntos em aula.</p>
+<p>É bem provável que ao final de cada sprint, com o progresso de todos salvo na main, além de apagar os arquivos do seu computador você também queira resetar sua branch para ficar igual ao main.
+É possível simplesmente apagar ela na interface web e criar de novo. Ou então pode ser dado os seguintes comandos, desde que com muita cautela. Comece apagando seu conteúdo local, então execute:</p>
+
+<pre>.\git\bin\git.exe clone https://github.com/IFRS-Campus-Restinga/2025-2-PEIs.git
+.\git\bin\git.exe checkout MinhaBranch <== pelo amor de deus
+.\git\bin\git.exe branch -a <== confirme mil vezes que é a sua
+.\git\bin\git.exe reset --hard main
+.\git\bin\git.exe push --force origin MinhaBranch
+</pre>
+
+<p>Confira que ficou certinho no site e pode apagar todo seu conteúdo local (procure preservar as plataformas, para não precisar fazer o download de novo).</p>
+
+<h2>Segurança na comunicação</h2>
+
+<p>O essencial da pilha de tecnologia está em que o lado do backend em Django é responsável basicamente apenas pela persistência de dados, entregando uma interface REST para a comunicação. O frontend React apenas lê e insere dados através dessa API, mas não tem nenhum tipo de persistência própria. Sendo o frontend uma casca vazia, todo o foco da segurança se baseia em proteger os dados do Django contra leitura indevida e principalmente gravação.</p>
+
+<p>Sendo o login terceirizado para o Google, optou-se por não vincular a usuários as permissões de acesso, todo o REST é fechado para uma credencial única do superuser do Django. Essa credencial é criada nova toda vez no script sobeDjango.py, através das seguintes linhas:</p>
+
+<pre># agora precisamos criar novamente a conta de administrador
+senhaAdmin = "PEIDev2IFRS"
+User.objects.create_superuser(username="administrador", password=senhaAdmin, email="")
+print(f"Conta \"administrador\" criada com senha \"{senhaAdmin}\".")
+# tambem gerar novamente o token do administrador
+user = User.objects.get(username="administrador")
+token, created = Token.objects.get_or_create(user=user)
+print(f"Token do administrador: {token.key}")
+# esse token controla nosso acesso ao rest, salvando na pasta do projeto
+arquivoToken = os.path.join(baseDir, "backpei", "token.txt")
+with open(arquivoToken, "w") as f:
+f.write(token.key)</pre>
+
+<p>Traduzindo o código, a conta que está sendo criada se chama "administrador", ela é a conta de superuser do Django e senha padrão está definida para "PEIDev2IFRS". Essa credencial está gerando um token que é, por padrão, salvo no banco de dados mas também estamos o escrevendo em um arquivo chamado "token.txt" na pasta raíz do projeto (ao lado do manage.py). Essa é a única conta sendo criada no Django e só a ela está liberado o REST, através da apresentação do token (que carrega, em si, toda a identidade e senha do usuário, como um cartão de acesso total).</p>
+
+<p>Poderia se pensar, então, que basta o frontend apresentar o token para poder usar o REST. Em tese, sim, seria até suficiente para desenvolvimento. Mas já colocamos uma camada a mais. O problema de apresentar o token no frontend é que ele está visível para quem souber procurar, basta investigar nas ferramentas de desenvolvedor do navegador como a comunicação de baixo nível ocorre. Uma vez que o hacker tivesse o token, nada o impediria de acessar completamente nosso REST diretamente, ignorando totalmente nossa interface do frontend e regras que ela poderia estar impondo.</p>
+
+<p>Se não podemos apresentá-lo do frontend, o que fazer? O token ainda é necessário pois ele é a credencial do único usuário autorizado a acessar o REST. Pois a solução adotada foi de injetar o token do próprio backend no cabeçalho de comunicação, sem jamais passá-lo pelo navegador do usuário ou qualquer camada onde poderia estar exposto. Porém, isso só acontece se a comunicação vier de uma única fonte possível, o localhost:5173 ou, em outras palavras, apenas do nosso próprio frontend. Na prática, opera como uma relação de confiança entre os dois webservers. Se a comunicação com o REST vier de localhost:5173, o token é injetado e libera o acesso aos dados. Essa mecânica inicia ao ser inserida essa linha em cada view expondo dados:</p>
+
+<pre>permission_classes = [BackendTokenPermission]</pre>
+
+<p>A permission chamada BackendTokenPermission, por sua vez, possui o seguinte código e faz referências a configurações de segurança que estão no settings.py, veja:</p>
+
+<pre>from django.conf import settings
+from rest_framework.permissions import BasePermission
+
+class BackendTokenPermission(BasePermission):
+    def has_permission(self, request, view):
+        token_recebido = request.headers.get("X-BACKEND-TOKEN")
+        origin = request.headers.get("Origin")
+        referer = request.headers.get("Referer")
+
+        origem_permitida = origin in settings.CORS_ALLOWED_ORIGINS or (
+            referer and any(r in referer for r in settings.CORS_ALLOWED_ORIGINS)
+        )
+
+        return token_recebido == settings.API_TOKEN and origem_permitida</pre>
+
+<p>Perceba ao menos duas configurações do settings.py são citadas diretamente, o CORS_ALLOWED_ORIGINS e API_TOKEN. O CORS é um pacote chamado "django-cors-headers" que precisa ser instalado com o pip, passando ser, portanto, uma dependência do nosso projeto. Mas vamos então revisar todas as linhas relevantes do settings.py:</p>
+
+<pre>ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+INSTALLED_APPS = [..., "corsheaders", ...]
+MIDDLEWARE = [...
+    'corsheaders.middleware.CorsMiddleware',
+    # middleware customizado do app services para o token
+    'services.middleware.AddBackendTokenHeaderMiddleware', ...]
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+# configuracao dos hosts permitidos do cors
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+# adiciona nosso token do usuario administrador
+# ele le o arquivo token.txt que criamos no sobeDjango
+TOKEN_FILE = BASE_DIR / "token.txt"
+with open(TOKEN_FILE) as f:
+    API_TOKEN = f.read().strip()</pre>
+
+<p>Perceba que também existe referêcia a um middleware customizado nosso, que é o responsável por injetar o token. Ele faz parte do app "services" e possui o seguinte código:</p>
+
+<pre>from django.conf import settings
+class AddBackendTokenHeaderMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+    def __call__(self, request):
+        origin = request.META.get("HTTP_ORIGIN", "")
+        # apenas injeta o token se a requisição veio do react (localhost:5173)
+        if origin == "http://localhost:5173":
+            request.META['HTTP_X_BACKEND_TOKEN'] = settings.API_TOKEN
+        return self.get_response(request)</pre>
+
+<p>Agora que todas as linhas relevantes estão identificadas, vamos às considerações relacionadas a funcionamento e implicações:</p>
+
+<ul>
+<li>A interface do REST só está liberada através do uso do token do superuser do Django, criado no sobeDjango.py</li>
+<li>Esse token transita apenas no backend e é lido de "token.txt" no diretório raíz do projeto do backend</li>
+<li>Para produção, se for decidido rotacionar esse token, além do registro no banco de dados é necesário escrevê-lo em "token.txt"</li>
+<li>A liberação do REST através do token só ocorre se a comunicação requisitando vier de localhost:5173 em um tipo de relação de confiança</li>
+<li>Ou seja, Django e React precisam estar na mesma máquina. Se alguém pudesse comprometer o React, toda a máquina já estaria comprometida igualmente</li>
+<li>Em implementação Docker, se cada ponta rodar em um container isolado, será necessário rever essa mecânica ou apontar a nova identidade de origem no código</li>
+<li>Em qualquer implementação onde as duas pontas fiquem separadas, recomenda-se a utilização de HTTPS para proteger a comunicação em produção</li>
+<li>Se for utilizada uma base image única para ambos os serviços em Docker, com a mesma arquitetura o REST estaria ainda mais protegido ao expor apenas o React</li>
+<li>Considerando a implementação Docker em container único, toda a comunicação entre as pontas ficaria isolada interna no container</li>
+</ul>
+
+<h2>Usuários e Login</h2>
+
+<p>...</p>
