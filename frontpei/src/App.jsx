@@ -8,6 +8,7 @@ import PEIPeriodoLetivo from "./components/PEIPeriodoLetivo";
 import { Routes, Route } from "react-router-dom";
 import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
+import PeiCentral from './components/pei_central.jsx'
 
 function App() {
   const [usuario, setUsuario] = useState(null)
@@ -62,6 +63,7 @@ function App() {
             <Route path="/" element={<Crud />} />
             <Route path="/pareceres" element={<Pareceres />} />
             <Route path="/periodo" element={<PEIPeriodoLetivo />} />
+            <Route path="/peicentral" element={<PeiCentral />} />
           </Routes>
           </main>
           <Footer/>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Crud from "../Crud.jsx";
+import { Link } from "react-router-dom";
 
 function PeiCentral() {
   const [pei_central, setPeiCentral] = useState([]);
@@ -58,8 +59,9 @@ function PeiCentral() {
           </div>
         ))
       )}
-         <button onClick={() => setVoltarCrud(true)} style={{ marginTop: "20px" }}>
-            Voltar
+         
+        <button>
+          <Link to="/">Voltar</Link>
         </button>
     </div>
     
