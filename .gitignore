@@ -3,6 +3,7 @@ python/
 node/
 git/
 frontpei/node_modules/
+.idea
 # outros comuns
 *.log
 *.sqlite3
