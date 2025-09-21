@@ -106,12 +106,22 @@ function Crud() {
         ))
       )}
 
+      <hr/>
+      <h2> Outros cadastros</h2>
       <button style={{ marginRight: "10px" }}>
         <Link to="/periodo">Ir para Período Letivo</Link>
       </button>
 
-      <button>
+      <button style={{ marginRight: "10px" }}>
         <Link to="/pareceres">Adicionar Parecer</Link>
+      </button>
+
+      <button style={{ marginRight: "10px" }}>
+        <Link to="/disciplina">Adicionar Disciplinas</Link>
+      </button>
+      
+      <button style={{ marginRight: "10px" }}>
+        <Link to="/curso">Adicionar Cursos</Link>
       </button>
 
 
