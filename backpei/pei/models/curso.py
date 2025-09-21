@@ -1,6 +1,6 @@
 from django.db import models
 from .base_model import BaseModel
-from ..enumerations.nivel import Nivel
+from ..enums.nivel import Nivel
 from django.core.validators import MinLengthValidator
 
 class Curso(BaseModel):

@@ -4,4 +4,4 @@ from pei.models import *
 class DisciplinaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Disciplina
-        fields = ['nome']
+        fields = '__all__'
