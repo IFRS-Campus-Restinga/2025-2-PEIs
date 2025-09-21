@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react'
 import Crud from './Crud.jsx'
 import Pareceres from "./components/Parecer";
 import PEIPeriodoLetivo from "./components/PEIPeriodoLetivo";
+import Cursos from './components/Curso.jsx'
+import Disciplinas from './components/Disciplina.jsx'
 import { Routes, Route } from "react-router-dom";
 import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
@@ -62,6 +64,8 @@ function App() {
             <Route path="/" element={<Crud />} />
             <Route path="/pareceres" element={<Pareceres />} />
             <Route path="/periodo" element={<PEIPeriodoLetivo />} />
+            <Route path="/disciplina" element={<Disciplinas/>}/>
+            <Route path="/curso" element={<Cursos/>}/>
           </Routes>
           </main>
           <Footer/>
