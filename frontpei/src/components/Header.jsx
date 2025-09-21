@@ -1,13 +1,16 @@
 import React from 'react';
 import "./Header.css";
-import logo from "../assets/logo.png"; // ajusta o caminho se necessário
+import logo from "../assets/logo.png";
+import { Link } from "react-router-dom";
 
 const Header = ({ usuario, logado, logout }) => {
     return (
         <header className="header">
             {/* ESQUERDA */}
             <div className="header-left">
-                <img src={logo} alt="Logo IFRS" className="header-logo" />
+                <Link to="/" className="footer-logo-link">
+                    <img src={logo} alt="Logo IFRS" className="footer-logo" />
+                </Link>
                 <div className="header-text">
                     <strong>INSTITUTO FEDERAL</strong>
                     <span>Rio Grande do Sul</span>
