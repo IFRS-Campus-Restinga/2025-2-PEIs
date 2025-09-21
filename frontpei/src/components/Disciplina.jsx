@@ -3,13 +3,13 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 
 function Disciplinas() {
-  const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
+  const DBDISCIPLINAS = axios.create({baseURL: import.meta.env.VITE_DISCIPLINAS_URL});
   const [disciplina, setDisciplina] = useState("");
   const [disciplinasCadastradas, setDisciplinasCadastradas] = useState([]);
 
   async function recuperaDisciplinas() {
     try {
-      const response = await DBDISCIPLINAS.get("");
+      const response = await DBDISCIPLINAS.get("/");
       const data = response.data;
       setDisciplinasCadastradas(Array.isArray(data) ? data : data.results);
     } catch (err) {
@@ -27,7 +27,7 @@ function Disciplinas() {
     }
 
     try {
-      await DBDISCIPLINAS.post("", { nome: nomeDisciplina });
+      await DBDISCIPLINAS.post("/", { nome: nomeDisciplina });
       await recuperaDisciplinas();
       setDisciplina("");
     } catch (err) {
