@@ -5,9 +5,12 @@ import { useState, useEffect } from 'react'
 import Crud from './Crud.jsx'
 import Pareceres from "./components/Parecer";
 import PEIPeriodoLetivo from "./components/PEIPeriodoLetivo";
+import Cursos from './components/Curso.jsx'
+import Disciplinas from './components/Disciplina.jsx'
 import { Routes, Route } from "react-router-dom";
 import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
+import SubHeader from './components/subheader.jsx'
 
 function App() {
   const [usuario, setUsuario] = useState(null)
@@ -55,6 +58,7 @@ function App() {
       { logado ? (
         <div className="app-container">
           <Header usuario={usuario} logado={logado} logout={logout} />
+          <SubHeader/>
           <hr />
           
           <main className='main-content'>
@@ -62,6 +66,8 @@ function App() {
             <Route path="/" element={<Crud />} />
             <Route path="/pareceres" element={<Pareceres />} />
             <Route path="/periodo" element={<PEIPeriodoLetivo />} />
+            <Route path="/disciplina" element={<Disciplinas/>}/>
+            <Route path="/curso" element={<Cursos/>}/>
           </Routes>
           </main>
           <Footer/>

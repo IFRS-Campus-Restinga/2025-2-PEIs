@@ -7,8 +7,5 @@ from .models.pedagogo import Pedagogo
 
 
 
-admin.site.register((Pessoa))
-admin.site.register((PEIPeriodoLetivo))
-admin.site.register((Parecer))
-admin.site.register((Professor))
-admin.site.register((Pedagogo))
+
+admin.site.register((Pessoa, Professor, PEIPeriodoLetivo, Parecer, Curso, Disciplina, Pedagogo))
