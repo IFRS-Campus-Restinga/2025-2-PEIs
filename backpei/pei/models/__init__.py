@@ -4,6 +4,3 @@ from .PEIPeriodoLetivo import *
 from .professor import *
 from .curso import *
 from .disciplina import *
-from .ataDeAcompanhamento import *
-from .componenteCurricular import *
-from .documentacaoComplementar import *
