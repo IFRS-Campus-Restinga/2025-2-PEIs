@@ -11,6 +11,8 @@ import { Routes, Route } from "react-router-dom";
 import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
 import SubHeader from './components/subheader.jsx'
+import PeiCentral from './components/PeiCentral.jsx'
+import CreatePeiCentral from './components/CreatePeiCentral.jsx'
 
 function App() {
   const [usuario, setUsuario] = useState(null)
@@ -68,6 +70,8 @@ function App() {
             <Route path="/periodo" element={<PEIPeriodoLetivo />} />
             <Route path="/disciplina" element={<Disciplinas/>}/>
             <Route path="/curso" element={<Cursos/>}/>
+            <Route path="/peicentral" element={<PeiCentral />} />
+            <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
           </Routes>
           </main>
           <Footer/>

@@ -124,6 +124,9 @@ function Crud() {
         <Link to="/curso">Adicionar Cursos</Link>
       </button>
 
+      <button>
+        <Link to="/peicentral">Visualizar Pei Central</Link>
+      </button>
 
       <hr />
       <h2>Área de visualização bruta dos dados:</h2>
