@@ -4,5 +4,7 @@ from .PEIPeriodoLetivo import *
 from .professor import *
 from .aluno import *
 from .coordenadorCurso import *
+from .pedagogo import *
+from .componenteCurricular import *
 from .curso import *
 from .disciplina import *
