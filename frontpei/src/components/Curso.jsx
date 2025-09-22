@@ -66,8 +66,10 @@ function Cursos() {
     const novo = {
       name: curso.trim(),
       nivel,
-      disciplinas_ids: disciplinasSelecionadas
+      disciplinas_ids: disciplinasSelecionadas,
+      coordenador_id: coordSelecionado 
     };
+
 
     try {
       await DBCURSOS.post("/", novo);
@@ -160,8 +162,8 @@ function Cursos() {
                 Disciplinas: {cc.disciplinas && cc.disciplinas.length > 0
                   ? cc.disciplinas.map((d) => d.nome).join(", ")
                   : "Nenhuma"}
-                <br/>
-                Coordenador: {cc.coordCurso}
+                <br />
+                Coordenador: {cc.coordenador ? cc.coordenador.nome : "Não informado"}
               </li>
             ))}
           </ul>

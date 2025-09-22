@@ -8,5 +8,7 @@ from .pedagogo import *
 from .componenteCurricular import *
 from .curso import *
 from .disciplina import *
+from .pei_central import *
+from .componenteCurricular import *
 from .ataDeAcompanhamento import *
 from .documentacaoComplementar import *
