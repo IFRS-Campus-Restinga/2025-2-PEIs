@@ -7,4 +7,3 @@ class DadosViewSet(ModelViewSet):
     queryset = Pessoa.objects.all()
     serializer_class = DadosSerializer
     permission_classes = [BackendTokenPermission]
-

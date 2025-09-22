@@ -1,7 +1,19 @@
 from rest_framework import serializers
-from pei.models import *
+from pei.models import Curso, Disciplina
+from services.serializers.disciplina_serializer import DisciplinaSerializer
+from services.serializers.coordenadorCurso_serializer import CoordenadorCursoSerializer
 
 class CursoSerializer(serializers.ModelSerializer):
+    disciplinas = DisciplinaSerializer(many=True, read_only=True)
+    disciplinas_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Disciplina.objects.all(),
+        source="disciplinas", 
+        many=True,
+        write_only=True
+    )
+    nivel = serializers.ChoiceField(choices=Curso._meta.get_field("nivel").choices)
+    coordenadorCurso = CoordenadorCursoSerializer(read_only=True)
+
     class Meta:
         model = Curso
-        fields = '__all__'
+        fields = ["id", "name", "nivel", "disciplinas", "disciplinas_ids", "coordenadorCurso"]

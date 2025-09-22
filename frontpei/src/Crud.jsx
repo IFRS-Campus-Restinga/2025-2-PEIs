@@ -1,85 +1,73 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
-import Disciplinas from './components/Disciplina'
+import { useEffect, useState } from "react";
+import axios from "axios";
+import PEIPeriodoLetivo from "./components/PEIPeriodoLetivo";
+import Pareceres from "./components/Parecer";
+import { Link } from "react-router-dom";
 
 function Crud() {
+  const DB = axios.create({ baseURL: import.meta.env.VITE_API_URL });
 
-  const [adicionaDisciplina, setAdicionaDisciplina] = useState(false)
+  const [pessoas, setPessoas] = useState([]);
+  const [erroBanco, setErroBanco] = useState(false);
+  const [nome, setNome] = useState("");
+  const [categoria, setCategoria] = useState(1);
 
-// ------------------------------------------------------------
-// criando instancia do axios baseado no .env
-const DB = axios.create({ baseURL: import.meta.env.VITE_API_URL })
+  
+  async function recuperaPessoas() {
+    try {
+      const resposta = await DB.get("/");
+      console.log("resposta da API:", resposta.data);
+      if (Array.isArray(resposta.data)) {
+        setPessoas(resposta.data);
+      } else if (Array.isArray(resposta.data.results)) {
+        setPessoas(resposta.data.results);
+      } else {
+        console.error("API não retornou lista:", resposta.data);
+        setPessoas([]);
+      }
+      setErroBanco(false);
+    } catch (erro) {
+      console.error("Erro ao buscar pessoas:", erro);
+      setErroBanco(true);
+    }
+  }
 
+  
+  async function adicionaPessoa(event) {
+    event.preventDefault();
+    const nomeTrim = nome.trim();
+    const catNum = Number(categoria);
 
-// ------------------------------------------------------------
-// declaracao dos estados 
-const [pessoas, setPessoas] = useState([])
-const [erroBanco, setErroBanco] = useState(false)
-// estados para o formulario de cadastro
-const [nome, setNome] = useState("")
-const [categoria, setCategoria] = useState(1)
+    if (nomeTrim.length < 7) {
+      alert("O nome precisa ter ao menos 7 caracteres.");
+      return;
+    }
+    if (![1, 2, 3].includes(catNum)) {
+      alert("Categoria inválida. Escolha 1, 2 ou 3.");
+      return;
+    }
 
+    const novo = { nome: nomeTrim, categoria: catNum };
+    try {
+      await DB.post("/", novo);
+      await recuperaPessoas();
+      setNome("");
+      setCategoria(1);
+      setErroBanco(false);
+    } catch (erro) {
+      console.error("Erro ao criar pessoa:", erro);
+      setErroBanco(true);
+      alert("Falha ao cadastrar a pessoa!");
+    }
+  }
 
-// ------------------------------------------------------------
-// funcao pra recuperar todas as pessoas
-async function recuperaPessoas() {
-  try {
-    const resposta = await DB.get("/")
-    setPessoas(resposta.data)
-    setErroBanco(false)
-  // se tiver dado erro
-  } catch (erro) { console.error("Erro ao buscar pessoas:", erro)
-    setErroBanco(true) } }
+  
+  useEffect(() => {
+    recuperaPessoas();
+  }, []);
 
-
-// ------------------------------------------------------------
-// funcao para adicionar uma nova pessoa
-async function adicionaPessoa(event) {
-  // evita reload do form
-  event.preventDefault()
-  // validações simples no frontend
-  const nomeTrim = nome.trim()
-  const catNum = Number(categoria)
-  if (nomeTrim.length < 7) {
-    alert("O nome precisa ter ao menos 7 caracteres.")
-    return }
-  if (![1,2,3].includes(catNum)) {
-    alert("Categoria inválida. Escolha 1, 2 ou 3.")
-    return }
-  // passou nas validacoes
-  const novo = { nome: nomeTrim, categoria: catNum }
-  try {
-    // vamos salvar
-    await DB.post("/", novo)
-    // atualiza a lista pegando o novo cadastro
-    await recuperaPessoas()
-    // limpa o formulario
-    setNome("")
-    setCategoria(1)
-    setErroBanco(false)
-  // se caiu aqui deu ruim
-  } catch (erro) {
-    console.error("Erro ao criar pessoa:", erro)
-    setErroBanco(true)
-    alert("Falha ao cadastrar a pessoa!")
-  } }
-
-
-// ------------------------------------------------------------
-// funcoes para carregar na inicializacao
-useEffect(() => {
-  recuperaPessoas()
-}, [])
-
-if (adicionaDisciplina){
-  return <Disciplinas/>
-}
-
-// ------------------------------------------------------------
-return (
+  return (
     <>
-      <img src="./src/assets/logo.png" style={{ height: 225, width: 150 }} />
-      <h1>Prova de Conceito do PEI</h1>
 
       <hr />
       <h2>Cadastrar pessoa</h2>
@@ -118,11 +106,6 @@ return (
         ))
       )}
 
-      <button onClick={() => setAdicionaDisciplina(true)}>
-        Adicionar Disciplina
-      </button>
-
-
       <hr />
       <h2>Área de visualização bruta dos dados:</h2>
       <p>Status de erro: {JSON.stringify(erroBanco, null, 2)}</p>
@@ -132,4 +115,4 @@ return (
   );
 }
 
-export default Crud
+export default Crud;

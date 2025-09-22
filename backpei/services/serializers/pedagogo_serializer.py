@@ -2,7 +2,7 @@ from rest_framework import serializers
 from pei.models import *
 
 
-class DadosSerializer(serializers.ModelSerializer):
+class PedagogoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Pessoa
+        model = Pedagogo
         fields = '__all__'

@@ -1,3 +1,9 @@
 from django.contrib import admin
 from .models import *
-admin.site.register((Pessoa, Disciplina, Curso))
+from .models.PEIPeriodoLetivo import PEIPeriodoLetivo
+from .models.parecer import Parecer
+from .models.professor import Professor
+from .models.pedagogo import Pedagogo
+
+admin.site.register((Pessoa, Professor, PEIPeriodoLetivo, Parecer, Curso, Disciplina, Pedagogo, Aluno, CoordenadorCurso))
+
