@@ -3,6 +3,7 @@ python/
 node/
 git/
 frontpei/node_modules/
+0001_initial.py
 # outros comuns
 *.log
 *.sqlite3

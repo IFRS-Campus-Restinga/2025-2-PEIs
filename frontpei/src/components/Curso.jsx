@@ -8,7 +8,12 @@ function Cursos() {
   const [disciplinas, setDisciplinas] = useState([]);
   const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState([]);
   const [nivel, setNivel] = useState("Não informado");
-  const [niveisCadastrados, setNiveisCadastrados] = useState([])
+
+  const niveis = [
+    { label: "Superior", value: "Superior" },
+    { label: "Ensino Médio", value: "Ensino Médio" },
+    { label: "Não informado", value: "Não informado" }
+  ];
 
   const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
   const DBCURSOS = axios.create({ baseURL: import.meta.env.VITE_CURSOS_URL});
@@ -34,16 +39,6 @@ function Cursos() {
       console.error("Erro ao buscar cursos: ", err);
     }
   }
-
-  async function recuperaNiveis() {
-    try {
-      const response = await axios.get(import.meta.env.VITE_CURSOS_URL + "niveis/");
-      setNiveisCadastrados(response.data);
-    } catch (err) {
-      console.error("Erro ao buscar níveis:", err);
-    }
-  }
-
 
   // Adiciona curso
   async function adicionaCurso(event) {
@@ -81,15 +76,7 @@ function Cursos() {
   useEffect(() => {
     recuperaCursos();
     recuperaDisciplinas();
-    recuperaNiveis();
   }, []);
-
-  useEffect(() => {
-    if (niveisCadastrados.length > 0 && !nivel) {
-      setNivel(niveisCadastrados[0].value);
-    }
-  }, [niveisCadastrados]);
-
 
   return (
     <>
@@ -121,7 +108,7 @@ function Cursos() {
         <label>Nível:</label>
         <br />
         <select value={nivel} onChange={(e) => setNivel(e.target.value)}>
-          {niveisCadastrados.map((n) => (
+          {niveis.map((n) => (
             <option key={n.value} value={n.value}>
               {n.label}
             </option>
