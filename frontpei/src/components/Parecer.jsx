@@ -84,7 +84,6 @@ function Pareceres() {
 
   return (
     <>
-      <img src="./src/assets/logo.png" style={{ height: 225, width: 150 }} />
       <h1>Gerenciar Pareceres</h1>
 
       <hr />

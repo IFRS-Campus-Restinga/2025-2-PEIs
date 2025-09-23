@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     # pacotes adicionais
     'rest_framework', 'rest_framework.authtoken', "corsheaders",
     # apps criados
-    'services', 'pei',
+    'services', 'pei', 'logs',
 ]
 
 MIDDLEWARE = [

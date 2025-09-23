@@ -15,6 +15,7 @@ import PeiCentral from './components/PeiCentral/PeiCentral.jsx'
 import CreatePeiCentral from './components/PeiCentral/CreatePeiCentral.jsx'
 import EditarPeiCentral from './components/PeiCentral/EditarPeiCentral.jsx'
 import DeletarPeiCentral from './components/PeiCentral/DeletarPeiCentral.jsx'
+import Logs from './components/Logs/Logs.jsx'
 
 function App() {
   const [usuario, setUsuario] = useState(null)
@@ -76,6 +77,7 @@ function App() {
             <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
             <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
             <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
+            <Route path="/logs" element={<Logs/>}/>
           </Routes>
           </main>
           <Footer/>

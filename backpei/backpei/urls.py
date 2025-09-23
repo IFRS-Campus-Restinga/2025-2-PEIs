@@ -6,4 +6,5 @@ urlpatterns = [
     path('', lambda request: redirect('/services/')),
     path('admin/', admin.site.urls),
     path('services/', include('services.urls')),
+    path('logs/', include('logs.urls')),
 ]
