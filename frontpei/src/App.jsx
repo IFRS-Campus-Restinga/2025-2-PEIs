@@ -2,7 +2,7 @@ import './App.css'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
 import { useState, useEffect } from 'react'
-import Crud from './Crud.jsx'
+import Home from './Home.jsx'
 import Pareceres from "./components/Parecer";
 import PEIPeriodoLetivo from "./components/PEIPeriodoLetivo";
 import Cursos from './components/Curso.jsx'
@@ -11,10 +11,10 @@ import { Routes, Route } from "react-router-dom";
 import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
 import SubHeader from './components/subheader.jsx'
-import PeiCentral from './components/PeiCentral.jsx'
-import CreatePeiCentral from './components/CreatePeiCentral.jsx'
-import EditarPeiCentral from './components/EditarPeiCentral.jsx'
-import DeletarPeiCentral from './components/DeletarPeiCentral.jsx'
+import PeiCentral from './components/PeiCentral/PeiCentral.jsx'
+import CreatePeiCentral from './components/PeiCentral/CreatePeiCentral.jsx'
+import EditarPeiCentral from './components/PeiCentral/EditarPeiCentral.jsx'
+import DeletarPeiCentral from './components/PeiCentral/DeletarPeiCentral.jsx'
 
 function App() {
   const [usuario, setUsuario] = useState(null)
@@ -67,7 +67,7 @@ function App() {
           
           <main className='main-content'>
           <Routes>
-            <Route path="/" element={<Crud />} />
+            <Route path="/" element={<Home usuario={usuario} />} />
             <Route path="/pareceres" element={<Pareceres />} />
             <Route path="/periodo" element={<PEIPeriodoLetivo />} />
             <Route path="/disciplina" element={<Disciplinas/>}/>
