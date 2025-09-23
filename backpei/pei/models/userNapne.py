@@ -4,20 +4,15 @@ from django.core.validators import MinLengthValidator, MaxLengthValidator, Regex
 from django.core.exceptions import ValidationError
 
 
-class Aluno(BaseModel):
+class Napne(BaseModel):
     nome = models.CharField(
         max_length=100,
-        validators=[MinLengthValidator(7), MaxLengthValidator(60)])
-    
-    matricula = models.CharField(
-    max_length=20,
-    unique=True,
-    validators=[RegexValidator(r'^\d+$', 'A matrícula deve conter apenas números')]
-)
+        validators=[MinLengthValidator(7), MaxLengthValidator(60)], )
+      
     email = models.EmailField(unique=True)
 
     def __str__(self):
-        return f"{self.nome} ({self.matricula})"
+        return f"{self.nome} ({self.email})"
     
     def validar_email_institucional(value):
         if not value.endswith('@restinga.ifrs.edu.br'):

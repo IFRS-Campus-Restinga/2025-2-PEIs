@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     # pacotes adicionais
     'rest_framework', 'rest_framework.authtoken', "corsheaders",
     # apps criados
-    'services', 'pei',
+    'services', 'pei', 'logs',
 ]
 
 MIDDLEWARE = [
@@ -78,6 +78,19 @@ ROOT_URLCONF = 'backpei.urls'
 # configuracao dos hosts permitidos do cors
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+]
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "x-backend-token",  # permite o header customizado
 ]
 
 # adiciona nosso token do usuario administrador

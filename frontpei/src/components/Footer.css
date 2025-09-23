@@ -1,3 +1,25 @@
+/* Botão de logs no canto direito */
+.footer-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+.footer-logs-btn {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: #e0e0e0;
+    color: #000000;
+    border: none;
+    text-decoration: none;
+    margin-left: 10px;
+    transition: background 0.2s, color 0.2s;
+}
+.footer-logs-btn:hover, .footer-logs-btn:focus {
+    background: #1976d2;
+    color: #fff;
+    outline: none;
+}
 .footer {
     background-color: #f2f2f2;
     color: #333;

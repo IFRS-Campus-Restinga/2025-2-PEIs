@@ -39,8 +39,8 @@ function PeiCentral() {
       {/* Botão sempre visível */}
       <button>
         <Link to="/create_peicentral">Criar novo PEI</Link>
-      </button>
-
+      </button><br />
+      <br></br>
       {erro ? (
         <p style={{ color: "red" }}>Não foi possível carregar os períodos.</p>
       ) : (
@@ -53,13 +53,22 @@ function PeiCentral() {
               border: "1px solid #ccc",
             }}
           >
+            
+            <Link to={'/editar_peicentral/'+ pei.id}>Editar</Link>
+            <br /><br />
+            
+            <b>Aluno(PENDENTE):</b> Fulano da Silva <br />
+            <b>Status:</b> {pei.status_pei}<br />
+            <br></br>   
             <b>Histórico do Aluno:</b> {pei.historico_do_aluno} <br />
             <br></br>
-            <b>Necessidades:</b> {pei.necessidades_educacionais_especificas}<br />
+            <b>Necessidades:</b> {pei.necessidades_educacionais_especificas} <br />
             <br></br>
-            <b>Habilidades:</b> {pei.habilidades}<br />
+            <b>Habilidades:</b> {pei.habilidades} <br />
             <br></br>
-            <b>Status:</b> {pei.status_pei}<br />
+            <b>Dificuldades Apresentadas</b> {pei.dificuldades_apresentadas} <br />
+            <br></br>
+            <b>Adaptações:</b> {pei.adaptacoes}<br />
             <br />
             <br />
           </div>

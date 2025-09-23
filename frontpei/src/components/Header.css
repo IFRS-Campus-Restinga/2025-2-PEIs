@@ -29,7 +29,6 @@
     justify-content: space-between;
     padding: 16px 32px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    border-bottom: 3px solid #1976d2;
   }
 
   .header-left {

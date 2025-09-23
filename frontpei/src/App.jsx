@@ -2,7 +2,7 @@ import './App.css'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
 import { useState, useEffect } from 'react'
-import Crud from './Crud.jsx'
+import Home from './Home.jsx'
 import Pareceres from "./components/Parecer";
 import PEIPeriodoLetivo from "./components/PEIPeriodoLetivo";
 import Cursos from './components/Curso.jsx'
@@ -13,9 +13,11 @@ import Footer from './components/Footer.jsx'
 import SubHeader from './components/Subheader.jsx'
 import PeiCentral from './components/PeiCentral.jsx'
 import CreatePeiCentral from './components/CreatePeiCentral.jsx'
+import EditarPeiCentral from './components/PeiCentral/EditarPeiCentral.jsx'
+import DeletarPeiCentral from './components/PeiCentral/DeletarPeiCentral.jsx'
+import Logs from './components/LogsComponents/Logs.jsx'
 import Alunos from './components/Aluno.jsx'
 import CoordenadorCurso from './components/CoordenadorCurso.jsx'
-
 
 function App() {
   const [usuario, setUsuario] = useState(null)
@@ -39,6 +41,7 @@ function App() {
 
       // Salva no localStorage
       localStorage.setItem("usuario", JSON.stringify(userData))
+      localStorage.setItem("token", credentialResponse.credential) // Salva o token JWT para uso momentaneo nos logs
     } catch (erro) {
       console.error('Erro ao decodificar token do Google:', erro)
       setUsuario(null)
@@ -56,6 +59,7 @@ function App() {
     setUsuario(null)
     setLogado(false)
     localStorage.removeItem("usuario") // limpa persistência
+    localStorage.removeItem("token") // limpa o token também
   }
 
   return (
@@ -68,15 +72,18 @@ function App() {
           
           <main className='main-content'>
           <Routes>
-            <Route path="/" element={<Crud />} />
+            <Route path="/" element={<Home usuario={usuario} />} />
             <Route path="/pareceres" element={<Pareceres />} />
             <Route path="/periodo" element={<PEIPeriodoLetivo />} />
             <Route path="/disciplina" element={<Disciplinas/>}/>
             <Route path="/curso" element={<Cursos/>}/>
-            <Route path="/peicentral" element={<PeiCentral />} />
-            <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
             <Route path="/aluno" element={<Alunos/>}/>
             <Route path="/coordenador" element={<CoordenadorCurso/>}/>
+            <Route path="/peicentral" element={<PeiCentral />} />
+            <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
+            <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
+            <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
+            <Route path="/logs" element={<Logs/>}/>
           </Routes>
           </main>
           <Footer/>

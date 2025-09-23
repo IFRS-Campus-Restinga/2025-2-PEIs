@@ -20,6 +20,11 @@ const Footer = () => {
                 Rua Alberto Hoffmann, 285 | Bairro Restinga | CEP 91791-508<br />
                 (51) 3247-8400
             </div>
+            <div className="footer-right">
+                <Link to="/logs" className="footer-logs-btn" title="Ver logs do sistema">
+                    LOGS
+                </Link>
+            </div>
         </footer>
     );
 };
