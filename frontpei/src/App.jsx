@@ -10,9 +10,12 @@ import Disciplinas from './components/Disciplina.jsx'
 import { Routes, Route } from "react-router-dom";
 import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
-import SubHeader from './components/subheader.jsx'
+import SubHeader from './components/Subheader.jsx'
 import PeiCentral from './components/PeiCentral.jsx'
 import CreatePeiCentral from './components/CreatePeiCentral.jsx'
+import Alunos from './components/Aluno.jsx'
+import CoordenadorCurso from './components/CoordenadorCurso.jsx'
+
 
 function App() {
   const [usuario, setUsuario] = useState(null)
@@ -72,6 +75,8 @@ function App() {
             <Route path="/curso" element={<Cursos/>}/>
             <Route path="/peicentral" element={<PeiCentral />} />
             <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
+            <Route path="/aluno" element={<Alunos/>}/>
+            <Route path="/coordenador" element={<CoordenadorCurso/>}/>
           </Routes>
           </main>
           <Footer/>
