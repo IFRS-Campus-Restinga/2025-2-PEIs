@@ -106,28 +106,6 @@ function Crud() {
         ))
       )}
 
-      <hr/>
-      <h2> Outros cadastros</h2>
-      <button style={{ marginRight: "10px" }}>
-        <Link to="/periodo">Ir para Período Letivo</Link>
-      </button>
-
-      <button style={{ marginRight: "10px" }}>
-        <Link to="/pareceres">Adicionar Parecer</Link>
-      </button>
-
-      <button style={{ marginRight: "10px" }}>
-        <Link to="/disciplina">Adicionar Disciplinas</Link>
-      </button>
-      
-      <button style={{ marginRight: "10px" }}>
-        <Link to="/curso">Adicionar Cursos</Link>
-      </button>
-
-      <button>
-        <Link to="/peicentral">Visualizar Pei Central</Link>
-      </button>
-
       <hr />
       <h2>Área de visualização bruta dos dados:</h2>
       <p>Status de erro: {JSON.stringify(erroBanco, null, 2)}</p>

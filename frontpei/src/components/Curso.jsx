@@ -8,6 +8,8 @@ function Cursos() {
   const [disciplinas, setDisciplinas] = useState([]);
   const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState([]);
   const [nivel, setNivel] = useState("Não informado");
+  const [coordSelecionado, setCoordSelecionado] = useState("")
+  const [coordCurso, setCoordCurso] = useState([])
 
   const niveis = [
     { label: "Superior", value: "Superior" },
@@ -17,6 +19,7 @@ function Cursos() {
 
   const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
   const DBCURSOS = axios.create({ baseURL: import.meta.env.VITE_CURSOS_URL});
+  const DBCOORDENADOR = axios.create({baseURL: import.meta.env.VITE_COORDENADORCURSO_URL})
 
   // Recupera disciplinas
   async function recuperaDisciplinas() {
@@ -40,6 +43,17 @@ function Cursos() {
     }
   }
 
+  // Recupera coordenadores
+  async function recuperaCoord(){
+    try{
+      const response = await DBCOORDENADOR.get("")
+      const data = response.data
+      setCoordCurso(Array.isArray(data) ? data : data.results)
+    }catch (err){
+      console.error("Erro ao buscar coordenadores: ", err)
+    }
+  }
+
   // Adiciona curso
   async function adicionaCurso(event) {
     event.preventDefault();
@@ -52,8 +66,10 @@ function Cursos() {
     const novo = {
       name: curso.trim(),
       nivel,
-      disciplinas_ids: disciplinasSelecionadas
+      disciplinas_ids: disciplinasSelecionadas,
+      coordenador_id: coordSelecionado 
     };
+
 
     try {
       await DBCURSOS.post("/", novo);
@@ -76,6 +92,7 @@ function Cursos() {
   useEffect(() => {
     recuperaCursos();
     recuperaDisciplinas();
+    recuperaCoord();
   }, []);
 
   return (
@@ -115,6 +132,18 @@ function Cursos() {
           ))}
         </select>
         <br />
+
+        <label>Coordenador:</label>
+        <br/>
+        <select value={coordSelecionado} onChange={(e) => setCoordSelecionado(e.target.value)}>
+          <option value="">Não informado</option>
+          {coordCurso.map((cc) => (
+            <option key={cc.id} value={cc.id}>
+              {cc.nome}
+            </option>
+          ))}
+        </select>
+        <br/>
         <button type="submit">Adicionar curso</button>
       </form>
 
@@ -133,6 +162,8 @@ function Cursos() {
                 Disciplinas: {cc.disciplinas && cc.disciplinas.length > 0
                   ? cc.disciplinas.map((d) => d.nome).join(", ")
                   : "Nenhuma"}
+                <br />
+                Coordenador: {cc.coordenador ? cc.coordenador.nome : "Não informado"}
               </li>
             ))}
           </ul>

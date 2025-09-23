@@ -2,6 +2,7 @@ from django.db import models
 from .base_model import BaseModel
 from ..enums.nivel import Nivel
 from django.core.validators import MinLengthValidator
+from .coordenadorCurso import CoordenadorCurso
 
 class Curso(BaseModel):
     name = models.CharField(
@@ -16,7 +17,7 @@ class Curso(BaseModel):
         choices=Nivel, default=Nivel.NOT_INFORMED,
     )
     disciplinas = models.ManyToManyField("Disciplina", related_name="cursos", blank=True)
-    #coordenador = oneToManyField(Coordenador, blank=False, null=False)
+    coordenador = models.ForeignKey(CoordenadorCurso, on_delete=models.RESTRICT, related_name="coordenador", null=False, blank=False)
 
     def __str__(self):
-        return f'{self.name}'
+        return f'{self.name} - {self.coordenador}'

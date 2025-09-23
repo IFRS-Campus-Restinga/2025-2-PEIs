@@ -136,6 +136,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100, validators=[django.core.validators.MinLengthValidator(1)])),
                 ('nivel', models.CharField(choices=[('Superior', 'Superior'), ('Ensino Médio', 'Ensino Medio'), ('Não informado', 'Não informado')], default='Não informado', max_length=100, validators=[django.core.validators.MinLengthValidator(1)])),
+                ('coordenador', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, related_name='coordenador', to='pei.coordenadorcurso')),
                 ('disciplinas', models.ManyToManyField(blank=True, related_name='cursos', to='pei.disciplina')),
             ],
             options={
