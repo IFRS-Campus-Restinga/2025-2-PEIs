@@ -13,6 +13,8 @@ import Footer from './components/Footer.jsx'
 import SubHeader from './components/subheader.jsx'
 import PeiCentral from './components/PeiCentral.jsx'
 import CreatePeiCentral from './components/CreatePeiCentral.jsx'
+import EditarPeiCentral from './components/EditarPeiCentral.jsx'
+import DeletarPeiCentral from './components/DeletarPeiCentral.jsx'
 
 function App() {
   const [usuario, setUsuario] = useState(null)
@@ -72,6 +74,8 @@ function App() {
             <Route path="/curso" element={<Cursos/>}/>
             <Route path="/peicentral" element={<PeiCentral />} />
             <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
+            <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
+            <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
           </Routes>
           </main>
           <Footer/>

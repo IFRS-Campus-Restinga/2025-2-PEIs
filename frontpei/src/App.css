@@ -14,3 +14,10 @@
   flex: 1; /* ocupa o espaço entre Header e Footer */
   padding: 20px;
 }
+
+.text-block {
+  white-space: pre-wrap;   /* respeita \n */
+  word-wrap: break-word;   /* força quebra se a palavra for gigante */
+  overflow-wrap: break-word; /* mais moderno, funciona junto */
+}
+
