@@ -80,6 +80,19 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "x-backend-token",  # permite o header customizado
+]
+
 # adiciona nosso token do usuario administrador
 # ele le o arquivo token.txt que criamos no sobeDjango
 TOKEN_FILE = BASE_DIR / "token.txt"

@@ -39,6 +39,7 @@ function App() {
 
       // Salva no localStorage
       localStorage.setItem("usuario", JSON.stringify(userData))
+      localStorage.setItem("token", credentialResponse.credential) // Salva o token JWT para uso momentaneo nos logs
     } catch (erro) {
       console.error('Erro ao decodificar token do Google:', erro)
       setUsuario(null)
@@ -56,6 +57,7 @@ function App() {
     setUsuario(null)
     setLogado(false)
     localStorage.removeItem("usuario") // limpa persistência
+    localStorage.removeItem("token") // limpa o token também
   }
 
   return (
