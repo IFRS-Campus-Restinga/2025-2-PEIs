@@ -19,6 +19,7 @@ import Logs from './components/LogsComponents/Logs.jsx'
 import ComponenteCurricular from './components/componenteCurricular.jsx'
 import AtaDeAcompanhamento from './components/ataDeAcompanhamento.jsx'
 import DocumentacaoComplementar from './components/documentacaoComplementar.jsx'
+import Pedagogos from './components/Pedagogo.jsx'
 
 function App() {
   const [usuario, setUsuario] = useState(null)
@@ -85,6 +86,7 @@ function App() {
             <Route path="/componenteCurricular" element={<ComponenteCurricular/>}/>
             <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento/>}/>
             <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
+            <Route path="/pedagogo" element={<Pedagogos/>}/>
             <Route path="/logs" element={<Logs/>}/>
           </Routes>
           </main>
