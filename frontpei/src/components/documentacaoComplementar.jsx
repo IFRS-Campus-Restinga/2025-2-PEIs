@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
+
 function DocumentacaoComplementar() {
   const DBDOC = axios.create({
     baseURL: import.meta.env.VITE_DOC_COMPLEMENTAR, // defina no seu .env
   });
 
-  // Estado do formulário
+  // Estado do formulário de adicionar
   const [form, setForm] = useState({
     autor: "",
     tipo: "",
@@ -15,6 +16,12 @@ function DocumentacaoComplementar() {
   });
 
   const [docs, setDocs] = useState([]);
+  const [editando, setEditando] = useState(null); // id que está em edição
+  const [formEdit, setFormEdit] = useState({
+    autor: "",
+    tipo: "",
+    caminho: "",
+  });
 
   // Recuperar documentação cadastrada
   async function recuperaDocs() {
@@ -51,6 +58,43 @@ function DocumentacaoComplementar() {
     }
   }
 
+  // Editar documento (abrir form inline)
+  function editarDoc(doc) {
+    setEditando(doc.id);
+    setFormEdit({
+      autor: doc.autor,
+      tipo: doc.tipo,
+      caminho: doc.caminho,
+    });
+  }
+
+  // Salvar edição
+  async function salvarEdicao(event) {
+    event.preventDefault();
+    try {
+      await DBDOC.put(`/${editando}/`, formEdit);
+      alert("Documentação atualizada!");
+      setEditando(null);
+      recuperaDocs();
+    } catch (err) {
+      console.error("Erro ao editar documentação:", err.response?.data || err);
+      alert("Falha ao editar documentação!");
+    }
+  }
+
+  // Deletar documento
+  async function deletarDoc(id) {
+    if (!window.confirm("Deseja realmente excluir esta documentação?")) return;
+    try {
+      await DBDOC.delete(`/${id}/`);
+      alert("Documentação excluída!");
+      recuperaDocs();
+    } catch (err) {
+      console.error("Erro ao excluir documentação:", err.response?.data || err);
+      alert("Falha ao excluir documentação!");
+    }
+  }
+
   useEffect(() => {
     recuperaDocs();
   }, []);
@@ -60,6 +104,7 @@ function DocumentacaoComplementar() {
       <h1>Gerenciar Documentação Complementar</h1>
       <h2>Cadastrar Documentação</h2>
 
+      {/* Formulário principal (apenas para adicionar) */}
       <form onSubmit={adicionaDoc}>
         <label>Autor:</label>
         <br />
@@ -100,9 +145,48 @@ function DocumentacaoComplementar() {
           {docs.length === 0 && <li>Nenhuma documentação cadastrada.</li>}
           {docs.map((d) => (
             <li key={d.id || Math.random()}>
-              <strong>Autor:</strong> {d.autor} <br />
-              <strong>Tipo:</strong> {d.tipo} <br />
-              <strong>Caminho:</strong> {d.caminho}
+              {editando === d.id ? (
+                // Formulário inline de edição
+                <form onSubmit={salvarEdicao}>
+                  <label>Autor:</label>
+                  <input
+                    type="text"
+                    value={formEdit.autor}
+                    onChange={(e) => setFormEdit({ ...formEdit, autor: e.target.value })}
+                  />
+                  <br />
+
+                  <label>Tipo:</label>
+                  <input
+                    type="text"
+                    value={formEdit.tipo}
+                    onChange={(e) => setFormEdit({ ...formEdit, tipo: e.target.value })}
+                  />
+                  <br />
+
+                  <label>Caminho:</label>
+                  <input
+                    type="text"
+                    value={formEdit.caminho}
+                    onChange={(e) => setFormEdit({ ...formEdit, caminho: e.target.value })}
+                  />
+                  <br />
+
+                  <button type="submit">Salvar</button>
+                  <button type="button" onClick={() => setEditando(null)}>
+                    Cancelar
+                  </button>
+                </form>
+              ) : (
+                <>
+                  <strong>Autor:</strong> {d.autor} <br />
+                  <strong>Tipo:</strong> {d.tipo} <br />
+                  <strong>Caminho:</strong> {d.caminho}
+                  <br />
+                  <button onClick={() => editarDoc(d)}>Editar</button>
+                  <button onClick={() => deletarDoc(d.id)}>Excluir</button>
+                </>
+              )}
             </li>
           ))}
         </ul>
