@@ -76,7 +76,7 @@ function CoordenadoresCurso() {
         <h3>Coordenadores Cadastrados</h3>
         <ul>
           {coordenadoresCadastrados.map((c) => (
-            <li key={c.id}>{c.nome}
+            <li key={c.id}>{c.nome} {}
             <button onClick={() => excluirCoordenador(c.id)}>Excluir</button>
             </li>
           ))}

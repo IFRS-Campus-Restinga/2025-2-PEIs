@@ -97,7 +97,7 @@ function Alunos() {
         <ul>
           {alunosCadastrados.map((a) => (
             <li key={a.id}>
-              {a.nome} - Matrícula: {a.matricula} - Email: {a.email}
+              {a.nome} - Matrícula: {a.matricula} - Email: {a.email} {}
               <button onClick={() => excluirAluno(a.id)}>Excluir</button>
             </li>
           ))}

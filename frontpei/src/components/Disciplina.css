@@ -1,0 +1,135 @@
+.disciplinas-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  font-family: system-ui, sans-serif;
+}
+
+.disciplinas-container h1,
+.disciplinas-container h2,
+.disciplinas-container h3 {
+  color: #055C0F;
+  font-weight: 600;
+}
+
+.disciplinas-form {
+  margin-bottom: 24px;
+}
+
+.disciplinas-form label {
+  font-weight: 500;
+}
+
+.disciplinas-form textarea {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  resize: vertical;
+  margin-top: 4px;
+}
+
+.disciplinas-form button {
+  margin-top: 12px;
+  padding: 8px 20px;
+  background: #055C0F;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.disciplinas-form button:hover {
+  background: #1976d2;
+}
+
+.disciplinas-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.disciplinas-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.disciplinas-list li input {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+}
+
+/* Botões coladinhos */
+.disciplinas-list button {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.2s;
+  margin-left: 0; /* remove espaço entre botões */
+}
+
+.disciplinas-list button:first-of-type {
+  background: #1976d2;
+  color: #fff;
+}
+
+.disciplinas-list button:first-of-type:hover {
+  background: #055C0F;
+}
+
+.disciplinas-list button:last-of-type {
+  background: #e0e0e0;
+  color: #000;
+}
+
+.disciplinas-list button:last-of-type:hover {
+  background: #d32f2f;
+  color: #fff;
+}
+
+/* Botão voltar */
+.disciplinas-container .voltar-btn {
+  margin-top: 24px;
+  padding: 8px 20px;
+  background: #f1f1f1;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.2s, color 0.2s;
+}
+
+.disciplinas-container .voltar-btn:hover {
+  background: #1976d2;
+  color: #fff;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+  .disciplinas-list li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .disciplinas-list button {
+    width: 100%;
+  }
+}

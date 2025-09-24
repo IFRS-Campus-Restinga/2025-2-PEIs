@@ -39,7 +39,7 @@ function Logs() {
     </div>
   );
 
-  if (loading) return <div>Carregando logs...</div>;
+  if (loading) return <div>Carregando logs... </div>;
   if (error) return <div><VoltarBtn />{error}</div>;
 
   return (
