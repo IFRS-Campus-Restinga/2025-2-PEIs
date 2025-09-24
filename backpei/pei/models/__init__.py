@@ -5,3 +5,17 @@ from .documentacaoComplementar import DocumentacaoComplementar
 from .curso import Curso
 from .disciplina import Disciplina
 from pei.enums.nivel import Nivel
+from .parecer import *
+from .PEIPeriodoLetivo import *
+from .professor import *
+from .aluno import *
+from .coordenadorCurso import *
+from .pedagogo import *
+from .componenteCurricular import *
+from .curso import *
+from .disciplina import *
+from .pei_central import *
+from .componenteCurricular import *
+from .ataDeAcompanhamento import *
+from .documentacaoComplementar import *
+from .userNapne import *

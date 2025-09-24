@@ -1,15 +1,23 @@
-from .base_model import BaseModel
 from django.db import models
-from django.core.validators import MinLengthValidator, MaxLengthValidator, MinValueValidator, MaxValueValidator
-from pei.enums.nivel import Nivel
+from .base_model import BaseModel
+from ..enums.nivel import Nivel
+from django.core.validators import MinLengthValidator
+from .coordenadorCurso import CoordenadorCurso
 
 class Curso(BaseModel):
-    nome = models.CharField(max_length=255)
-    nivel = models.CharField(
-        max_length=3,
-        choices=Nivel.choices,
-        default=Nivel.MEDIO
+    name = models.CharField(
+        blank=False, null=False,
+        max_length=100, 
+        validators=[MinLengthValidator(1)]
     )
+    nivel = models.CharField(
+        blank=False, null=False,
+        max_length=100,
+        validators=[MinLengthValidator(1)],
+        choices=Nivel, default=Nivel.NOT_INFORMED,
+    )
+    disciplinas = models.ManyToManyField("Disciplina", related_name="cursos", blank=True)
+    coordenador = models.ForeignKey(CoordenadorCurso, on_delete=models.RESTRICT, related_name="coordenador", null=False, blank=False)
 
     def __str__(self):
-        return f"{self.nome} ({self.get_nivel_display()})"
+        return f'{self.name} - {self.coordenador}'

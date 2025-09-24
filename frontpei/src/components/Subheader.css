@@ -1,0 +1,32 @@
+.subheader {
+  background-color: #f1f1f1;
+  padding: 8px 16px;
+  border-bottom: 1px solid #ccc;
+}
+
+.subheader-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.subheader-btn {
+  background: #fff;
+  color: #333;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.subheader-btn:hover, .subheader-btn:focus {
+  background: #1976d2;
+  color: #fff;
+  border-color: #1976d2;
+  outline: none;
+}

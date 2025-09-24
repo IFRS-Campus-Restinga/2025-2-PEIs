@@ -1,9 +1,14 @@
-from .base_model import BaseModel
 from django.db import models
+from .base_model import BaseModel
+from django.core.validators import MinLengthValidator
+
 
 class Disciplina(BaseModel):
-    nome = models.CharField(max_length=255)
-    cursos = models.ManyToManyField("Curso", related_name="disciplinas")
+    nome = models.CharField(
+        blank=False, null=False,
+        max_length=100,
+        validators=[MinLengthValidator(1)]
+    )
 
     def __str__(self):
-        return self.nome
+        return f'{self.nome}'

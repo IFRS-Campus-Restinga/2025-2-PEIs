@@ -1,6 +1,22 @@
+<<<<<<< HEAD
 from .pessoa import PessoaSerializer
 from .ataDeAcompanhamento import AtaDeAcompanhamentoSerializer
 from .componenteCurricular import ComponenteCurricularSerializer
 from .curso import CursoSerializer
 from .disciplina import DisciplinaSerializer
 from .documentacaoComplementar import DocumentacaoComplementarSerializer
+=======
+from .dados_serializer import *
+from .pedagogo_serializer import *
+from .coordenadorCurso_serializer import *
+from .aluno_serializer import *
+from .ataDeAcompanhamento_serializer import *
+from .componenteCurricular_serializer import *
+from .curso_serializer import *
+from .disciplina_serializer import *
+from .documentacaoComplementar_serializer import *
+from .parecer_serializer import *
+from .professor_seralizer import *
+from .PEIPeriodoLetivo_serializer import *
+from .pei_central_serializer import *
+>>>>>>> developer
