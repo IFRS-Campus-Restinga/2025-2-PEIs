@@ -1,190 +1,98 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-
+import "./componenteCurricular.css"; // usando o CSS de Componente Curricular
 
 function DocumentacaoComplementar() {
-  const DBDOC = axios.create({
-    baseURL: import.meta.env.VITE_DOC_COMPLEMENTAR, // defina no seu .env
-  });
+  const DBDOC = axios.create({ baseURL: import.meta.env.VITE_DOC_COMPLEMENTAR });
 
-  // Estado do formulário de adicionar
-  const [form, setForm] = useState({
-    autor: "",
-    tipo: "",
-    caminho: "",
-  });
-
+  const [form, setForm] = useState({ autor: "", tipo: "", caminho: "" });
   const [docs, setDocs] = useState([]);
-  const [editando, setEditando] = useState(null); // id que está em edição
-  const [formEdit, setFormEdit] = useState({
-    autor: "",
-    tipo: "",
-    caminho: "",
-  });
+  const [editando, setEditando] = useState(null);
+  const [formEdit, setFormEdit] = useState({ autor: "", tipo: "", caminho: "" });
 
-  // Recuperar documentação cadastrada
   async function recuperaDocs() {
     try {
-      const response = await DBDOC.get("/");
-      const data = response.data;
-      setDocs(Array.isArray(data) ? data : data.results || []);
-    } catch (err) {
-      console.error("Erro ao buscar documentação: ", err);
-    }
+      const res = await DBDOC.get("/");
+      setDocs(Array.isArray(res.data) ? res.data : res.data.results || []);
+    } catch (err) { console.error(err); }
   }
 
-  // Adicionar nova documentação
-  async function adicionaDoc(event) {
-    event.preventDefault();
-
-    if (!form.autor || !form.tipo || !form.caminho) {
-      alert("Preencha todos os campos antes de cadastrar!");
-      return;
-    }
-
+  async function adicionaDoc(e) {
+    e.preventDefault();
+    if (!form.autor || !form.tipo || !form.caminho) return alert("Preencha todos os campos!");
     try {
-      await DBDOC.post("/", {
-        autor: form.autor,
-        tipo: form.tipo,
-        caminho: form.caminho,
-      });
-      alert("Documentação cadastrada com sucesso!");
-      setForm({ autor: "", tipo: "", caminho: "" }); // limpa form
+      await DBDOC.post("/", form);
+      setForm({ autor: "", tipo: "", caminho: "" });
       recuperaDocs();
-    } catch (err) {
-      console.error("Erro ao cadastrar documentação:", err.response?.data || err);
-      alert("Falha ao cadastrar documentação!");
-    }
+    } catch (err) { console.error(err); alert("Erro ao cadastrar!"); }
   }
 
-  // Editar documento (abrir form inline)
   function editarDoc(doc) {
     setEditando(doc.id);
-    setFormEdit({
-      autor: doc.autor,
-      tipo: doc.tipo,
-      caminho: doc.caminho,
-    });
+    setFormEdit({ autor: doc.autor, tipo: doc.tipo, caminho: doc.caminho });
   }
 
-  // Salvar edição
-  async function salvarEdicao(event) {
-    event.preventDefault();
+  async function salvarEdicao(e) {
+    e.preventDefault();
     try {
       await DBDOC.put(`/${editando}/`, formEdit);
-      alert("Documentação atualizada!");
       setEditando(null);
       recuperaDocs();
-    } catch (err) {
-      console.error("Erro ao editar documentação:", err.response?.data || err);
-      alert("Falha ao editar documentação!");
-    }
+    } catch (err) { console.error(err); alert("Erro ao editar!"); }
   }
 
-  // Deletar documento
   async function deletarDoc(id) {
     if (!window.confirm("Deseja realmente excluir esta documentação?")) return;
-    try {
-      await DBDOC.delete(`/${id}/`);
-      alert("Documentação excluída!");
-      recuperaDocs();
-    } catch (err) {
-      console.error("Erro ao excluir documentação:", err.response?.data || err);
-      alert("Falha ao excluir documentação!");
-    }
+    try { await DBDOC.delete(`/${id}/`); recuperaDocs(); }
+    catch (err) { console.error(err); alert("Erro ao excluir!"); }
   }
 
-  useEffect(() => {
-    recuperaDocs();
-  }, []);
+  useEffect(() => { recuperaDocs(); }, []);
 
   return (
-    <>
+    <div className="componente-container">
       <h1>Gerenciar Documentação Complementar</h1>
       <h2>Cadastrar Documentação</h2>
 
-      {/* Formulário principal (apenas para adicionar) */}
-      <form onSubmit={adicionaDoc}>
+      <form className="componente-form" onSubmit={adicionaDoc}>
         <label>Autor:</label>
-        <br />
-        <input
-          type="text"
-          value={form.autor}
-          onChange={(e) => setForm({ ...form, autor: e.target.value })}
-          required
-        />
-        <br />
+        <input type="text" value={form.autor} onChange={(e) => setForm({ ...form, autor: e.target.value })} />
 
         <label>Tipo:</label>
-        <br />
-        <input
-          type="text"
-          value={form.tipo}
-          onChange={(e) => setForm({ ...form, tipo: e.target.value })}
-          required
-        />
-        <br />
+        <input type="text" value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value })} />
 
         <label>Caminho:</label>
-        <br />
-        <input
-          type="text"
-          value={form.caminho}
-          onChange={(e) => setForm({ ...form, caminho: e.target.value })}
-          required
-        />
-        <br />
+        <input type="text" value={form.caminho} onChange={(e) => setForm({ ...form, caminho: e.target.value })} />
 
         <button type="submit">Adicionar Documentação</button>
       </form>
 
-      <div>
+      <div className="componente-list">
         <h3>Documentações Cadastradas</h3>
         <ul>
           {docs.length === 0 && <li>Nenhuma documentação cadastrada.</li>}
           {docs.map((d) => (
-            <li key={d.id || Math.random()}>
+            <li key={d.id}>
               {editando === d.id ? (
-                // Formulário inline de edição
-                <form onSubmit={salvarEdicao}>
-                  <label>Autor:</label>
-                  <input
-                    type="text"
-                    value={formEdit.autor}
-                    onChange={(e) => setFormEdit({ ...formEdit, autor: e.target.value })}
-                  />
-                  <br />
-
-                  <label>Tipo:</label>
-                  <input
-                    type="text"
-                    value={formEdit.tipo}
-                    onChange={(e) => setFormEdit({ ...formEdit, tipo: e.target.value })}
-                  />
-                  <br />
-
-                  <label>Caminho:</label>
-                  <input
-                    type="text"
-                    value={formEdit.caminho}
-                    onChange={(e) => setFormEdit({ ...formEdit, caminho: e.target.value })}
-                  />
-                  <br />
-
-                  <button type="submit">Salvar</button>
-                  <button type="button" onClick={() => setEditando(null)}>
-                    Cancelar
-                  </button>
-                </form>
+                <>
+                  <input type="text" value={formEdit.autor} onChange={(e) => setFormEdit({ ...formEdit, autor: e.target.value })} placeholder="Autor" />
+                  <input type="text" value={formEdit.tipo} onChange={(e) => setFormEdit({ ...formEdit, tipo: e.target.value })} placeholder="Tipo" />
+                  <input type="text" value={formEdit.caminho} onChange={(e) => setFormEdit({ ...formEdit, caminho: e.target.value })} placeholder="Caminho" />
+                  <div className="btn-group">
+                    <button onClick={salvarEdicao}>Salvar</button>
+                    <button onClick={() => setEditando(null)}>Cancelar</button>
+                  </div>
+                </>
               ) : (
                 <>
                   <strong>Autor:</strong> {d.autor} <br />
                   <strong>Tipo:</strong> {d.tipo} <br />
-                  <strong>Caminho:</strong> {d.caminho}
-                  <br />
-                  <button onClick={() => editarDoc(d)}>Editar</button>
-                  <button onClick={() => deletarDoc(d.id)}>Excluir</button>
+                  <strong>Caminho:</strong> {d.caminho} <br />
+                  <div className="btn-group">
+                    <button onClick={() => editarDoc(d)}>Editar</button>
+                    <button onClick={() => deletarDoc(d.id)}>Excluir</button>
+                  </div>
                 </>
               )}
             </li>
@@ -192,10 +100,8 @@ function DocumentacaoComplementar() {
         </ul>
       </div>
 
-      <button>
-        <Link to="/">Voltar</Link>
-      </button>
-    </>
+      <Link to="/" className="voltar-btn">Voltar</Link>
+    </div>
   );
 }
 
