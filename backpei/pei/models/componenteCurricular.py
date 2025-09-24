@@ -12,8 +12,7 @@ class ComponenteCurricular(BaseModel):
     metodologia = models.CharField(
         max_length=100,
         validators=[MinLengthValidator(7), MaxLengthValidator(255)], )
-    cursos = models.ManyToManyField("Curso", related_name="componentes_curriculares")
-    disciplinas = models.ManyToManyField("Disciplina", related_name="componentes_curriculares")
+    disciplinas = models.OneToOneField("Disciplina", related_name="componentes_curriculares", on_delete=models.CASCADE)
 
     
     def __str__(self):

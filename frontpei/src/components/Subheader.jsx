@@ -13,6 +13,9 @@ const SubHeader = () => {
         <button onClick={() => navigate("/disciplina")} className="subheader-btn">Cadastro de Disciplinas</button>
         <button onClick={() => navigate("/periodo")} className="subheader-btn">Cadastro de Períodos Letivos</button>
         <button onClick={() => navigate("/peicentral")} className="subheader-btn">Visualizar PEI Central</button>
+        <button onClick={() => navigate("/componentecurricular")} className="subheader-btn">Visualizar Componente Curricular</button>
+        <button onClick={() => navigate("/atadeacompanhamento")} className="subheader-btn">Visualizar Ata De Acompanhamento</button>
+        <button onClick={() => navigate("/documentacaocomplementar")} className="subheader-btn">Visualizar Documentações complementares</button>
       </div>
     </nav>
   );

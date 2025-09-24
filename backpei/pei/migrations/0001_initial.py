@@ -161,8 +161,7 @@ class Migration(migrations.Migration):
                 ('objetivos', models.CharField(max_length=100, validators=[django.core.validators.MinLengthValidator(7), django.core.validators.MaxLengthValidator(100)])),
                 ('conteudo_prog', models.CharField(max_length=100, validators=[django.core.validators.MinLengthValidator(1), django.core.validators.MaxLengthValidator(3)])),
                 ('metodologia', models.CharField(max_length=100, validators=[django.core.validators.MinLengthValidator(7), django.core.validators.MaxLengthValidator(255)])),
-                ('cursos', models.ManyToManyField(related_name='componentes_curriculares', to='pei.curso')),
-                ('disciplinas', models.ManyToManyField(related_name='componentes_curriculares', to='pei.disciplina')),
+                ('disciplinas', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='componentes_curriculares', to='pei.disciplina')),
             ],
             options={
                 'abstract': False,

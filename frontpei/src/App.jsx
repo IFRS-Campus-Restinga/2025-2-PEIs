@@ -10,12 +10,15 @@ import Disciplinas from './components/Disciplina.jsx'
 import { Routes, Route } from "react-router-dom";
 import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
-import SubHeader from './components/subheader.jsx'
+import SubHeader from './components/Subheader.jsx'
 import PeiCentral from './components/PeiCentral/PeiCentral.jsx'
 import CreatePeiCentral from './components/PeiCentral/CreatePeiCentral.jsx'
 import EditarPeiCentral from './components/PeiCentral/EditarPeiCentral.jsx'
 import DeletarPeiCentral from './components/PeiCentral/DeletarPeiCentral.jsx'
 import Logs from './components/LogsComponents/Logs.jsx'
+import ComponenteCurricular from './components/componenteCurricular.jsx'
+import AtaDeAcompanhamento from './components/ataDeAcompanhamento.jsx'
+import DocumentacaoComplementar from './components/documentacaoComplementar.jsx'
 
 function App() {
   const [usuario, setUsuario] = useState(null)
@@ -79,7 +82,9 @@ function App() {
             <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
             <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
             <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
-            <Route path="/logs" element={<Logs/>}/>
+            <Route path="/componenteCurricular" element={<ComponenteCurricular/>}/>
+            <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento/>}/>
+            <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
           </Routes>
           </main>
           <Footer/>
