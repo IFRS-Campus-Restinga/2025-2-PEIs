@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 class Aluno(BaseModel):
     nome = models.CharField(
         max_length=100,
-        validators=[MinLengthValidator(7), MaxLengthValidator(60)], )
+        validators=[MinLengthValidator(7), MaxLengthValidator(60)])
     
     matricula = models.CharField(
     max_length=20,

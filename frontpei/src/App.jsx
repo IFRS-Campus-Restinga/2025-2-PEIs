@@ -15,6 +15,8 @@ import PeiCentral from './components/PeiCentral/PeiCentral.jsx'
 import CreatePeiCentral from './components/PeiCentral/CreatePeiCentral.jsx'
 import EditarPeiCentral from './components/PeiCentral/EditarPeiCentral.jsx'
 import DeletarPeiCentral from './components/PeiCentral/DeletarPeiCentral.jsx'
+import Alunos from './components/Aluno.jsx'
+import CoordenadorCurso from './components/CoordenadorCurso.jsx'
 import Logs from './components/LogsComponents/Logs.jsx'
 import ComponenteCurricular from './components/componenteCurricular.jsx'
 import AtaDeAcompanhamento from './components/ataDeAcompanhamento.jsx'
@@ -79,6 +81,8 @@ function App() {
             <Route path="/periodo" element={<PEIPeriodoLetivo />} />
             <Route path="/disciplina" element={<Disciplinas/>}/>
             <Route path="/curso" element={<Cursos/>}/>
+            <Route path="/aluno" element={<Alunos/>}/>
+            <Route path="/coordenador" element={<CoordenadorCurso/>}/>
             <Route path="/peicentral" element={<PeiCentral />} />
             <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
             <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
