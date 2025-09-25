@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import "./Logs.css";
 
 function Logs() {
   const [logs, setLogs] = useState([]);
@@ -18,9 +19,9 @@ function Logs() {
             'X-BACKEND-TOKEN': backendToken
           }
         });
-        console.log('Headers da requisição:', {
-          'X-BACKEND-TOKEN': backendToken
-        }); // Debug dos headers
+        // console.log('Headers da requisição:', {
+        //  'X-BACKEND-TOKEN': backendToken
+        //}); // Debug dos headers
         setLogs(response.data);
       } catch (err) {
         setError("Erro ao buscar logs");
@@ -43,10 +44,10 @@ function Logs() {
   if (error) return <div><VoltarBtn />{error}</div>;
 
   return (
-    <div>
-      <VoltarBtn />
-      <h2>Relatório de Logs</h2>
-      <table border="1" cellPadding="6">
+    <div className="logs-container">
+      <Link to="/" className="voltar-btn">Voltar para a Home</Link>
+      <h2 className="logs-title">Relatório de Logs</h2>
+      <table className="logs-table">
         <thead>
           <tr>
             <th>Data/Hora</th>
