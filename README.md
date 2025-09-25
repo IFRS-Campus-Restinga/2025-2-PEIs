@@ -103,4 +103,101 @@ dos casos nós sempre faremos todos juntos em aula.</p>
 
 <h2>Segurança na comunicação</h2>
 
+<p>O essencial da pilha de tecnologia está em que o lado do backend em Django é responsável basicamente apenas pela persistência de dados, entregando uma interface REST para a comunicação. O frontend React apenas lê e insere dados através dessa API, mas não tem nenhum tipo de persistência própria. Sendo o frontend uma casca vazia, todo o foco da segurança se baseia em proteger os dados do Django contra leitura indevida e principalmente gravação.</p>
+
+<p>Sendo o login terceirizado para o Google, optou-se por não vincular a usuários as permissões de acesso, todo o REST é fechado para uma credencial única do superuser do Django. Essa credencial é criada nova toda vez no script sobeDjango.py, através das seguintes linhas:</p>
+
+<pre># agora precisamos criar novamente a conta de administrador
+senhaAdmin = "PEIDev2IFRS"
+User.objects.create_superuser(username="administrador", password=senhaAdmin, email="")
+print(f"Conta \"administrador\" criada com senha \"{senhaAdmin}\".")
+# tambem gerar novamente o token do administrador
+user = User.objects.get(username="administrador")
+token, created = Token.objects.get_or_create(user=user)
+print(f"Token do administrador: {token.key}")
+# esse token controla nosso acesso ao rest, salvando na pasta do projeto
+arquivoToken = os.path.join(baseDir, "backpei", "token.txt")
+with open(arquivoToken, "w") as f:
+f.write(token.key)</pre>
+
+<p>Traduzindo o código, a conta que está sendo criada se chama "administrador", ela é a conta de superuser do Django e senha padrão está definida para "PEIDev2IFRS". Essa credencial está gerando um token que é, por padrão, salvo no banco de dados mas também estamos o escrevendo em um arquivo chamado "token.txt" na pasta raíz do projeto (ao lado do manage.py). Essa é a única conta sendo criada no Django e só a ela está liberado o REST, através da apresentação do token (que carrega, em si, toda a identidade e senha do usuário, como um cartão de acesso total).</p>
+
+<p>Poderia se pensar, então, que basta o frontend apresentar o token para poder usar o REST. Em tese, sim, seria até suficiente para desenvolvimento. Mas já colocamos uma camada a mais. O problema de apresentar o token no frontend é que ele está visível para quem souber procurar, basta investigar nas ferramentas de desenvolvedor do navegador como a comunicação de baixo nível ocorre. Uma vez que o hacker tivesse o token, nada o impediria de acessar completamente nosso REST diretamente, ignorando totalmente nossa interface do frontend e regras que ela poderia estar impondo.</p>
+
+<p>Se não podemos apresentá-lo do frontend, o que fazer? O token ainda é necessário pois ele é a credencial do único usuário autorizado a acessar o REST. Pois a solução adotada foi de injetar o token do próprio backend no cabeçalho de comunicação, sem jamais passá-lo pelo navegador do usuário ou qualquer camada onde poderia estar exposto. Porém, isso só acontece se a comunicação vier de uma única fonte possível, o localhost:5173 ou, em outras palavras, apenas do nosso próprio frontend. Na prática, opera como uma relação de confiança entre os dois webservers. Se a comunicação com o REST vier de localhost:5173, o token é injetado e libera o acesso aos dados. Essa mecânica inicia ao ser inserida essa linha em cada view expondo dados:</p>
+
+<pre>permission_classes = [BackendTokenPermission]</pre>
+
+<p>A permission chamada BackendTokenPermission, por sua vez, possui o seguinte código e faz referências a configurações de segurança que estão no settings.py, veja:</p>
+
+<pre>from django.conf import settings
+from rest_framework.permissions import BasePermission
+
+class BackendTokenPermission(BasePermission):
+    def has_permission(self, request, view):
+        token_recebido = request.headers.get("X-BACKEND-TOKEN")
+        origin = request.headers.get("Origin")
+        referer = request.headers.get("Referer")
+
+        origem_permitida = origin in settings.CORS_ALLOWED_ORIGINS or (
+            referer and any(r in referer for r in settings.CORS_ALLOWED_ORIGINS)
+        )
+
+        return token_recebido == settings.API_TOKEN and origem_permitida</pre>
+
+<p>Perceba ao menos duas configurações do settings.py são citadas diretamente, o CORS_ALLOWED_ORIGINS e API_TOKEN. O CORS é um pacote chamado "django-cors-headers" que precisa ser instalado com o pip, passando ser, portanto, uma dependência do nosso projeto. Mas vamos então revisar todas as linhas relevantes do settings.py:</p>
+
+<pre>ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+INSTALLED_APPS = [..., "corsheaders", ...]
+MIDDLEWARE = [...
+    'corsheaders.middleware.CorsMiddleware',
+    # middleware customizado do app services para o token
+    'services.middleware.AddBackendTokenHeaderMiddleware', ...]
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+# configuracao dos hosts permitidos do cors
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+# adiciona nosso token do usuario administrador
+# ele le o arquivo token.txt que criamos no sobeDjango
+TOKEN_FILE = BASE_DIR / "token.txt"
+with open(TOKEN_FILE) as f:
+    API_TOKEN = f.read().strip()</pre>
+
+<p>Perceba que também existe referêcia a um middleware customizado nosso, que é o responsável por injetar o token. Ele faz parte do app "services" e possui o seguinte código:</p>
+
+<pre>from django.conf import settings
+class AddBackendTokenHeaderMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+    def __call__(self, request):
+        origin = request.META.get("HTTP_ORIGIN", "")
+        # apenas injeta o token se a requisição veio do react (localhost:5173)
+        if origin == "http://localhost:5173":
+            request.META['HTTP_X_BACKEND_TOKEN'] = settings.API_TOKEN
+        return self.get_response(request)</pre>
+
+<p>Agora que todas as linhas relevantes estão identificadas, vamos às considerações relacionadas a funcionamento e implicações:</p>
+
+<ul>
+<li>A interface do REST só está liberada através do uso do token do superuser do Django, criado no sobeDjango.py</li>
+<li>Esse token transita apenas no backend e é lido de "token.txt" no diretório raíz do projeto do backend</li>
+<li>Para produção, se for decidido rotacionar esse token, além do registro no banco de dados é necesário escrevê-lo em "token.txt"</li>
+<li>A liberação do REST através do token só ocorre se a comunicação requisitando vier de localhost:5173 em um tipo de relação de confiança</li>
+<li>Ou seja, Django e React precisam estar na mesma máquina. Se alguém pudesse comprometer o React, toda a máquina já estaria comprometida igualmente</li>
+<li>Em implementação Docker, se cada ponta rodar em um container isolado, será necessário rever essa mecânica ou apontar a nova identidade de origem no código</li>
+<li>Em qualquer implementação onde as duas pontas fiquem separadas, recomenda-se a utilização de HTTPS para proteger a comunicação em produção</li>
+<li>Se for utilizada uma base image única para ambos os serviços em Docker, com a mesma arquitetura o REST estaria ainda mais protegido ao expor apenas o React</li>
+<li>Considerando a implementação Docker em container único, toda a comunicação entre as pontas ficaria isolada interna no container</li>
+</ul>
+
+<h2>Usuários e Login</h2>
+
 <p>...</p>
