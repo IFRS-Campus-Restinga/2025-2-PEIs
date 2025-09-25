@@ -49,8 +49,10 @@
 }
 
 .footer-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     text-align: center;
-    flex: 1;
 }
 
 .footer-logo {

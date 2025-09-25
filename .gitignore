@@ -3,7 +3,7 @@ python/
 node/
 git/
 frontpei/node_modules/
-migrations
+backpei/migrations/
 .idea
 # outros comuns
 *.log
