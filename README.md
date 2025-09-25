@@ -107,7 +107,8 @@ dos casos nós sempre faremos todos juntos em aula.</p>
 
 <p>Sendo o login terceirizado para o Google, optou-se por não vincular a usuários as permissões de acesso, todo o REST é fechado para uma credencial única do superuser do Django. Essa credencial é criada nova toda vez no script sobeDjango.py, através das seguintes linhas:</p>
 
-<pre># agora precisamos criar novamente a conta de administrador
+```python
+# agora precisamos criar novamente a conta de administrador
 senhaAdmin = "PEIDev2IFRS"
 User.objects.create_superuser(username="administrador", password=senhaAdmin, email="")
 print(f"Conta \"administrador\" criada com senha \"{senhaAdmin}\".")
@@ -118,7 +119,8 @@ print(f"Token do administrador: {token.key}")
 # esse token controla nosso acesso ao rest, salvando na pasta do projeto
 arquivoToken = os.path.join(baseDir, "backpei", "token.txt")
 with open(arquivoToken, "w") as f:
-f.write(token.key)</pre>
+f.write(token.key)
+```
 
 <p>Traduzindo o código, a conta que está sendo criada se chama "administrador", ela é a conta de superuser do Django e senha padrão está definida para "PEIDev2IFRS". Essa credencial está gerando um token que é, por padrão, salvo no banco de dados mas também estamos o escrevendo em um arquivo chamado "token.txt" na pasta raíz do projeto (ao lado do manage.py). Essa é a única conta sendo criada no Django e só a ela está liberado o REST, através da apresentação do token (que carrega, em si, toda a identidade e senha do usuário, como um cartão de acesso total).</p>
 
@@ -130,7 +132,8 @@ f.write(token.key)</pre>
 
 <p>A permission chamada BackendTokenPermission, por sua vez, possui o seguinte código e faz referências a configurações de segurança que estão no settings.py, veja:</p>
 
-<pre>from django.conf import settings
+```python
+from django.conf import settings
 from rest_framework.permissions import BasePermission
 
 class BackendTokenPermission(BasePermission):
@@ -143,11 +146,13 @@ class BackendTokenPermission(BasePermission):
             referer and any(r in referer for r in settings.CORS_ALLOWED_ORIGINS)
         )
 
-        return token_recebido == settings.API_TOKEN and origem_permitida</pre>
+        return token_recebido == settings.API_TOKEN and origem_permitida
+```
 
 <p>Perceba ao menos duas configurações do settings.py são citadas diretamente, o CORS_ALLOWED_ORIGINS e API_TOKEN. O CORS é um pacote chamado "django-cors-headers" que precisa ser instalado com o pip, passando ser, portanto, uma dependência do nosso projeto. Mas vamos então revisar todas as linhas relevantes do settings.py:</p>
 
-<pre>ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+```python
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 INSTALLED_APPS = [..., "corsheaders", ...]
 MIDDLEWARE = [...
     'corsheaders.middleware.CorsMiddleware',
@@ -169,11 +174,13 @@ CORS_ALLOWED_ORIGINS = [
 # ele le o arquivo token.txt que criamos no sobeDjango
 TOKEN_FILE = BASE_DIR / "token.txt"
 with open(TOKEN_FILE) as f:
-    API_TOKEN = f.read().strip()</pre>
+    API_TOKEN = f.read().strip()
+```
 
 <p>Perceba que também existe referêcia a um middleware customizado nosso, que é o responsável por injetar o token. Ele faz parte do app "services" e possui o seguinte código:</p>
 
-<pre>from django.conf import settings
+```python
+from django.conf import settings
 class AddBackendTokenHeaderMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -182,7 +189,8 @@ class AddBackendTokenHeaderMiddleware:
         # apenas injeta o token se a requisição veio do react (localhost:5173)
         if origin == "http://localhost:5173":
             request.META['HTTP_X_BACKEND_TOKEN'] = settings.API_TOKEN
-        return self.get_response(request)</pre>
+        return self.get_response(request)
+```
 
 <p>Agora que todas as linhas relevantes estão identificadas, vamos às considerações relacionadas a funcionamento e implicações:</p>
 
@@ -199,5 +207,115 @@ class AddBackendTokenHeaderMiddleware:
 </ul>
 
 <h2>Usuários e Login</h2>
+
+<p>Toda a autenticação de usuário é basicamente "terceirizada" para o Google. Isso significa que não guardamos nomes de usuários, senhas, nem nenhum tipo de credencial de acesso. O motivo da escolha pelo Google se deu não apenas por ser demanda de PO, mas também por ser a melhor credencial utilizada no campus, que é cliente do Google e já o usa para o e-mail institucional.</p>
+
+<p>Para configurá-lo é preciso, primeiro, criar com o Google o serviço de autenticação. Você precisa de uma conta do Google com a qual vai assinar serviços do Google Cloud (sim, é pago, mas tem três meses de passe livre). A assinatura que fizemos vai durar até o fim da disciplina, mas para produção será necessário trocar o Client ID para algo definitivo, mostraremos onde no código logo mais.</p>
+
+<p>A configuração na ponta do Google se dá pelo link <a href="https://console.cloud.google.com">https://console.cloud.google.com</a>, então no menu esquerdo ir em "APIs e Serviços" e depois  "Credenciais". Nós criamos uma credencial de OAuth 2.0 chamada "ifrspei", nela são configuradas as origens e redirecionamentos desejados que, no nosso caso, ficaram como "localhost:5173" em ambos os casos. Ou seja, é algo que é processado e resolvido apenas no frontend React, não há qualquer relação com o backend Django da forma como foi implementado. Uma vez configurado o serviço no Google, você recebe uma Client ID que será necessária no código e é essa identidade que precisará ser trocada no futuro para produção.</p>
+
+<p>No React, dois novos pacote passam a ser depedências e instalados com o NPM. O pacote "<i>@react-oauth/google</i>" que de fato é responsável pela autenticação, bem como também o "<i>jwt-decode</i>" que é necessário para "abrir" a credencial do Google e extrair as informações sobre o usuário. A implementação que fizemos no código se deu logo no nível do App.jsx, importando as seguintes bibliotecas:</p>
+
+```javascript
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
+import { jwtDecode } from 'jwt-decode'
+import { useState, useEffect } from 'react'
+```
+
+<p>Logo em seguida, no trecho de funções JavaScript do App.jsx, precisamos primeiro criar os estados necessários para o login:</p>
+
+```javascript
+// ------------------------------------------------------------
+// estados para login google
+const [usuario, setUsuario] = useState(null)
+const [logado, setLogado] = useState(false)
+```
+
+<p>Então temos também a declaração de duas funções, uma para o login de sucesso, outra para erro:</p>
+
+```javascript
+// ------------------------------------------------------------
+// callback de sucesso no login
+const sucessoLoginGoogle = (credentialResponse) => {
+  try {
+    const dados = jwtDecode(credentialResponse.credential)
+    setUsuario({ email: dados.email, nome: dados.name })
+    setLogado(true)
+  } catch (erro) {
+    console.error('Erro ao decodificar token do Google:', erro)
+    setUsuario(null)
+    setLogado(false) } }
+
+// ------------------------------------------------------------
+// callback de erro no login
+const erroLoginGoogle = () => {
+  console.error('Falha no login com o Google')
+  setUsuario(null)
+  setLogado(false) }
+```
+
+<p>Então no trecho de HTML do "return", teremos o seguinte código. Perceba que é aqui, logo na primeira linha, que especificamos o Client ID do Google que deve ser trocado futuramente para produção. Perceba, também, que o estado "logado" (um booleano) é usado para mostrar ou uma saudação, ou renderizar o botão de login do Google:</p>
+
+```jsx
+<GoogleOAuthProvider clientId="1050578287576-b870ajrmae9eioc0k2mumod0digo54fd.apps.googleusercontent.com">
+  { logado ? (
+    <div>
+      <div>Olá, {usuario.nome} ({usuario.email}).<br />
+      <button onClick={() => { setUsuario(null); setLogado(false); }}>Logout</button></div>
+    </div>
+  ) : (  
+    <div>
+      <p>Você precisa fazer login para acessar o sistema.</p>
+      <GoogleLogin
+        onSuccess={sucessoLoginGoogle}
+        onError={erroLoginGoogle}
+      />
+    </div>
+  ) }
+</GoogleOAuthProvider>
+```
+
+<p>O código foi obviamente muito reduzido para apenas mostrar os trechos essenciais e não poluir demais a documentação. A experiência de uso mostrou que, embora funcional, a implementação de apenas um estado "logado" para controle de login estava demasiadamente volátil. Bastava atualizar a página para resetar o estado para falso ou então salvar qualquer arquivo de código, recarregando o webserver. Decidimos que era necessário criar algum tipo de mecanismo de persistência de login, que foi implementado salvando as informações de login no navegador do usuário. Ou seja, enquanto o usuário não limpar seus dados de navegação do browser, ele permenecerá logado no sistema, por hora sem nenhum tipo de expiração. O código necessário foi o seguinte. Primeiro, verificar ao carregar a página se os dados de login já estão salvos no navegador:</p>
+
+```javascript
+  useEffect(() => {
+    const usuarioSalvo = localStorage.getItem("usuario")
+    if (usuarioSalvo) {
+      setUsuario(JSON.parse(usuarioSalvo))
+      setLogado(true)
+    }
+  }, [])
+```
+
+<p>Adicionar duas linhas para salvar os dados do login na função de sucesso, deixando ela assim:</p>
+
+```javascript
+const sucessoLoginGoogle = (credentialResponse) => {
+    try {
+      const dados = jwtDecode(credentialResponse.credential)
+      const userData = { email: dados.email, nome: dados.name }
+
+      setUsuario(userData)
+      setLogado(true)
+
+      // Salva no localStorage
+      localStorage.setItem("usuario", JSON.stringify(userData))
+      localStorage.setItem("token", credentialResponse.credential) // Salva o token JWT para uso momentaneo nos logs
+```
+
+<p>E, claro, uma função de logout para que não apenas sejam resetados os estados, como apagados os dados referentes no navegador:</p>
+
+```javascript
+  const logout = () => {
+    setUsuario(null)
+    setLogado(false)
+    localStorage.removeItem("usuario") // limpa persistência
+    localStorage.removeItem("token") // limpa o token também
+  }
+```
+
+<p>Da forma como está, nossa implementação do login do Google aceita qualquer conta e em praticamente nada dialoga com o restante do sistema. Passaremos agora a documentar como que, a partir das credenciais da conta Google, o usuário é validado como uma conta legítima da instituição e como ele recebe permissão para, de fato, acessar o sistema.</p>
+
+<h2>Cadastro de Usuário do Sistema</h2>
 
 <p>...</p>
