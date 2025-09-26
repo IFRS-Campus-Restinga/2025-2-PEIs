@@ -53,8 +53,9 @@ function PeiCentral() {
               border: "1px solid #ccc",
             }}
           >
-            
-            <Link to={'/editar_peicentral/'+ pei.id}>Editar</Link>
+            <button>
+              <Link to={'/editar_peicentral/'+ pei.id}>Editar</Link>
+            </button>
             <br /><br />
             
             <b>Aluno(PENDENTE):</b> Fulano da Silva <br />
