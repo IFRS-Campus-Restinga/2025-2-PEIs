@@ -13,6 +13,8 @@ function EditarPeiCentral() {
   const [habilidades, setHabilidades] = useState("");
   const [dificuldades_apresentadas, setDificuldadesApresentadas] = useState("");
   const [adaptacoes, setAdaptacoes] = useState("");
+  const [sucesso, setSucesso] = useState("");
+  const [erro, setErro] = useState("");
   
 
   useEffect(() => {
@@ -46,17 +48,18 @@ function EditarPeiCentral() {
         adaptacoes: adaptacoes,
       });
 
-      alert("PEI Central atualizado com sucesso!");
-      navigate("/peicentral");
+      setSucesso("PEI Central atualizado com sucesso!");
+      setTimeout(() => {navigate("/peicentral")}, 2000);
     } catch (err) {
-      console.error("Erro ao atualizar PEI Central:", err);
-      alert("Não foi possível atualizar o PEI Central.");
+      console.error(err);
+      setErro("Não foi possível atualizar o PEI Central.");
     }
   }
 
   return (
     <div>
       <h1>Editar PEI Central</h1>
+      {sucesso && <div  className="text-sucesso">{sucesso}</div>}
       <form onSubmit={handleSubmit}>
         <label>Status:</label>
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
