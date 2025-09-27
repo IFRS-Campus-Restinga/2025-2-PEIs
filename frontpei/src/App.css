@@ -32,3 +32,31 @@ html, body {
   overflow-wrap: break-word; /* mais moderno, funciona junto */
 }
 
+.text-sucesso {
+  background-color: #d4edda;   /* verde claro */
+  color: #23641d;              /* verde escuro para contraste */
+  padding: 12px 16px;          /* espaço interno */
+  width: 100%;                 /* cobre toda a largura */
+  display: block;              /* garante comportamento de bloco */
+  text-align: center;          /* centraliza o texto */
+  border-radius: 8px;          /* pontas arredondadas */
+  margin-bottom: 16px;         /* espaçamento abaixo */
+  font-weight: 500;            /* texto mais marcante */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* leve sombra para destacar */
+  font-family: 'Roboto', sans-serif;
+}
+
+.text-erro {
+  background-color: #fba5ac; /* vermelho claro */
+  color: #770404;            /* vermelho escuro para o texto */
+  padding: 12px 16px;
+  display: block;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  font-family: 'Roboto', sans-serif;
+}
+

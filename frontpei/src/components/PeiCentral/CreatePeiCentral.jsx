@@ -32,22 +32,37 @@ function CreatePeiCentral() {
       });
 
       console.log("Criado:", resposta.data);
-      setSucesso("Pei Central criado com sucesso!");
+      setSucesso("PEI CENTRAL CRIADO!!!");
+      
+      window.scrollTo({top: 0, behavior:"smooth"});  
 
+      {/*Contador para exibição da mensagem de sucesso*/}
+      setTimeout(() => setSucesso (""), 3000)
+      
       setHistorico("");
       setStatus("");
-
-      setTimeout(() => navigate("/peicentral"), 1500);
+      
+      {/*Contador para navegar para a página inicial do pei central após salvar model no banco*/}
+      setTimeout(() => navigate("/peicentral"), 3500);
+    
     } catch (err) {
-      console.error("Erro ao criar Pei Central:", err);
-      setErro("Erro ao criar Pei Central. Tente novamente.");
+      console.error(err);
+      setErro("Erro ao criar Pei Central - Tente novamente.");
     }
   }
 
   return (
     <div className="p-6">
       <h1 className="text-xl font-bold mb-4">Criar Pei Central</h1>
-
+      <div>
+        {sucesso && (
+          <div className="text-sucesso">{sucesso}</div>
+        )}
+        {erro &&(
+          <div className="text-erro">{erro}</div>  
+        )}
+      </div>  
+      
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Campo de preenchimento de historico_do_aluno */}
         <div>
@@ -150,9 +165,6 @@ function CreatePeiCentral() {
           Salvar
         </button>
       </form>
-
-      {erro && <p className="text-red-600 mt-4">{erro}</p>}
-      {sucesso && <p className="text-green-600 mt-4">{sucesso}</p>}
 
       <div className="mt-4">
         <button>
