@@ -62,6 +62,7 @@ roda([rodanpm, "list", "react"], cwd=os.path.join(baseDir, "frontpei"), ambiente
 roda([rodanpm, "list", "axios"], cwd=os.path.join(baseDir, "frontpei"), ambiente={"PATH": f"{os.path.join(baseDir,'node')};{os.environ['PATH']}"})
 roda([rodanpm, "list", "@react-oauth/google"], cwd=os.path.join(baseDir, "frontpei"), ambiente={"PATH": f"{os.path.join(baseDir,'node')};{os.environ['PATH']}"})
 roda([rodanpm, "list", "jwt-decode"], cwd=os.path.join(baseDir, "frontpei"), ambiente={"PATH": f"{os.path.join(baseDir,'node')};{os.environ['PATH']}"})
+roda([rodanpm, "list", "react-router-dom"], cwd=os.path.join(baseDir, "frontpei"), ambiente={"PATH": f"{os.path.join(baseDir,'node')};{os.environ['PATH']}"})
 
 # ------------------------------------------
 # subindo o webserver do react
