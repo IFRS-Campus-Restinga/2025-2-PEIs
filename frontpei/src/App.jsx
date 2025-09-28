@@ -24,46 +24,58 @@ import DocumentacaoComplementar from './components/documentacaoComplementar.jsx'
 import Pedagogos from './components/Pedagogo.jsx'
 
 function App() {
+
+  // estados para o login do google
   const [usuario, setUsuario] = useState(null)
   const [logado, setLogado] = useState(false)
-
+  // verifica ao iniciar se usuario ja esta logado
   useEffect(() => {
     const usuarioSalvo = localStorage.getItem("usuario")
     if (usuarioSalvo) {
       setUsuario(JSON.parse(usuarioSalvo))
-      setLogado(true)
-    }
+      setLogado(true) }
   }, [])
-
+  // funcao que roda ao usuario ter sucesso no login do google
   const sucessoLoginGoogle = (credentialResponse) => {
     try {
+      // abrindo os dados o usuario
       const dados = jwtDecode(credentialResponse.credential)
+      // preciso validar se o email pertence ao ifrs
+      const email = dados.email || ""
+      const partes = email.split("@")
+      // deve ter exatamente uma arroba e terminar com "ifrs.edu.br"
+      if (partes.length !== 2 || !email.endsWith("ifrs.edu.br")) {
+        console.error("Email invalido ou nao autorizado:", email)
+        setUsuario(null)
+        setLogado(false)
+        localStorage.removeItem("usuario")
+        localStorage.removeItem("token")
+        alert("Apenas contas do IFRS podem acessar o sistema.")
+        return }
+      // salva os dados o usuario e ativa flag de login
       const userData = { email: dados.email, nome: dados.name }
-
       setUsuario(userData)
       setLogado(true)
-
-      // Salva no localStorage
       localStorage.setItem("usuario", JSON.stringify(userData))
-      localStorage.setItem("token", credentialResponse.credential) // Salva o token JWT para uso momentaneo nos logs
+      localStorage.setItem("token", credentialResponse.credential)
     } catch (erro) {
       console.error('Erro ao decodificar token do Google:', erro)
       setUsuario(null)
       setLogado(false)
-    }
-  }
-
+    } }
+  // funcao que roda no caso de erro no login
   const erroLoginGoogle = () => {
     console.error('Falha no login com o Google')
     setUsuario(null)
     setLogado(false)
   }
-
+  // funcao de logout
   const logout = () => {
     setUsuario(null)
     setLogado(false)
-    localStorage.removeItem("usuario") // limpa persistência
-    localStorage.removeItem("token") // limpa o token também
+    // limpa a persistencia e o token
+    localStorage.removeItem("usuario")
+    localStorage.removeItem("token")
   }
 
   return (
