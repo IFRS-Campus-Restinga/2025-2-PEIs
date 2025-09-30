@@ -11,10 +11,10 @@ import { Routes, Route } from "react-router-dom";
 import Header from './components/customHeader/Header.jsx'
 import Footer from './components/customFooter/Footer.jsx'
 import SubHeader from './components/customSubHeader/Subheader.jsx'
-import PeiCentral from './components/PeiCentral/PeiCentral.jsx'
-import CreatePeiCentral from './components/PeiCentral/CreatePeiCentral.jsx'
-import EditarPeiCentral from './components/PeiCentral/EditarPeiCentral.jsx'
-import DeletarPeiCentral from './components/PeiCentral/DeletarPeiCentral.jsx'
+import PeiCentral from './components/peiCentral/PeiCentral.jsx'
+import CreatePeiCentral from './components/peiCentral/CreatePeiCentral.jsx'
+import EditarPeiCentral from './components/peiCentral/EditarPeiCentral.jsx'
+import DeletarPeiCentral from './components/peiCentral/DeletarPeiCentral.jsx'
 import Alunos from './components/Aluno.jsx'
 import CoordenadorCurso from './components/CoordenadorCurso.jsx'
 import Logs from './components/LogsComponents/Logs.jsx'
@@ -22,12 +22,16 @@ import ComponenteCurricular from './components/componenteCurricular.jsx'
 import AtaDeAcompanhamento from './components/ataDeAcompanhamento.jsx'
 import DocumentacaoComplementar from './components/documentacaoComplementar.jsx'
 import Pedagogos from './components/Pedagogo.jsx'
+import ErrorMessage from './components/errorMessage/errorMessage.jsx'
+import LoginPage from './pages/login/login.jsx'
 
 function App() {
 
   // estados para o login do google
   const [usuario, setUsuario] = useState(null)
   const [logado, setLogado] = useState(false)
+  const [mensagemErro, setMensagemErro] = useState(null);
+
   // verifica ao iniciar se usuario ja esta logado
   useEffect(() => {
     const usuarioSalvo = localStorage.getItem("usuario")
@@ -50,7 +54,7 @@ function App() {
         setLogado(false)
         localStorage.removeItem("usuario")
         localStorage.removeItem("token")
-        alert("Apenas contas do IFRS podem acessar o sistema.")
+        setMensagemErro("Acesso negado. Use um email institucional do IFRS.")
         return }
       // salva os dados o usuario e ativa flag de login
       const userData = { email: dados.email, nome: dados.name }
@@ -68,6 +72,7 @@ function App() {
     console.error('Falha no login com o Google')
     setUsuario(null)
     setLogado(false)
+    setMensagemErro("Falha no login com o Google. Tente novamente.")
   }
   // funcao de logout
   const logout = () => {
@@ -109,20 +114,12 @@ function App() {
           <Footer/>
 
         </div>
-      ) : (  
-         <div style={{
-          position: 'fixed',
-          top: '30%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          textAlign: 'center',
-          width: '30%'
-        }}>
-          <img src='./src/assets/logo.png' style={{ height: 225, width: 150 }} />
-          <h2>Prova de Conceito do PEI</h2>
-          <p>Você precisa fazer login para acessar o sistema.</p>
-          <GoogleLogin onSuccess={sucessoLoginGoogle} onError={erroLoginGoogle} />
-        </div>
+      ) : (
+        <LoginPage 
+        onLoginSuccess={sucessoLoginGoogle}
+        onLoginError={erroLoginGoogle}
+        mensagemErro={mensagemErro}
+        />
       )}
     </GoogleOAuthProvider>   
   )
