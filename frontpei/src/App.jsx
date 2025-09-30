@@ -2,15 +2,15 @@ import './App.css'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
 import { useState, useEffect } from 'react'
-import Home from './Home.jsx'
+import Home from "./pages/home/Home.jsx"
 import Pareceres from "./components/Parecer";
 import PEIPeriodoLetivo from "./components/PEIPeriodoLetivo";
 import Cursos from './components/Curso.jsx'
 import Disciplinas from './components/Disciplina.jsx'
 import { Routes, Route } from "react-router-dom";
-import Header from './components/Header.jsx'
-import Footer from './components/Footer.jsx'
-import SubHeader from './components/Subheader.jsx'
+import Header from './components/customHeader/Header.jsx'
+import Footer from './components/customFooter/Footer.jsx'
+import SubHeader from './components/customSubHeader/Subheader.jsx'
 import PeiCentral from './components/PeiCentral/PeiCentral.jsx'
 import CreatePeiCentral from './components/PeiCentral/CreatePeiCentral.jsx'
 import EditarPeiCentral from './components/PeiCentral/EditarPeiCentral.jsx'

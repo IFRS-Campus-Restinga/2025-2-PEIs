@@ -1,6 +1,6 @@
 import React from 'react';
 import "./Header.css";
-import logo from "../assets/logo.png";
+import logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
 
 const Header = ({ usuario, logado, logout }) => {
@@ -9,7 +9,7 @@ const Header = ({ usuario, logado, logout }) => {
             {/* ESQUERDA */}
             <div className="header-left">
                 <Link to="/" className="footer-logo-link">
-                    <img src={logo} alt="Logo IFRS" className="footer-logo" />
+                    <img src={logo} alt="Logo IFRS" className="header-logo" />
                 </Link>
                 <div className="header-text">
                     <strong>INSTITUTO FEDERAL</strong>
