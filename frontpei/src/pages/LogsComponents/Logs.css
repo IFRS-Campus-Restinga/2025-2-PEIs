@@ -1,0 +1,65 @@
+.logs-container {
+  padding: 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.logs-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #055C0F;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.voltar-btn {
+  background: #fff;
+  color: #055C0F;
+  border: 2px solid #055C0F;
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+  transition: background 0.2s, color 0.2s;
+  text-decoration: none;
+  margin-bottom: 16px;
+  display: inline-block;
+}
+
+.voltar-btn:hover, .voltar-btn:focus {
+  background: #1976d2;
+  color: #fff;
+  outline: none;
+}
+
+.logs-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.logs-table thead {
+  background: linear-gradient(90deg, #055C0F 70%, #0a7d2c 100%);
+  color: #fff;
+}
+
+.logs-table th,
+.logs-table td {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.logs-table tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.logs-table tbody tr:hover {
+  background: #e6f4ea;
+}
