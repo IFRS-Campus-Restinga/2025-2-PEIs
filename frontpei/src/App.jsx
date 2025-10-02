@@ -32,22 +32,24 @@ function App() {
   const [logado, setLogado] = useState(false)
   const [mensagemErro, setMensagemErro] = useState(null);
 
+  // estado para perfil selecionado
+  const [perfilSelecionado, setPerfilSelecionado] = useState(null);
+
   // verifica ao iniciar se usuario ja esta logado
   useEffect(() => {
     const usuarioSalvo = localStorage.getItem("usuario")
     if (usuarioSalvo) {
       setUsuario(JSON.parse(usuarioSalvo))
-      setLogado(true) }
+      setLogado(true)
+    }
   }, [])
+
   // funcao que roda ao usuario ter sucesso no login do google
   const sucessoLoginGoogle = (credentialResponse) => {
     try {
-      // abrindo os dados o usuario
       const dados = jwtDecode(credentialResponse.credential)
-      // preciso validar se o email pertence ao ifrs
       const email = dados.email || ""
       const partes = email.split("@")
-      // deve ter exatamente uma arroba e terminar com "ifrs.edu.br"
       if (partes.length !== 2 || !email.endsWith("ifrs.edu.br")) {
         console.error("Email invalido ou nao autorizado:", email)
         setUsuario(null)
@@ -55,8 +57,8 @@ function App() {
         localStorage.removeItem("usuario")
         localStorage.removeItem("token")
         setMensagemErro("Acesso negado. Use um email institucional do IFRS.")
-        return }
-      // salva os dados o usuario e ativa flag de login
+        return
+      }
       const userData = { email: dados.email, nome: dados.name }
       setUsuario(userData)
       setLogado(true)
@@ -66,7 +68,9 @@ function App() {
       console.error('Erro ao decodificar token do Google:', erro)
       setUsuario(null)
       setLogado(false)
-    } }
+    }
+  }
+
   // funcao que roda no caso de erro no login
   const erroLoginGoogle = () => {
     console.error('Falha no login com o Google')
@@ -74,11 +78,12 @@ function App() {
     setLogado(false)
     setMensagemErro("Falha no login com o Google. Tente novamente.")
   }
+
   // funcao de logout
   const logout = () => {
     setUsuario(null)
     setLogado(false)
-    // limpa a persistencia e o token
+    setPerfilSelecionado(null)
     localStorage.removeItem("usuario")
     localStorage.removeItem("token")
   }
@@ -88,37 +93,43 @@ function App() {
       { logado ? (
         <div className="app-container">
           <Header usuario={usuario} logado={logado} logout={logout} />
-          <SubHeader/>
+          <SubHeader perfilSelecionado={perfilSelecionado} />
           <hr />
           
           <main className='main-content'>
-          <Routes>
-            <Route path="/" element={<Home usuario={usuario} />} />
-            <Route path="/pareceres" element={<Pareceres />} />
-            <Route path="/periodo" element={<PEIPeriodoLetivo />} />
-            <Route path="/disciplina" element={<Disciplinas/>}/>
-            <Route path="/curso" element={<Cursos/>}/>
-            <Route path="/aluno" element={<Alunos/>}/>
-            <Route path="/coordenador" element={<CoordenadorCurso/>}/>
-            <Route path="/peicentral" element={<PeiCentral />} />
-            <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
-            <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
-            <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
-            <Route path="/componenteCurricular" element={<ComponenteCurricular/>}/>
-            <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento/>}/>
-            <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
-            <Route path="/pedagogo" element={<Pedagogos/>}/>
-            <Route path="/logs" element={<Logs/>}/>
-          </Routes>
+            <Routes>
+              <Route 
+                path="/" 
+                element={<Home 
+                  usuario={usuario} 
+                  perfilSelecionado={perfilSelecionado} 
+                  setPerfilSelecionado={setPerfilSelecionado} 
+                />} 
+              />
+              <Route path="/pareceres" element={<Pareceres />} />
+              <Route path="/periodo" element={<PEIPeriodoLetivo />} />
+              <Route path="/disciplina" element={<Disciplinas/>}/>
+              <Route path="/curso" element={<Cursos/>}/>
+              <Route path="/aluno" element={<Alunos/>}/>
+              <Route path="/coordenador" element={<CoordenadorCurso/>}/>
+              <Route path="/peicentral" element={<PeiCentral />} />
+              <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
+              <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
+              <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
+              <Route path="/componenteCurricular" element={<ComponenteCurricular/>}/>
+              <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento/>}/>
+              <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
+              <Route path="/pedagogo" element={<Pedagogos/>}/>
+              <Route path="/logs" element={<Logs/>}/>
+            </Routes>
           </main>
           <Footer/>
-
         </div>
       ) : (
         <LoginPage 
-        onLoginSuccess={sucessoLoginGoogle}
-        onLoginError={erroLoginGoogle}
-        mensagemErro={mensagemErro}
+          onLoginSuccess={sucessoLoginGoogle}
+          onLoginError={erroLoginGoogle}
+          mensagemErro={mensagemErro}
         />
       )}
     </GoogleOAuthProvider>   

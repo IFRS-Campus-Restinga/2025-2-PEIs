@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import logo from "../../assets/logo.png";
 import "./Home.css";
 
-const Home = ({ usuario }) => {
-  const [perfilSelecionado, setPerfilSelecionado] = useState(null);
-
+const Home = ({ usuario, perfilSelecionado, setPerfilSelecionado }) => {
   const perfis = ["Coordenador", "NAPNE", "Professor"];
 
   return (

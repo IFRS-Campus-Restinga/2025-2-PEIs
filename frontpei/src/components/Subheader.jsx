@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import "./Subheader.css";
-import { botoesPorPerfil } from "../../configs/permissoes";
+import { botoesPorPerfil } from "../configs/permissoes";
 
 
 const SubHeader = ({ perfilSelecionado }) => {
