@@ -30,21 +30,25 @@ export default function Disciplinas() {
     <div className="disciplinas-container">
       <h1>Disciplinas</h1>
 
+      {/* Botão criar nova disciplina */}
       <div className="disciplinas-form">
         <Link to="/disciplinasCadastrar">
-          <button>Criar nova disciplina</button>
+          <button className="submit-btn">Criar nova disciplina</button>
         </Link>
       </div>
 
+      {/* Mensagem de erro */}
       {erro ? (
-        <p style={{ color: "red" }}>Não foi possível carregar as disciplinas.</p>
+        <p style={{ color: "red", textAlign: "center" }}>
+          Não foi possível carregar as disciplinas.
+        </p>
       ) : (
         <div className="disciplinas-list">
           <ul>
             {disciplinas.map((d) => (
               <li key={d.id}>
                 <span><b>{d.nome}</b></span>
-                <div>
+                <div className="curso-buttons">
                   <BotaoEditar id={d.id} rotaEdicao="/disciplinaEditar" />
                   <BotaoDeletar 
                     id={d.id} 
@@ -58,6 +62,7 @@ export default function Disciplinas() {
         </div>
       )}
 
+      {/* Botão voltar */}
       <Link to="/" className="voltar-btn">Voltar</Link>
     </div>
   );

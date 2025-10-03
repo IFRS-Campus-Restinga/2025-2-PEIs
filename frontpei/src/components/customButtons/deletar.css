@@ -44,13 +44,18 @@
 }
 
 .modal-buttons .confirmar {
-  background: #f50909;
+  background: #055C0F; /* cor padrão */
   color: white;
+  transition: background 0.3s;
+}
+
+.modal-buttons .confirmar:hover {
+  background: #0133bb; /* cor quando o mouse estiver em cima */
 }
 
 .modal-buttons .cancelar {
-  background: #ccc;
-  color: black;
+  background: #f50909;
+  color: white;
 }
 
 .erro {

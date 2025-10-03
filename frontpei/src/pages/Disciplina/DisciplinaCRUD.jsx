@@ -13,7 +13,7 @@ export default function DisciplinasCRUD() {
   const navigate = useNavigate();
   const { id } = useParams(); // se existir, é edição
 
-  // Carrega disciplina para edição, se houver id
+  // Carrega disciplina para edição
   useEffect(() => {
     if (id) {
       async function carregarDisciplina() {
@@ -43,16 +43,13 @@ export default function DisciplinasCRUD() {
 
     try {
       if (id) {
-        // Edição
         await DB.put(`/${id}/`, { nome: nomeTrim });
         setSucesso("Disciplina atualizada com sucesso!");
       } else {
-        // Criação
         await DB.post("/", { nome: nomeTrim });
         setSucesso("Disciplina cadastrada com sucesso!");
       }
 
-      // Redireciona após 1.5s para dar tempo da mensagem aparecer
       setTimeout(() => navigate("/disciplina"), 1500);
     } catch (err) {
       console.error("Erro ao salvar disciplina:", err);
@@ -67,13 +64,22 @@ export default function DisciplinasCRUD() {
       <ErrorMessage message={erro} />
       {sucesso && <p style={{ color: "green", textAlign: "center" }}>{sucesso}</p>}
 
-      <form className="disciplinas-form" onSubmit={salvarDisciplina}>
-        <label>Nome:</label>
-        <textarea
-          value={disciplina}
-          onChange={(e) => setDisciplina(e.target.value)}
-        />
-        <button type="submit">{id ? "Salvar alterações" : "Adicionar disciplina"}</button>
+      <form className="cursos-form" onSubmit={salvarDisciplina}>
+        <div className="form-group">
+          <label htmlFor="nome">Nome da disciplina:</label>
+          <input
+            id="nome"
+            type="text"
+            value={disciplina}
+            onChange={(e) => setDisciplina(e.target.value)}
+            placeholder="Digite o nome da disciplina"
+          />
+        </div>
+
+
+        <button type="submit" className="submit-btn">
+          {id ? "Salvar alterações" : "Adicionar disciplina"}
+        </button>
       </form>
 
       <Link to="/disciplina" className="voltar-btn">

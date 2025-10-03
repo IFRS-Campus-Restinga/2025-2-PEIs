@@ -1,0 +1,198 @@
+/* Container principal */
+.cursos-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  font-family: system-ui, sans-serif;
+}
+
+/* Título */
+.cursos-container h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #055C0F;
+  margin-bottom: 20px;
+  text-align: center;
+  position: relative;
+}
+
+.cursos-container h1::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: #055C0F;
+  margin: 8px auto 0;
+  border-radius: 2px;
+}
+
+/* Formulário */
+.cursos-form {
+  display: flex;
+  flex-direction: column; /* campos empilhados */
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.form-group input[type="text"],
+.form-group select {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #055C0F;
+  box-shadow: 0 0 0 2px rgba(5,92,15,0.15);
+}
+
+/* Checkboxes disciplinas */
+.disciplinas-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.disciplinas-checkboxes label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f9f9f9;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.disciplinas-checkboxes label:hover {
+  background: #eef6f0;
+}
+
+.disciplinas-checkboxes input[type="checkbox"] {
+  accent-color: #055C0F;
+  cursor: pointer;
+}
+
+/* Botão submit (Adicionar/Salvar) */
+.submit-btn {
+  align-self: flex-end; /* botão à direita */
+  padding: 10px 40px;
+  min-width: 180px;
+  background: #055C0F;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.submit-btn:hover {
+  background: #1976d2;
+}
+
+.submit-btn:active {
+  transform: scale(0.97);
+}
+
+/* Lista de cursos */
+.cursos-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cursos-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.cursos-list li {
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 10px auto;
+  max-width: 600px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cursos-list li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+}
+
+.cursos-list li b {
+  display: inline-block;
+  width: 120px;
+  color: #055C0F;
+  font-weight: 600;
+}
+
+/* Botões dentro de cada item */
+.curso-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  justify-content: flex-end;
+}
+
+/* Botão Voltar */
+.voltar-btn {
+  display: block;
+  margin: 24px auto 0;
+  padding: 10px 22px;
+  background: #ccc;
+  color: #333;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.voltar-btn:hover {
+  background: #999;
+  color: #fff;
+}
+
+.voltar-btn:active {
+  transform: scale(0.97);
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+  .submit-btn {
+    width: 100%;
+    min-width: auto;
+  }
+  .cursos-list li {
+    padding: 10px;
+  }
+}

@@ -104,44 +104,69 @@ export default function CursosCRUD() {
       {sucesso && <p style={{ color: "green", textAlign: "center" }}>{sucesso}</p>}
 
       <form className="cursos-form" onSubmit={salvarCurso}>
-        <label>Nome do curso:</label>
-        <input type="text" value={curso} onChange={(e) => setCurso(e.target.value)} /><br />
-
-        <label>Disciplinas:</label>
-        <div className="disciplinas-checkboxes">
-          {disciplinas.map(d => (
-            <label key={d.id} style={{ display: "block" }}>
-              <input
-                type="checkbox"
-                value={d.id}
-                checked={disciplinasSelecionadas.includes(d.id)}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value);
-                  setDisciplinasSelecionadas(prev =>
-                    prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val]
-                  );
-                }}
-              />
-              {d.nome}
-            </label>
-          ))}
+        <div className="form-group">
+          <label>Nome do curso:</label>
+          <input 
+            type="text" 
+            value={curso} 
+            onChange={(e) => setCurso(e.target.value)} 
+            placeholder="Digite o nome do curso"
+          />
         </div>
 
-        <label>Nível:</label>
-        <select value={nivel} onChange={(e) => setNivel(e.target.value)}>
-          {niveis.map(n => <option key={n.value} value={n.value}>{n.label}</option>)}
-        </select><br />
+        <div className="form-group">
+          <label>Disciplinas:</label>
+          <div className="disciplinas-checkboxes">
+            {disciplinas.map(d => (
+              <label key={d.id} className="checkbox-item">
+                <input
+                  type="checkbox"
+                  value={d.id}
+                  checked={disciplinasSelecionadas.includes(d.id)}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    setDisciplinasSelecionadas(prev =>
+                      prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val]
+                    );
+                  }}
+                />
+                <span>{d.nome}</span>
+              </label>
+            ))}
+          </div>
+        </div>
 
-        <label>Coordenador:</label>
-        <select value={coordSelecionado} onChange={(e) => setCoordSelecionado(e.target.value)}>
-          <option value="">Não informado</option>
-          {coordCurso.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
-        </select><br />
+        <div className="form-group">
+          <label>Nível:</label>
+          <select value={nivel} onChange={(e) => setNivel(e.target.value)}>
+            {niveis.map(n => (
+              <option key={n.value} value={n.value}>{n.label}</option>
+            ))}
+          </select>
+        </div>
 
-        <button type="submit">{id ? "Salvar alterações" : "Adicionar curso"}</button>
+        <div className="form-group">
+          <label>Coordenador:</label>
+          <select value={coordSelecionado} onChange={(e) => setCoordSelecionado(e.target.value)}>
+            <option value="">Não informado</option>
+            {coordCurso.map(c => (
+              <option key={c.id} value={c.id}>{c.nome}</option>
+            ))}
+          </select>
+        </div>
+
+        <button type="submit" className="submit-btn">
+          {id ? "Salvar alterações" : "Adicionar curso"}
+        </button>
       </form>
 
-      <Link to="/curso" className="voltar-btn">Voltar</Link>
+      <div className="cursos-form">
+        <div className="form-buttons">
+          <Link to="/curso" className="voltar-btn">
+            Voltar
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

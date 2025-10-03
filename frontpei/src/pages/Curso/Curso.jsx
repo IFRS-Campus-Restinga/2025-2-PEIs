@@ -33,9 +33,11 @@ export default function Cursos() {
 
       <div className="cursos-form">
         <Link to="/cursoCadastrar">
-          <button>Criar novo curso</button>
+          <button className="submit-btn">Adicionar curso</button>
         </Link>
       </div>
+
+
 
       {/* Aqui usamos o ErrorMessage */}
       <ErrorMessage message={erro} align="center" />
@@ -44,7 +46,7 @@ export default function Cursos() {
         <ul>
           {cursos.map((c) => (
             <li key={c.id}>
-              <b>Nome do Curso: </b> {c.name}
+              <b>Nome do Curso: </b> {c.name}<br />
               <b>Nível: </b> {c.nivel || "Não informado"}<br />
               <b>Disciplinas: </b>{c.disciplinas && c.disciplinas.length > 0
                 ? c.disciplinas.map(d => d.nome).join(", ")
