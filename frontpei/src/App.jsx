@@ -2,26 +2,26 @@ import './App.css'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
 import { useState, useEffect } from 'react'
-import Home from "./pages/home/Home.jsx"
-import Pareceres from "./components/Parecer";
-import PEIPeriodoLetivo from "./components/PEIPeriodoLetivo";
-import Cursos from './components/Curso.jsx'
-import Disciplinas from './components/Disciplina.jsx'
 import { Routes, Route } from "react-router-dom";
+import Home from "./pages/home/Home.jsx"
+import Pareceres from "./pages/Parecer.jsx"
+import PEIPeriodoLetivo from "./pages/PEIPeriodoLetivo";
+import Cursos from './pages/Curso.jsx'
+import Disciplinas from './pages/Disciplina.jsx'
 import Header from './components/customHeader/Header.jsx'
 import Footer from './components/customFooter/Footer.jsx'
 import SubHeader from './components/customSubHeader/Subheader.jsx'
-import PeiCentral from './components/peiCentral/PeiCentral.jsx'
-import CreatePeiCentral from './components/peiCentral/CreatePeiCentral.jsx'
-import EditarPeiCentral from './components/peiCentral/EditarPeiCentral.jsx'
-import DeletarPeiCentral from './components/peiCentral/DeletarPeiCentral.jsx'
-import Alunos from './components/Aluno.jsx'
-import CoordenadorCurso from './components/CoordenadorCurso.jsx'
-import Logs from './components/LogsComponents/Logs.jsx'
-import ComponenteCurricular from './components/componenteCurricular.jsx'
-import AtaDeAcompanhamento from './components/ataDeAcompanhamento.jsx'
-import DocumentacaoComplementar from './components/documentacaoComplementar.jsx'
-import Pedagogos from './components/Pedagogo.jsx'
+import PeiCentral from './pages/peiCentral/PeiCentral.jsx'
+import CreatePeiCentral from './pages/peiCentral/CreatePeiCentral.jsx'
+import EditarPeiCentral from './pages/peiCentral/EditarPeiCentral.jsx'
+import DeletarPeiCentral from './pages/peiCentral/DeletarPeiCentral.jsx'
+import Alunos from './pages/Aluno.jsx'
+import CoordenadorCurso from './pages/CoordenadorCurso.jsx'
+import Logs from './pages/LogsComponents/Logs.jsx'
+import ComponenteCurricular from './pages/componenteCurricular.jsx'
+import AtaDeAcompanhamento from './pages/ataDeAcompanhamento.jsx'
+import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
+import Pedagogos from './pages/Pedagogo.jsx'
 import ErrorMessage from './components/errorMessage/errorMessage.jsx'
 import LoginPage from './pages/login/login.jsx'
 

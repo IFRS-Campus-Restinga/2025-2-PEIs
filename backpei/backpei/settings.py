@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     # pacotes adicionais
     'rest_framework', 'rest_framework.authtoken', "corsheaders",
     # apps criados
-    'services', 'pei', 'logs',
+    'pei', 'logs'
 ]
 
 MIDDLEWARE = [
@@ -59,7 +59,7 @@ MIDDLEWARE = [
     # adicionado para funcionar do react no navegador
     'corsheaders.middleware.CorsMiddleware',
     # middleware customizado do app services para o token
-    'services.middleware.AddBackendTokenHeaderMiddleware',
+    'pei.services.middleware.AddBackendTokenHeaderMiddleware',
 ]
 
 # configuracao para uso de token para autenticacao
