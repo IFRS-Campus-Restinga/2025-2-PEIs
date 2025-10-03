@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from pei.models import Curso, Disciplina, CoordenadorCurso
-from services.serializers.disciplina_serializer import DisciplinaSerializer
-from services.serializers.coordenadorCurso_serializer import CoordenadorCursoSerializer
+from pei.services.serializers.disciplina_serializer import DisciplinaSerializer
+from pei.services.serializers.coordenadorCurso_serializer import CoordenadorCursoSerializer
 
 class CursoSerializer(serializers.ModelSerializer):
     disciplinas = DisciplinaSerializer(many=True, read_only=True)
