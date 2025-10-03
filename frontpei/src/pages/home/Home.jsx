@@ -1,18 +1,8 @@
-<<<<<<< Updated upstream
 import React from "react";
 import logo from "../../assets/logo.png";
 import "./Home.css";
 
 const Home = ({ usuario, perfilSelecionado, setPerfilSelecionado }) => {
-=======
-import React, { useState } from "react";
-import logo from "../../assets/logo.png";
-import "./Home.css";
-
-const Home = ({ usuario }) => {
-  const [perfilSelecionado, setPerfilSelecionado] = useState(null);
-
->>>>>>> Stashed changes
   const perfis = ["Coordenador", "NAPNE", "Professor"];
 
   return (

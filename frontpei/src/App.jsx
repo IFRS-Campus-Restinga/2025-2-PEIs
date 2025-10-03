@@ -32,37 +32,24 @@ function App() {
   const [logado, setLogado] = useState(false)
   const [mensagemErro, setMensagemErro] = useState(null);
 
-<<<<<<< Updated upstream
   // estado para perfil selecionado
   const [perfilSelecionado, setPerfilSelecionado] = useState(null);
 
-=======
->>>>>>> Stashed changes
   // verifica ao iniciar se usuario ja esta logado
   useEffect(() => {
     const usuarioSalvo = localStorage.getItem("usuario")
     if (usuarioSalvo) {
       setUsuario(JSON.parse(usuarioSalvo))
-      setLogado(true) }
+      setLogado(true)
+    }
   }, [])
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
   // funcao que roda ao usuario ter sucesso no login do google
   const sucessoLoginGoogle = (credentialResponse) => {
     try {
-      // abrindo os dados o usuario
       const dados = jwtDecode(credentialResponse.credential)
-<<<<<<< Updated upstream
       const email = dados.email || ""
       const partes = email.split("@")
-=======
-      // preciso validar se o email pertence ao ifrs
-      const email = dados.email || ""
-      const partes = email.split("@")
-      // deve ter exatamente uma arroba e terminar com "ifrs.edu.br"
->>>>>>> Stashed changes
       if (partes.length !== 2 || !email.endsWith("ifrs.edu.br")) {
         console.error("Email invalido ou nao autorizado:", email)
         setUsuario(null)
@@ -70,13 +57,8 @@ function App() {
         localStorage.removeItem("usuario")
         localStorage.removeItem("token")
         setMensagemErro("Acesso negado. Use um email institucional do IFRS.")
-<<<<<<< Updated upstream
         return
       }
-=======
-        return }
-      // salva os dados o usuario e ativa flag de login
->>>>>>> Stashed changes
       const userData = { email: dados.email, nome: dados.name }
       setUsuario(userData)
       setLogado(true)
@@ -86,13 +68,9 @@ function App() {
       console.error('Erro ao decodificar token do Google:', erro)
       setUsuario(null)
       setLogado(false)
-<<<<<<< Updated upstream
     }
   }
 
-=======
-    } }
->>>>>>> Stashed changes
   // funcao que roda no caso de erro no login
   const erroLoginGoogle = () => {
     console.error('Falha no login com o Google')
@@ -100,19 +78,12 @@ function App() {
     setLogado(false)
     setMensagemErro("Falha no login com o Google. Tente novamente.")
   }
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
   // funcao de logout
   const logout = () => {
     setUsuario(null)
     setLogado(false)
-<<<<<<< Updated upstream
     setPerfilSelecionado(null)
-=======
-    // limpa a persistencia e o token
->>>>>>> Stashed changes
     localStorage.removeItem("usuario")
     localStorage.removeItem("token")
   }
@@ -153,22 +124,12 @@ function App() {
             </Routes>
           </main>
           <Footer/>
-<<<<<<< Updated upstream
         </div>
       ) : (
         <LoginPage 
           onLoginSuccess={sucessoLoginGoogle}
           onLoginError={erroLoginGoogle}
           mensagemErro={mensagemErro}
-=======
-
-        </div>
-      ) : (
-        <LoginPage 
-        onLoginSuccess={sucessoLoginGoogle}
-        onLoginError={erroLoginGoogle}
-        mensagemErro={mensagemErro}
->>>>>>> Stashed changes
         />
       )}
     </GoogleOAuthProvider>   
