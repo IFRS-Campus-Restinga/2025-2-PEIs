@@ -7,7 +7,7 @@ import Pareceres from "./pages/Parecer.jsx";
 import PEIPeriodoLetivo from "./pages/PEIPeriodoLetivo.jsx";
 import Cursos from './pages/Curso.jsx'
 import Disciplinas from './pages/Disciplina.jsx'
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from './components/customHeader/Header.jsx'
 import Footer from './components/customFooter/Footer.jsx'
 import SubHeader from './components/customSubHeader/Subheader.jsx'
@@ -24,6 +24,7 @@ import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
 import Pedagogos from './pages/Pedagogo.jsx'
 import ErrorMessage from './components/errorMessage/errorMessage.jsx'
 import LoginPage from './pages/login/login.jsx'
+import TelaPadrao from './components/telaPadrao/TelaPadrao.jsx'
 
 function App() {
 
@@ -121,6 +122,7 @@ function App() {
               <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
               <Route path="/pedagogo" element={<Pedagogos/>}/>
               <Route path="/logs" element={<Logs/>}/>
+              <Route path="/telaPadrao" element={<TelaPadrao />} />
             </Routes>
           </main>
           <Footer/>

@@ -1,0 +1,88 @@
+import React from "react";
+import logo from "../../assets/logo.png";
+import "./TelaPadrao.css"
+// import "../../pages/home/Home.css";
+
+// Exemplos fictícios
+const alunos = [
+  {
+    nome: "Ana Souza",
+    foto: "https://randomuser.me/api/portraits/women/44.jpg",
+    componente: "Análise e Desenvolvimento de Sistemas",
+    status: "Em andamento",
+    coordenador: {
+      nome: "Carlos Silva",
+      foto: "https://randomuser.me/api/portraits/men/32.jpg"
+    }
+  },
+  {
+    nome: "João Lima",
+    foto: "https://randomuser.me/api/portraits/men/45.jpg",
+    componente: "Letras",
+    status: "Concluído",
+    coordenador: {
+      nome: "Maria Oliveira",
+      foto: "https://randomuser.me/api/portraits/women/33.jpg"
+    }
+  }
+];
+
+const TelaPadrao = ({ usuario }) => {
+  // Exemplo de dados do professor
+  const usuarioPadrao = {
+    nome: usuario?.nome || "Ricardo Pereira",
+    email: usuario?.email || "ricardo@restinga.ifrs.edu.br",
+    foto: usuario?.foto || "https://randomuser.me/api/portraits/men/10.jpg"
+  };
+
+  return (
+    <div className="telaPadrao-page">
+      {/* Título central */}
+      <h2 className="telaPadrao-title">Bem-vindo, Professor(a)</h2>
+
+      {/* Perfil padrão */}
+      <div className="telaPadrao-profile">
+        <img src={usuarioPadrao.foto} alt="Foto do Usuário" className="professor-foto" />
+        <div className="professor-info">
+          <h3>{usuarioPadrao.nome}</h3>
+          <p>{usuarioPadrao.email}</p>
+        </div>
+      </div>
+
+      {/* Tabela de alunos */}
+      <div className="alunos-table">
+        <div className="alunos-header">
+          <span>Nome do aluno</span>
+          <span>Componente Curricular</span>
+          <span>Status</span>
+          <span>Coordenador de curso</span>
+          <span>Visualizar</span>
+        </div>
+        {alunos.map((aluno, idx) => (
+          <div className="aluno-row" key={idx}>
+            <div className="aluno-info">
+              <img src={aluno.foto} alt={aluno.nome} className="aluno-foto" />
+              <span>{aluno.nome}</span>
+            </div>
+            <span>{aluno.componente}</span>
+            <span>{aluno.status}</span>
+            <div className="coordenador-info">
+              <img src={aluno.coordenador.foto} alt={aluno.coordenador.nome} className="coordenador-foto" />
+              <span>{aluno.coordenador.nome}</span>
+            </div>
+            <span>
+              {/* Ícone de página com lupa */}
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="14" height="18" rx="3" stroke="#333" strokeWidth="2" />
+                <circle cx="18" cy="18" r="3" stroke="#333" strokeWidth="2" />
+                <line x1="20" y1="20" x2="22" y2="22" stroke="#333" strokeWidth="2" />
+              </svg>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default TelaPadrao;
