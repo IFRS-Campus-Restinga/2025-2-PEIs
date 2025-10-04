@@ -143,3 +143,45 @@
     width: 100%;
   }
 }
+.componente-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.componente-edit-form label {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.componente-edit-form input,
+.componente-edit-form textarea,
+.componente-edit-form select {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.componente-edit-form .btn-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.componente-form input,
+.componente-form textarea,
+.componente-form select {
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.componente-form label {
+  font-weight: bold;
+}
