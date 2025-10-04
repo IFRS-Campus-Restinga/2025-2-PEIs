@@ -1,13 +1,19 @@
 import './App.css'
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
 import { useState, useEffect } from 'react'
+import { Routes, Route } from "react-router-dom";
+
+// Importações dos contextos/alerts
+import { AlertProvider } from "./context/AlertContext";
+import Alert from "./components/alert/AlertComponent.jsx";
+
+// Imports das tuas páginas e componentes
 import Home from "./pages/home/Home.jsx"
 import Pareceres from "./pages/Parecer.jsx";
 import PEIPeriodoLetivo from "./pages/PEIPeriodoLetivo.jsx";
 import Cursos from './pages/Curso.jsx'
 import Disciplinas from './pages/Disciplina.jsx'
-import { Routes, Route } from "react-router-dom";
 import Header from './components/customHeader/Header.jsx'
 import Footer from './components/customFooter/Footer.jsx'
 import SubHeader from './components/customSubHeader/Subheader.jsx'
@@ -22,20 +28,15 @@ import ComponenteCurricular from './pages/componenteCurricular.jsx'
 import AtaDeAcompanhamento from './pages/ataDeAcompanhamento.jsx'
 import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
 import Pedagogos from './pages/Pedagogo.jsx'
-import ErrorMessage from './components/errorMessage/errorMessage.jsx'
 import LoginPage from './pages/login/login.jsx'
 
 function App() {
-
   // estados para o login do google
   const [usuario, setUsuario] = useState(null)
   const [logado, setLogado] = useState(false)
   const [mensagemErro, setMensagemErro] = useState(null);
-
-  // estado para perfil selecionado
   const [perfilSelecionado, setPerfilSelecionado] = useState(null);
 
-  // verifica ao iniciar se usuario ja esta logado
   useEffect(() => {
     const usuarioSalvo = localStorage.getItem("usuario")
     if (usuarioSalvo) {
@@ -44,7 +45,6 @@ function App() {
     }
   }, [])
 
-  // funcao que roda ao usuario ter sucesso no login do google
   const sucessoLoginGoogle = (credentialResponse) => {
     try {
       const dados = jwtDecode(credentialResponse.credential)
@@ -71,7 +71,6 @@ function App() {
     }
   }
 
-  // funcao que roda no caso de erro no login
   const erroLoginGoogle = () => {
     console.error('Falha no login com o Google')
     setUsuario(null)
@@ -79,7 +78,6 @@ function App() {
     setMensagemErro("Falha no login com o Google. Tente novamente.")
   }
 
-  // funcao de logout
   const logout = () => {
     setUsuario(null)
     setLogado(false)
@@ -90,48 +88,53 @@ function App() {
 
   return (
     <GoogleOAuthProvider clientId="1050578287576-b870ajrmae9eioc0k2mumod0digo54fd.apps.googleusercontent.com">
-      { logado ? (
-        <div className="app-container">
-          <Header usuario={usuario} logado={logado} logout={logout} />
-          <SubHeader perfilSelecionado={perfilSelecionado} />
-          <hr />
-          
-          <main className='main-content'>
-            <Routes>
-              <Route 
-                path="/" 
-                element={<Home 
-                  usuario={usuario} 
-                  perfilSelecionado={perfilSelecionado} 
-                  setPerfilSelecionado={setPerfilSelecionado} 
-                />} 
-              />
-              <Route path="/pareceres" element={<Pareceres />} />
-              <Route path="/periodo" element={<PEIPeriodoLetivo />} />
-              <Route path="/disciplina" element={<Disciplinas/>}/>
-              <Route path="/curso" element={<Cursos/>}/>
-              <Route path="/aluno" element={<Alunos/>}/>
-              <Route path="/coordenador" element={<CoordenadorCurso/>}/>
-              <Route path="/peicentral" element={<PeiCentral />} />
-              <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
-              <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
-              <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
-              <Route path="/componenteCurricular" element={<ComponenteCurricular/>}/>
-              <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento/>}/>
-              <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
-              <Route path="/pedagogo" element={<Pedagogos/>}/>
-              <Route path="/logs" element={<Logs/>}/>
-            </Routes>
-          </main>
-          <Footer/>
-        </div>
-      ) : (
-        <LoginPage 
-          onLoginSuccess={sucessoLoginGoogle}
-          onLoginError={erroLoginGoogle}
-          mensagemErro={mensagemErro}
-        />
-      )}
+      <AlertProvider>
+        {/* componente global que exibe alerts */}
+        <Alert />
+
+        { logado ? (
+          <div className="app-container">
+            <Header usuario={usuario} logado={logado} logout={logout} />
+            <SubHeader perfilSelecionado={perfilSelecionado} />
+            <hr />
+
+            <main className='main-content'>
+              <Routes>
+                <Route 
+                  path="/" 
+                  element={<Home 
+                    usuario={usuario} 
+                    perfilSelecionado={perfilSelecionado} 
+                    setPerfilSelecionado={setPerfilSelecionado} 
+                  />} 
+                />
+                <Route path="/pareceres" element={<Pareceres />} />
+                <Route path="/periodo" element={<PEIPeriodoLetivo />} />
+                <Route path="/disciplina" element={<Disciplinas/>}/>
+                <Route path="/curso" element={<Cursos/>}/>
+                <Route path="/aluno" element={<Alunos/>}/>
+                <Route path="/coordenador" element={<CoordenadorCurso/>}/>
+                <Route path="/peicentral" element={<PeiCentral />} />
+                <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
+                <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
+                <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
+                <Route path="/componenteCurricular" element={<ComponenteCurricular/>}/>
+                <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento/>}/>
+                <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
+                <Route path="/pedagogo" element={<Pedagogos/>}/>
+                <Route path="/logs" element={<Logs/>}/>
+              </Routes>
+            </main>
+            <Footer/>
+          </div>
+        ) : (
+          <LoginPage 
+            onLoginSuccess={sucessoLoginGoogle}
+            onLoginError={erroLoginGoogle}
+            mensagemErro={mensagemErro}
+          />
+        )}
+      </AlertProvider>
     </GoogleOAuthProvider>   
   )
 }

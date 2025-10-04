@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./componenteCurricular.css"; // CSS novo
+import { validaCampos } from "../utils/validaCampos";
+import { useAlert } from "../context/AlertContext";
 
 function ComponenteCurricular() {
+  const { addAlert } = useAlert();
   const DBCOMPONENTECURRICULAR = axios.create({ baseURL: import.meta.env.VITE_COMPONENTE_CURRICULAR });
   const DISCIPLINAS_API = import.meta.env.VITE_DISCIPLINAS_URL;
 
@@ -40,19 +43,31 @@ function ComponenteCurricular() {
   }
 
   async function adicionaComponenteCurricular(e) {
-    e.preventDefault();
-    if (!form.objetivos || !form.conteudo_prog || !form.metodologia || !form.disciplinaId) return alert("Preencha todos os campos!");
-    try {
-      await DBCOMPONENTECURRICULAR.post("/", {
-        objetivos: form.objetivos,
-        conteudo_prog: form.conteudo_prog,
-        metodologia: form.metodologia,
-        disciplinas: Number(form.disciplinaId),
-      });
-      setForm({ objetivos: "", conteudo_prog: "", metodologia: "", disciplinaId: "" });
-      recuperaComponenteCurricular();
-    } catch (err) { console.error(err); alert("Erro ao cadastrar!"); }
+  e.preventDefault();
+
+  const formElement = e.target; // referência ao <form>
+  const mensagens = validaCampos(form, formElement);
+
+  if (mensagens.length > 0) {
+    mensagens.forEach((msg) => addAlert(msg, "warning"));
+    return;
   }
+
+  try {
+    await DBCOMPONENTECURRICULAR.post("/", {
+      objetivos: form.objetivos,
+      conteudo_prog: form.conteudo_prog,
+      metodologia: form.metodologia,
+      disciplinas: Number(form.disciplinaId),
+    });
+    setForm({ objetivos: "", conteudo_prog: "", metodologia: "", disciplinaId: "" });
+    recuperaComponenteCurricular();
+    addAlert("Componente cadastrado com sucesso!", "success");
+  } catch (err) {
+    console.error(err);
+    addAlert("Erro ao cadastrar!", "error");
+  }
+}
 
   async function deletaComponenteCurricular(id) {
     if (!window.confirm("Deseja deletar este componente?")) return;
@@ -87,15 +102,38 @@ function ComponenteCurricular() {
 
       <form className="componente-form" onSubmit={adicionaComponenteCurricular}>
         <label>Objetivos:</label>
-        <input type="text" value={form.objetivos} onChange={(e) => setForm({ ...form, objetivos: e.target.value })} />
+        <input 
+          type="text" 
+          name="objetivos" 
+          value={form.objetivos} 
+          onChange={(e) => setForm({ ...form, objetivos: e.target.value })} 
+        />
+
         <label>Conteúdo Programático:</label>
-        <input type="text" value={form.conteudo_prog} onChange={(e) => setForm({ ...form, conteudo_prog: e.target.value })} />
+        <input 
+          type="text" 
+          name="conteudo_prog" 
+          value={form.conteudo_prog} 
+          onChange={(e) => setForm({ ...form, conteudo_prog: e.target.value })} 
+        />
+
         <label>Metodologia:</label>
-        <textarea value={form.metodologia} onChange={(e) => setForm({ ...form, metodologia: e.target.value })} />
+        <textarea 
+          name="metodologia" 
+          value={form.metodologia} 
+          onChange={(e) => setForm({ ...form, metodologia: e.target.value })} 
+        />
+
         <label>Disciplina:</label>
-        <select value={form.disciplinaId} onChange={(e) => setForm({ ...form, disciplinaId: e.target.value })}>
+        <select 
+          name="disciplinaId"
+          value={form.disciplinaId} 
+          onChange={(e) => setForm({ ...form, disciplinaId: e.target.value })}
+        >
           <option value="">Selecione uma disciplina</option>
-          {disciplinasCadastradas.map((disc) => (<option key={disc.id} value={disc.id}>{disc.nome}</option>))}
+          {disciplinasCadastradas.map((disc) => (
+            <option key={disc.id} value={disc.id}>{disc.nome}</option>
+          ))}
         </select>
         <button type="submit">Adicionar</button>
       </form>
