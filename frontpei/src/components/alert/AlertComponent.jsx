@@ -1,10 +1,9 @@
-// src/components/AlertComponent.jsx
 import React from "react";
 import { useAlert } from "../../context/AlertContext";
 import "./AlertComponent.css";
 
 const AlertComponent = () => {
-  const { alerts } = useAlert();
+  const { alerts, clearAlerts } = useAlert();
 
   if (alerts.length === 0) return null;
 
@@ -16,6 +15,10 @@ const AlertComponent = () => {
             {alert.message}
           </div>
         ))}
+        {/* Botão único para fechar todos os alertas */}
+        <button className="close-all-btn" onClick={clearAlerts}>
+          Fechar
+        </button>
       </div>
     </div>
   );

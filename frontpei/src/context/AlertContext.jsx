@@ -10,17 +10,21 @@ export function AlertProvider({ children }) {
     setAlerts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       setAlerts((prev) => prev.filter((alert) => alert.id !== id));
-    }, 4000);
+    }, 4000); // mantém o fechamento automático
+  };
+
+  const clearAlerts = () => {
+    setAlerts([]); // remove todos os alertas imediatamente
   };
 
   return (
-    <AlertContext.Provider value={{ alerts, addAlert }}>
+    <AlertContext.Provider value={{ alerts, addAlert, clearAlerts }}>
       {children}
     </AlertContext.Provider>
   );
 }
 
-// ✅ Hook para consumir em qualquer componente
+// Hook para consumir em qualquer componente
 export function useAlert() {
   return useContext(AlertContext);
 }
