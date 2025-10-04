@@ -7,6 +7,7 @@ from pei.models.parecer import Parecer
 
 class PEIPeriodoLetivo(BaseModel):
     data_criacao = models.DateField(null=False, blank=False)
+    data_termino = models.DateField(null=False, blank=False)
     periodo = models.CharField(
         max_length=100,
         choices=PeriodoLetivoChoice.choices,

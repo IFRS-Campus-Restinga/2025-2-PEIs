@@ -42,24 +42,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # pacotes adicionais
     'rest_framework', 'rest_framework.authtoken', "corsheaders",
-    # apps criados
-    'pei', 'logs', 'pei.services',
+    'pei', 'logs',
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # adicionado para funcionar do react no navegador
-    'corsheaders.middleware.CorsMiddleware',
-    # middleware customizado do app services para o token
-    'pei.services.middleware.AddBackendTokenHeaderMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",  # <-- logo depois do SecurityMiddleware
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "pei.services.middleware.AddBackendTokenHeaderMiddleware",
 ]
 
 # configuracao para uso de token para autenticacao

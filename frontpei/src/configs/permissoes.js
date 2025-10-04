@@ -2,7 +2,8 @@ export const botoesPorPerfil = {
   Coordenador: [
     { label: "Cadastro de Cursos", path: "/curso" },
     { label: "Cadastro de Disciplinas", path: "/disciplina" },
-    { label: "Listar PEI Períodos Letivos", path: "/periodo" },
+    { label: "Cadastrar Períodos Letivos", path: "/periodo" },
+    { label: "Listar Períodos Letivos", path: "/listar_periodos" },
     { label: "Cadastro de Coordenador", path: "/coordenador" },
   ],
   NAPNE: [
@@ -10,6 +11,8 @@ export const botoesPorPerfil = {
     { label: "Cadastrar Pedagogo", path: "/pedagogo" },
     { label: "Visualizar Documentações complementares", path: "/documentacaocomplementar" },
     { label: "Visualizar Ata De Acompanhamento", path: "/atadeacompanhamento" },
+    { label: "Cadastrar Professor", path: "/professor" },
+
   ],
   Professor: [
     { label: "Cadastro de Pareceres", path: "/pareceres" },
