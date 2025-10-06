@@ -18,6 +18,8 @@ export default function CursosCRUD() {
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
+ const [arquivo, setArquivo] = useState(null);    //teste arquivo unico
+
   const niveis = [
     { label: "Superior", value: "Superior" },
     { label: "Ensino Médio", value: "Ensino Médio" },
@@ -73,19 +75,23 @@ export default function CursosCRUD() {
       return;
     }
 
-    const payload = {
-      name: curso.trim(),
-      nivel,
-      coordenador_id: coordSelecionado,
-      disciplinas_ids: disciplinasSelecionadas
-    };
+    const formData = new FormData();
+    formData.append("name", curso.trim());
+    formData.append("nivel", nivel);
+    formData.append("coordenador_id", coordSelecionado);
+    disciplinasSelecionadas.forEach(d => formData.append("disciplinas_ids", d));
+    if (arquivo) formData.append("arquivo", arquivo);
 
     try {
       if (id) {
-        await DBCURSOS.put(`/${id}/`, payload);
+        await DBCURSOS.put(`/${id}/`, formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
         setSucesso("Curso atualizado com sucesso!");
       } else {
-        await DBCURSOS.post("/", payload);
+        await DBCURSOS.post("/", formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
         setSucesso("Curso cadastrado com sucesso!");
       }
 
@@ -95,6 +101,7 @@ export default function CursosCRUD() {
       setErro("Falha ao salvar curso!");
     }
   }
+
 
   return (
     <div className="cursos-container">
@@ -154,6 +161,15 @@ export default function CursosCRUD() {
             ))}
           </select>
         </div>
+        
+        <div className="form-group">
+          <label>Arquivo do curso (opcional):</label>
+          <input 
+            type="file"
+            onChange={(e) => setArquivo(e.target.files[0])}
+          />
+        </div>
+
 
         <button type="submit" className="submit-btn">
           {id ? "Salvar alterações" : "Adicionar curso"}

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from pei.models import Curso, Disciplina, CoordenadorCurso
 from pei.services.serializers.disciplina_serializer import DisciplinaSerializer
-from pei.services.serializers.coordenadorCurso_serializer import CoordenadorCursoSerializer
+from pei.services.serializers.coordenador_curso_serializer import CoordenadorCursoSerializer
 
 class CursoSerializer(serializers.ModelSerializer):
     disciplinas = DisciplinaSerializer(many=True, read_only=True)
@@ -12,18 +12,20 @@ class CursoSerializer(serializers.ModelSerializer):
         write_only=True
     )
     nivel = serializers.ChoiceField(choices=Curso._meta.get_field("nivel").choices)
-
     coordenador = CoordenadorCursoSerializer(read_only=True)
     coordenador_id = serializers.PrimaryKeyRelatedField(
         queryset=CoordenadorCurso.objects.all(),
         source="coordenador",
         write_only=True
     )
+    arquivo = serializers.FileField(required=False, allow_null=True)
+
 
     class Meta:
         model = Curso
         fields = [
             "id", "name", "nivel",
             "disciplinas", "disciplinas_ids",
-            "coordenador", "coordenador_id"
+            "coordenador", "coordenador_id",
+            "arquivo",
         ]

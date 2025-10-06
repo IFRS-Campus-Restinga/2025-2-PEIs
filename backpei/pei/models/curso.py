@@ -1,23 +1,34 @@
 from django.db import models
 from .base_model import BaseModel
 from ..enums.nivel import Nivel
-from django.core.validators import MinLengthValidator
-from .coordenadorCurso import CoordenadorCurso
+from django.core.validators import MinLengthValidator, FileExtensionValidator
+from .coordenador_curso import CoordenadorCurso
+from ..managers.arquivo import validate_file_size
 
 class Curso(BaseModel):
     name = models.CharField(
         blank=False, null=False,
-        max_length=100, 
+        max_length=100,
         validators=[MinLengthValidator(1)]
     )
     nivel = models.CharField(
         blank=False, null=False,
         max_length=100,
         validators=[MinLengthValidator(1)],
-        choices=Nivel, default=Nivel.NOT_INFORMED,
+        choices=Nivel,
+        default=Nivel.NOT_INFORMED,
     )
     disciplinas = models.ManyToManyField("Disciplina", related_name="cursos", blank=True)
-    coordenador = models.ForeignKey(CoordenadorCurso, on_delete=models.RESTRICT, related_name="coordenador", null=False, blank=False)
+    coordenador = models.ForeignKey(CoordenadorCurso, on_delete=models.RESTRICT, related_name="coordenador")
+    arquivo = models.FileField(
+        upload_to="cursos_arquivos/",
+        validators=[
+            FileExtensionValidator(allowed_extensions=['pdf', 'docx', 'png', 'jpg']),
+            validate_file_size
+        ],
+        null=True,
+        blank=True
+    )
 
     def __str__(self):
         return f'{self.name} - {self.coordenador}'

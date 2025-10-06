@@ -24,6 +24,7 @@ import ComponenteCurricular from './pages/componenteCurricular.jsx'
 import AtaDeAcompanhamento from './pages/ataDeAcompanhamento.jsx'
 import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
 import Pedagogos from './pages/Pedagogo.jsx'
+//import ErrorMessage from './components/errorMessage/errorMessage.jsx'
 import LoginPage from './pages/login/login.jsx'
 
 function App() {

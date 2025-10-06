@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import *
-from .models.PEIPeriodoLetivo import PEIPeriodoLetivo
+from .models.pei_periodo_letivo import PEIPeriodoLetivo
 from .models.parecer import Parecer
 from .models.professor import Professor
 from .models.pedagogo import Pedagogo
