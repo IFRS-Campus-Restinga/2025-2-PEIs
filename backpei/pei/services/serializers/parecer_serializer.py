@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from pei.models.parecer import Parecer
-from services.serializers.professor_seralizer import ProfessorSerializer
+from pei.services.serializers.professor_seralizer import ProfessorSerializer
 from pei.models.professor import Professor
 
 

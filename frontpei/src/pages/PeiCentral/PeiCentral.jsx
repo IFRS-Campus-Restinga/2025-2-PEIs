@@ -71,6 +71,22 @@ function PeiCentral() {
             <br></br>
             <b>Adaptações:</b> {pei.adaptacoes}<br />
             <br />
+            {pei.periodos && pei.periodos.length > 0 ? (
+              <div>
+                <b>Períodos:</b>
+                <ul>
+                  {pei.periodos.map((periodo) => (
+                    <li key={periodo.id}>
+                      <b>Data de Criação:</b> {periodo.data_criacao} <br />
+                      <b>Período Letivo:</b> {periodo.periodo} {/* exemplo */}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p><i>Nenhum período vinculado</i></p>
+            )}
+
             <br />
           </div>
         ))

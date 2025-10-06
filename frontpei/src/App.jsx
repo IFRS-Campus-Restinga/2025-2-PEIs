@@ -2,31 +2,40 @@ import './App.css'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
 import { useState, useEffect } from 'react'
-import Home from './Home.jsx'
-import Pareceres from "./components/Parecer";
-import PEIPeriodoLetivo from "./components/PEIPeriodoLetivo";
-import Cursos from './components/Curso.jsx'
-import Disciplinas from './components/Disciplina.jsx'
+import Home from "./pages/home/Home.jsx"
+import Pareceres from "./pages/Parecer.jsx";
+import PEIPeriodoLetivo from "./pages/PEIPeriodoLetivo.jsx";
+import Cursos from './pages/Curso.jsx'
+import Disciplinas from './pages/Disciplina.jsx'
 import { Routes, Route } from "react-router-dom";
-import Header from './components/Header.jsx'
-import Footer from './components/Footer.jsx'
-import SubHeader from './components/Subheader.jsx'
-import PeiCentral from './components/PeiCentral/PeiCentral.jsx'
-import CreatePeiCentral from './components/PeiCentral/CreatePeiCentral.jsx'
-import EditarPeiCentral from './components/PeiCentral/EditarPeiCentral.jsx'
-import DeletarPeiCentral from './components/PeiCentral/DeletarPeiCentral.jsx'
-import Alunos from './components/Aluno.jsx'
-import CoordenadorCurso from './components/CoordenadorCurso.jsx'
-import Logs from './components/LogsComponents/Logs.jsx'
-import ComponenteCurricular from './components/componenteCurricular.jsx'
-import AtaDeAcompanhamento from './components/ataDeAcompanhamento.jsx'
-import DocumentacaoComplementar from './components/documentacaoComplementar.jsx'
-import Pedagogos from './components/Pedagogo.jsx'
+import Header from './components/customHeader/Header.jsx'
+import Footer from './components/customFooter/Footer.jsx'
+import SubHeader from './components/customSubHeader/Subheader.jsx'
+import PeiCentral from './pages/peiCentral/PeiCentral.jsx'
+import CreatePeiCentral from './pages/peiCentral/CreatePeiCentral.jsx'
+import EditarPeiCentral from './pages/peiCentral/EditarPeiCentral.jsx'
+import DeletarPeiCentral from './pages/peiCentral/DeletarPeiCentral.jsx'
+import Alunos from './pages/Aluno.jsx'
+import CoordenadorCurso from './pages/CoordenadorCurso.jsx'
+import Logs from './pages/LogsComponents/Logs.jsx'
+import ComponenteCurricular from './pages/componenteCurricular.jsx'
+import AtaDeAcompanhamento from './pages/ataDeAcompanhamento.jsx'
+import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
+import Pedagogos from './pages/Pedagogo.jsx'
+import ErrorMessage from './components/errorMessage/errorMessage.jsx'
+import LoginPage from './pages/login/login.jsx'
 
 function App() {
+
+  // estados para o login do google
   const [usuario, setUsuario] = useState(null)
   const [logado, setLogado] = useState(false)
+  const [mensagemErro, setMensagemErro] = useState(null);
 
+  // estado para perfil selecionado
+  const [perfilSelecionado, setPerfilSelecionado] = useState(null);
+
+  // verifica ao iniciar se usuario ja esta logado
   useEffect(() => {
     const usuarioSalvo = localStorage.getItem("usuario")
     if (usuarioSalvo) {
@@ -35,17 +44,26 @@ function App() {
     }
   }, [])
 
+  // funcao que roda ao usuario ter sucesso no login do google
   const sucessoLoginGoogle = (credentialResponse) => {
     try {
       const dados = jwtDecode(credentialResponse.credential)
+      const email = dados.email || ""
+      const partes = email.split("@")
+      if (partes.length !== 2 || !email.endsWith("ifrs.edu.br")) {
+        console.error("Email invalido ou nao autorizado:", email)
+        setUsuario(null)
+        setLogado(false)
+        localStorage.removeItem("usuario")
+        localStorage.removeItem("token")
+        setMensagemErro("Acesso negado. Use um email institucional do IFRS.")
+        return
+      }
       const userData = { email: dados.email, nome: dados.name }
-
       setUsuario(userData)
       setLogado(true)
-
-      // Salva no localStorage
       localStorage.setItem("usuario", JSON.stringify(userData))
-      localStorage.setItem("token", credentialResponse.credential) // Salva o token JWT para uso momentaneo nos logs
+      localStorage.setItem("token", credentialResponse.credential)
     } catch (erro) {
       console.error('Erro ao decodificar token do Google:', erro)
       setUsuario(null)
@@ -53,17 +71,21 @@ function App() {
     }
   }
 
+  // funcao que roda no caso de erro no login
   const erroLoginGoogle = () => {
     console.error('Falha no login com o Google')
     setUsuario(null)
     setLogado(false)
+    setMensagemErro("Falha no login com o Google. Tente novamente.")
   }
 
+  // funcao de logout
   const logout = () => {
     setUsuario(null)
     setLogado(false)
-    localStorage.removeItem("usuario") // limpa persistência
-    localStorage.removeItem("token") // limpa o token também
+    setPerfilSelecionado(null)
+    localStorage.removeItem("usuario")
+    localStorage.removeItem("token")
   }
 
   return (
@@ -71,46 +93,44 @@ function App() {
       { logado ? (
         <div className="app-container">
           <Header usuario={usuario} logado={logado} logout={logout} />
-          <SubHeader/>
+          <SubHeader perfilSelecionado={perfilSelecionado} />
           <hr />
           
           <main className='main-content'>
-          <Routes>
-            <Route path="/" element={<Home usuario={usuario} />} />
-            <Route path="/pareceres" element={<Pareceres />} />
-            <Route path="/periodo" element={<PEIPeriodoLetivo />} />
-            <Route path="/disciplina" element={<Disciplinas/>}/>
-            <Route path="/curso" element={<Cursos/>}/>
-            <Route path="/aluno" element={<Alunos/>}/>
-            <Route path="/coordenador" element={<CoordenadorCurso/>}/>
-            <Route path="/peicentral" element={<PeiCentral />} />
-            <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
-            <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
-            <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
-            <Route path="/componenteCurricular" element={<ComponenteCurricular/>}/>
-            <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento/>}/>
-            <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
-            <Route path="/pedagogo" element={<Pedagogos/>}/>
-            <Route path="/logs" element={<Logs/>}/>
-          </Routes>
+            <Routes>
+              <Route 
+                path="/" 
+                element={<Home 
+                  usuario={usuario} 
+                  perfilSelecionado={perfilSelecionado} 
+                  setPerfilSelecionado={setPerfilSelecionado} 
+                />} 
+              />
+              <Route path="/pareceres" element={<Pareceres />} />
+              <Route path="/periodo" element={<PEIPeriodoLetivo />} />
+              <Route path="/disciplina" element={<Disciplinas/>}/>
+              <Route path="/curso" element={<Cursos/>}/>
+              <Route path="/aluno" element={<Alunos/>}/>
+              <Route path="/coordenador" element={<CoordenadorCurso/>}/>
+              <Route path="/peicentral" element={<PeiCentral />} />
+              <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
+              <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
+              <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
+              <Route path="/componenteCurricular" element={<ComponenteCurricular/>}/>
+              <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento/>}/>
+              <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
+              <Route path="/pedagogo" element={<Pedagogos/>}/>
+              <Route path="/logs" element={<Logs/>}/>
+            </Routes>
           </main>
           <Footer/>
-
         </div>
-      ) : (  
-         <div style={{
-          position: 'fixed',
-          top: '30%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          textAlign: 'center',
-          width: '30%'
-        }}>
-          <img src='./src/assets/logo.png' style={{ height: 225, width: 150 }} />
-          <h2>Prova de Conceito do PEI</h2>
-          <p>Você precisa fazer login para acessar o sistema.</p>
-          <GoogleLogin onSuccess={sucessoLoginGoogle} onError={erroLoginGoogle} />
-        </div>
+      ) : (
+        <LoginPage 
+          onLoginSuccess={sucessoLoginGoogle}
+          onLoginError={erroLoginGoogle}
+          mensagemErro={mensagemErro}
+        />
       )}
     </GoogleOAuthProvider>   
   )

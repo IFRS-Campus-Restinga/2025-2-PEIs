@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from .models import Log
 from .serializers import LogSerializer
-from services.permissions import BackendTokenPermission
+from pei.services.permissions import BackendTokenPermission
 
 # Create your views here.
 

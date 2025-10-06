@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import ErrorMessage from "../../components/errorMessage/ErrorMessage.jsx";
+import "../../components/errorMessage/ErrorMessage.css"
 
 
 function CreatePeiCentral() {
@@ -13,13 +15,33 @@ function CreatePeiCentral() {
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const navigate = useNavigate();
-
+  //constantes de validação dos campos no front
+  const [erroHistorico, setErroHistorico] = useState("");
+  const [erroNecessidadesEducacionaisEspecificas, setErroNecessidadesEducadionaisEspecificas] = useState("")
+  const [erroHabilidades, setErroHabilidades] = useState("");
   const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
 
   async function handleSubmit(e) {
     e.preventDefault();
     setErro("");
     setSucesso("");
+    setErroHistorico("");
+    setErroNecessidadesEducadionaisEspecificas("");
+    setErroHabilidades("");
+
+    //Validação campo histórico
+    if(historico_do_aluno.trim().length < 200){
+      setErroHistorico("!A descrição do Histórico do Aluno deve conter pelo menos duzentos (200) caracteres!")
+      
+    }
+    //Validação do campo necessidades
+    if(necessidades_educacionais_especificas.trim().length < 50){
+      setErroNecessidadesEducadionaisEspecificas("!A descrição para as Necessidades Educacionais do Aluno devem conter ao menos cinquenta (50) caracteres!")
+    }
+    //Validação do campo habilidades
+    if(habilidades.trim().length < 50){
+      setErroHabilidades("!A descrição para as Habilidades do Aluno devem conter ao menos cinquenta (50) caracteres !")
+    }
 
     try {
       const resposta = await DB.post("/", {
@@ -47,7 +69,8 @@ function CreatePeiCentral() {
     
     } catch (err) {
       console.error(err);
-      setErro("Erro ao criar Pei Central - Tente novamente.");
+      window.scrollTo({top: 0, behavior:"smooth"});
+      setErro("ERRO! Não foi possível criar Pei Central");
     }
   }
 
@@ -58,33 +81,44 @@ function CreatePeiCentral() {
         {sucesso && (
           <div className="text-sucesso">{sucesso}</div>
         )}
-        {erro &&(
-          <div className="text-erro">{erro}</div>  
-        )}
+        <ErrorMessage message={erro} align="center"/>
+        <ErrorMessage message={erroHistorico} align="center"/>
+        <ErrorMessage message={erroNecessidadesEducacionaisEspecificas} align="center"/>
+        <ErrorMessage message={erroHabilidades} align="center"/>
+        
       </div>  
       
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Campo de preenchimento de historico_do_aluno */}
         <div>
-          <label className="block mb-1 font-medium">Histórico do Aluno:</label>
+          <label className="block mb-1 font-medium">Histórico do Aluno:{erroHistorico &&(<span>⚠️</span>)}</label> 
           <br></br>
           <textarea
-            style={{ width: "100%" }}
+            style={{ 
+              width: "100%", 
+              borderWidth: erroHistorico ? "2px": "1px",
+              borderColor: erroHistorico ? "red": "#770404",
+            }}
             rows={6}
             value={historico_do_aluno}
             onChange={(e) => setHistorico(e.target.value)}
-            className="border px-2 py-1 rounded w-full h-32 resize-y"
+            className="px-2 py-1 rounded w-full h-32 resize-y" 
             placeholder="Digite o histórico completo do aluno"
             required
           />
+          
         </div>
 
         {/* preenchimento do campo necessidades_educacionais_especificas */}
         <div>
-          <label className="block mb-1 font-medium">Necessidades Educacionais Específicas:</label>
+          <label className="block mb-1 font-medium">Necessidades Educacionais Específicas:{erroNecessidadesEducacionaisEspecificas &&(<span>⚠️</span>)}</label>
           <br></br>
           <textarea
-            style={{ width: "100%" }}
+            style={{ 
+              width: "100%",
+              borderWidth: erroNecessidadesEducacionaisEspecificas ? "2px": "1px",
+              borderColor: erroNecessidadesEducacionaisEspecificas ? "red": "#770404",
+            }}
             rows={6}
             value={necessidades_educacionais_especificas}
             onChange={(e) => setNecessidades(e.target.value)}
@@ -96,10 +130,14 @@ function CreatePeiCentral() {
 
         {/* preenchimento do campo habilidades */}
         <div>
-          <label className="block mb-1 font-medium">Habilidades:</label>
+          <label className="block mb-1 font-medium">Habilidades:{erroHabilidades &&(<span>⚠️</span>)}</label>
           <br></br>
           <textarea
-            style={{ width: "100%" }}
+            style={{ 
+              width: "100%",
+              borderWidth: erroHabilidades ? "2px": "1px",
+              borderColor: erroHabilidades ? "red": "#770404",
+            }}
             rows={6}
             value={habilidades}
             onChange={(e) => setHabilidades(e.target.value)}

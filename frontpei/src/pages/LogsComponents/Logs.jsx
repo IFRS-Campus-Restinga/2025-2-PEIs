@@ -19,9 +19,7 @@ function Logs() {
             'X-BACKEND-TOKEN': backendToken
           }
         });
-        // console.log('Headers da requisição:', {
-        //  'X-BACKEND-TOKEN': backendToken
-        //}); // Debug dos headers
+
         setLogs(response.data);
       } catch (err) {
         setError("Erro ao buscar logs");
@@ -33,8 +31,8 @@ function Logs() {
   }, []);
 
   const VoltarBtn = () => (
-    <div style={{ marginBottom: 16 }}>
-      <Link to="/">
+    <div>
+      <Link to="/" className="voltar-btn">
         Voltar para a Home
       </Link>
     </div>
