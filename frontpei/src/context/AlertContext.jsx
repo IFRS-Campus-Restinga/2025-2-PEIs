@@ -24,7 +24,6 @@ export function AlertProvider({ children }) {
   );
 }
 
-// Hook para consumir em qualquer componente
 export function useAlert() {
   return useContext(AlertContext);
 }
