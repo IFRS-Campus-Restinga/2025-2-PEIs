@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import "../pei_periodo_letivo.css";
 
 function PeiCentral() {
   const [pei_central, setPeiCentral] = useState([]);
   const [erro, setErro] = useState(false);
+  const navigate = useNavigate();
 
   const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
 
@@ -33,12 +35,12 @@ function PeiCentral() {
   }, []);
 
   return (
-    <div>
+    <div className="container">
       <h1>PEI CENTRAL</h1>
 
-      {/* Botão sempre visível */}
-      <button>
-        <Link to="/create_peicentral">Criar novo PEI</Link>
+      
+      <button type="button" onClick={() => navigate("/create_peicentral")}>
+        Criar novo PEI
       </button><br />
       <br></br>
       {erro ? (
@@ -53,8 +55,9 @@ function PeiCentral() {
               border: "1px solid #ccc",
             }}
           >
-            
-            <Link to={'/editar_peicentral/'+ pei.id}>Editar</Link>
+            <button type="button" onClick={() => navigate("/editar_peicentral/")}>
+              Editar
+            </button>
             <br /><br />
             
             <b>Aluno(PENDENTE):</b> Fulano da Silva <br />
@@ -75,14 +78,21 @@ function PeiCentral() {
             {pei.periodos && pei.periodos.length > 0 ? (
               <div>
                 <b>Períodos:</b>
-                <ul>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "8px" }}>
                   {pei.periodos.map((periodo) => (
-                    <li key={periodo.id}>
-                      <b>Data de Criação:</b> {periodo.periodo} <br />
-                      <b>Período Letivo:</b> {periodo.data_criacao} {/* exemplo */}
-                    </li>
+                    <div className="periodo-card">
+                      <p><b>Data de Criação:</b> {periodo.data_criacao} <b>Data de Término:</b> {periodo.data_termino}</p>
+                      <p><b>Período Letivo:</b> {periodo.periodo}        
+                      <div style={{ display: "flex", gap: "20px" }}>
+                        <button type="button" onClick={() => navigate("/listar_periodos/"+ periodo.id)}>
+                          Visualizar Periodo
+                        </button>
+                      </div>
+                      </p>
+                      
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             ) : (
               <p><i>Nenhum período vinculado</i></p>
@@ -93,8 +103,8 @@ function PeiCentral() {
         ))
       )}
 
-      <button>
-        <Link to="/">Voltar</Link>
+      <button type="button" onClick={()=>navigate("/")}>
+        Voltar
       </button>
     </div>
   );
