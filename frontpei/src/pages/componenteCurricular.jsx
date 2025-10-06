@@ -19,7 +19,6 @@ function ComponenteCurricular() {
 
   const [componenteCurricularCadastrado, setComponenteCurricularCadastrado] = useState([]);
   const [disciplinasCadastradas, setDisciplinasCadastradas] = useState([]);
-
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({
     objetivos: "",
@@ -35,6 +34,7 @@ function ComponenteCurricular() {
       setComponenteCurricularCadastrado(Array.isArray(res.data) ? res.data : res.data.results || []);
     } catch (err) {
       console.error(err);
+      addAlert("Erro ao recuperar componentes!", "error");
     }
   }
 
@@ -45,18 +45,20 @@ function ComponenteCurricular() {
       setDisciplinasCadastradas(Array.isArray(res.data) ? res.data : res.data.results || []);
     } catch (err) {
       console.error(err);
+      addAlert("Erro ao recuperar disciplinas!", "error");
     }
   }
 
   // Adiciona componente
   async function adicionaComponenteCurricular(e) {
     e.preventDefault();
-
     const formElement = e.target;
     const mensagens = validaCampos(form, formElement);
 
     if (mensagens.length > 0) {
-      mensagens.forEach((msg) => addAlert(msg, "warning"));
+      // Junta todas as mensagens em um único texto
+      const mensagemUnica = mensagens.join("\n");
+      addAlert(mensagemUnica, "warning"); // Apenas um alerta
       return;
     }
 
@@ -72,34 +74,26 @@ function ComponenteCurricular() {
       addAlert("Componente cadastrado com sucesso!", "success");
     } catch (err) {
       console.error(err);
-      addAlert("Erro ao cadastrar!", "error");
-    }
-  }
-
-  // Deleta componente
-  async function deletaComponenteCurricular(id) {
-    if (!window.confirm("Deseja deletar este componente?")) return;
-    try {
-      await DBCOMPONENTECURRICULAR.delete(`/${id}/`);
-      recuperaComponenteCurricular();
-      addAlert("Componente deletado com sucesso!", "success");
-    } catch (err) {
-      console.error(err);
-      addAlert("Erro ao deletar!", "error");
+      if (err.response && err.response.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao cadastrar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+      }
     }
   }
 
   // Atualiza componente
   async function atualizaComponenteCurricular(e, id) {
     e.preventDefault();
-
-    // Valida campos
     const formElement = document.getElementById("editForm");
     const mensagens = validaCampos(editForm, formElement);
 
     if (mensagens.length > 0) {
       mensagens.forEach((msg) => addAlert(msg, "warning"));
-      return; // Não chama backend
+      return;
     }
 
     try {
@@ -109,15 +103,46 @@ function ComponenteCurricular() {
         metodologia: editForm.metodologia,
         disciplinas: Number(editForm.disciplinaId),
       });
-
       setEditId(null);
       setEditForm({ objetivos: "", conteudo_prog: "", metodologia: "", disciplinaId: "" });
       recuperaComponenteCurricular();
       addAlert("Componente atualizado com sucesso!", "success");
     } catch (err) {
       console.error(err);
-      addAlert("Erro ao atualizar!", "error");
+      if (err.response && err.response.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao editar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao editar (erro desconhecido).", "error");
+      }
     }
+  }
+
+  function deletaComponenteCurricular(id) {
+    addAlert("Deseja realmente deletar este componente?", "confirm", {
+      onConfirm: async () => {
+        try {
+          await DBCOMPONENTECURRICULAR.delete(`/${id}/`);
+          recuperaComponenteCurricular();
+          addAlert("Componente deletado com sucesso!", "success");
+        } catch (err) {
+          console.error(err);
+          if (err.response && err.response.data) {
+            const messages = Object.entries(err.response.data)
+              .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+              .join(" | ");
+            addAlert(`Erro ao deletar ${messages}`, "error");
+          } else {
+            addAlert("Erro ao deletar (erro desconhecido).", "error");
+          }
+        }
+      },
+      onCancel: () => {
+        addAlert("Exclusão cancelada pelo usuário.", "info");
+      },
+    });
   }
 
   useEffect(() => {
