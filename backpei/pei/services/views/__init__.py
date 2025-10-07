@@ -1,4 +1,3 @@
-from .dados_view_set import DadosViewSet
 from .disciplina_view_set import DisciplinaSerializer
 from .curso_view_set import CursoViewSet
 from .aluno_view_set import AlunoViewSet

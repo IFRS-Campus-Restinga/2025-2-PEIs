@@ -1,4 +1,3 @@
-from .dados_serializer import *
 from .pedagogo_serializer import *
 from .coordenadorCurso_serializer import *
 from .aluno_serializer import *

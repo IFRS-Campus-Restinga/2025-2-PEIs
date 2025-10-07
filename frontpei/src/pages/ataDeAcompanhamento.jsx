@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./componenteCurricular.css"; // usando CSS de Componentes Curriculares
+import { validaCampos } from "../utils/validaCampos";
+import { useAlert } from "../context/AlertContext";
 
 function AtaDeAcompanhamento() {
+  const { addAlert } = useAlert();
   const DBATA = axios.create({ baseURL: import.meta.env.VITE_ATA_ACOMPANHAMENTO });
 
   const [form, setForm] = useState({
@@ -26,8 +29,15 @@ function AtaDeAcompanhamento() {
 
   async function adicionaAta(e) {
     e.preventDefault();
-    if (!form.dataReuniao || !form.participantes || !form.descricao || !form.ator)
-      return alert("Preencha todos os campos!");
+    const formElement = e.target;
+    const mensagens = validaCampos(form, formElement);
+
+    if (mensagens.length > 0) {
+      // Junta todas as mensagens em um único texto
+      const mensagemUnica = mensagens.join("\n");
+      addAlert(mensagemUnica, "warning"); // Apenas um alerta
+      return;
+    }
 
     try {
       await DBATA.post("/", {
@@ -38,18 +48,55 @@ function AtaDeAcompanhamento() {
       });
       setForm({ dataReuniao: "", participantes: "", descricao: "", ator: "" });
       recuperaAtas();
-    } catch (err) { console.error(err); alert("Erro ao cadastrar!"); }
+      addAlert("Ata cadastrada com sucesso!", "success");
+
+    } catch (err) {
+       console.error(err);
+      if (err.response && err.response.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao cadastrar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+      } 
+      }
   }
 
   async function deletaAta(id) {
-    if (!window.confirm("Deseja deletar esta ata?")) return;
-    try { await DBATA.delete(`/${id}/`); recuperaAtas(); }
-    catch (err) { console.error(err); alert("Erro ao deletar!"); }
+    addAlert("Deseja realmente deletar esta ata?", "confirm", {
+      onConfirm: async () => {
+        try {
+          await DBATA.delete(`/${id}/`);
+          recuperaAtas();
+          addAlert("Ata deletada com sucesso!", "success");
+        } catch (err) {
+          console.error(err);
+          if (err.response && err.response.data) {
+            const messages = Object.entries(err.response.data)
+              .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+              .join(" | ");
+            addAlert(`Erro ao deletar ${messages}`, "error");
+          } else {
+            addAlert("Erro ao deletar (erro desconhecido).", "error");
+          }
+        }
+      },
+      onCancel: () => {
+        addAlert("Exclusão cancelada pelo usuário.", "info");
+      },
+    });
   }
 
   async function atualizaAta(id) {
-    if (!editForm.dataReuniao || !editForm.participantes || !editForm.descricao || !editForm.ator)
-      return alert("Preencha todos os campos!");
+    e.preventDefault();
+    const formElement = document.getElementById("editForm");
+    const mensagens = validaCampos(editForm, formElement);
+
+    if (mensagens.length > 0) {
+      mensagens.forEach((msg) => addAlert(msg, "warning"));
+      return;
+    }
 
     try {
       await DBATA.put(`/${id}/`, {
@@ -61,7 +108,18 @@ function AtaDeAcompanhamento() {
       setEditId(null);
       setEditForm({ dataReuniao: "", participantes: "", descricao: "", ator: "" });
       recuperaAtas();
-    } catch (err) { console.error(err); alert("Erro ao atualizar!"); }
+      addAlert("Ata atualizada com sucesso!", "success");
+    } catch (err) {
+      console.error(err);
+      if (err.response && err.response.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao editar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao editar (erro desconhecido).", "error");
+      }
+    }
   }
 
   useEffect(() => { recuperaAtas(); }, []);
@@ -73,13 +131,23 @@ function AtaDeAcompanhamento() {
 
       <form className="componente-form" onSubmit={adicionaAta}>
         <label>Data da Reunião:</label>
-        <input type="datetime-local" value={form.dataReuniao} onChange={(e) => setForm({ ...form, dataReuniao: e.target.value })} />
+        <input type="datetime-local"
+        name="dataReuniao"
+        value={form.dataReuniao} 
+        onChange={(e) => setForm({ ...form, dataReuniao: e.target.value })} />
         <label>Participantes:</label>
-        <input type="text" value={form.participantes} onChange={(e) => setForm({ ...form, participantes: e.target.value })} />
+        <input type="text"
+        name="participantes"
+        value={form.participantes}
+        onChange={(e) => setForm({ ...form, participantes: e.target.value })} />
         <label>Descrição:</label>
-        <input type="text" value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} />
+        <input type="text"
+        name="descricao"
+        value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} />
         <label>Ator:</label>
-        <input type="text" value={form.ator} onChange={(e) => setForm({ ...form, ator: e.target.value })} />
+        <input type="text"
+        name="ator"
+        value={form.ator} onChange={(e) => setForm({ ...form, ator: e.target.value })} />
         <button type="submit">Adicionar Ata</button>
       </form>
 
@@ -91,14 +159,20 @@ function AtaDeAcompanhamento() {
             <li key={a.id}>
               {editId === a.id ? (
                 <>
+                <form id="editForm" className="componente-edit-form">
+                  <strong><label>Data da reunião: </label></strong>
                   <input type="datetime-local" value={editForm.dataReuniao} onChange={(e) => setEditForm({ ...editForm, dataReuniao: e.target.value })} />
+                  <strong><label>Participantes: </label></strong>
                   <input type="text" value={editForm.participantes} onChange={(e) => setEditForm({ ...editForm, participantes: e.target.value })} placeholder="Participantes" />
+                  <strong><label>Descrição: </label></strong>
                   <input type="text" value={editForm.descricao} onChange={(e) => setEditForm({ ...editForm, descricao: e.target.value })} placeholder="Descrição" />
+                  <strong><label>Ator: </label></strong>
                   <input type="text" value={editForm.ator} onChange={(e) => setEditForm({ ...editForm, ator: e.target.value })} placeholder="Ator" />
                   <div className="btn-group">
                     <button onClick={() => atualizaAta(a.id)}>Salvar</button>
                     <button onClick={() => setEditId(null)}>Cancelar</button>
                   </div>
+                </form>
                 </>
               ) : (
                 <>

@@ -18,8 +18,8 @@ import Disciplinas from './pages/Disciplina.jsx'
 import Header from './components/customHeader/Header.jsx'
 import Footer from './components/customFooter/Footer.jsx'
 import SubHeader from './components/customSubHeader/Subheader.jsx'
-import PeiCentral from './pages/peiCentral/PeiCentral.jsx'
-import CreatePeiCentral from './pages/peiCentral/CreatePeiCentral.jsx'
+import PeiCentral from './pages/PeiCentral/PeiCentral.jsx'
+import CreatePeiCentral from './pages/PeiCentral/CreatePeiCentral.jsx'
 import EditarPeiCentral from './pages/peiCentral/EditarPeiCentral.jsx'
 import DeletarPeiCentral from './pages/peiCentral/DeletarPeiCentral.jsx'
 import Alunos from './pages/Aluno.jsx'
@@ -113,6 +113,7 @@ function App() {
                 <Route path="/pareceres" element={<Pareceres />} />
                 <Route path="/periodo" element={<PEIPeriodoLetivo />} />
                 <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />
+                <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} /> {/**Teste Mau */}
                 <Route path="/disciplina" element={<Disciplinas/>}/>
                 <Route path="/curso" element={<Cursos/>}/>
                 <Route path="/aluno" element={<Alunos/>}/>
