@@ -1,13 +1,13 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import "./TelaPadrao.css";
+import "./Perfil.css";
 import ProfessorView from './Professor.jsx';
 import NapneView from './Napne.jsx';
 import CoordenadorView from './Coordenador.jsx';
 import PedagogoView from './Pedagogo.jsx';
 
 
-const TelaPadrao = ({ usuario }) => {
+const Perfil = ({ usuario }) => {
   const { perfil } = useParams();
 
   const conteudosPorPerfil = {
@@ -30,4 +30,4 @@ const TelaPadrao = ({ usuario }) => {
   );
 };
 
-export default TelaPadrao;
+export default Perfil;

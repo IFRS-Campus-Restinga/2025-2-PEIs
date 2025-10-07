@@ -32,7 +32,7 @@ import AtaDeAcompanhamento from './pages/ataDeAcompanhamento.jsx'
 import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
 import Pedagogos from './pages/Pedagogo.jsx'
 import LoginPage from './pages/login/login.jsx'
-import TelaPadrao from './components/TelaPadrao/TelaPadrao.jsx';
+import Perfil from './components/Perfis/Perfil.jsx';
 
 function App() {
   // estados para o login do google
@@ -133,7 +133,7 @@ function App() {
                 <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
                 <Route path="/pedagogo" element={<Pedagogos/>}/>
                 <Route path="/logs" element={<Logs/>}/>
-                <Route path="/telaPadrao/:perfil" element={<TelaPadrao usuario={usuario} />} />
+                <Route path="/perfil/:perfil" element={<Perfil usuario={usuario} />} />
               </Routes>
             </main>
             <Footer/>

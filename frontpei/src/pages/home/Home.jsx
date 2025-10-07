@@ -9,7 +9,7 @@ const Home = ({ usuario, perfilSelecionado, setPerfilSelecionado }) => {
 
   const handlePerfilClick = (perfil) => {
   setPerfilSelecionado(perfil);
-  navigate(`/telaPadrao/${perfil.toLowerCase()}`);
+  navigate(`/perfil/${perfil.toLowerCase()}`);
 };
 
 
