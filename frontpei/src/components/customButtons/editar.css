@@ -1,0 +1,15 @@
+/* Botão Editar */
+.botao-editar {
+  background: #055C0F; /* verde */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.botao-editar:hover {
+  background: #0133bb; /* azul ao passar o mouse */
+}
