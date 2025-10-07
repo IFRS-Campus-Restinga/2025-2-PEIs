@@ -4,6 +4,6 @@ from pei.models import *
 from ..permissions import BackendTokenPermission
 
 class CursoViewSet(ModelViewSet):
-    queryset = Curso.objects.all()
+    queryset = Curso.objects.select_related('coordenador').prefetch_related('disciplinas')
     serializer_class = CursoSerializer
     permission_classes = [BackendTokenPermission]

@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { validaCampos } from "../utils/validaCampos";
+import { useAlert } from "../context/AlertContext";
 
 function Alunos() {
+  const { addAlert } = useAlert();
   const DBALUNOS = axios.create({baseURL: import.meta.env.VITE_ALUNO_URL});
 
   const [aluno, setAluno] = useState({
@@ -23,33 +26,63 @@ function Alunos() {
     }
   }
 
-  async function adicionaAluno(event) {
-    event.preventDefault();
+  async function adicionaAluno(e) {
+    e.preventDefault();
+    const formElement = e.target;
+    const mensagens = validaCampos(aluno, formElement);
     const { nome, matricula, email } = aluno;
 
-    if (!nome.trim() || !matricula.trim() || !email.trim()) {
-      alert("Preencha todos os campos corretamente.");
+    if (mensagens.length > 0) {
+      // Junta todas as mensagens em um único texto
+      const mensagemUnica = mensagens.join("\n");
+      addAlert(mensagemUnica, "warning"); // Apenas um alerta
       return;
     }
 
     try {
-      await DBALUNOS.post("/", { nome, matricula, email });
+      await DBALUNOS.post("/", {
+        nome,
+        matricula,
+        email });
       await recuperaAlunos();
       setAluno({ nome: "", matricula: "", email: "" });
+      addAlert("Aluno cadastrado com sucesso!", "success");
     } catch (err) {
-      console.error("Erro ao cadastrar aluno:", err);
-      alert("Falha ao cadastrar aluno!");
+      console.error(err);
+      if (err.response && err.response.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao cadastrar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+      }
     }
   }
 
   async function excluirAluno(id) {
-    try {
-      await DBALUNOS.delete(`/${id}/`);
-      await recuperaAlunos();
-    } catch (err) {
-      console.error("Erro ao excluir aluno:", err);
-      alert("Falha ao excluir aluno!");
-    }
+    addAlert("Deseja realmente deletar este aluno?", "confirm", {
+      onConfirm: async () => {
+        try {
+          await DBALUNOS.delete(`/${id}/`);
+          recuperaAlunos();
+          addAlert("Aluno deletado com sucesso!", "success");
+        } catch (err) {
+          console.error(err);
+          if (err.response && err.response.data) {
+            const messages = Object.entries(err.response.data)
+              .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+              .join(" | ");
+            addAlert(`Erro ao deletar ${messages}`, "error");
+          } else {
+            addAlert("Erro ao deletar (erro desconhecido).", "error");
+          }
+        }
+      },
+      onCancel: () => {
+        addAlert("Exclusão cancelada pelo usuário.", "info");
+      },
+    });
   }
 
   useEffect(() => {
@@ -66,6 +99,7 @@ function Alunos() {
         <br />
         <input
           type="text"
+          name="nome"
           value={aluno.nome}
           onChange={(e) => setAluno({ ...aluno, nome: e.target.value })}
         />
@@ -75,6 +109,7 @@ function Alunos() {
         <br />
         <input
           type="text"
+          name="matricula"
           value={aluno.matricula}
           onChange={(e) => setAluno({ ...aluno, matricula: e.target.value })}
         />
@@ -84,6 +119,7 @@ function Alunos() {
         <br />
         <input
           type="email"
+          name="email"
           value={aluno.email}
           onChange={(e) => setAluno({ ...aluno, email: e.target.value })}
         />

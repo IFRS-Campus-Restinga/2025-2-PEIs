@@ -3,7 +3,7 @@ import logo from "../../assets/logo.png";
 import "./Home.css";
 
 const Home = ({ usuario, perfilSelecionado, setPerfilSelecionado }) => {
-  const perfis = ["Coordenador", "NAPNE", "Professor"];
+  const perfis = ["Coordenador", "NAPNE", "Professor","Administrador"];
 
   return (
     <div className="home-container">

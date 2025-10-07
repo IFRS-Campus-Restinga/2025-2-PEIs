@@ -1,228 +1,310 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import "./curso.css";
+import "./componenteCurricular.css";
+import { validaCampos } from "../utils/validaCampos";
+import { useAlert } from "../context/AlertContext";
 
-function Cursos() {
-  const [cursosCadastrados, setCursosCadastrados] = useState([]);
-  const [curso, setCurso] = useState("");
-  const [disciplinas, setDisciplinas] = useState([]);
-  const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState([]);
-  const [nivel, setNivel] = useState("Não informado");
-  const [coordSelecionado, setCoordSelecionado] = useState("");
-  const [coordCurso, setCoordCurso] = useState([]);
-
-  const [editId, setEditId] = useState(null);
-  const [editCurso, setEditCurso] = useState("");
-  const [editDisciplinas, setEditDisciplinas] = useState([]);
-  const [editNivel, setEditNivel] = useState("Não informado");
-  const [editCoord, setEditCoord] = useState("");
-
-  const niveis = [
-    { label: "Superior", value: "Superior" },
-    { label: "Ensino Médio", value: "Ensino Médio" },
-    { label: "Não informado", value: "Não informado" }
-  ];
-
-  const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
+function Curso() {
+  const { addAlert } = useAlert();
   const DBCURSOS = axios.create({ baseURL: import.meta.env.VITE_CURSOS_URL });
+  const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
   const DBCOORDENADOR = axios.create({ baseURL: import.meta.env.VITE_COORDENADORCURSO_URL });
 
-  async function recuperaDisciplinas() {
-    try {
-      const response = await DBDISCIPLINAS.get("");
-      const data = response.data;
-      setDisciplinas(Array.isArray(data) ? data : data.results);
-    } catch (err) {
-      console.error("Erro ao buscar disciplinas: ", err);
-    }
-  }
+  const [form, setForm] = useState({
+    nome: "",
+    nivel: "Não informado",
+    coordenador: "",
+    disciplinas: [],
+  });
+
+  const [cursosCadastrados, setCursosCadastrados] = useState([]);
+  const [coordenadores, setCoordenadores] = useState([]);
+  const [disciplinas, setDisciplinas] = useState([]);
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({
+    nome: "",
+    nivel: "Não informado",
+    coordenador: "",
+    disciplinas: [],
+  });
 
   async function recuperaCursos() {
     try {
-      const response = await DBCURSOS.get("/");
-      const data = response.data;
-      setCursosCadastrados(Array.isArray(data) ? data : data.results);
+      const res = await DBCURSOS.get("/");
+      setCursosCadastrados(Array.isArray(res.data) ? res.data : res.data.results || []);
     } catch (err) {
-      console.error("Erro ao buscar cursos: ", err);
+      console.error(err);
     }
   }
 
-  async function recuperaCoord() {
+  async function recuperaDisciplinas() {
     try {
-      const response = await DBCOORDENADOR.get("");
-      const data = response.data;
-      setCoordCurso(Array.isArray(data) ? data : data.results);
+      const res = await DBDISCIPLINAS.get("/");
+      setDisciplinas(Array.isArray(res.data) ? res.data : res.data.results || []);
     } catch (err) {
-      console.error("Erro ao buscar coordenadores: ", err);
+      console.error(err);
     }
   }
 
-  async function adicionaCurso(event) {
-    event.preventDefault();
-    if (!curso.trim()) return alert("Informe o nome do curso!");
+  async function recuperaCoordenadores() {
+    try {
+      const res = await DBCOORDENADOR.get("/");
+      setCoordenadores(Array.isArray(res.data) ? res.data : res.data.results || []);
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
-    const novo = {
-      name: curso.trim(),
-      nivel,
-      disciplinas_ids: disciplinasSelecionadas,
-      coordenador_id: coordSelecionado
+  async function adicionaCurso(e) {
+    e.preventDefault();
+    const formElement = e.target;
+    const mensagens = validaCampos(form, formElement);
+
+    if (mensagens.length > 0) {
+      addAlert(mensagens.join("\n"), "warning");
+      return;
+    }
+
+    const novoCurso = {
+      name: form.nome.trim(),
+      nivel: form.nivel,
+      coordenador_id: form.coordenador,
+      disciplinas_ids: form.disciplinas,
     };
 
     try {
-      await DBCURSOS.post("/", novo);
+      await DBCURSOS.post("/", novoCurso);
+      setForm({ nome: "", nivel: "Não informado", coordenador: "", disciplinas: [] });
       await recuperaCursos();
-      setCurso("");
-      setDisciplinasSelecionadas([]);
-      setNivel("Não informado");
-      setCoordSelecionado("");
+      addAlert("Curso cadastrado com sucesso!", "success");
     } catch (err) {
-      console.error("Erro ao criar curso:", err);
-      alert("Falha ao cadastrar curso!");
+      console.error(err);
+      if (err.response && err.response.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao cadastrar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+      }
     }
   }
 
   async function deletaCurso(id) {
-    if (!window.confirm("Tem certeza que deseja deletar este curso?")) return;
-    try {
-      await DBCURSOS.delete(`/${id}/`);
-      await recuperaCursos();
-    } catch (err) {
-      console.error("Erro ao deletar curso:", err);
-      alert("Falha ao deletar curso!");
-    }
+    addAlert("Deseja realmente deletar este curso?", "confirm", {
+      onConfirm: async () => {
+        try {
+          await DBCURSOS.delete(`/${id}/`);
+          recuperaCursos();
+          addAlert("Curso deletado com sucesso!", "success");
+        } catch (err) {
+          console.error(err);
+          if (err.response && err.response.data) {
+            const messages = Object.entries(err.response.data)
+              .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+              .join(" | ");
+            addAlert(`Erro ao deletar ${messages}`, "error");
+          } else {
+            addAlert("Erro ao deletar (erro desconhecido).", "error");
+          }
+        }
+      },
+      onCancel: () => {
+        addAlert("Exclusão cancelada pelo usuário.", "info");
+      },
+    });
   }
 
-  async function atualizaCurso(id) {
-    if (!editCurso.trim()) return alert("Informe o nome do curso!");
+  async function atualizaCurso(e, id) {
+    e.preventDefault();
+    const formElement = document.getElementById("editForm");
+    const mensagens = validaCampos(editForm, formElement);
 
-    const atualizado = {
-      name: editCurso.trim(),
-      nivel: editNivel,
-      disciplinas_ids: editDisciplinas,
-      coordenador_id: editCoord
+    if (mensagens.length > 0) {
+      addAlert(mensagens.join("\n"), "warning");
+      return;
+    }
+
+    const cursoAtualizado = {
+      name: editForm.nome.trim(),
+      nivel: editForm.nivel,
+      coordenador_id: editForm.coordenador,
+      disciplinas_ids: editForm.disciplinas,
     };
 
     try {
-      await DBCURSOS.put(`/${id}/`, atualizado);
+      await DBCURSOS.put(`/${id}/`, cursoAtualizado);
       setEditId(null);
-      setEditCurso("");
-      setEditDisciplinas([]);
-      setEditNivel("Não informado");
-      setEditCoord("");
-      await recuperaCursos();
+      setEditForm({ nome: "", nivel: "Não informado", coordenador: "", disciplinas: [] });
+      recuperaCursos();
+      addAlert("Curso atualizado com sucesso!", "success");
     } catch (err) {
-      console.error("Erro ao atualizar curso:", err);
-      alert("Falha ao atualizar curso!");
+      console.error(err);
+      if (err.response && err.response.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao editar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao editar (erro desconhecido).", "error");
+      }
     }
   }
 
   useEffect(() => {
     recuperaCursos();
     recuperaDisciplinas();
-    recuperaCoord();
+    recuperaCoordenadores();
   }, []);
 
   return (
-    <div className="cursos-container">
+    <div className="componente-container">
       <h1>Gerenciar Cursos</h1>
-
       <h2>Cadastrar Curso</h2>
-      <form className="cursos-form" onSubmit={adicionaCurso}>
-        <label>Nome do curso:</label><br />
-        <textarea value={curso} onChange={(e) => setCurso(e.target.value)} /><br />
+
+      <form className="componente-form" onSubmit={adicionaCurso}>
+        <label>Nome do curso:</label>
+        <input
+          type="text"
+          name="nome"
+          value={form.nome}
+          onChange={(e) => setForm({ ...form, nome: e.target.value })}
+        />
+
+        <label>Nível:</label>
+        <select
+          name="nivel"
+          value={form.nivel}
+          onChange={(e) => setForm({ ...form, nivel: e.target.value })}
+        >
+          <option value="Não informado">Não informado</option>
+          <option value="Técnico">Técnico</option>
+          <option value="Graduação">Graduação</option>
+          <option value="Pós-Graduação">Pós-Graduação</option>
+        </select>
+
+        <label>Coordenador:</label>
+        <select
+          name="coordenador"
+          value={form.coordenador}
+          onChange={(e) => setForm({ ...form, coordenador: e.target.value })}
+        >
+          <option value="">Selecione um coordenador</option>
+          {coordenadores.map((coord) => (
+            <option key={coord.id} value={coord.id}>
+              {coord.nome}
+            </option>
+          ))}
+        </select>
 
         <label>Disciplinas:</label>
-        <div className="disciplinas-checkboxes">
+        <select
+          multiple
+          name="disciplinas"
+          value={form.disciplinas}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              disciplinas: Array.from(e.target.selectedOptions, (opt) => opt.value),
+            })
+          }
+        >
           {disciplinas.map((d) => (
-            <label key={d.id} style={{ display: "block" }}>
-              <input
-                type="checkbox"
-                value={d.id}
-                checked={disciplinasSelecionadas.includes(d.id)}
-                onChange={(e) => {
-                  const id = parseInt(e.target.value);
-                  setDisciplinasSelecionadas((prev) =>
-                    prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-                  );
-                }}
-              />
+            <option key={d.id} value={d.id}>
               {d.nome}
-            </label>
+            </option>
           ))}
-        </div>
+        </select>
 
-        <label>Nível:</label><br />
-        <select value={nivel} onChange={(e) => setNivel(e.target.value)}>
-          {niveis.map(n => <option key={n.value} value={n.value}>{n.label}</option>)}
-        </select><br />
-
-        <label>Coordenador:</label><br />
-        <select value={coordSelecionado} onChange={(e) => setCoordSelecionado(e.target.value)}>
-          <option value="">Não informado</option>
-          {coordCurso.map(cc => <option key={cc.id} value={cc.id}>{cc.nome}</option>)}
-        </select><br />
-
-        <button type="submit">Adicionar curso</button>
+        <button type="submit">Adicionar Curso</button>
       </form>
 
-      <div className="cursos-list">
-        <h3>Cursos cadastrados</h3>
+      <div className="componente-list">
+        <h3>Cursos Cadastrados</h3>
         <ul>
-          {cursosCadastrados.length === 0 && <p>Nenhum curso cadastrado</p>}
-          {cursosCadastrados.map(c => (
+          {cursosCadastrados.length === 0 && <li>Nenhum curso cadastrado.</li>}
+          {cursosCadastrados.map((c) => (
             <li key={c.id}>
               {editId === c.id ? (
-                <>
-                  <input value={editCurso} onChange={(e) => setEditCurso(e.target.value)} />
+                <form id="editForm" className="componente-edit-form" onSubmit={(e) => atualizaCurso(e, c.id)}>
+                  <label>Nome:</label>
+                  <input
+                    type="text"
+                    value={editForm.nome}
+                    onChange={(e) => setEditForm({ ...editForm, nome: e.target.value })}
+                  />
 
-                  <div className="disciplinas-checkboxes">
-                    {disciplinas.map((d) => (
-                      <label key={d.id} style={{ display: "block" }}>
-                        <input
-                          type="checkbox"
-                          value={d.id}
-                          checked={editDisciplinas.includes(d.id)}
-                          onChange={(e) => {
-                            const id = parseInt(e.target.value);
-                            setEditDisciplinas((prev) =>
-                              prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-                            );
-                          }}
-                        />
-                        {d.nome}
-                      </label>
+                  <label>Nível:</label>
+                  <select
+                    value={editForm.nivel}
+                    onChange={(e) => setEditForm({ ...editForm, nivel: e.target.value })}
+                  >
+                    <option value="Não informado">Não informado</option>
+                    <option value="Técnico">Técnico</option>
+                    <option value="Graduação">Graduação</option>
+                    <option value="Pós-Graduação">Pós-Graduação</option>
+                  </select>
+
+                  <label>Coordenador:</label>
+                  <select
+                    value={editForm.coordenador}
+                    onChange={(e) => setEditForm({ ...editForm, coordenador: e.target.value })}
+                  >
+                    <option value="">Selecione um coordenador</option>
+                    {coordenadores.map((coord) => (
+                      <option key={coord.id} value={coord.id}>
+                        {coord.nome}
+                      </option>
                     ))}
+                  </select>
+
+                  <label>Disciplinas:</label>
+                  <select
+                    multiple
+                    value={editForm.disciplinas}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        disciplinas: Array.from(e.target.selectedOptions, (opt) => opt.value),
+                      })
+                    }
+                  >
+                    {disciplinas.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.nome}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="btn-group">
+                    <button type="submit">Salvar</button>
+                    <button onClick={() => setEditId(null)}>Cancelar</button>
                   </div>
-
-                  <select value={editNivel} onChange={(e) => setEditNivel(e.target.value)}>
-                    {niveis.map(n => <option key={n.value} value={n.value}>{n.label}</option>)}
-                  </select>
-
-                  <select value={editCoord} onChange={(e) => setEditCoord(e.target.value)}>
-                    <option value="">Não informado</option>
-                    {coordCurso.map(cc => <option key={cc.id} value={cc.id}>{cc.nome}</option>)}
-                  </select>
-
-                  <button onClick={() => atualizaCurso(c.id)}>Salvar</button>
-                </>
+                </form>
               ) : (
                 <>
-                  <strong>{c.name}</strong><br />
-                  Nível: {c.nivel}<br />
-                  Disciplinas: {c.disciplinas && c.disciplinas.length > 0
-                    ? c.disciplinas.map(d => d.nome).join(", ")
-                    : "Nenhuma"}<br />
-                  Coordenador: {c.coordenador ? c.coordenador.nome : "Não informado"}<br />
-
-                  <div className="curso-buttons">
-                    <button onClick={() => {
-                      setEditId(c.id);
-                      setEditCurso(c.name);
-                      setEditDisciplinas(c.disciplinas.map(d => d.id));
-                      setEditNivel(c.nivel);
-                      setEditCoord(c.coordenador ? c.coordenador.id : "");
-                    }}>Editar</button>
+                  <strong>Nome:</strong> {c.name || "-"} <br />
+                  <strong>Nível:</strong> {c.nivel || "-"} <br />
+                  <strong>Coordenador:</strong> {c.coordenador ? c.coordenador.nome : "Não informado"} <br />
+                  <strong>Disciplinas:</strong>{" "}
+                  {c.disciplinas && c.disciplinas.length > 0
+                ? c.disciplinas.map(d => d.nome).join(", ")
+                : "Nenhuma"} <br />
+                  <div className="btn-group">
+                    <button
+                      onClick={() => {
+                        setEditId(c.id);
+                        setEditForm({
+                          nome: c.name,
+                          nivel: c.nivel,
+                          coordenador: c.coordenador_id || "",
+                          disciplinas: c.disciplinas_ids || [],
+                        });
+                      }}
+                    >
+                      Editar
+                    </button>
                     <button onClick={() => deletaCurso(c.id)}>Deletar</button>
                   </div>
                 </>
@@ -232,9 +314,11 @@ function Cursos() {
         </ul>
       </div>
 
-      <Link to="/" className="voltar-btn">Voltar</Link>
+      <Link to="/" className="voltar-btn">
+        Voltar
+      </Link>
     </div>
   );
 }
 
-export default Cursos;
+export default Curso;

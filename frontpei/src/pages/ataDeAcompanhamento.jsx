@@ -51,7 +51,7 @@ function AtaDeAcompanhamento() {
       addAlert("Ata cadastrada com sucesso!", "success");
 
     } catch (err) {
-       console.error(err);
+      console.error(err);
       if (err.response && err.response.data) {
         const messages = Object.entries(err.response.data)
           .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
@@ -60,7 +60,7 @@ function AtaDeAcompanhamento() {
       } else {
         addAlert("Erro ao cadastrar (erro desconhecido).", "error");
       } 
-      }
+    }
   }
 
   async function deletaAta(id) {
