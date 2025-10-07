@@ -25,7 +25,7 @@ class ComponenteCurricular(BaseModel):
     periodo_letivo = models.ForeignKey(
         "pei.PEIPeriodoLetivo",
         on_delete=models.CASCADE,  
-        related_name="pareceres"   
+        related_name="componentes_curriculares"   
     )
     
     def __str__(self):
