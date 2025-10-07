@@ -1,9 +1,17 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import "./Home.css";
 
 const Home = ({ usuario, perfilSelecionado, setPerfilSelecionado }) => {
-  const perfis = ["Coordenador", "NAPNE", "Professor"];
+  const perfis = ["Coordenador", "NAPNE", "Professor", "Pedagogo"];
+  const navigate = useNavigate();
+
+  const handlePerfilClick = (perfil) => {
+  setPerfilSelecionado(perfil);
+  navigate(`/telaPadrao/${perfil.toLowerCase()}`);
+};
+
 
   return (
     <div className="home-container">
@@ -22,7 +30,7 @@ const Home = ({ usuario, perfilSelecionado, setPerfilSelecionado }) => {
             <button
               key={perfil}
               className={`perfil-btn ${perfilSelecionado === perfil ? "ativo" : ""}`}
-              onClick={() => setPerfilSelecionado(perfil)}
+              onClick={() => handlePerfilClick(perfil)}
             >
               {perfil}
             </button>

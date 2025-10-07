@@ -1,0 +1,33 @@
+import React from 'react';
+import { useParams, Link } from 'react-router-dom';
+import "./TelaPadrao.css";
+import ProfessorView from './Professor.jsx';
+import NapneView from './Napne.jsx';
+import CoordenadorView from './Coordenador.jsx';
+import PedagogoView from './Pedagogo.jsx';
+
+
+const TelaPadrao = ({ usuario }) => {
+  const { perfil } = useParams();
+
+  const conteudosPorPerfil = {
+    coordenador: <CoordenadorView usuario={usuario} />,
+    napne: <NapneView usuario={usuario} />,
+    professor: <ProfessorView usuario={usuario} />,
+    pedagogo: <PedagogoView usuario={usuario} />,
+  };
+
+  const conteudo = conteudosPorPerfil[perfil] || <p>Perfil não encontrado</p>;
+
+  return (
+    <div className="tela-padrao">
+      <main>
+        {conteudo}
+      </main>
+        <Link to="/" className="voltar-btn">Voltar</Link>
+    </div>
+      
+  );
+};
+
+export default TelaPadrao;

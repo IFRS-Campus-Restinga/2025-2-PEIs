@@ -30,7 +30,7 @@ import AtaDeAcompanhamento from './pages/ataDeAcompanhamento.jsx'
 import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
 import Pedagogos from './pages/Pedagogo.jsx'
 import LoginPage from './pages/login/login.jsx'
-import Professor from "./pages/Professor.jsx";
+import TelaPadrao from './components/TelaPadrao/TelaPadrao.jsx';
 
 function App() {
   // estados para o login do google
@@ -127,7 +127,7 @@ function App() {
                 <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
                 <Route path="/pedagogo" element={<Pedagogos/>}/>
                 <Route path="/logs" element={<Logs/>}/>
-                <Route path="/professor" element={<Professor />} />
+                <Route path="/telaPadrao/:perfil" element={<TelaPadrao usuario={usuario} />} />
               </Routes>
             </main>
             <Footer/>
