@@ -5,7 +5,6 @@ from pei.enums.PeriodoLetivo import PeriodoLetivoChoice
 from pei.models.parecer import Parecer
 from pei.models.pei_central import PeiCentral
 
-
 class PEIPeriodoLetivo(BaseModel):
     data_criacao = models.DateField(null=False, blank=False)
     data_termino = models.DateField(null=False, blank=False)
@@ -14,10 +13,40 @@ class PEIPeriodoLetivo(BaseModel):
         choices=PeriodoLetivoChoice.choices,
         default=PeriodoLetivoChoice.SEMESTRE
     )
-
-    #Criando relacionamento um para muitos com o PeiCentral
+    periodo_principal = models.CharField(max_length=10, blank=True, null=True)
     pei_central = models.ForeignKey(PeiCentral, on_delete=models.CASCADE, related_name="periodos") 
+
 
     def __str__(self):
         return f"{self.periodo} - {self.data_criacao}"
+
+    @property
+    def periodo_formatado(self):
+        ano_inicio = self.data_criacao.year
+        mes_inicio = self.data_criacao.month
+
+        if self.periodo == PeriodoLetivoChoice.SEMESTRE:
+            # Semestre: 1º semestre (meses 1-6) ou 2º semestre (meses 7-12)
+            semestre = 1 if mes_inicio <= 6 else 2
+            return f"{ano_inicio}/{semestre}"
+
+        elif self.periodo == PeriodoLetivoChoice.BIMESTRE:
+            # Bimestre: 1 a 6 no ano
+            bimestre = ((mes_inicio - 1) // 2) + 1
+            return f"{ano_inicio}/{bimestre}"
+
+        elif self.periodo == PeriodoLetivoChoice.TRIMESTRE:
+            # Trimestre: 1 a 4 no ano
+            trimestre = ((mes_inicio - 1) // 3) + 1
+            return f"{ano_inicio}/{trimestre}"
+
+        else:
+            return f"{ano_inicio}/?"
+        
+
+    def save(self, *args, **kwargs):
+        self.periodo_principal = self.periodo_formatado
+        super().save(*args, **kwargs)
+
+
 

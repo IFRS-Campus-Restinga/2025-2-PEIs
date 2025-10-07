@@ -1,10 +1,10 @@
 from rest_framework import serializers
 from pei.models.PEIPeriodoLetivo import PEIPeriodoLetivo
-from pei.services.serializers.parecer_serializer import ParecerSerializer
+from pei.services.serializers.componenteCurricular_serializer import ComponenteCurricularSerializer
 
 
-class PEIPeriodoLetivoSerializer(serializers.ModelSerializer):
-    pareceres = ParecerSerializer(many=True, read_only=True)  
+class PEIPeriodoLetivoSerializer(serializers.ModelSerializer): 
+    componentes_curriculares = ComponenteCurricularSerializer(many=True, read_only=True)  
 
     class Meta:
         model = PEIPeriodoLetivo

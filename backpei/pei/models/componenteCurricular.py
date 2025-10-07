@@ -13,8 +13,20 @@ class ComponenteCurricular(BaseModel):
     metodologia = models.CharField(
         max_length=100,
         validators=[MinLengthValidator(7), MaxLengthValidator(255)], blank=False, null=False )
-    disciplinas = models.OneToOneField("Disciplina", related_name="componentes_curriculares", on_delete=models.CASCADE, blank=False, null=False)
+    
+    disciplinas = models.OneToOneField(
+        "Disciplina", 
+        related_name="componentes_curriculares", 
+        on_delete=models.CASCADE, 
+        blank=False, 
+        null=False
+    )
 
+    periodo_letivo = models.ForeignKey(
+        "pei.PEIPeriodoLetivo",
+        on_delete=models.CASCADE,  
+        related_name="pareceres"   
+    )
     
     def __str__(self):
         return f"Componente curricular - {self.id}"

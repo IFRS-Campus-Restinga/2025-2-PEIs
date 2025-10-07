@@ -82,7 +82,7 @@ function PeiCentral() {
                   {pei.periodos.map((periodo) => (
                     <div className="periodo-card">
                       <p><b>Data de Criação:</b> {periodo.data_criacao} <b>Data de Término:</b> {periodo.data_termino}</p>
-                      <p><b>Período Letivo:</b> {periodo.periodo}        
+                      <p><b>Período Letivo:</b> {periodo.periodo_principal}        
                       <div style={{ display: "flex", gap: "20px" }}>
                         <button type="button" onClick={() => navigate("/listar_periodos/"+ periodo.id)}>
                           Visualizar Periodo

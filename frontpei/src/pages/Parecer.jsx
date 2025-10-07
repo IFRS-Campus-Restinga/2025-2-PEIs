@@ -3,47 +3,67 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 
 function Pareceres() {
-  const DBPERIODO = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
+  const DBCOMPONENTES = axios.create({ baseURL: import.meta.env.VITE_COMPONENTE_CURRICULAR });
+  const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
+  const DBPROF = axios.create({ baseURL: import.meta.env.VITE_PROFESSORES_URL });
   const DBPARECERES = axios.create({ baseURL: import.meta.env.VITE_PEIPARECERES_URL });
-  const DBPROF = axios.create({ baseURL: import.meta.env.VITE_PROFESSOR_URL });
 
-  const [periodos, setPeriodos] = useState([]);
+  const [componentes, setComponentes] = useState([]);
+  const [disciplinas, setDisciplinas] = useState([]);
   const [professores, setProfessores] = useState([]);
 
-  const [periodoSelecionado, setPeriodoSelecionado] = useState("");
+  const [componenteSelecionado, setComponenteSelecionado] = useState("");
   const [professorSelecionado, setProfessorSelecionado] = useState("");
   const [texto, setTexto] = useState("");
 
-
-  async function recuperaPeriodos() {
+  // Recupera componentes curriculares
+  async function recuperaComponentes() {
     try {
-      const resp = await DBPERIODO.get("/"); 
+      const resp = await DBCOMPONENTES.get("/");
       const data = resp.data;
-      if (Array.isArray(data)) setPeriodos(data);
-      else if (Array.isArray(data.results)) setPeriodos(data.results);
-      else setPeriodos([]);
+      if (Array.isArray(data)) setComponentes(data);
+      else if (Array.isArray(data.results)) setComponentes(data.results);
+      else setComponentes([]);
     } catch (err) {
-      console.error("Erro ao buscar periodos:", err);
+      console.error("Erro ao buscar componentes:", err);
+      alert("Erro ao carregar componentes curriculares!");
     }
   }
 
+  // Recupera disciplinas
+  async function recuperaDisciplinas() {
+    try {
+      const resp = await DBDISCIPLINAS.get("/");
+      const data = resp.data;
+      if (Array.isArray(data)) setDisciplinas(data);
+      else if (Array.isArray(data.results)) setDisciplinas(data.results);
+      else setDisciplinas([]);
+    } catch (err) {
+      console.error("Erro ao buscar disciplinas:", err);
+      alert("Erro ao carregar disciplinas!");
+    }
+  }
+
+  // Recupera professores
   async function recuperaProfessores() {
     try {
-      const resp = await DBPROF.get("/"); 
+      const resp = await DBPROF.get("/");
       const data = resp.data;
       if (Array.isArray(data)) setProfessores(data);
       else if (Array.isArray(data.results)) setProfessores(data.results);
       else setProfessores([]);
     } catch (err) {
       console.error("Erro ao buscar professores:", err);
+      alert("Erro ao carregar professores!");
     }
   }
 
+  // Adiciona parecer
   async function adicionaParecer(event) {
     event.preventDefault();
 
     const confereTexto = texto.trim();
-    if (confereTexto.length === 0) {
+    if (!confereTexto) {
       alert("O texto do parecer não pode ficar vazio.");
       return;
     }
@@ -51,8 +71,8 @@ function Pareceres() {
       alert("O texto do parecer ultrapassa 1000 caracteres.");
       return;
     }
-    if (!periodoSelecionado) {
-      alert("Selecione um período letivo.");
+    if (!componenteSelecionado) {
+      alert("Selecione um componente curricular.");
       return;
     }
     if (!professorSelecionado) {
@@ -60,50 +80,62 @@ function Pareceres() {
       return;
     }
 
-    const novo = {
-      periodo_letivo: Number(periodoSelecionado),
+    const novoParecer = {
       professor_id: Number(professorSelecionado),
+      componente_curricular: Number(componenteSelecionado),
       texto: confereTexto,
     };
 
     try {
-      await DBPARECERES.post("/", novo); 
+      await DBPARECERES.post("/", novoParecer);
       setTexto("");
-      setPeriodoSelecionado("");
+      setComponenteSelecionado("");
       setProfessorSelecionado("");
+      alert("Parecer cadastrado com sucesso!");
     } catch (err) {
       console.error("Erro ao criar parecer:", err);
-      alert("Falha ao cadastrar o parecer!");
+      if (err.response?.data) {
+        alert("Erro ao cadastrar parecer: " + JSON.stringify(err.response.data));
+      } else {
+        alert("Falha ao cadastrar o parecer!");
+      }
     }
   }
 
   useEffect(() => {
-    recuperaPeriodos();
+    recuperaComponentes();
+    recuperaDisciplinas();
     recuperaProfessores();
   }, []);
 
   return (
-    <>
+    <div className="parecer-container">
       <h1>Gerenciar Pareceres</h1>
-
       <hr />
-      <h2>Cadastrar parecer</h2>
+      <h2>Cadastrar Parecer</h2>
+
       <form onSubmit={adicionaParecer}>
-        <label>Período Letivo:</label>
+        {/* Componente Curricular */}
+        <label>Componente Curricular:</label>
         <br />
         <select
-          value={periodoSelecionado}
-          onChange={(e) => setPeriodoSelecionado(e.target.value)}
+          value={componenteSelecionado}
+          onChange={(e) => setComponenteSelecionado(e.target.value)}
         >
           <option value="">-- selecione --</option>
-          {periodos.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.periodo ?? p.nome ?? `#${p.id} - ${p.data_criacao ?? ""}`}
-            </option>
-          ))}
+          {componentes.map((c) => {
+            const disciplina = disciplinas.find(d => d.id === c.disciplinas);
+            return (
+              <option key={c.id} value={c.id}>
+                {disciplina?.nome ?? "Disciplina não definida"} - {c.objetivos ?? "-"}
+              </option>
+            );
+          })}
         </select>
 
         <br /><br />
+
+        {/* Professor */}
         <label>Professor:</label>
         <br />
         <select
@@ -119,7 +151,9 @@ function Pareceres() {
         </select>
 
         <br /><br />
-        <label>Texto (max 1000):</label>
+
+        {/* Texto do Parecer */}
+        <label>Texto (máx. 1000 caracteres):</label>
         <br />
         <textarea
           value={texto}
@@ -131,13 +165,14 @@ function Pareceres() {
         />
 
         <br /><br />
-        <button type="submit">Adicionar parecer</button>
+        <button type="submit">Adicionar Parecer</button>
       </form>
 
+      <br />
       <button>
         <Link to="/">Voltar</Link>
       </button>
-    </>
+    </div>
   );
 }
 

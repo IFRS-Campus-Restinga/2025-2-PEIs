@@ -4,8 +4,8 @@ from django.core.validators import MinLengthValidator, MaxLengthValidator, MinVa
 
 
 class Parecer(BaseModel):
-    periodo_letivo = models.ForeignKey(
-        "pei.PEIPeriodoLetivo",
+    componente_curricular = models.ForeignKey(
+        "pei.componenteCurricular",
         on_delete=models.CASCADE,  
         related_name="pareceres"   
     )
