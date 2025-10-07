@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { validaCampos } from "../utils/validaCampos";
+import { useAlert } from "../context/AlertContext";
 
 function CoordenadoresCurso() {
+  const {addAlert} = useAlert();
   const DBCOORDENADORES = axios.create({ baseURL: import.meta.env.VITE_COORDENADORCURSO_URL });
 
   const [coordenador, setCoordenador] = useState({
@@ -23,10 +26,11 @@ function CoordenadoresCurso() {
 
   async function adicionaCoordenador(event) {
     event.preventDefault();
+    const mensagens = validaCampos(coordenador, event.target);
     const { nome } = coordenador;
 
-    if (!nome.trim()) {
-      alert("Preencha o nome corretamente.");
+    if (mensagens.length > 0) {
+      addAlert(mensagens.join("\n"), "warning");
       return;
     }
 
@@ -34,20 +38,42 @@ function CoordenadoresCurso() {
       await DBCOORDENADORES.post("/", { nome });
       await recuperaCoordenadores();
       setCoordenador({ nome: "" });
+      recuperaCoordenadores();
+      addAlert("Coordenador cadastrado com sucesso!", "success");
     } catch (err) {
-      console.error("Erro ao cadastrar coordenador:", err);
-      alert("Falha ao cadastrar coordenador!");
+      console.error(err);
+      if (err.response?.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao cadastrar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+      }
     }
   }
 
   async function excluirCoordenador(id) {
-    try {
-      await DBCOORDENADORES.delete(`/${id}/`);
-      await recuperaCoordenadores();
-    } catch (err) {
-      console.error("Erro ao excluir coordenador:", err);
-      alert("Falha ao excluir coordenador!");
-    }
+    addAlert("Deseja realmente deletar este coordenador?", "confirm", {
+      onConfirm: async () => {
+        try {
+          await DBCOORDENADORES.delete(`/${id}/`);
+          recuperaCoordenadores();
+          addAlert("Coordenador deletado com sucesso!", "success");
+        } catch (err) {
+          console.error(err);
+          if (err.response?.data) {
+            const messages = Object.entries(err.response.data)
+              .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+              .join(" | ");
+            addAlert(`Erro ao deletar ${messages}`, "error");
+          } else {
+            addAlert("Erro ao deletar (erro desconhecido).", "error");
+          }
+        }
+      },
+      onCancel: () => addAlert("Exclusão cancelada pelo usuário.", "info"),
+    });
   }
 
   useEffect(() => {
@@ -63,6 +89,7 @@ function CoordenadoresCurso() {
         <label>Nome:</label>
         <br />
         <input
+          name="nome"
           type="text"
           value={coordenador.nome}
           onChange={(e) => setCoordenador({ ...coordenador, nome: e.target.value })}
