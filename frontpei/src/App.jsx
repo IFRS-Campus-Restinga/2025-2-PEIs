@@ -13,8 +13,10 @@ import Home from "./pages/home/Home.jsx"
 import Pareceres from "./pages/Parecer.jsx";
 import PEIPeriodoLetivo from "./pages/PEIPeriodoLetivo.jsx";
 import PEIPeriodoLetivoLista from "./pages/listar_pei_periodo_letivo.jsx";
-import Cursos from './pages/Curso.jsx'
-import Disciplinas from './pages/Disciplina.jsx'
+import Cursos from "./pages/Curso/Curso.jsx";
+import CursosCRUD from "./pages/Curso/CursoCRUD.jsx";
+import Disciplinas from "./pages/Disciplina/Disciplina.jsx";
+import DisciplinasCRUD from "./pages/Disciplina/DisciplinaCRUD.jsx";
 import Header from './components/customHeader/Header.jsx'
 import Footer from './components/customFooter/Footer.jsx'
 import SubHeader from './components/customSubHeader/Subheader.jsx'
@@ -115,7 +117,11 @@ function App() {
                 <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />
                 <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} /> {/**Teste Mau */}
                 <Route path="/disciplina" element={<Disciplinas/>}/>
+                <Route path="/disciplinasCadastrar" element={<DisciplinasCRUD/>}/>
+                <Route path="/disciplinaEditar/:id" element={<DisciplinasCRUD/>}/>
                 <Route path="/curso" element={<Cursos/>}/>
+                <Route path="/cursoCadastrar" element={<CursosCRUD/>}/>
+                <Route path="/cursoEditar/:id" element={<CursosCRUD/>}/>
                 <Route path="/aluno" element={<Alunos/>}/>
                 <Route path="/coordenador" element={<CoordenadorCurso/>}/>
                 <Route path="/peicentral" element={<PeiCentral />} />
