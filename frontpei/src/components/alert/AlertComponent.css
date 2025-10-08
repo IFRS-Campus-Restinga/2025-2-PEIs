@@ -25,7 +25,7 @@
   text-align: left; /* opcional, para que fique mais legível */
 }
 
-.alert.success { color: #00c22d; font-weight: bold;}
+.alert.success { color: #055C0F; font-weight: bold;}
 .alert.error { color: #ff0019; font-weight: bold;}
 .alert.warning { color: #856404; font-weight: bold;}
 .alert.info { color: #004085; font-weight: bold;}

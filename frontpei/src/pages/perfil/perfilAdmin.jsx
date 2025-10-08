@@ -16,7 +16,7 @@ const PerfilAdmin = ({ usuario, onVoltar }) => {
         <Link to="/periodo" className="btn-admin">Gerenciar Períodos Letivos</Link>
         <Link to="/coordenador" className="btn-admin">Gerenciar Coordenadores</Link>
         <Link to="/aluno" className="btn-admin">Gerenciar Alunos</Link>
-        <Link to="/professore" className="btn-admin">Gerenciar Professores</Link>
+        <Link to="/professor" className="btn-admin">Gerenciar Professores</Link>
         <Link to="/peicentral" className="btn-admin">Gerenciar PEIs</Link>
         <Link to="/pareceres" className="btn-admin">Gerenciar Pareceres</Link>
         <Link to="/componentecurricular" className="btn-admin">Gerenciar Componentes Curriculares</Link>
