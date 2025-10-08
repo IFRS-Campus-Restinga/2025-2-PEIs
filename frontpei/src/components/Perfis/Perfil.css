@@ -70,8 +70,14 @@
   margin-bottom: 12px;
   padding: 12px 16px;
   gap: 8px;
-  color: white
+  color: white;
+  transition: transform 0.15s ease;
 }
+.aluno-row:hover {
+  transform: scale(1.02);
+}
+
+
 .aluno-info, .coordenador-info {
   display: flex;
   align-items: center;
