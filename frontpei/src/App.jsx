@@ -112,6 +112,7 @@ function App() {
                     setPerfilSelecionado={setPerfilSelecionado} 
                   />} 
                 />
+                <Route path="/" element={<Home />} />
                 <Route path="/pareceres" element={<Pareceres />} />
                 <Route path="/periodo" element={<PEIPeriodoLetivo />} />
                 <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />

@@ -185,27 +185,27 @@ function ComponenteCurricular() {
       <h2>Cadastrar Componente Curricular</h2>
       <form className="componente-form" onSubmit={adicionaComponenteCurricular}>
         <label>Objetivos:</label>
-        <input
+        <input name ="objetivos"
           type="text"
           value={form.objetivos}
           onChange={(e) => setForm({ ...form, objetivos: e.target.value })}
         />
 
         <label>Conteúdo Programático:</label>
-        <input
+        <input name = "conteudo_prog"
           type="text"
           value={form.conteudo_prog}
           onChange={(e) => setForm({ ...form, conteudo_prog: e.target.value })}
         />
 
         <label>Metodologia:</label>
-        <textarea
+        <textarea name = "metodologia"
           value={form.metodologia}
           onChange={(e) => setForm({ ...form, metodologia: e.target.value })}
         />
 
         <label>Disciplina:</label>
-        <select
+        <select name = "disciplinaId"
           value={form.disciplinaId}
           onChange={(e) => setForm({ ...form, disciplinaId: e.target.value })}
         >
@@ -216,7 +216,7 @@ function ComponenteCurricular() {
         </select>
 
         <label>Período Letivo:</label>
-        <select
+        <select name = "periodoLetivoId"
           value={form.periodoLetivoId}
           onChange={(e) => setForm({ ...form, periodoLetivoId: e.target.value })}
         >
@@ -238,58 +238,62 @@ function ComponenteCurricular() {
           {componenteCurricularCadastrado.length === 0 && <li>Nenhum componente cadastrado.</li>}
 
           {componenteCurricularCadastrado.map((d) => (
-            <li key={d.id}>
+            <li key={d.id} className="componente-item">
               {editId === d.id ? (
-                <form id="editForm" onSubmit={(e) => atualizaComponenteCurricular(e, d.id)}>
-                  <label>Objetivos:</label>
-                  <input
-                    type="text"
-                    value={editForm.objetivos}
-                    onChange={(e) => setEditForm({ ...editForm, objetivos: e.target.value })}
-                  />
-
-                  <label>Conteúdo Programático:</label>
-                  <input
-                    type="text"
-                    value={editForm.conteudo_prog}
-                    onChange={(e) => setEditForm({ ...editForm, conteudo_prog: e.target.value })}
-                  />
-
-                  <label>Metodologia:</label>
-                  <textarea
-                    value={editForm.metodologia}
-                    onChange={(e) => setEditForm({ ...editForm, metodologia: e.target.value })}
-                  />
-
-                  <label>Disciplina:</label>
-                  <select
-                    value={editForm.disciplinaId}
-                    onChange={(e) => setEditForm({ ...editForm, disciplinaId: e.target.value })}
+                <div className="edit-container">
+                  <form 
+                    id="editForm" 
+                    className="componente-form"
+                    onSubmit={(e) => atualizaComponenteCurricular(e, d.id)}
                   >
-                    <option value="">Selecione uma disciplina</option>
-                    {disciplinasCadastradas.map((disc) => (
-                      <option key={disc.id} value={disc.id}>{disc.nome}</option>
-                    ))}
-                  </select>
+                    <label>Objetivos:</label>
+                    <input name="objetivos" type="text"
+                      value={editForm.objetivos}
+                      onChange={(e) => setEditForm({ ...editForm, objetivos: e.target.value })}
+                    />
 
-                  <label>Período Letivo:</label>
-                  <select
-                    value={editForm.periodoLetivoId}
-                    onChange={(e) => setEditForm({ ...editForm, periodoLetivoId: e.target.value })}
-                  >
-                    <option value="">Selecione um período letivo</option>
-                    {periodosLetivos.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.periodo_principal} ({p.data_criacao} a {p.data_termino})
-                      </option>
-                    ))}
-                  </select>
+                    <label>Conteúdo Programático:</label>
+                    <input name="conteudo_prog" type="text"
+                      value={editForm.conteudo_prog}
+                      onChange={(e) => setEditForm({ ...editForm, conteudo_prog: e.target.value })}
+                    />
 
-                  <div className="btn-group">
-                    <button type="submit">Salvar</button>
-                    <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
-                  </div>
-                </form>
+                    <label>Metodologia:</label>
+                    <textarea name="metodologia"
+                      value={editForm.metodologia}
+                      onChange={(e) => setEditForm({ ...editForm, metodologia: e.target.value })}
+                    />
+
+                    <label>Disciplina:</label>
+                    <select name="disciplinaId"
+                      value={editForm.disciplinaId}
+                      onChange={(e) => setEditForm({ ...editForm, disciplinaId: e.target.value })}
+                    >
+                      <option value="">Selecione uma disciplina</option>
+                      {disciplinasCadastradas.map((disc) => (
+                        <option key={disc.id} value={disc.id}>{disc.nome}</option>
+                      ))}
+                    </select>
+
+                    <label>Período Letivo:</label>
+                    <select name="periodoLetivoId"
+                      value={editForm.periodoLetivoId}
+                      onChange={(e) => setEditForm({ ...editForm, periodoLetivoId: e.target.value })}
+                    >
+                      <option value="">Selecione um período letivo</option>
+                      {periodosLetivos.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.periodo_principal} ({p.data_criacao} a {p.data_termino})
+                        </option>
+                      ))}
+                    </select>
+
+                    <div className="btn-group">
+                      <button type="submit">Salvar</button>
+                      <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
+                    </div>
+                  </form>
+                </div>
               ) : (
                 <>
                   <strong>Objetivos:</strong> {d.objetivos || "-"} <br />
@@ -301,20 +305,16 @@ function ComponenteCurricular() {
                   {periodosLetivos.find((p) => p.id === Number(d.periodo_letivo))?.periodo_principal || "-"} <br />
 
                   <div className="btn-group">
-                    <button
-                      onClick={() => {
-                        setEditId(d.id);
-                        setEditForm({
-                          objetivos: d.objetivos,
-                          conteudo_prog: d.conteudo_prog,
-                          metodologia: d.metodologia,
-                          disciplinaId: d.disciplinas || "",
-                          periodoLetivoId: d.periodo_letivo || "",
-                        });
-                      }}
-                    >
-                      Editar
-                    </button>
+                    <button onClick={() => {
+                      setEditId(d.id);
+                      setEditForm({
+                        objetivos: d.objetivos,
+                        conteudo_prog: d.conteudo_prog,
+                        metodologia: d.metodologia,
+                        disciplinaId: d.disciplinas || "",
+                        periodoLetivoId: d.periodo_letivo || "",
+                      });
+                    }}>Editar</button>
                     <button onClick={() => deletaComponenteCurricular(d.id)}>Deletar</button>
                   </div>
                 </>
@@ -323,6 +323,7 @@ function ComponenteCurricular() {
           ))}
         </ul>
       </div>
+
 
       <Link to="/" className="voltar-btn">Voltar</Link>
     </div>

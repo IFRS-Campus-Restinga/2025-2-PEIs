@@ -1,86 +1,33 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React from "react";
+import { Link } from "react-router-dom";
 import "./perfilAdmin.css";
 
-const PerfilAdmin = ({ usuario }) => {
-  const [peiCentral, setpeiCentral] = useState([]);
-  const [pagina, setPagina] = useState(1);
-  const itensPorPagina = 4;
-
-  // URL base da API (pode usar variável de ambiente)
-  const API_URL = import.meta.env.VITE_PEI_CENTRAL_URL;
-
-  useEffect(() => {
-    const buscarpeiCentral = async () => {
-      try {
-        const resposta = await axios.get(`${API_URL}`);
-        setpeiCentral(resposta.data);
-      } catch (erro) {
-        console.error("Erro ao buscar peiCentral:", erro);
-      }
-    };
-
-    buscarpeiCentral();
-  }, []);
-
-  // Paginação simples
-  const totalPaginas = Math.ceil(peiCentral.length / itensPorPagina);
-  const inicio = (pagina - 1) * itensPorPagina;
-  const peiCentralPaginados = peiCentral.slice(inicio, inicio + itensPorPagina);
-
+const PerfilAdmin = ({ usuario, onVoltar }) => {
   return (
     <div className="perfil-admin-container">
-      <h1>Bem-vindo ao Gerenciamento de PEIs</h1>
+      <h1>Painel do Administrador</h1>
+      <p className="subtitulo">
+        Escolha uma das opções abaixo para gerenciar o sistema.
+      </p>
 
-      <table className="tabela-admin">
-        <thead>
-          <tr>
-            <th>Nome Aluno</th>
-            <th>Componente Curricular</th>
-            <th>Status</th>
-            <th>Coordenador de curso</th>
-            <th>Visualizar</th>
-          </tr>
-        </thead>
+      <div className="botoes-admin-grid">
+        <Link to="/curso" className="btn-admin">Gerenciar Cursos</Link>
+        <Link to="/disciplina" className="btn-admin">Gerenciar Disciplinas</Link>
+        <Link to="/periodo" className="btn-admin">Gerenciar Períodos Letivos</Link>
+        <Link to="/coordenador" className="btn-admin">Gerenciar Coordenadores</Link>
+        <Link to="/aluno" className="btn-admin">Gerenciar Alunos</Link>
+        <Link to="/professore" className="btn-admin">Gerenciar Professores</Link>
+        <Link to="/peicentral" className="btn-admin">Gerenciar PEIs</Link>
+        <Link to="/pareceres" className="btn-admin">Gerenciar Pareceres</Link>
+        <Link to="/componentecurricular" className="btn-admin">Gerenciar Componentes Curriculares</Link>
+        <Link to="/atadeacompanhamento" className="btn-admin">Gerenciar Atas de Acompanhamento</Link>
+        <Link to="/documentacaocomplementar" className="btn-admin">Gerenciar Documentações Complementares</Link>
+        <Link to="/pedagogo" className="btn-admin">Gerenciar Pedagogos</Link>
 
-        <tbody>
-          {peiCentralPaginados.map((aluno) => (
-            <tr key={aluno.id} className="linha-aluno">
-              <td className="aluno-info">
-                <img
-                  src={aluno.foto || "https://via.placeholder.com/50"}
-                  alt={aluno.nome}
-                  className="aluno-foto"
-                />
-                <span className="aluno-nome">{aluno.nome}</span>
-              </td>
-              <td>{aluno.componente}</td>
-              <td
-                className={`status ${
-                  aluno.status === "Em andamento"
-                    ? "status-andamento"
-                    : "status-encerrado"
-                }`}
-              >
-                {/*aluno.status.toUpperCase()*/}
-              </td>
-              <td className="coordenador-info">
-                <img
-                  src={aluno.coordenador_foto || "https://via.placeholder.com/40"}
-                  alt={aluno.coordenador}
-                  className="coordenador-foto"
-                />
-                <span>{aluno.coordenador}</span>
-              </td>
-              <td>
-                <button className="btn-visualizar">
-                  {/*<FaSearch size={20} />*/}
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+
+
+      </div>
+      <button onClick={onVoltar} className="voltar-btn">Voltar</button>
     </div>
   );
 };
