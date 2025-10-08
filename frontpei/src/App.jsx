@@ -13,10 +13,10 @@ import Home from "./pages/home/Home.jsx"
 import Pareceres from "./pages/Parecer.jsx";
 import PEIPeriodoLetivo from "./pages/PEIPeriodoLetivo.jsx";
 import PEIPeriodoLetivoLista from "./pages/listar_pei_periodo_letivo.jsx";
-import Cursos from './pages/Curso/Curso.jsx'
-import CursosCRUD from './pages/Curso/CursoCRUD.jsx'
-import Disciplinas from './pages/Disciplina/Disciplina.jsx'
-import DisciplinasCRUD from './pages/Disciplina/DisciplinaCRUD.jsx'
+import Cursos from "./pages/Curso/Curso.jsx";
+import CursosCRUD from "./pages/Curso/CursoCRUD.jsx";
+import Disciplinas from "./pages/Disciplina/Disciplina.jsx";
+import DisciplinasCRUD from "./pages/Disciplina/DisciplinaCRUD.jsx";
 import Header from './components/customHeader/Header.jsx'
 import Footer from './components/customFooter/Footer.jsx'
 import SubHeader from './components/customSubHeader/Subheader.jsx'

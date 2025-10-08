@@ -7,7 +7,6 @@ function PEIPeriodoLetivoLista() {
   const DB = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
   const [periodos, setPeriodos] = useState([]);
   const [erro, setErro] = useState(false);
-
   const [periodoUnico, setPeriodoUnico] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
@@ -56,7 +55,10 @@ function PEIPeriodoLetivoLista() {
           {periodoUnico.componentes_curriculares?.length > 0 ? (
             periodoUnico.componentes_curriculares.map((comp) => (
               <div key={comp.id} style={{ marginLeft: "20px", marginBottom: "10px" }}>
-                <i>Componente Curricular: {comp.objetivos}</i>
+                <i>
+                  Componente Curricular:{" "}
+                  {comp.disciplina?.nome || "Sem disciplina vinculada"}
+                </i>
                 {comp.pareceres?.length > 0 ? (
                   <ul>
                     {comp.pareceres.map((parecer) => (
@@ -64,7 +66,10 @@ function PEIPeriodoLetivoLista() {
                         <i>{parecer.texto}</i>
                         <p>Data de Criação: {parecer.data}</p>
                         {parecer.professor ? (
-                          <p><b>Professor:</b> {parecer.professor.nome} ({parecer.professor.email})</p>
+                          <p>
+                            <b>Professor:</b> {parecer.professor.nome} (
+                            {parecer.professor.email})
+                          </p>
                         ) : (
                           <p><b>Professor:</b> não informado</p>
                         )}
@@ -114,7 +119,10 @@ function PEIPeriodoLetivoLista() {
             {p.componentes_curriculares?.length > 0 ? (
               p.componentes_curriculares.map((comp) => (
                 <div key={comp.id} style={{ marginLeft: "20px", marginBottom: "10px" }}>
-                  <i>Componente Curricular: {comp.objetivos}</i>
+                  <i>
+                    Componente Curricular:{" "}
+                    {comp.disciplina?.nome || "Sem disciplina vinculada"}
+                  </i>
                   {comp.pareceres?.length > 0 ? (
                     <ul>
                       {comp.pareceres.map((parecer) => (
@@ -122,7 +130,10 @@ function PEIPeriodoLetivoLista() {
                           <i>{parecer.texto}</i>
                           <p>Data de Criação: {parecer.data}</p>
                           {parecer.professor ? (
-                            <p><b>Professor:</b> {parecer.professor.nome} ({parecer.professor.email})</p>
+                            <p>
+                              <b>Professor:</b> {parecer.professor.nome} (
+                              {parecer.professor.email})
+                            </p>
                           ) : (
                             <p><b>Professor:</b> não informado</p>
                           )}

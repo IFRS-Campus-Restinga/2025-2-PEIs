@@ -18,8 +18,8 @@ class CursoSerializer(serializers.ModelSerializer):
         source="coordenador",
         write_only=True
     )
-    arquivo_upload = serializers.FileField(write_only=True, required=False)
     arquivo_nome = serializers.SerializerMethodField()
+    arquivo_upload = serializers.FileField(write_only=True, required=False)
 
     class Meta:
         model = Curso
@@ -35,15 +35,15 @@ class CursoSerializer(serializers.ModelSerializer):
         if obj.arquivo:
             return obj.arquivo.name.split('/')[-1]  # apenas o nome do arquivo
         return None
-
+    
     def create(self, validated_data):
-        arquivo = validated_data.pop('arquivo_upload', None)
+        arquivo = validated_data.pop("arquivo_upload", None)
         if arquivo:
-            validated_data['arquivo'] = arquivo
+            validated_data["arquivo"] = arquivo
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        arquivo = validated_data.pop('arquivo_upload', None)
+        arquivo = validated_data.pop("arquivo_upload", None)
         if arquivo:
             instance.arquivo = arquivo
         return super().update(instance, validated_data)

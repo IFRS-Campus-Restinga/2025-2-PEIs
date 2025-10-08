@@ -198,12 +198,12 @@
 }
 /* Container principal */
 .cursos-container {
-  max-width: 900px;
+  max-width: 1100px;
   margin: 40px auto;
   padding: 24px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   font-family: system-ui, sans-serif;
 }
 
@@ -227,19 +227,15 @@
   border-radius: 2px;
 }
 
-/* Formulário */
+/* Formulário e botão superior */
 .cursos-form {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  justify-content: flex-end;
   margin-bottom: 24px;
 }
 
-/* Botão Adicionar */
 .submit-btn {
-  align-self: flex-end;
-  padding: 10px 40px;
-  min-width: 180px;
+  padding: 10px 30px;
   background: #055C0F;
   color: #fff;
   border: none;
@@ -251,79 +247,70 @@
 }
 
 .submit-btn:hover {
-  background: #1976d2;
+  background: #067416;
 }
 
 .submit-btn:active {
   transform: scale(0.97);
 }
 
-/* ---------------------------- */
-/* Estilos da tabela de cursos  */
-/* ---------------------------- */
+/* Tabela de cursos */
 .table-container {
-  width: 100%;
   overflow-x: auto;
-  margin-top: 20px;
 }
 
 .cursos-table {
   width: 100%;
   border-collapse: collapse;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  margin-bottom: 24px;
 }
 
 .cursos-table th,
 .cursos-table td {
   padding: 12px 16px;
+  border-bottom: 1px solid #ddd;
   text-align: left;
-  border-bottom: 1px solid #e0e0e0;
+  vertical-align: middle;
 }
 
 .cursos-table th {
-  background-color: #055C0F;
-  color: #fff;
+  background: #f5f5f5;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.cursos-table tr:nth-child(even) {
-  background-color: #f9f9f9;
+  color: #333;
 }
 
 .cursos-table tr:hover {
-  background-color: #eef6f0;
+  background-color: #f9f9f9;
   transition: background 0.2s;
 }
 
-.cursos-table td {
-  vertical-align: middle;
-  color: #333;
-  font-size: 15px;
-}
-
-/* Célula de ações */
-.acoes-cell {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Ícone de download */
+/* Download: ícone + nome */
 .download-btn {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
-  transition: transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #055C0F;
+  font-weight: 500;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.download-btn img {
+  width: 20px;
+  height: 20px;
 }
 
 .download-btn:hover {
-  transform: scale(1.1);
+  color: #067416;
+}
+
+/* Ações (editar/deletar) */
+.acoes-cell {
+  display: flex;
+  gap: 10px;
 }
 
 /* Botão Voltar */
@@ -339,6 +326,7 @@
   font-weight: 500;
   cursor: pointer;
   text-decoration: none;
+  text-align: center;
   transition: background 0.2s, transform 0.1s;
 }
 
@@ -355,13 +343,12 @@
 @media (max-width: 768px) {
   .cursos-table th,
   .cursos-table td {
-    padding: 8px;
+    padding: 10px;
     font-size: 14px;
   }
 
-  .acoes-cell {
-    flex-direction: column;
-    gap: 6px;
+  .download-btn span {
+    display: none; /* esconde o nome do arquivo em telas pequenas */
   }
 
   .submit-btn {

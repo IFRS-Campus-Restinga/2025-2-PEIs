@@ -3,7 +3,8 @@ python/
 node/
 git/
 frontpei/node_modules/
-backpei/migrations/
+backpei/pei/migrations/0001_initial.py
+backpei/logs/migrations/0001_initial.py
 .idea
 # outros comuns
 *.log

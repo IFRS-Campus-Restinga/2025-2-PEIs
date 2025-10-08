@@ -12,27 +12,31 @@ class CursoViewSet(ModelViewSet):
     serializer_class = CursoSerializer
     permission_classes = [BackendTokenPermission]
 
-    # Sobrescreve create para aceitar arquivo_upload
+    # Create padrão (DRF já trata o arquivo automaticamente)
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
         if 'arquivo_upload' in request.FILES:
-            data['arquivo'] = request.FILES['arquivo_upload']
+            data['arquivo'] = request.FILES['arquivo_upload']  # mapeia para o campo do model
+
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    # Sobrescreve update para aceitar arquivo_upload
+
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         data = request.data.copy()
         if 'arquivo_upload' in request.FILES:
             data['arquivo'] = request.FILES['arquivo_upload']
+
         serializer = self.get_serializer(instance, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
+
+
 
     # Endpoint de download de arquivo
     @action(detail=True, methods=['get'], url_path='download')
@@ -40,6 +44,6 @@ class CursoViewSet(ModelViewSet):
         curso = self.get_object()
         if not curso.arquivo:
             return Response({"error": "Arquivo não encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        
         filename = curso.arquivo.name.split('/')[-1]
         return FileResponse(curso.arquivo, as_attachment=True, filename=filename)
-

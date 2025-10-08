@@ -13,7 +13,7 @@ function PEIPeriodoLetivo() {
   const [peiCentrals, setPeiCentrals] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
-  // 🔹 Buscar PeiCentrals disponíveis no backend
+  //  Buscar PeiCentrals disponíveis no backend
   useEffect(() => {
     async function carregarPeiCentrals() {
       try {
