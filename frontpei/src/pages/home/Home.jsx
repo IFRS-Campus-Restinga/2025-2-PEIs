@@ -15,7 +15,9 @@ const Home = ({ usuario, perfilSelecionado, setPerfilSelecionado }) => {
       <h1>Bem-vindo{usuario ? `, ${usuario.nome}` : ""}!</h1>
 
       {perfilSelecionado === "Administrador" ? (
-        <PerfilAdmin usuario={usuario} />
+        <PerfilAdmin
+         usuario={usuario}
+         onVoltar={() => setPerfilSelecionado(null)} />
       ) : (
         <>
           <p className="home-description">
