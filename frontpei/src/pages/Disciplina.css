@@ -1,3 +1,4 @@
+/* Container principal */
 .disciplinas-container {
   max-width: 700px;
   margin: 40px auto;
@@ -8,120 +9,125 @@
   font-family: system-ui, sans-serif;
 }
 
-.disciplinas-container h1,
-.disciplinas-container h2,
-.disciplinas-container h3 {
+/* Título */
+.disciplinas-container h1 {
+  font-size: 28px;
+  font-weight: 700;
   color: #055C0F;
-  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+  position: relative;
 }
 
+.disciplinas-container h1::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: #055C0F;
+  margin: 8px auto 0;
+  border-radius: 2px;
+}
+
+/* Formulário */
 .disciplinas-form {
+  display: flex;
+  justify-content: left;
   margin-bottom: 24px;
 }
 
-.disciplinas-form label {
-  font-weight: 500;
-}
-
-.disciplinas-form textarea {
-  width: 100%;
-  min-height: 40px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 15px;
-  resize: vertical;
-  margin-top: 4px;
-}
-
-.disciplinas-form button {
-  margin-top: 12px;
-  padding: 8px 20px;
+.submit-btn {
+  padding: 10px 40px;
+  min-width: 180px;
   background: #055C0F;
   color: #fff;
   border: none;
-  border-radius: 6px;
-  font-size: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.1s;
 }
 
-.disciplinas-form button:hover {
-  background: #1976d2;
+.submit-btn:hover {
+  background: #ccc;
+}
+
+.submit-btn:active {
+  transform: scale(0.97);
+}
+
+/* Lista de disciplinas */
+.disciplinas-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .disciplinas-list ul {
   list-style: none;
   padding: 0;
+  margin: 0;
+  width: 100%;
 }
 
 .disciplinas-list li {
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 10px auto;
+  max-width: 600px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
-  border-bottom: 1px solid #eee;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.disciplinas-list li input {
-  flex: 1;
-  padding: 6px 10px;
-  font-size: 15px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  margin-right: 10px;
+.disciplinas-list li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
 }
 
-/* Botões coladinhos */
-.disciplinas-list button {
-  padding: 6px 10px;
-  border-radius: 6px;
+.disciplinas-list li b {
+  color: #055C0F;
+  font-weight: 600;
+}
+
+/* Botões dentro de cada item */
+.curso-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Botão Voltar */
+.voltar-btn {
+  display: block;
+  margin: 24px auto 0;
+  padding: 10px 22px;
+  background: #ccc;
+  color: #333;
   border: none;
-  cursor: pointer;
-  font-size: 15px;
-  transition: background 0.2s;
-  margin-left: 0; /* remove espaço entre botões */
-}
-
-.disciplinas-list button:first-of-type {
-  background: #1976d2;
-  color: #fff;
-}
-
-.disciplinas-list button:first-of-type:hover {
-  background: #055C0F;
-}
-
-.disciplinas-list button:last-of-type {
-  background: #e0e0e0;
-  color: #000;
-}
-
-.disciplinas-list button:last-of-type:hover {
-  background: #d32f2f;
-  color: #fff;
-}
-
-/* Botão voltar */
-.disciplinas-container .voltar-btn {
-  margin-top: 24px;
-  padding: 8px 20px;
-  background: #f1f1f1;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
   text-decoration: none;
-  display: inline-block;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, transform 0.1s;
 }
 
-.disciplinas-container .voltar-btn:hover {
-  background: #1976d2;
+.voltar-btn:hover {
+  background: #999;
   color: #fff;
 }
 
-/* Responsivo */
+.voltar-btn:active {
+  transform: scale(0.97);
+}
+
+/* Responsividade */
 @media (max-width: 600px) {
   .disciplinas-list li {
     flex-direction: column;
@@ -129,7 +135,13 @@
     gap: 6px;
   }
 
-  .disciplinas-list button {
+  .curso-buttons {
     width: 100%;
+    justify-content: flex-start;
+  }
+
+  .submit-btn {
+    width: 100%;
+    min-width: auto;
   }
 }

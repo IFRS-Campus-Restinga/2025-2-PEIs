@@ -26,17 +26,14 @@ class PEIPeriodoLetivo(BaseModel):
         mes_inicio = self.data_criacao.month
 
         if self.periodo == PeriodoLetivoChoice.SEMESTRE:
-            # Semestre: 1º semestre (meses 1-6) ou 2º semestre (meses 7-12)
             semestre = 1 if mes_inicio <= 6 else 2
             return f"{ano_inicio}/{semestre}"
 
         elif self.periodo == PeriodoLetivoChoice.BIMESTRE:
-            # Bimestre: 1 a 6 no ano
             bimestre = ((mes_inicio - 1) // 2) + 1
             return f"{ano_inicio}/{bimestre}"
 
         elif self.periodo == PeriodoLetivoChoice.TRIMESTRE:
-            # Trimestre: 1 a 4 no ano
             trimestre = ((mes_inicio - 1) // 3) + 1
             return f"{ano_inicio}/{trimestre}"
 

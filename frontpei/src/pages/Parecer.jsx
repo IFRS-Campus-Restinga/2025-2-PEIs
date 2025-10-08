@@ -16,7 +16,6 @@ function Pareceres() {
   const [professorSelecionado, setProfessorSelecionado] = useState("");
   const [texto, setTexto] = useState("");
 
-  // Recupera componentes curriculares
   async function recuperaComponentes() {
     try {
       const resp = await DBCOMPONENTES.get("/");
@@ -30,7 +29,6 @@ function Pareceres() {
     }
   }
 
-  // Recupera disciplinas
   async function recuperaDisciplinas() {
     try {
       const resp = await DBDISCIPLINAS.get("/");
@@ -44,7 +42,7 @@ function Pareceres() {
     }
   }
 
-  // Recupera professores
+
   async function recuperaProfessores() {
     try {
       const resp = await DBPROF.get("/");
@@ -58,7 +56,7 @@ function Pareceres() {
     }
   }
 
-  // Adiciona parecer
+
   async function adicionaParecer(event) {
     event.preventDefault();
 
@@ -115,7 +113,6 @@ function Pareceres() {
       <h2>Cadastrar Parecer</h2>
 
       <form onSubmit={adicionaParecer}>
-        {/* Componente Curricular */}
         <label>Componente Curricular:</label>
         <br />
         <select
@@ -135,7 +132,6 @@ function Pareceres() {
 
         <br /><br />
 
-        {/* Professor */}
         <label>Professor:</label>
         <br />
         <select
@@ -152,7 +148,7 @@ function Pareceres() {
 
         <br /><br />
 
-        {/* Texto do Parecer */}
+
         <label>Texto (máx. 1000 caracteres):</label>
         <br />
         <textarea

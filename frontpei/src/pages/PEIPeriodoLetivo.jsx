@@ -13,14 +13,13 @@ function PEIPeriodoLetivo() {
   const [peiCentrals, setPeiCentrals] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
-  // 🔹 Buscar PeiCentrals disponíveis no backend
   useEffect(() => {
     async function carregarPeiCentrals() {
       try {
         const res = await DB_CENTRAL.get("/");
         const dados = Array.isArray(res.data)
           ? res.data
-          : res.data?.results || []; // compatível com DRF paginado
+          : res.data?.results || []; 
         setPeiCentrals(dados);
         console.log("PeiCentrals carregados:", dados);
       } catch (err) {
@@ -31,7 +30,6 @@ function PEIPeriodoLetivo() {
     carregarPeiCentrals();
   }, []);
 
-  // 🔹 Salvar ou atualizar período letivo
   async function salvarPeriodo(event) {
     event.preventDefault();
 
@@ -44,7 +42,7 @@ function PEIPeriodoLetivo() {
       data_criacao: dataCriacao,
       data_termino: dataTermino,
       periodo: periodoEscolhido,
-      pei_central: peiCentralId, // 🔗 ligação do ForeignKey
+      pei_central: peiCentralId, 
     };
 
     try {
@@ -56,7 +54,6 @@ function PEIPeriodoLetivo() {
         alert("Período cadastrado com sucesso!");
       }
 
-      // limpar campos após salvar
       setDataCriacao("");
       setDataTermino("");
       setPeriodoEscolhido("");
@@ -73,7 +70,6 @@ function PEIPeriodoLetivo() {
     }
   }
 
-  // 🔹 Preencher dados ao editar
   function editarPeriodo(p) {
     setDataCriacao(p.data_criacao);
     setDataTermino(p.data_termino);

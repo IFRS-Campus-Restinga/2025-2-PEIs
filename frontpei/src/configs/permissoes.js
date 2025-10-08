@@ -19,4 +19,5 @@ export const botoesPorPerfil = {
     { label: "Visualizar PEI Central", path: "/peicentral" },
     { label: "Visualizar Componente Curricular", path: "/componentecurricular" },
   ],
+  
 };
