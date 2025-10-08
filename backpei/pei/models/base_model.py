@@ -1,4 +1,5 @@
 from django.db import models
+from logs.models import Log
 
 class BaseModel(models.Model):
     class Meta:
@@ -8,58 +9,71 @@ class BaseModel(models.Model):
     def save(self, *args, **kwargs):
         # valida se é criacao ou atualizacao
         is_new = self.pk is None
+        
+        # para atualizações, salva o estado anterior, se for criação (nao conseguir) fica como none
+        estado_anterior = None
+        if not is_new:
+            try:
+                estado_anterior = self.__class__.objects.get(pk=self.pk)
+                estado_anterior = self._serialize_object(estado_anterior)
+            except:
+                estado_anterior = None
+        
         # faz o save
         super().save(*args, **kwargs)
-        from logs.models import Log
         model_name = self.__class__.__name__
-        #localiza um campo representativo (nome, titulo, etc)
-        display_field = self._get_display_field()
         
+        # determina a ação
         if is_new:
-            acao = f"Criação de {model_name}"
-            if display_field.startswith("ID "):
-                detalhes = f"{model_name} criado (ID: {self.pk})"
-            else:
-                detalhes = f"{model_name} criado: {display_field} (ID: {self.pk})"
+            acao = "Criação"
         else:
-            acao = f"Atualização de {model_name}"
-            if display_field.startswith("ID "):
-                detalhes = f"{model_name} atualizado (ID: {self.pk})"
-            else:
-                detalhes = f"{model_name} atualizado: {display_field} (ID: {self.pk})"
+            acao = "Atualização"
         
+        # estado atual (após save)
+        estado_atual = self._serialize_object(self)
+        
+        # cria o log com a nova estrutura, puxando agora os detalhes completos
         Log.objects.create(
             acao=acao,
-            detalhes=detalhes
+            modelo=model_name,
+            objeto_id=self.pk,
+            detalhes_completos={
+                'anterior': estado_anterior,
+                'atual': estado_atual
+            }
         )
     
-    def _get_display_field(self):
-
+    
+    def _serialize_object(self, obj):
         """
-        Tenta encontrar um campo representativo do objeto.
-        Busca por ordem de prioridade: nome, titulo, descricao, ou usa o ID.
+        Serializa um objeto para JSON, incluindo todos os campos relevantes
         """
-        for field in ['nome', 'name', 'autor', 'titulo', 'title', 'descricao', 'description', 'texto']:
-            if hasattr(self, field):
-                value = getattr(self, field)
-                if value:
-                    return value
-        return f"ID {self.pk}"
+        data = {}
+        for field in obj._meta.fields:
+            value = getattr(obj, field.name)
+            # Converte datetime para string
+            if hasattr(value, 'isoformat'):
+                data[field.name] = value.isoformat()
+            else:
+                data[field.name] = value
+        return data
     
     def delete(self, *args, **kwargs):
-        from logs.models import Log
-        
         model_name = self.__class__.__name__
-        display_field = self._get_display_field()
-        pk = self.pk
+        
+        # salva o estado anterior antes de deletar
+        estado_anterior = self._serialize_object(self)
+        
+        # executa o delete
         super().delete(*args, **kwargs)
-
-        if display_field.startswith("ID "):
-            detalhes = f"{model_name} excluído (ID: {pk})"
-        else:
-            detalhes = f"{model_name} excluído: {display_field} (ID: {pk})"
-
+        
+        # registra o log de exclusão
         Log.objects.create(
-        acao=f"Exclusão de {model_name}",
-        detalhes=detalhes
+            acao="Exclusão",
+            modelo=model_name,
+            objeto_id=self.pk,
+            detalhes_completos={
+                'anterior': estado_anterior,
+                'atual': None
+            }
         )
