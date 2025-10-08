@@ -5,7 +5,7 @@ import "./perfilAdmin.css";
 const PerfilAdmin = ({ usuario, onVoltar }) => {
   return (
     <div className="perfil-admin-container">
-      <h1>Bem-vindo ao Painel do Administrador</h1>
+      <h1>Painel do Administrador</h1>
       <p className="subtitulo">
         Escolha uma das opções abaixo para gerenciar o sistema.
       </p>
@@ -13,11 +13,19 @@ const PerfilAdmin = ({ usuario, onVoltar }) => {
       <div className="botoes-admin-grid">
         <Link to="/curso" className="btn-admin">Gerenciar Cursos</Link>
         <Link to="/disciplina" className="btn-admin">Gerenciar Disciplinas</Link>
-        <Link to="/periodos" className="btn-admin">Gerenciar Períodos Letivos</Link>
-        <Link to="/coordenadores" className="btn-admin">Gerenciar Coordenadores</Link>
-        <Link to="/alunos" className="btn-admin">Gerenciar Alunos</Link>
-        <Link to="/professores" className="btn-admin">Gerenciar Professores</Link>
-        <Link to="/pei" className="btn-admin">Gerenciar PEIs</Link>
+        <Link to="/periodo" className="btn-admin">Gerenciar Períodos Letivos</Link>
+        <Link to="/coordenador" className="btn-admin">Gerenciar Coordenadores</Link>
+        <Link to="/aluno" className="btn-admin">Gerenciar Alunos</Link>
+        <Link to="/professore" className="btn-admin">Gerenciar Professores</Link>
+        <Link to="/peicentral" className="btn-admin">Gerenciar PEIs</Link>
+        <Link to="/pareceres" className="btn-admin">Gerenciar Pareceres</Link>
+        <Link to="/componentecurricular" className="btn-admin">Gerenciar Componentes Curriculares</Link>
+        <Link to="/atadeacompanhamento" className="btn-admin">Gerenciar Atas de Acompanhamento</Link>
+        <Link to="/documentacaocomplementar" className="btn-admin">Gerenciar Documentações Complementares</Link>
+        <Link to="/pedagogo" className="btn-admin">Gerenciar Pedagogos</Link>
+
+
+
       </div>
       <button onClick={onVoltar} className="voltar-btn">Voltar</button>
     </div>

@@ -4,11 +4,12 @@ from ..enums.nivel import Nivel
 from django.core.validators import MinLengthValidator, FileExtensionValidator
 from .coordenadorCurso import CoordenadorCurso
 from ..managers.arquivo import validate_file_size
+from ..validators.validador_texto import no_special_characters
 
 class Curso(BaseModel):
     name = models.CharField(
         max_length=100,
-        validators=[MinLengthValidator(1)]
+        validators=[MinLengthValidator(1), no_special_characters]
     )
     nivel = models.CharField(
         max_length=100,

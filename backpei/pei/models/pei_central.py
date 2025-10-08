@@ -3,6 +3,7 @@ from django.db import models
 from django.core.validators import MinLengthValidator
 from ..enums import StatusDoPei
 
+
 class PeiCentral(BaseModel):
     historico_do_aluno = models.TextField(
         blank = False, 
