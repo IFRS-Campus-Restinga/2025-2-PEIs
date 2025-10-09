@@ -4,18 +4,23 @@ import axios from "axios";
 
 const CoordenadorView = ({ usuario }) => {
   const [alunos, setAlunos] = useState([]);
+  const [componente, setComponente] = useState([]);
   const [peiCentralStatus, setPeiCentralStatus] = useState(null);
   const [coordenador, setCoordenador] = useState(null);
 
   const API_BASE = import.meta.env.VITE_ALUNO_URL;
   const PEI_CENTRAL_URL = import.meta.env.VITE_PEI_CENTRAL_URL;
   const COORDENADOR_URL = import.meta.env.VITE_COORDENADORCURSO_URL;
+  const COMPONENTE_URL = import.meta.env.VITE_COMPONENTE_CURRICULAR;
 
   useEffect(() => {
     const buscarDados = async () => {
       try {
         const alunosResponse = await axios.get(`${API_BASE}`);
         setAlunos(alunosResponse.data.results);
+
+        const componente = await axios.get(`${COMPONENTE_URL}`);
+        setComponente(componente.data.results);
 
         const peiCentralResponse = await axios.get(`${PEI_CENTRAL_URL}1/`);
         setPeiCentralStatus(peiCentralResponse.data.status_pei);
@@ -38,7 +43,6 @@ const CoordenadorView = ({ usuario }) => {
 
   return (
     <div className="telaPadrao-page">
-      <h2 className="telaPadrao-title">Bem-vindo, Napne</h2>
 
       <div className="telaPadrao-profile">
         <img
@@ -72,7 +76,7 @@ const CoordenadorView = ({ usuario }) => {
                 />
                 <span>{aluno.nome}</span>
               </div>
-              <span>{aluno.componente || "Analise e Desenvolvimento de Sistemas"}</span>
+              <span>{componente[0]?.disciplina?.nome || "—"}</span>
               <span>{peiCentralStatus || "—"}</span>
               <div className="coordenador-info">
                 <img

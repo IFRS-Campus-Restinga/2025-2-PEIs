@@ -48,6 +48,9 @@ const Perfil = ({ usuario }) => {
 
   return (
     <div className="tela-padrao">
+      {perfil !== "administrador" && (
+        <h2 className="telaPadrao-title">Bem-vindo, {perfil}</h2>
+      )}
       <main>
         {conteudo}
       </main>

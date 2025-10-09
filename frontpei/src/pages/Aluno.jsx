@@ -3,63 +3,83 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert } from "../context/AlertContext";
-import "./componenteCurricular.css";
+import "./professor.css"; // reutilizando o mesmo CSS
 
 function Alunos() {
   const { addAlert } = useAlert();
-  const DBALUNOS = axios.create({baseURL: import.meta.env.VITE_ALUNO_URL});
+  const DBALUNOS = axios.create({ baseURL: import.meta.env.VITE_ALUNO_URL });
 
-  const [aluno, setAluno] = useState({
-    nome: "",
-    matricula: "",
-    email: "",
-  });
-
-  const [alunosCadastrados, setAlunosCadastrados] = useState([]);
+  const [alunos, setAlunos] = useState([]);
+  const [form, setForm] = useState({ nome: "", matricula: "", email: "" });
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({ nome: "", matricula: "", email: "" });
 
   async function recuperaAlunos() {
     try {
       const response = await DBALUNOS.get("/");
       const data = response.data;
-      setAlunosCadastrados(Array.isArray(data) ? data : data.results);
+      setAlunos(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
       console.error("Erro ao buscar alunos: ", err);
+      addAlert("Erro ao carregar lista de alunos!", "error");
     }
   }
 
-  async function adicionaAluno(event) {
-    event.preventDefault();
-    const { nome, matricula, email } = aluno;
-    const mensagens = validaCampos(aluno, event.target);
-
+  async function adicionaAluno(e) {
+    e.preventDefault();
+    const mensagens = validaCampos(form, e.target);
     if (mensagens.length > 0) {
       addAlert(mensagens.join("\n"), "warning");
       return;
     }
 
     try {
-      await DBALUNOS.post("/", { 
-        nome: aluno.nome,
-        matricula: aluno.matricula,
-        email: aluno.email,  
-      });
-      await recuperaAlunos();
-      setAluno({ nome: "", matricula: "", email: "" });
-      addAlert("Componente cadastrado com sucesso!", "success");
+      await DBALUNOS.post("/", form);
+      setForm({ nome: "", matricula: "", email: "" });
+      recuperaAlunos();
+      addAlert("Aluno cadastrado com sucesso!", "success");
     } catch (err) {
+      console.error(err);
       if (err.response?.data) {
         const messages = Object.entries(err.response.data)
           .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
           .join(" | ");
         addAlert(`Erro ao cadastrar ${messages}`, "error");
       } else {
-        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+        addAlert("Erro ao cadastrar aluno (erro desconhecido).", "error");
       }
     }
   }
 
-  async function excluirAluno(id) {
-    addAlert("Deseja realmente deletar este Aluno?", "confirm", {
+  async function atualizaAluno(e, id) {
+    e.preventDefault();
+    const mensagens = validaCampos(editForm, document.getElementById("editForm"));
+    if (mensagens.length > 0) {
+      addAlert(mensagens.join("\n"), "warning");
+      return;
+    }
+
+    try {
+      await DBALUNOS.put(`/${id}/`, editForm);
+      setEditId(null);
+      setEditForm({ nome: "", matricula: "", email: "" });
+      recuperaAlunos();
+      addAlert("Aluno atualizado com sucesso!", "success");
+    } catch (err) {
+      console.error(err);
+      if (err.response?.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao atualizar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao atualizar aluno (erro desconhecido).", "error");
+      }
+    }
+  }
+
+  function excluirAluno(id) {
+    addAlert("Deseja realmente deletar este aluno?", "confirm", {
       onConfirm: async () => {
         try {
           await DBALUNOS.delete(`/${id}/`);
@@ -73,12 +93,12 @@ function Alunos() {
               .join(" | ");
             addAlert(`Erro ao deletar ${messages}`, "error");
           } else {
-            addAlert("Erro ao deletar (erro desconhecido).", "error");
+            addAlert("Erro ao deletar aluno (erro desconhecido).", "error");
           }
         }
       },
       onCancel: () => addAlert("Exclusão cancelada pelo usuário.", "info"),
-    }); 
+    });
   }
 
   useEffect(() => {
@@ -86,60 +106,101 @@ function Alunos() {
   }, []);
 
   return (
-    <>
+    <div className="professores-container">
       <h1>Gerenciar Alunos</h1>
-      <h2>Cadastrar aluno</h2>
 
-      <form onSubmit={adicionaAluno}>
+      <h2>Cadastrar Aluno</h2>
+      <form className="professor-form" onSubmit={adicionaAluno}>
         <label>Nome:</label>
-        <br />
         <input
           name="nome"
           type="text"
-          value={aluno.nome}
-          onChange={(e) => setAluno({ ...aluno, nome: e.target.value })}
+          value={form.nome}
+          onChange={(e) => setForm({ ...form, nome: e.target.value })}
+          placeholder="Digite o nome do aluno"
         />
-        <br />
 
         <label>Matrícula:</label>
-        <br />
         <input
           name="matricula"
           type="text"
-          value={aluno.matricula}
-          onChange={(e) => setAluno({ ...aluno, matricula: e.target.value })}
+          value={form.matricula}
+          onChange={(e) => setForm({ ...form, matricula: e.target.value })}
+          placeholder="Somente números"
         />
-        <br />
 
         <label>Email institucional:</label>
-        <br />
         <input
           name="email"
           type="email"
-          value={aluno.email}
-          onChange={(e) => setAluno({ ...aluno, email: e.target.value })}
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          placeholder="exemplo@restinga.ifrs.edu.br"
         />
-        <br />
 
-        <button type="submit">Adicionar aluno</button>
+        <button type="submit">Adicionar Aluno</button>
       </form>
 
-      <div>
+      <div className="professores-list">
         <h3>Alunos Cadastrados</h3>
         <ul>
-          {alunosCadastrados.map((a) => (
+          {alunos.length === 0 && <li>Nenhum aluno cadastrado.</li>}
+          {alunos.map((a) => (
             <li key={a.id}>
-              {a.nome} - Matrícula: {a.matricula} - Email: {a.email} {}
-              <button onClick={() => excluirAluno(a.id)}>Excluir</button>
+              {editId === a.id ? (
+                <form id="editForm" onSubmit={(e) => atualizaAluno(e, a.id)}>
+                  <input
+                    name="nome"
+                    type="text"
+                    value={editForm.nome}
+                    onChange={(e) => setEditForm({ ...editForm, nome: e.target.value })}
+                  />
+                  <input
+                    name="matricula"
+                    type="text"
+                    value={editForm.matricula}
+                    onChange={(e) => setEditForm({ ...editForm, matricula: e.target.value })}
+                  />
+                  <input
+                    name="email"
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                  />
+                  <div className="btn-group">
+                    <button type="submit">Salvar</button>
+                    <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <strong>{a.nome}</strong><br />
+                  Matrícula: {a.matricula}<br />
+                  Email: {a.email}<br />
+                  <div className="professor-buttons">
+                    <button
+                      onClick={() => {
+                        setEditId(a.id);
+                        setEditForm({
+                          nome: a.nome,
+                          matricula: a.matricula,
+                          email: a.email,
+                        });
+                      }}
+                    >
+                      Editar
+                    </button>
+                    <button onClick={() => excluirAluno(a.id)}>Deletar</button>
+                  </div>
+                </>
+              )}
             </li>
           ))}
         </ul>
       </div>
 
-      <button>
-        <Link to="/">Voltar</Link>
-      </button>
-    </>
+      <Link to="/" className="voltar-btn">Voltar</Link>
+    </div>
   );
 }
 
