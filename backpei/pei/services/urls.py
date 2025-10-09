@@ -12,6 +12,7 @@ from .views.documentacaoComplementar_view_set import DocumentacaoComplementarVie
 from .views.pedagogo_view_set import PedagogoViewSet
 from .views.disciplina_view_set import DisciplinaViewSet
 from .views.curso_view_set import CursoViewSet
+from .views.manda_email import manda_email
 
 router = DefaultRouter()
 router.register(r'PEIPeriodoLetivo', PEIPeriodoLetivoViewSet, basename='PEIPeriodoLetivo')
@@ -30,4 +31,5 @@ router.register(r'documentacaoComplementar', DocumentacaoComplementarViewSet, ba
 app_name = 'api'
 urlpatterns = [
     path('', include(router.urls)),
+    path('mandaEmail/', manda_email, name='mandaEmail'),
 ]
