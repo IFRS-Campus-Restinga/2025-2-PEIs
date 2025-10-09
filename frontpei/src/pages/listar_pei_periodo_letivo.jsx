@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./pei_periodo_letivo.css";
+import "./listar_pei_periodo_letivo.css";
 
 function PEIPeriodoLetivoLista() {
   const DB = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
@@ -19,7 +19,6 @@ function PEIPeriodoLetivoLista() {
       else setPeriodos([]);
       setErro(false);
     } catch (err) {
-      console.error("Erro ao buscar períodos:", err);
       setErro(true);
     }
   }
@@ -30,7 +29,6 @@ function PEIPeriodoLetivoLista() {
       setPeriodoUnico(resposta.data);
       setErro(false);
     } catch (err) {
-      console.error("Erro ao buscar período específico:", err);
       setErro(true);
     }
   }
@@ -49,32 +47,28 @@ function PEIPeriodoLetivoLista() {
           <b>Data Término:</b> {periodoUnico.data_termino} <br />
           <b>Período:</b> {periodoUnico.periodo_principal || periodoUnico.periodo}
           <br /><br />
-
           <b>Pareceres:</b>
           {periodoUnico.componentes_curriculares?.length > 0 ? (
             periodoUnico.componentes_curriculares.map((comp) => (
-              <div key={comp.id} style={{ marginLeft: "20px", marginBottom: "10px" }}>
+              <div key={comp.id} className="componente-container">
                 <i>
                   Componente Curricular:{" "}
                   {comp.disciplina?.nome || "Sem disciplina vinculada"}
                 </i>
                 {comp.pareceres?.length > 0 ? (
-                  <ul>
-                    {comp.pareceres.map((parecer) => (
-                      <li key={parecer.id}>
-                        <i>{parecer.texto}</i>
-                        <p>Data de Criação: {parecer.data}</p>
-                        {parecer.professor ? (
-                          <p>
-                            <b>Professor:</b> {parecer.professor.nome} (
-                            {parecer.professor.email})
-                          </p>
-                        ) : (
-                          <p><b>Professor:</b> não informado</p>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+                  comp.pareceres.map((parecer) => (
+                    <div key={parecer.id} className="parecer-card">
+                      <div className="parecer-header">
+                        <span>
+                          {parecer.professor
+                            ? `${parecer.professor.nome} (${parecer.professor.email})`
+                            : "Professor não informado"}
+                        </span>
+                        <span className="parecer-data">{parecer.data}</span>
+                      </div>
+                      <div className="parecer-texto">{parecer.texto}</div>
+                    </div>
+                  ))
                 ) : (
                   <p>Nenhum parecer registrado neste componente.</p>
                 )}
@@ -84,8 +78,7 @@ function PEIPeriodoLetivoLista() {
             <p>Nenhum componente curricular neste período.</p>
           )}
         </div>
-
-        <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
+        <div className="botoes-navegacao">
           <button type="button" onClick={() => navigate("/listar_periodos/")}>
             Visualizar Lista de Períodos
           </button>
@@ -100,7 +93,6 @@ function PEIPeriodoLetivoLista() {
   return (
     <div className="container">
       <h1>Períodos Letivos</h1>
-
       {erro ? (
         <p className="error">Não foi possível carregar os períodos.</p>
       ) : periodos.length === 0 ? (
@@ -112,32 +104,28 @@ function PEIPeriodoLetivoLista() {
             <b>Data Término:</b> {p.data_termino} <br />
             <b>Período:</b> {p.periodo_principal || p.periodo}
             <br /><br />
-
             <b>Pareceres:</b>
             {p.componentes_curriculares?.length > 0 ? (
               p.componentes_curriculares.map((comp) => (
-                <div key={comp.id} style={{ marginLeft: "20px", marginBottom: "10px" }}>
+                <div key={comp.id} className="componente-container">
                   <i>
                     Componente Curricular:{" "}
                     {comp.disciplina?.nome || "Sem disciplina vinculada"}
                   </i>
                   {comp.pareceres?.length > 0 ? (
-                    <ul>
-                      {comp.pareceres.map((parecer) => (
-                        <li key={parecer.id}>
-                          <i>{parecer.texto}</i>
-                          <p>Data de Criação: {parecer.data}</p>
-                          {parecer.professor ? (
-                            <p>
-                              <b>Professor:</b> {parecer.professor.nome} (
-                              {parecer.professor.email})
-                            </p>
-                          ) : (
-                            <p><b>Professor:</b> não informado</p>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
+                    comp.pareceres.map((parecer) => (
+                      <div key={parecer.id} className="parecer-card">
+                        <div className="parecer-header">
+                          <span>
+                            {parecer.professor
+                              ? `${parecer.professor.nome} (${parecer.professor.email})`
+                              : "Professor não informado"}
+                          </span>
+                          <span className="parecer-data">{parecer.data}</span>
+                        </div>
+                        <div className="parecer-texto">{parecer.texto}</div>
+                      </div>
+                    ))
                   ) : (
                     <p>Nenhum parecer registrado neste componente.</p>
                   )}
@@ -149,7 +137,6 @@ function PEIPeriodoLetivoLista() {
           </div>
         ))
       )}
-
       <button style={{ marginTop: "20px" }}>
         <Link to="/">Voltar</Link>
       </button>
