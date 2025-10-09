@@ -27,7 +27,7 @@ const PerfilAdmin = ({ usuario, onVoltar }) => {
 
 
       </div>
-      <button onClick={onVoltar} className="voltar-btn">Voltar</button>
+      
     </div>
   );
 };
