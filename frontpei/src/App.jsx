@@ -92,7 +92,7 @@ function App() {
   }
 
   return (
-    <GoogleOAuthProvider clientId="1050578287576-b870ajrmae9eioc0k2mumod0digo54fd.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId="992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com">
       <AlertProvider>
         {/* componente global que exibe alerts */}
         <Alert />
