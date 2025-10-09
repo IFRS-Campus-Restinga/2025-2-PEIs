@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "./pei_periodo_letivo.css";
+import { useAlert } from "../context/AlertContext";
+import { Link } from "react-router-dom";
 
 function PEIPeriodoLetivo() {
+  const { addAlert } = useAlert();
+
   const DB = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
   const DB_CENTRAL = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
 
@@ -19,12 +23,12 @@ function PEIPeriodoLetivo() {
         const res = await DB_CENTRAL.get("/");
         const dados = Array.isArray(res.data)
           ? res.data
-          : res.data?.results || []; 
+          : res.data?.results || [];
         setPeiCentrals(dados);
-        console.log("PeiCentrals carregados:", dados);
       } catch (err) {
         console.error("Erro ao carregar PEI Central:", err);
         setPeiCentrals([]);
+        addAlert("Erro ao carregar PEIs Centrais!", "error");
       }
     }
     carregarPeiCentrals();
@@ -34,7 +38,7 @@ function PEIPeriodoLetivo() {
     event.preventDefault();
 
     if (!dataCriacao || !dataTermino || !periodoEscolhido || !peiCentralId) {
-      alert("Preencha todos os campos!");
+      addAlert("Preencha todos os campos!", "warning");
       return;
     }
 
@@ -42,16 +46,16 @@ function PEIPeriodoLetivo() {
       data_criacao: dataCriacao,
       data_termino: dataTermino,
       periodo: periodoEscolhido,
-      pei_central: peiCentralId, 
+      pei_central: peiCentralId,
     };
 
     try {
       if (editingId) {
         await DB.put(`${editingId}/`, novo);
-        alert("Período atualizado com sucesso!");
+        addAlert("Período atualizado com sucesso!", "success");
       } else {
         await DB.post("/", novo);
-        alert("Período cadastrado com sucesso!");
+        addAlert("Período cadastrado com sucesso!", "success");
       }
 
       setDataCriacao("");
@@ -61,11 +65,13 @@ function PEIPeriodoLetivo() {
       setEditingId(null);
     } catch (err) {
       console.error("Erro ao salvar período:", err);
-      if (err.response) {
-        console.error("Resposta do backend:", err.response.data);
-        alert(`Erro ao salvar período: ${JSON.stringify(err.response.data)}`);
+      if (err.response?.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
+          .join(" | ");
+        addAlert(`Erro ao salvar período: ${messages}`, "error");
       } else {
-        alert("Falha ao salvar período! Verifique o console.");
+        addAlert("Falha ao salvar período (erro desconhecido).", "error");
       }
     }
   }
@@ -77,6 +83,29 @@ function PEIPeriodoLetivo() {
     setPeiCentralId(p.pei_central);
     setEditingId(p.id);
     window.scrollTo(0, 0);
+    addAlert("Modo de edição ativado para o período selecionado.", "info");
+  }
+
+  function excluirPeriodo(id) {
+    addAlert("Deseja realmente deletar este período?", "confirm", {
+      onConfirm: async () => {
+        try {
+          await DB.delete(`${id}/`);
+          addAlert("Período deletado com sucesso!", "success");
+        } catch (err) {
+          console.error("Erro ao deletar período:", err);
+          if (err.response?.data) {
+            const messages = Object.entries(err.response.data)
+              .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
+              .join(" | ");
+            addAlert(`Erro ao deletar período: ${messages}`, "error");
+          } else {
+            addAlert("Erro ao deletar período (erro desconhecido).", "error");
+          }
+        }
+      },
+      onCancel: () => addAlert("Exclusão cancelada pelo usuário.", "info"),
+    });
   }
 
   return (
@@ -130,6 +159,7 @@ function PEIPeriodoLetivo() {
           {editingId ? "Atualizar" : "Adicionar"}
         </button>
       </form>
+      <Link to="/" className="voltar-btn">Voltar</Link>
     </div>
   );
 }

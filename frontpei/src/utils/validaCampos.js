@@ -15,7 +15,7 @@ export function validaCampos(form, formElement) {
 
   inputs.forEach((input) => {
     const nome = input.getAttribute("name");
-    const label = input.previousElementSibling?.innerText || nome; // pega o texto do <label> antes do campo
+    const label = input.previousElementSibling?.innerText.replace(/:$/, '') || nome; // pega o texto do <label> antes do campo
     if (!form[nome] || form[nome].toString().trim() === "") {
       mensagens.push(`Preencha o campo: ${label}`);
     }

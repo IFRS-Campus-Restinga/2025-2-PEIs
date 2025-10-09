@@ -2,91 +2,110 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./professor.css";
+import { useAlert } from "../context/AlertContext";
+import { validaCampos } from "../utils/validaCampos";
 
 function Professor() {
-  const [professores, setProfessores] = useState([]);
-  const [nome, setNome] = useState("");
-  const [matricula, setMatricula] = useState("");
-  const [email, setEmail] = useState("");
-
-  const [editId, setEditId] = useState(null);
-  const [editNome, setEditNome] = useState("");
-  const [editMatricula, setEditMatricula] = useState("");
-  const [editEmail, setEditEmail] = useState("");
-
-  // Base URL definida no .env
+  const { addAlert } = useAlert();
   const DBPROFESSORES = axios.create({ baseURL: import.meta.env.VITE_PROFESSORES_URL });
+
+  const [professores, setProfessores] = useState([]);
+  const [form, setForm] = useState({ nome: "", matricula: "", email: "" });
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({ nome: "", matricula: "", email: "" });
 
   async function recuperaProfessores() {
     try {
-      const response = await DBPROFESSORES.get("");
-      const data = response.data;
-      setProfessores(Array.isArray(data) ? data : data.results);
+      const res = await DBPROFESSORES.get("");
+      setProfessores(Array.isArray(res.data) ? res.data : res.data.results || []);
     } catch (err) {
-      console.error("Erro ao buscar professores:", err);
-      alert("Falha ao carregar lista de professores!");
+      console.error(err);
+      addAlert("Erro ao carregar lista de professores!", "error");
     }
   }
 
-  async function adicionaProfessor(event) {
-    event.preventDefault();
-    if (!nome.trim() || !matricula.trim() || !email.trim()) {
-      return alert("Preencha todos os campos!");
+  async function adicionaProfessor(e) {
+    e.preventDefault();
+    const mensagens = validaCampos(form, e.target);
+    if (mensagens.length > 0) {
+      addAlert(mensagens.join("\n"), "warning");
+      return;
     }
 
-    const novo = {
-      nome: nome.trim(),
-      matricula: matricula.trim(),
-      email: email.trim()
-    };
-
     try {
-      await DBPROFESSORES.post("/", novo);
-      await recuperaProfessores();
-      setNome("");
-      setMatricula("");
-      setEmail("");
+      await DBPROFESSORES.post("/", {
+        nome: form.nome,
+        matricula: form.matricula,
+        email: form.email,
+      });
+      setForm({ nome: "", matricula: "", email: "" });
+      recuperaProfessores();
+      addAlert("Professor cadastrado com sucesso!", "success");
     } catch (err) {
-      console.error("Erro ao criar professor:", err);
-      if (err.response?.data?.email)
-        alert("Erro: " + err.response.data.email);
-      else alert("Falha ao cadastrar professor!");
+      console.error(err);
+      if (err.response?.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao cadastrar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao cadastrar professor (erro desconhecido).", "error");
+      }
     }
   }
 
-  async function deletaProfessor(id) {
-    if (!window.confirm("Tem certeza que deseja deletar este professor?")) return;
-    try {
-      await DBPROFESSORES.delete(`/${id}/`);
-      await recuperaProfessores();
-    } catch (err) {
-      console.error("Erro ao deletar professor:", err);
-      alert("Falha ao deletar professor!");
-    }
-  }
-
-  async function atualizaProfessor(id) {
-    if (!editNome.trim() || !editMatricula.trim() || !editEmail.trim()) {
-      return alert("Preencha todos os campos!");
+  async function atualizaProfessor(e, id) {
+    e.preventDefault();
+    const mensagens = validaCampos(editForm, document.getElementById("editForm"));
+    if (mensagens.length > 0) {
+      addAlert(mensagens.join("\n"), "warning");
+      return;
     }
 
-    const atualizado = {
-      nome: editNome.trim(),
-      matricula: editMatricula.trim(),
-      email: editEmail.trim()
-    };
-
     try {
-      await DBPROFESSORES.put(`/${id}/`, atualizado);
+      await DBPROFESSORES.put(`/${id}/`, {
+        nome: editForm.nome,
+        matricula: editForm.matricula,
+        email: editForm.email,
+      });
       setEditId(null);
-      setEditNome("");
-      setEditMatricula("");
-      setEditEmail("");
-      await recuperaProfessores();
+      setEditForm({ nome: "", matricula: "", email: "" });
+      recuperaProfessores();
+      addAlert("Professor atualizado com sucesso!", "success");
     } catch (err) {
-      console.error("Erro ao atualizar professor:", err);
-      alert("Falha ao atualizar professor!");
+      console.error(err);
+      if (err.response?.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao atualizar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao atualizar professor (erro desconhecido).", "error");
+      }
     }
+  }
+
+  function deletaProfessor(id) {
+    addAlert("Deseja realmente deletar este professor?", "confirm", {
+      onConfirm: async () => {
+        try {
+          await DBPROFESSORES.delete(`/${id}/`);
+          recuperaProfessores();
+          addAlert("Professor deletado com sucesso!", "success");
+        } catch (err) {
+          console.error(err);
+          if (err.response?.data) {
+            const messages = Object.entries(err.response.data)
+              .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+              .join(" | ");
+            addAlert(`Erro ao deletar ${messages}`, "error");
+          } else {
+            addAlert("Erro ao deletar professor (erro desconhecido).", "error");
+          }
+        }
+      },
+      onCancel: () => addAlert("Exclusão cancelada pelo usuário.", "info"),
+    });
   }
 
   useEffect(() => {
@@ -99,71 +118,81 @@ function Professor() {
 
       <h2>Cadastrar Professor</h2>
       <form className="professor-form" onSubmit={adicionaProfessor}>
-        <label>Nome:</label><br />
+        <label>Nome:</label>
         <input
+          name="nome"
           type="text"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
+          value={form.nome}
+          onChange={(e) => setForm({ ...form, nome: e.target.value })}
           placeholder="Digite o nome do professor"
-        /><br />
+        />
 
-        <label>Matrícula:</label><br />
+        <label>Matrícula:</label>
         <input
+          name="matricula"
           type="text"
-          value={matricula}
-          onChange={(e) => setMatricula(e.target.value)}
+          value={form.matricula}
+          onChange={(e) => setForm({ ...form, matricula: e.target.value })}
           placeholder="Somente números"
-        /><br />
+        />
 
-        <label>Email institucional:</label><br />
+        <label>Email institucional:</label>
         <input
+          name="email"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
           placeholder="exemplo@restinga.ifrs.edu.br"
-        /><br />
+        />
 
-        <button type="submit">Adicionar professor</button>
+        <button type="submit">Adicionar Professor</button>
       </form>
 
       <div className="professores-list">
-        <h3>Professores cadastrados</h3>
+        <h3>Professores Cadastrados</h3>
         <ul>
-          {professores.length === 0 && <p>Nenhum professor cadastrado</p>}
+          {professores.length === 0 && <li>Nenhum professor cadastrado.</li>}
           {professores.map((p) => (
             <li key={p.id}>
               {editId === p.id ? (
-                <>
+                <form id="editForm" onSubmit={(e) => atualizaProfessor(e, p.id)}>
                   <input
+                    name="nome"
                     type="text"
-                    value={editNome}
-                    onChange={(e) => setEditNome(e.target.value)}
+                    value={editForm.nome}
+                    onChange={(e) => setEditForm({ ...editForm, nome: e.target.value })}
                   />
                   <input
+                    name="matricula"
                     type="text"
-                    value={editMatricula}
-                    onChange={(e) => setEditMatricula(e.target.value)}
+                    value={editForm.matricula}
+                    onChange={(e) => setEditForm({ ...editForm, matricula: e.target.value })}
                   />
                   <input
+                    name="email"
                     type="email"
-                    value={editEmail}
-                    onChange={(e) => setEditEmail(e.target.value)}
+                    value={editForm.email}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
                   />
-                  <button onClick={() => atualizaProfessor(p.id)}>Salvar</button>
-                </>
+                  <div className="btn-group">
+                    <button type="submit">Salvar</button>
+                    <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
+                  </div>
+                </form>
               ) : (
                 <>
                   <strong>{p.nome}</strong><br />
                   Matrícula: {p.matricula}<br />
                   Email: {p.email}<br />
-
                   <div className="professor-buttons">
                     <button
                       onClick={() => {
                         setEditId(p.id);
-                        setEditNome(p.nome);
-                        setEditMatricula(p.matricula);
-                        setEditEmail(p.email);
+                        setEditForm({
+                          nome: p.nome,
+                          matricula: p.matricula,
+                          email: p.email,
+                        });
                       }}
                     >
                       Editar

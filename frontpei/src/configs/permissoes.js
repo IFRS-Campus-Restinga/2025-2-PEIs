@@ -18,5 +18,6 @@ export const botoesPorPerfil = {
     { label: "Cadastro de Pareceres", path: "/pareceres" },
     { label: "Visualizar PEI Central", path: "/peicentral" },
     { label: "Visualizar Componente Curricular", path: "/componentecurricular" },
-  ]
+  ],
+  
 };

@@ -9,4 +9,4 @@ from .professor_view_set import ProfessorViewSet
 from .PEIPeriodoLetivo_view_set import PEIPeriodoLetivoViewSet
 from .pedagogo_view_set import PedagogoViewSet
 from .parecer_view_set import ParecerViewSet
-
+from .manda_email import manda_email

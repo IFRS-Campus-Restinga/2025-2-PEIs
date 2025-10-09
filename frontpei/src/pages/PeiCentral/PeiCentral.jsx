@@ -55,7 +55,7 @@ function PeiCentral() {
               border: "1px solid #ccc",
             }}
           >
-            <button type="button" onClick={() => navigate("/editar_peicentral/")}>
+            <button type="button" onClick={() => navigate("/editar_peicentral/" + pei.id)}>
               Editar
             </button>
             <br /><br />

@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { useAlert } from "../context/AlertContext"; 
+import { validaCampos } from "../utils/validaCampos"; 
 
 function Pareceres() {
+  const { addAlert } = useAlert();
+
   const DBCOMPONENTES = axios.create({ baseURL: import.meta.env.VITE_COMPONENTE_CURRICULAR });
   const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
   const DBPROF = axios.create({ baseURL: import.meta.env.VITE_PROFESSORES_URL });
@@ -20,12 +24,10 @@ function Pareceres() {
     try {
       const resp = await DBCOMPONENTES.get("/");
       const data = resp.data;
-      if (Array.isArray(data)) setComponentes(data);
-      else if (Array.isArray(data.results)) setComponentes(data.results);
-      else setComponentes([]);
+      setComponentes(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
       console.error("Erro ao buscar componentes:", err);
-      alert("Erro ao carregar componentes curriculares!");
+      addAlert("Erro ao carregar componentes curriculares!", "error");
     }
   }
 
@@ -33,48 +35,42 @@ function Pareceres() {
     try {
       const resp = await DBDISCIPLINAS.get("/");
       const data = resp.data;
-      if (Array.isArray(data)) setDisciplinas(data);
-      else if (Array.isArray(data.results)) setDisciplinas(data.results);
-      else setDisciplinas([]);
+      setDisciplinas(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
       console.error("Erro ao buscar disciplinas:", err);
-      alert("Erro ao carregar disciplinas!");
+      addAlert("Erro ao carregar disciplinas!", "error");
     }
   }
-
 
   async function recuperaProfessores() {
     try {
       const resp = await DBPROF.get("/");
       const data = resp.data;
-      if (Array.isArray(data)) setProfessores(data);
-      else if (Array.isArray(data.results)) setProfessores(data.results);
-      else setProfessores([]);
+      setProfessores(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
       console.error("Erro ao buscar professores:", err);
-      alert("Erro ao carregar professores!");
+      addAlert("Erro ao carregar professores!", "error");
     }
   }
-
 
   async function adicionaParecer(event) {
     event.preventDefault();
 
     const confereTexto = texto.trim();
     if (!confereTexto) {
-      alert("O texto do parecer não pode ficar vazio.");
+      addAlert("O texto do parecer não pode ficar vazio.", "warning");
       return;
     }
     if (confereTexto.length > 1000) {
-      alert("O texto do parecer ultrapassa 1000 caracteres.");
+      addAlert("O texto do parecer ultrapassa 1000 caracteres.", "warning");
       return;
     }
     if (!componenteSelecionado) {
-      alert("Selecione um componente curricular.");
+      addAlert("Selecione um componente curricular.", "warning");
       return;
     }
     if (!professorSelecionado) {
-      alert("Selecione um professor.");
+      addAlert("Selecione um professor.", "warning");
       return;
     }
 
@@ -89,13 +85,16 @@ function Pareceres() {
       setTexto("");
       setComponenteSelecionado("");
       setProfessorSelecionado("");
-      alert("Parecer cadastrado com sucesso!");
+      addAlert("Parecer cadastrado com sucesso!", "success");
     } catch (err) {
       console.error("Erro ao criar parecer:", err);
       if (err.response?.data) {
-        alert("Erro ao cadastrar parecer: " + JSON.stringify(err.response.data));
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
+          .join(" | ");
+        addAlert(`Erro ao cadastrar parecer: ${messages}`, "error");
       } else {
-        alert("Falha ao cadastrar o parecer!");
+        addAlert("Erro ao cadastrar parecer (erro desconhecido).", "error");
       }
     }
   }
@@ -121,7 +120,7 @@ function Pareceres() {
         >
           <option value="">-- selecione --</option>
           {componentes.map((c) => {
-            const disciplina = disciplinas.find(d => d.id === c.disciplinas);
+            const disciplina = disciplinas.find((d) => d.id === c.disciplinas);
             return (
               <option key={c.id} value={c.id}>
                 {disciplina?.nome ?? "Disciplina não definida"} - {c.objetivos ?? "-"}
@@ -148,7 +147,6 @@ function Pareceres() {
 
         <br /><br />
 
-
         <label>Texto (máx. 1000 caracteres):</label>
         <br />
         <textarea
@@ -165,9 +163,7 @@ function Pareceres() {
       </form>
 
       <br />
-      <button>
-        <Link to="/">Voltar</Link>
-      </button>
+      <Link to="/" className="voltar-btn">Voltar</Link>
     </div>
   );
 }

@@ -32,7 +32,9 @@ import AtaDeAcompanhamento from './pages/ataDeAcompanhamento.jsx'
 import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
 import Pedagogos from './pages/Pedagogo.jsx'
 import LoginPage from './pages/login/login.jsx'
+import Professor from "./pages/Professor.jsx";
 import Perfil from './components/Perfis/Perfil.jsx';
+import { mandaEmail } from "./lib/mandaEmail";
 
 function App() {
   // estados para o login do google
@@ -68,6 +70,7 @@ function App() {
       setLogado(true)
       localStorage.setItem("usuario", JSON.stringify(userData))
       localStorage.setItem("token", credentialResponse.credential)
+      mandaEmail(email, "Login PEI", "Um novo login acaba de ser realizado com sucesso usando essa conta no sistema PEI!");
     } catch (erro) {
       console.error('Erro ao decodificar token do Google:', erro)
       setUsuario(null)
@@ -91,7 +94,7 @@ function App() {
   }
 
   return (
-    <GoogleOAuthProvider clientId="1050578287576-b870ajrmae9eioc0k2mumod0digo54fd.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId="992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com">
       <AlertProvider>
         {/* componente global que exibe alerts */}
         <Alert />
@@ -134,6 +137,7 @@ function App() {
                 <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
                 <Route path="/pedagogo" element={<Pedagogos/>}/>
                 <Route path="/logs" element={<Logs/>}/>
+                <Route path="/professor" element={<Professor />} />
                 <Route path="/perfil/:perfil" element={<Perfil usuario={usuario} />} />
               </Routes>
             </main>
