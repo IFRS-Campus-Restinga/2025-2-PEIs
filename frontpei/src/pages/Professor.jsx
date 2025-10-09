@@ -14,7 +14,6 @@ function Professor() {
   const [editMatricula, setEditMatricula] = useState("");
   const [editEmail, setEditEmail] = useState("");
 
-  // Base URL definida no .env
   const DBPROFESSORES = axios.create({ baseURL: import.meta.env.VITE_PROFESSORES_URL });
 
   async function recuperaProfessores() {
