@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { useAlert } from "../../context/AlertContext";
+import { validaCampos } from "../../utils/validaCampos";
+import "../pei_periodo_letivo.css";
 
 function EditarPeiCentral() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addAlert } = useAlert();
+
   const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
 
-  const [status, setStatus] = useState("");
+  const [status_pei, setStatus] = useState("");
   const [historico_do_aluno, setHistorico] = useState("");
   const [necessidades_educacionais_especificas, setNecessidades] = useState("");
   const [habilidades, setHabilidades] = useState("");
   const [dificuldades_apresentadas, setDificuldadesApresentadas] = useState("");
   const [adaptacoes, setAdaptacoes] = useState("");
-  
 
   useEffect(() => {
     async function carregarPeiCentral() {
@@ -27,6 +31,7 @@ function EditarPeiCentral() {
         setAdaptacoes(resposta.data.adaptacoes);
       } catch (err) {
         console.error("Erro ao carregar PEI Central:", err);
+        addAlert("Erro ao carregar PEI Central. Tente novamente.", "error");
       }
     }
 
@@ -36,102 +41,135 @@ function EditarPeiCentral() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    try {
-      await DB.put(`/${id}/`, {
-        status_pei: status,
-        historico_do_aluno: historico_do_aluno,
-        necessidades_educacionais_especificas: necessidades_educacionais_especificas,
-        habilidades: habilidades,
-        dificuldades_apresentadas: dificuldades_apresentadas,
-        adaptacoes: adaptacoes,
-      });
+    const campos = {
+      status_pei,
+      historico_do_aluno,
+      necessidades_educacionais_especificas,
+      habilidades,
+      dificuldades_apresentadas,
+      adaptacoes,
+    };
 
-      alert("PEI Central atualizado com sucesso!");
-      navigate("/peicentral");
+    const mensagens = validaCampos(campos, e.target);
+
+    if (mensagens.length > 0) {
+      addAlert(mensagens.join("\n"), "warning");
+      return;
+    }
+
+    try {
+      await DB.put(`/${id}/`, campos);
+      addAlert("PEI Central atualizado com sucesso!", "success");
+      setTimeout(() => navigate("/peicentral"), 1500);
     } catch (err) {
       console.error("Erro ao atualizar PEI Central:", err);
-      alert("Não foi possível atualizar o PEI Central.");
+      if (err.response?.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao atualizar: ${messages}`, "error");
+      } else {
+        addAlert("Erro ao atualizar PEI Central. Tente novamente.", "error");
+      }
     }
   }
 
   return (
-    <div>
-      <h1>Editar PEI Central</h1>
-      <form onSubmit={handleSubmit}>
-        <label>Status:</label>
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="">Selecione</option>
-          <option value="ABERTO">Aberto</option>
-          <option value="EM ANDAMENTO">Em Andamento</option>
-          <option value="FECHADO">Fechado</option>
-        </select>
+    <div className="container">
+      <h1 className="text-xl font-bold mb-4">Editar PEI Central</h1>
 
-        <br /><br />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block mb-1 font-medium">Status:</label>
+          <select
+            value={status_pei}
+            onChange={(e) => setStatus(e.target.value)}
+            className="border px-2 py-1 rounded w-full"
+          >
+            <option value="">Selecione</option>
+            <option value="ABERTO">Aberto</option>
+            <option value="EM ANDAMENTO">Em Andamento</option>
+            <option value="FECHADO">Fechado</option>
+          </select>
+        </div>
 
-        <label>Histórico do Aluno:</label>
-        <br />
-        <textarea
-          value={historico_do_aluno}
-          onChange={(e) => setHistorico(e.target.value)}
-          rows={6}
-          style={{ width: "100%" }}
-        />
+        <div>
+          <label className="block mb-1 font-medium">Histórico do Aluno:</label>
+          <textarea
+            value={historico_do_aluno}
+            onChange={(e) => setHistorico(e.target.value)}
+            rows={6}
+            style={{ width: "100%" }}
+            className="border px-2 py-1 rounded w-full resize-y"
+          />
+        </div>
 
-        <br /><br />
+        <div>
+          <label className="block mb-1 font-medium">Necessidades Educacionais Específicas:</label>
+          <textarea
+            value={necessidades_educacionais_especificas}
+            onChange={(e) => setNecessidades(e.target.value)}
+            rows={6}
+            style={{ width: "100%" }}
+            className="border px-2 py-1 rounded w-full resize-y"
+          />
+        </div>
 
-        <label>Necessidades Educacionais Específicas:</label>
-        <br />
-        <textarea
-          value={necessidades_educacionais_especificas}
-          onChange={(e) => setNecessidades(e.target.value)}
-          rows={6}
-          style={{ width: "100%" }}
-        />
+        <div>
+          <label className="block mb-1 font-medium">Habilidades:</label>
+          <textarea
+            value={habilidades}
+            onChange={(e) => setHabilidades(e.target.value)}
+            rows={6}
+            style={{ width: "100%" }}
+            className="border px-2 py-1 rounded w-full resize-y"
+          />
+        </div>
 
-        <br /><br />
+        <div>
+          <label className="block mb-1 font-medium">Dificuldades Apresentadas:</label>
+          <textarea
+            value={dificuldades_apresentadas}
+            onChange={(e) => setDificuldadesApresentadas(e.target.value)}
+            rows={6}
+            style={{ width: "100%" }}
+            className="border px-2 py-1 rounded w-full resize-y"
+          />
+        </div>
 
-        <label>Habilidades:</label>
-        <br />
-        <textarea
-          value={habilidades}
-          onChange={(e) => setHabilidades(e.target.value)}
-          rows={6}
-          style={{ width: "100%" }}
-        />
+        <div>
+          <label className="block mb-1 font-medium">Adaptações:</label>
+          <textarea
+            value={adaptacoes}
+            onChange={(e) => setAdaptacoes(e.target.value)}
+            rows={6}
+            style={{ width: "100%" }}
+            className="border px-2 py-1 rounded w-full resize-y"
+          />
+        </div>
 
-        <br /><br />
-
-         <label>Dificuldades Apresentadas:</label>
-        <br />
-        <textarea
-          value={dificuldades_apresentadas}
-          onChange={(e) => setDificuldadesApresentadas(e.target.value)}
-          rows={6}
-          style={{ width: "100%" }}
-        />
-
-        <br /><br />
-
-        <br /><br />
-
-         <label>Adaptações:</label>
-        <br />
-        <textarea
-          value={adaptacoes}
-          onChange={(e) => setAdaptacoes(e.target.value)}
-          rows={6}
-          style={{ width: "100%" }}
-        />
-
-        <br /><br />
-
-        <button type="submit">Salvar Alterações</button>
-        <button type="button" onClick={() => navigate("/peicentral")}>
-          Cancelar
-        </button>
-        <button>
-            <Link to={`/deletar_peicentral/${id}`}> Deletar </Link> 
-        </button>
+        <div className="flex gap-3 mt-4">
+          <button
+            type="submit"
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Salvar Alterações
+          </button>&nbsp;
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          >
+            Cancelar
+          </button>&nbsp;
+         <button
+            type="button"
+            style={{ backgroundColor: "red", color: "white", marginRight: "10px" }}
+            onClick={() => navigate(`/deletar_peicentral/${id}`)}
+          >
+            Deletar
+          </button>
+        </div>
       </form>
     </div>
   );

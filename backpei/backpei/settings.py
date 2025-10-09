@@ -95,7 +95,11 @@ CORS_ALLOW_HEADERS = [
 
 # adiciona nosso token do usuario administrador
 # ele le o arquivo token.txt que criamos no sobeDjango
+# adicionada correcao para criar vazio se nao existe
 TOKEN_FILE = BASE_DIR / "token.txt"
+if not os.path.exists(TOKEN_FILE):
+    with open(TOKEN_FILE, "w") as f:
+        f.write("")
 with open(TOKEN_FILE) as f:
     API_TOKEN = f.read().strip()
 
@@ -176,3 +180,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #LOGIN_URL = '/accounts/login/'
 #LOGIN_REDIRECT_URL = '/'
 #LOGOUT_REDIRECT_URL = '/'
+
+# -------------------------- #
+# envio de e-mail pelo gmail #
+# -------------------------- #
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "ifrspei@gmail.com"
+EMAIL_HOST_PASSWORD = "poen piib flnv bwze"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

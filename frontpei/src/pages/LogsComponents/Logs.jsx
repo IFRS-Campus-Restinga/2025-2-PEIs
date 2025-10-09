@@ -324,14 +324,14 @@ function Logs() {
                     <div className="detail-section">
                       <h4>Estado Anterior</h4>
                       <pre className="json-display">
-                        {JSON.stringify(selectedLog.detalhes_completos.anterior, null, 2)}
+                        {JSON.stringify(selectedLog.detalhes_completos.antes, null, 2)}
                       </pre>
                     </div>
                     
                     <div className="detail-section">
                       <h4>Estado Atual</h4>
                       <pre className="json-display">
-                        {JSON.stringify(selectedLog.detalhes_completos.atual, null, 2)}
+                        {JSON.stringify(selectedLog.detalhes_completos.depois, null, 2)}
                       </pre>
                     </div>
                   </>
