@@ -1,79 +1,45 @@
 from django.db import models
-from logs.models import Log
+from django.forms.models import model_to_dict
+import json
 
 class BaseModel(models.Model):
     class Meta:
         abstract = True
-        app_label = 'pei'
-    
+
     def save(self, *args, **kwargs):
-        # valida se é criacao ou atualizacao
-        is_new = self.pk is None
-        
-        # para atualizações, salva o estado anterior, se for criação (nao conseguir) fica como none
-        estado_anterior = None
-        if not is_new:
+        acao = "Criação" if self._state.adding else "Atualização"
+
+        # Captura valores antigos e novos
+        old_values = {}
+        if not self._state.adding:
             try:
-                estado_anterior = self.__class__.objects.get(pk=self.pk)
-                estado_anterior = self._serialize_object(estado_anterior)
-            except:
-                estado_anterior = None
-        
-        # faz o save
+                old = self.__class__.objects.get(pk=self.pk)
+                old_values = model_to_dict(old)
+            except self.__class__.DoesNotExist:
+                pass
+
+        new_values = model_to_dict(self)
+
+        def safe_json(value):
+            try:
+                json.dumps(value)
+                return value
+            except TypeError:
+                return str(value)
+
+        safe_old = {k: safe_json(v) for k, v in old_values.items()}
+        safe_new = {k: safe_json(v) for k, v in new_values.items()}
+
         super().save(*args, **kwargs)
-        model_name = self.__class__.__name__
-        
-        # determina a ação
-        if is_new:
-            acao = "Criação"
-        else:
-            acao = "Atualização"
-        
-        # estado atual (após save)
-        estado_atual = self._serialize_object(self)
-        
-        # cria o log com a nova estrutura, puxando agora os detalhes completos
+
+        # Agora salva o log com dados serializáveis
+        from logs.models import Log  # ou o caminho correto
         Log.objects.create(
             acao=acao,
-            modelo=model_name,
-            objeto_id=self.pk,
+            modelo=self.__class__.__name__,
+            objeto_id=self.id,
             detalhes_completos={
-                'anterior': estado_anterior,
-                'atual': estado_atual
-            }
-        )
-    
-    
-    def _serialize_object(self, obj):
-        """
-        Serializa um objeto para JSON, incluindo todos os campos relevantes
-        """
-        data = {}
-        for field in obj._meta.fields:
-            value = getattr(obj, field.name)
-            # Converte datetime para string
-            if hasattr(value, 'isoformat'):
-                data[field.name] = value.isoformat()
-            else:
-                data[field.name] = value
-        return data
-    
-    def delete(self, *args, **kwargs):
-        model_name = self.__class__.__name__
-        
-        # salva o estado anterior antes de deletar
-        estado_anterior = self._serialize_object(self)
-        
-        # executa o delete
-        super().delete(*args, **kwargs)
-        
-        # registra o log de exclusão
-        Log.objects.create(
-            acao="Exclusão",
-            modelo=model_name,
-            objeto_id=self.pk,
-            detalhes_completos={
-                'anterior': estado_anterior,
-                'atual': None
+                "antes": safe_old,
+                "depois": safe_new,
             }
         )

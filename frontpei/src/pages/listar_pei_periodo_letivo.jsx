@@ -40,7 +40,6 @@ function PEIPeriodoLetivoLista() {
     else carregarPeriodos();
   }, [id]);
 
-  // Se houver ID, mostra detalhes de um período específico
   if (id && periodoUnico) {
     return (
       <div className="container">
@@ -98,7 +97,6 @@ function PEIPeriodoLetivoLista() {
     );
   }
 
-  // Lista de períodos
   return (
     <div className="container">
       <h1>Períodos Letivos</h1>
