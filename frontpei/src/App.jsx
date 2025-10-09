@@ -34,6 +34,7 @@ import Pedagogos from './pages/Pedagogo.jsx'
 import LoginPage from './pages/login/login.jsx'
 import Professor from "./pages/Professor.jsx";
 import Perfil from './components/Perfis/Perfil.jsx';
+import { mandaEmail } from "./lib/mandaEmail";
 
 function App() {
   // estados para o login do google
@@ -69,6 +70,7 @@ function App() {
       setLogado(true)
       localStorage.setItem("usuario", JSON.stringify(userData))
       localStorage.setItem("token", credentialResponse.credential)
+      mandaEmail(email, "Login PEI", "Um novo login acaba de ser realizado com sucesso usando essa conta no sistema PEI!");
     } catch (erro) {
       console.error('Erro ao decodificar token do Google:', erro)
       setUsuario(null)
