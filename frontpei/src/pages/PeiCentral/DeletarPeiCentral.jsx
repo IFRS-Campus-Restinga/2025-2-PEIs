@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import "../pei_periodo_letivo.css";
 
 function DeletarPeiCentral() {
   const { id } = useParams();
@@ -23,7 +24,7 @@ function DeletarPeiCentral() {
   }
 
   return (
-    <div>
+    <div className="container">
       <h2>Excluir PEI Central</h2>
       <p>Tem certeza que deseja excluir o registro <b>{id}</b>?</p>
 
