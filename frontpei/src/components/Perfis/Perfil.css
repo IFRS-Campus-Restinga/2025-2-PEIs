@@ -2,11 +2,13 @@
   padding: 32px;
   font-family: Arial, sans-serif;
 }
+
 .subheader {
   display: flex;
   gap: 16px;
   margin-bottom: 24px;
 }
+
 .subheader-btn {
   background: #eee;
   border: none;
@@ -15,12 +17,14 @@
   font-weight: bold;
   cursor: pointer;
 }
+
 .professor-title {
   text-align: center;
   margin: 0 auto 32px auto;
   font-size: 28px;
   font-weight: bold;
 }
+
 .professor-profile {
   display: flex;
   align-items: center;
@@ -29,6 +33,7 @@
   gap: 32px;
   margin-left: 150px;
 }
+
 .professor-foto {
   width: 80px;
   height: 80px;
@@ -37,21 +42,25 @@
   margin-right: 24px;
   border: 2px solid #2e7d32;
 }
+
 .professor-info h3 {
   margin: 0;
 }
+
 .professor-info p {
   margin: 4px 0 0 0;
   color: #555;
 }
+
 .alunos-table {
   margin-top: 24px;
-  max-width: 1500px;      /* Limita a largura máxima */
-  margin-left: auto;     /* Centraliza horizontalmente */
-  margin-right: auto;    /* Centraliza horizontalmente */
-  padding-left: 10px;    /* Espaço lateral interno */
-  padding-right: 10px;   /* Espaço lateral interno */
+  max-width: 1500px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 10px;
+  padding-right: 10px;
 }
+
 .alunos-header {
   display: grid;
   grid-template-columns: 2fr 2fr 1fr 2fr 1fr;
@@ -61,6 +70,7 @@
   border-radius: 10px;
   margin-bottom: 12px;
 }
+
 .aluno-row {
   display: grid;
   grid-template-columns: 2fr 2fr 1fr 2fr 1fr;
@@ -73,17 +83,30 @@
   color: white;
   transition: transform 0.15s ease;
 }
+
 .aluno-row:hover {
   transform: scale(1.02);
 }
 
+/* Alinhamento dos itens do cabeçalho */
+.alunos-header > div:nth-child(1) {
+  justify-self: start;
+}
 
-.aluno-info, .coordenador-info {
+.alunos-header > div:nth-child(5) {
+  justify-self: end;
+}
+
+.aluno-info,
+.coordenador-info {
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-content: flex-start; /* Adicionado para alinhar à esquerda */
 }
-.aluno-foto, .coordenador-foto {
+
+.aluno-foto,
+.coordenador-foto {
   width: 40px;
   height: 40px;
   border-radius: 50%;

@@ -23,7 +23,8 @@ const Perfil = ({ usuario }) => {
       const buscarpeiCentral = async () => {
         try {
           const resposta = await axios.get(`${API_BASE}`);
-          setpeiCentral(resposta.data);
+          console.log("Resposta da API:", resposta.data);
+          setpeiCentral(resposta.data.results);
         } catch (erro) {
           console.error("Erro ao buscar peiCentral:", erro);
         }
@@ -50,33 +51,35 @@ const Perfil = ({ usuario }) => {
       <main>
         {conteudo}
       </main>
-      <div className="paginacao">
-        <button
-          disabled={pagina === 1}
-          onClick={() => setPagina(pagina - 1)}
-          className="paginacao-btn"
-        >
-          ← Previous
-        </button>
-        {Array.from({ length: totalPaginas }, (_, i) => (
+      {perfil !== "administrador" && (
+        <div className="paginacao">
           <button
-            key={i}
-            onClick={() => setPagina(i + 1)}
-            className={`paginacao-btn ${
-              pagina === i + 1 ? "ativo" : ""
-            }`}
+            disabled={pagina === 1}
+            onClick={() => setPagina(pagina - 1)}
+            className="paginacao-btn"
           >
-            {i + 1}
+            ← Previous
           </button>
-        ))}
-        <button
-          disabled={pagina === totalPaginas}
-          onClick={() => setPagina(pagina + 1)}
-          className="paginacao-btn"
-        >
-          Next →
-        </button>
-      </div>
+          {Array.from({ length: totalPaginas }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setPagina(i + 1)}
+              className={`paginacao-btn ${
+                pagina === i + 1 ? "ativo" : ""
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            disabled={pagina === totalPaginas}
+            onClick={() => setPagina(pagina + 1)}
+            className="paginacao-btn"
+          >
+            Next →
+          </button>
+        </div>
+      )}
       <Link to="/" className="voltar-btn"
       onClick={() => setPerfilSelecionado(null)}
       >Voltar</Link>

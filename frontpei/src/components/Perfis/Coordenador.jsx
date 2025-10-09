@@ -4,30 +4,42 @@ import axios from "axios";
 
 const CoordenadorView = ({ usuario }) => {
   const [alunos, setAlunos] = useState([]);
+  const [peiCentralStatus, setPeiCentralStatus] = useState(null);
+  const [coordenador, setCoordenador] = useState(null);
 
   const API_BASE = import.meta.env.VITE_ALUNO_URL;
- 
-  // Função para buscar alunos no banco
+  const PEI_CENTRAL_URL = import.meta.env.VITE_PEI_CENTRAL_URL;
+  const COORDENADOR_URL = import.meta.env.VITE_COORDENADORCURSO_URL;
+
   useEffect(() => {
-    const buscarAlunos = async () => {
+    const buscarDados = async () => {
       try {
-        // 👉 Substitua pela URL da tua API
-        const response = await axios.get(`${API_BASE}`);
-        setAlunos(response.data); // supõe que o backend retorna um array de alunos
+        const alunosResponse = await axios.get(`${API_BASE}`);
+        setAlunos(alunosResponse.data.results);
+
+        const peiCentralResponse = await axios.get(`${PEI_CENTRAL_URL}1/`);
+        setPeiCentralStatus(peiCentralResponse.data.status_pei);
+
+        const coordenadorResponse = await axios.get(`${COORDENADOR_URL}`);
+        setCoordenador(coordenadorResponse.data.results[0]); 
+
       } catch (error) {
-        console.error("Erro ao buscar alunos:", error);
+        console.error("Erro ao buscar dados:", error);
       }
     };
 
-    buscarAlunos();
+    buscarDados();
   }, []);
+
+  const handleVisualizarClick = () => {
+    // Navega para o PEI Central com id = 1
+    window.location.href = `${PEI_CENTRAL_URL}1`;
+  };
 
   return (
     <div className="telaPadrao-page">
-      {/* Título central */}
-      <h2 className="telaPadrao-title">Bem-vindo, Pedagogo(a)</h2>
+      <h2 className="telaPadrao-title">Bem-vindo, Napne</h2>
 
-      {/* Perfil padrão */}
       <div className="telaPadrao-profile">
         <img
           src={usuario.foto}
@@ -40,7 +52,6 @@ const CoordenadorView = ({ usuario }) => {
         </div>
       </div>
 
-      {/* Tabela de alunos */}
       <div className="alunos-table">
         <div className="alunos-header">
           <span>Nome do aluno</span>
@@ -50,29 +61,29 @@ const CoordenadorView = ({ usuario }) => {
           <span>Visualizar</span>
         </div>
 
-        {/* Renderização dinâmica */}
         {alunos.length > 0 ? (
           alunos.map((aluno, idx) => (
             <div className="aluno-row" key={idx}>
               <div className="aluno-info">
                 <img
-                  src={aluno.foto}
+                  src={"https://randomuser.me/api/portraits/men/11.jpg"}
                   alt={aluno.nome}
                   className="aluno-foto"
                 />
                 <span>{aluno.nome}</span>
               </div>
-              <span>{aluno.componente}</span>
-              <span>{aluno.status}</span>
+              <span>{aluno.componente || "Analise e Desenvolvimento de Sistemas"}</span>
+              <span>{peiCentralStatus || "—"}</span>
               <div className="coordenador-info">
                 <img
-                  src={aluno.coordenador?.foto}
+                  src={"https://randomuser.me/api/portraits/men/32.jpg"}
                   alt={aluno.coordenador?.nome}
                   className="coordenador-foto"
                 />
-                <span>{aluno.coordenador?.nome}</span>
+                
+                <span>{coordenador?.nome || "—"}</span>
               </div>
-              <span>
+              <span onClick={handleVisualizarClick} style={{ cursor: 'pointer' }}>
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <rect
                     x="3"
