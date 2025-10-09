@@ -118,6 +118,7 @@ if pergunta("Refazer o migrate do Django?"):
         os.path.join(baseDir, "backpei", "services", "migrations", "__pycache__"),
         os.path.join(baseDir, "backpei", "services", "serializers", "__pycache__"),
         os.path.join(baseDir, "backpei", "services", "views", "__pycache__"),
+        os.path.join(baseDir, "backpei", "exportProDrive"),
     ]
     for item in vaiApagar:
         apagar(item)

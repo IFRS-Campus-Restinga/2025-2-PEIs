@@ -11,7 +11,11 @@ class DisciplinaViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         instance = serializer.save()
+        print(f"DEBUG: Disciplina {instance.nome} criada com sucesso!")  # Debug
         Log.objects.create(
-            acao="Criação de Disciplina",
-            detalhes=f"Disciplina criada: {instance.nome} (ID: {instance.id})"
+            acao="Criação",
+            modelo="Disciplina",
+            objeto_id=instance.id,
+            detalhes_completos={"nome": instance.nome},  # Use JSONField para armazenar detalhes
+            usuario="Sistema"  # Ou obtenha o usuário autenticado, se aplicável
         )
