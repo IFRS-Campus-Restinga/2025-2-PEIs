@@ -33,6 +33,7 @@ import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
 import Pedagogos from './pages/Pedagogo.jsx'
 import LoginPage from './pages/login/login.jsx'
 import Professor from "./pages/Professor.jsx";
+import Perfil from './components/Perfis/Perfil.jsx';
 
 function App() {
   // estados para o login do google
@@ -135,6 +136,7 @@ function App() {
                 <Route path="/pedagogo" element={<Pedagogos/>}/>
                 <Route path="/logs" element={<Logs/>}/>
                 <Route path="/professor" element={<Professor />} />
+                <Route path="/perfil/:perfil" element={<Perfil usuario={usuario} />} />
               </Routes>
             </main>
             <Footer/>
