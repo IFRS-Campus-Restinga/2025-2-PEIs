@@ -10,10 +10,11 @@ backpei/pei/enums/__pycache__
 backpei/pei/migrations/__pycache__
 backpei/pei/migrations/0001_initial.py
 backpei/pei/models/__pycache__
-backpei/services/__pycache__
-backpei/services/migrations/__pycache__
-backpei/services/serializers/__pycache__
-backpei/services/views/__pycache__"
+backpei/pei/services/__pycache__
+backpei/pei/services/migrations/__pycache__
+backpei/pei/services/serializers/__pycache__
+backpei/pei/services/views/__pycache__
+backpei/exportProDrive"
 
 for item in $APAGAR; do
   if [ -e "$item" ]; then
