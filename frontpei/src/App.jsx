@@ -65,7 +65,7 @@ function App() {
         setMensagemErro("Acesso negado. Use um email institucional do IFRS.")
         return
       }
-      const userData = { email: dados.email, nome: dados.name }
+      const userData = { email: dados.email, nome: dados.name, foto: dados.picture }
       setUsuario(userData)
       setLogado(true)
       localStorage.setItem("usuario", JSON.stringify(userData))
