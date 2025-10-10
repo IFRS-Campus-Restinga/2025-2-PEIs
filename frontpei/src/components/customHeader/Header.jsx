@@ -57,7 +57,7 @@ const Header = ({ usuario, logado, logout }) => {
                                 className="user-avatar"
                                 onClick={() => setMenuAberto(!menuAberto)}
                             >
-                                <img src={userIcon} alt="Usuário" />
+                                <img src={usuario.foto ? usuario.foto : userIcon} alt="Usuário" />
                                 <span className="user-avatar-name">{usuario.nome}</span>
                                 <img 
                                     src={chevronDown} 
