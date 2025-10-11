@@ -8,7 +8,7 @@ class PeiCentralSerializer(serializers.ModelSerializer):
     periodos = PEIPeriodoLetivoSerializer(many=True, read_only=True)
     aluno = AlunoSerializer(read_only=True)
     aluno_id = serializers.PrimaryKeyRelatedField(
-        queryset=Aluno.objects.all(), source="professor", write_only=True
+        queryset=Aluno.objects.all(), source="aluno", write_only=True
     )
     class Meta:
         model = PeiCentral
