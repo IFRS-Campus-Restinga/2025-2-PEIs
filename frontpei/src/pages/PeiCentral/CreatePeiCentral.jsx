@@ -30,11 +30,12 @@ function CreatePeiCentral() {
       adaptacoes,
       status_pei,
     };
-
+      
     const mensagens = validaCampos(camposParaValidar, e.target);
     if (mensagens.length > 0) {
       addAlert(mensagens.join("\n"), "warning");
       return;
+      
     }
 
     try {
@@ -50,6 +51,8 @@ function CreatePeiCentral() {
       SetDificuldadesApresentadas("");
       SetAdaptacoes("");
       setStatus("");
+
+      
 
       // redireciona após tempo de mensagem
       setTimeout(() => navigate("/peicentral"), 1500);
@@ -67,7 +70,7 @@ function CreatePeiCentral() {
       }
     }
   }
-
+  
   return (
     <div className="container">
       <h1 className="text-xl font-bold mb-4">Criar PEI Central</h1>
