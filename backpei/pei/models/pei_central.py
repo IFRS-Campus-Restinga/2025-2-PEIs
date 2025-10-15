@@ -2,7 +2,7 @@ from .base_model import BaseModel
 from django.db import models
 from django.core.validators import MinLengthValidator
 from ..enums import StatusDoPei
-
+from .aluno import Aluno
 
 class PeiCentral(BaseModel):
     historico_do_aluno = models.TextField(
@@ -53,7 +53,11 @@ class PeiCentral(BaseModel):
         verbose_name = "Status",
     )
 
-    """COMENTÁRIO PRA MUDAR O BRANCH    """
+    aluno = models.OneToOneField(
+        Aluno, 
+        related_name="aluno", 
+        on_delete=models.CASCADE
+    )
 
     def __str__(self):
-        return f"{self.historico_do_aluno}, {self.necessidades_educacionais_especificas}, {self.habilidades}, {self.dificuldades_apresentadas}, {self.adaptacoes}, {self.status_pei}"
+        return f"{self.aluno}, {self.status_pei}"
