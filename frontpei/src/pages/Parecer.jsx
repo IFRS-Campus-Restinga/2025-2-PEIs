@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useAlert } from "../context/AlertContext"; 
-import { validaCampos } from "../utils/validaCampos"; 
 
 function Pareceres() {
   const { addAlert } = useAlert();

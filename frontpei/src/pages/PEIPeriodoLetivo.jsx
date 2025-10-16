@@ -141,7 +141,7 @@ function PEIPeriodoLetivo() {
           <option value="SEMESTRE">Semestre</option>
         </select>
 
-        <label>PEI Central:</label>
+        <label>PEI do Aluno:</label>
         <select
           value={peiCentralId}
           onChange={(e) => setPeiCentralId(e.target.value)}
@@ -150,7 +150,7 @@ function PEIPeriodoLetivo() {
           {Array.isArray(peiCentrals) &&
             peiCentrals.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.titulo || `PEI Central ${p.id}`}
+                {p.aluno.nome || `PEI Central ${p.id}`}
               </option>
             ))}
         </select>
