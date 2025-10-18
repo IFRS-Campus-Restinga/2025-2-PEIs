@@ -14,69 +14,91 @@ const Perfil = ({ usuario }) => {
   const { perfil } = useParams();
   const navigate = useNavigate();
 
-  // estados de dados
-  const [alunos, setAlunos] = useState([]);
-  const [componentes, setComponentes] = useState([]);
-  const [peiStatus, setPeiStatus] = useState(null);
-  const [coordenador, setCoordenador] = useState(null);
-
-  // paginação
+  const [infoPorAluno, setInfoPorAluno] = useState([]);
   const [pagina, setPagina] = useState(1);
-  const itensPorPagina = 4;
-
-  // loading / erro
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState(null);
 
-  // variáveis de ambiente
-  const API_BASE = import.meta.env.VITE_ALUNO_URL;
-  const PEI_CENTRAL_URL = import.meta.env.VITE_PEI_CENTRAL_URL;
-  const COORDENADOR_URL = import.meta.env.VITE_COORDENADORCURSO_URL;
-  const COMPONENTE_CURRICULAR = import.meta.env.VITE_COMPONENTE_CURRICULAR;
+  const itensPorPagina = 4;
+
+  const API_ALUNO = import.meta.env.VITE_ALUNO_URL;
+  const API_PEICENTRAL = import.meta.env.VITE_PEI_CENTRAL_URL;
+  const API_PEIPERIODO = import.meta.env.VITE_PEIPERIODOLETIVO_URL;
+  const API_CURSO = import.meta.env.VITE_CURSOS_URL;
 
   useEffect(() => {
-    const buscarTodos = async () => {
+    const carregarDados = async () => {
       setLoading(true);
       setErro(null);
       try {
-        const [
-          alunosResponse,
-          peiCentralResponse,
-          coordenadorResponse,
-          componenteResponse,
-        ] = await Promise.all([
-          axios.get(API_BASE),
-          axios.get(`${PEI_CENTRAL_URL}1/`),
-          axios.get(COORDENADOR_URL),
-          axios.get(COMPONENTE_CURRICULAR),
+        const [resAlunos, resPeiCentral, resPeriodos, resCursos] = await Promise.all([
+          axios.get(API_ALUNO),
+          axios.get(API_PEICENTRAL),
+          axios.get(API_PEIPERIODO),
+          axios.get(API_CURSO),
         ]);
 
-        setAlunos(alunosResponse.data?.results || []);
-        setPeiStatus(peiCentralResponse.data?.status_pei ?? null);
-        setCoordenador(coordenadorResponse.data?.results?.[0] || null);
-        setComponentes(componenteResponse.data?.results || []);
+        const alunos = resAlunos.data?.results || [];
+        const peiCentrals = Array.isArray(resPeiCentral.data) ? resPeiCentral.data : resPeiCentral.data?.results || [];
+        const periodos = Array.isArray(resPeriodos.data) ? resPeriodos.data : resPeriodos.data?.results || [];
+        const cursos = Array.isArray(resCursos.data) ? resCursos.data : resCursos.data?.results || [];
+
+        const dadosCompletos = alunos.map((aluno) => {
+          const peiCentral = peiCentrals.find((p) => p.aluno?.id === aluno.id);
+          const peiCentralStatus = peiCentral?.status_pei || "—";
+
+          const periodosDoAluno = peiCentral
+            ? periodos.filter((p) => p.pei_central === peiCentral.id)
+            : [];
+
+          const componentesInfo = [];
+
+          periodosDoAluno.forEach((periodo) => {
+            (periodo.componentes_curriculares || []).forEach((comp) => {
+              const disciplina = comp.disciplina;
+              if (!disciplina) return;
+
+              const cursoRelacionado = cursos.find((curso) =>
+                curso.disciplinas?.some((d) => d.id === disciplina.id)
+              );
+
+              componentesInfo.push({
+                componente: disciplina.nome,
+                coordenador: cursoRelacionado?.coordenador?.nome || "—",
+              });
+            });
+          });
+
+          return {
+            aluno,
+            peiCentralStatus,
+            componentesInfo,
+            peiCentralId: peiCentral?.id || null,
+          };
+        });
+
+        setInfoPorAluno(dadosCompletos);
       } catch (err) {
-        console.error("Erro ao buscar dados em Perfil.jsx:", err);
-        setErro("Falha ao buscar dados. Veja console para mais detalhes.");
+        console.error("Erro ao carregar dados:", err);
+        setErro("Erro ao buscar dados. Tente novamente mais tarde.");
       } finally {
         setLoading(false);
       }
     };
 
-    buscarTodos();
+    carregarDados();
   }, []);
 
-  // calcular paginação
-  const totalPaginas = Math.ceil(alunos.length / itensPorPagina);
+  const totalPaginas = Math.ceil(infoPorAluno.length / itensPorPagina);
   const inicio = (pagina - 1) * itensPorPagina;
-  const alunosDaPagina = alunos.slice(inicio, inicio + itensPorPagina);
+  const alunosDaPagina = infoPorAluno.slice(inicio, inicio + itensPorPagina);
 
-  // função para navegar para VisualizarPEI
-  const handleVisualizarClick = (alunoId) => {
-    navigate(`/pei/${alunoId}`);
+  const handleVisualizarClick = (peiCentralId) => {
+    if (peiCentralId) {
+      navigate(`/pei/${peiCentralId}`);
+    }
   };
 
-  // mapeamento de perfis para título
   const perfilTituloMap = {
     coordenador: "Coordenador(a)",
     pedagogo: "Pedagogo(a)",
@@ -89,40 +111,28 @@ const Perfil = ({ usuario }) => {
     coordenador: (
       <CoordenadorView
         usuario={usuario}
-        alunos={alunosDaPagina}
-        componentes={componentes}
-        statusPei={peiStatus}
-        coordenador={coordenador}
+        infoPorAluno={alunosDaPagina}
         onVisualizar={handleVisualizarClick}
       />
     ),
     pedagogo: (
       <PedagogoView
         usuario={usuario}
-        alunos={alunosDaPagina}
-        componentes={componentes}
-        statusPei={peiStatus}
-        coordenador={coordenador}
+        infoPorAluno={alunosDaPagina}
         onVisualizar={handleVisualizarClick}
       />
     ),
     napne: (
       <NapneView
         usuario={usuario}
-        alunos={alunosDaPagina}
-        componentes={componentes}
-        statusPei={peiStatus}
-        coordenador={coordenador}
+        infoPorAluno={alunosDaPagina}
         onVisualizar={handleVisualizarClick}
       />
     ),
     professor: (
       <ProfessorView
         usuario={usuario}
-        alunos={alunosDaPagina}
-        componentes={componentes}
-        statusPei={peiStatus}
-        coordenador={coordenador}
+        infoPorAluno={alunosDaPagina}
         onVisualizar={handleVisualizarClick}
       />
     ),
@@ -140,75 +150,74 @@ const Perfil = ({ usuario }) => {
           <div className="erro">{erro}</div>
         ) : (
           <>
-            {/* Título de boas-vindas */}
-            <h2 className="professor-title">
-              Bem-vindo, {perfilTituloMap[perfil] || "Usuário"}{" "}
-              {usuario?.nome?.split(" ")[0]}!
-            </h2>
+            {perfil !== "administrador" ? (
+              <>
+                <h2 className="professor-title">
+                  Bem-vindo, {perfilTituloMap[perfil] || "Usuário"} {usuario?.nome?.split(" ")[0]}!
+                </h2>
 
-            {/* Perfil do usuário logado alinhado à esquerda */}
-            <div className="professor-profile">
-              <img
-                src={usuario?.foto || "https://randomuser.me/api/portraits/lego/1.jpg"}
-                alt="Foto do Usuário"
-                className="professor-foto"
-              />
-              <div className="professor-info">
-                <h3>{usuario?.nome || "Usuário"}</h3>
-                <p>{usuario?.email || ""}</p>
-              </div>
-            </div>
+                <div className="professor-profile">
+                  <img
+                    src={usuario?.foto || "https://randomuser.me/api/portraits/lego/1.jpg"}
+                    alt="Foto do Usuário"
+                    className="professor-foto"
+                  />
+                  <div className="professor-info">
+                    <h3>{usuario?.nome || "Usuário"}</h3>
+                    <p>{usuario?.email || ""}</p>
+                  </div>
+                </div>
 
-            {/* Cabeçalho da tabela */}
-            <div className="alunos-table">
-              <div className="alunos-header">
-                <div>Nome do aluno</div>
-                <div>Componente Curricular</div>
-                <div>Status</div>
-                <div>Coordenador de curso</div>
-                <div>Visualizar</div>
-              </div>
+                <div className="alunos-table">
+                  <div className="alunos-header">
+                    <div>Nome do aluno</div>
+                    <div>Componente Curricular</div>
+                    <div>Status</div>
+                    <div>Coordenador de curso</div>
+                    <div>Visualizar</div>
+                  </div>
+                  {conteudo}
+                </div>
 
-              {/* Corpo da tabela: filho renderiza linhas */}
-              {conteudo}
-            </div>
+                {totalPaginas > 1 && (
+                  <div className="paginacao">
+                    <button
+                      disabled={pagina === 1}
+                      onClick={() => setPagina((p) => Math.max(1, p - 1))}
+                      className="paginacao-btn"
+                    >
+                      ← Anterior
+                    </button>
 
-            {/* paginação só se houver mais de 4 alunos */}
-            {perfil !== "administrador" && alunos.length > itensPorPagina && (
-              <div className="paginacao">
-                <button
-                  disabled={pagina === 1}
-                  onClick={() => setPagina((p) => Math.max(1, p - 1))}
-                  className="paginacao-btn"
-                >
-                  ← Previous
-                </button>
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setPagina(i + 1)}
+                        className={`paginacao-btn ${pagina === i + 1 ? "ativo" : ""}`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
 
-                {Array.from({ length: totalPaginas }, (_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setPagina(i + 1)}
-                    className={`paginacao-btn ${pagina === i + 1 ? "ativo" : ""}`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-
-                <button
-                  disabled={pagina === totalPaginas}
-                  onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
-                  className="paginacao-btn"
-                >
-                  Next →
-                </button>
-              </div>
+                    <button
+                      disabled={pagina === totalPaginas}
+                      onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+                      className="paginacao-btn"
+                    >
+                      Próximo →
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              conteudo
             )}
           </>
         )}
       </main>
 
-      {/* botão voltar */}
-      <Link to="/" className="voltar-btn">
+      <Link to="/" className="voltar-btn"
+      onClick={() => { setPerfilSelecionado(null)}}>
         Voltar
       </Link>
     </div>
