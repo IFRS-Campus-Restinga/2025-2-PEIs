@@ -10,3 +10,8 @@ class LogViewSet(viewsets.ModelViewSet):
     queryset = Log.objects.all().order_by('-timestamp')
     serializer_class = LogSerializer
     permission_classes = [BackendTokenPermission]
+
+class FeedAtualizacoesView(viewsets.ModelViewSet):
+    queryset = Log.objects.filter(modelo__in=["Parecer", "ComponenteCurricular"]).order_by('-timestamp')[:50]
+    serializer_class = LogSerializer
+    permission_classes = [BackendTokenPermission]
