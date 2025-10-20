@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from rest_framework import status
 from ..permissions import BackendTokenPermission
+from pei.utils.notificacoes_utils import verificar_periodos_e_gerar_notificacoes
 
 @api_view(['POST'])
 # utiliza o nosso permission do token
@@ -13,7 +14,7 @@ def manda_email(request):
     destino = data.get("destino")
     assunto = data.get("assunto")
     texto = data.get("texto")
-
+    verificar_periodos_e_gerar_notificacoes()
     if not destino or not assunto or not texto:
         return Response({"erro": "campos destino, assunto e texto precisam existir"}, status=status.HTTP_400_BAD_REQUEST)
 

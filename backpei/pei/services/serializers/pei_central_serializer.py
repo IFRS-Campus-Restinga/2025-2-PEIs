@@ -10,6 +10,7 @@ class PeiCentralSerializer(serializers.ModelSerializer):
     aluno_id = serializers.PrimaryKeyRelatedField(
         queryset=Aluno.objects.all(), source="aluno", write_only=True
     )
+    aluno_nome = serializers.CharField(source="aluno.nome", read_only=True)
     class Meta:
         model = PeiCentral
         fields = '__all__'

@@ -1,6 +1,7 @@
 from django.db import models
 from django.forms.models import model_to_dict
 import json
+from logs.models import Log
 
 class BaseModel(models.Model):
     class Meta:
@@ -9,7 +10,6 @@ class BaseModel(models.Model):
     def save(self, *args, **kwargs):
         acao = "Criação" if self._state.adding else "Atualização"
 
-        # Captura valores antigos e novos
         old_values = {}
         if not self._state.adding:
             try:
@@ -32,8 +32,6 @@ class BaseModel(models.Model):
 
         super().save(*args, **kwargs)
 
-        # Agora salva o log com dados serializáveis
-        from logs.models import Log  # ou o caminho correto
         Log.objects.create(
             acao=acao,
             modelo=self.__class__.__name__,
@@ -43,3 +41,27 @@ class BaseModel(models.Model):
                 "depois": safe_new,
             }
         )
+
+    def delete(self, *args, **kwargs):
+        old_values = model_to_dict(self)
+
+        def safe_json(value):
+            try:
+                json.dumps(value)
+                return value
+            except TypeError:
+                return str(value)
+
+        safe_old = {k: safe_json(v) for k, v in old_values.items()}
+
+        Log.objects.create(
+            acao="Exclusão",
+            modelo=self.__class__.__name__,
+            objeto_id=self.id,
+            detalhes_completos={
+                "antes": safe_old,
+                "depois": {},
+            }
+        )
+
+        super().delete(*args, **kwargs)
