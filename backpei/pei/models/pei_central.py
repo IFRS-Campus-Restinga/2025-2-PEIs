@@ -3,6 +3,8 @@ from django.db import models
 from django.core.validators import MinLengthValidator
 from ..enums import StatusDoPei
 from .aluno import Aluno
+from django.core.exceptions import ValidationError as Erro
+from rest_framework.exceptions import ValidationError
 
 class PeiCentral(BaseModel):
     historico_do_aluno = models.TextField(
@@ -53,11 +55,32 @@ class PeiCentral(BaseModel):
         verbose_name = "Status",
     )
 
-    aluno = models.OneToOneField(
+    aluno = models.ForeignKey(
         Aluno, 
         related_name="aluno", 
         on_delete=models.CASCADE
     )
+
+    def clean(self):
+        pei = PeiCentral.objects.filter(
+                aluno = self.aluno
+            ).exclude(
+                id = self.id
+            ).filter(
+                status_pei__in=['ABERTO', 'EM ANDAMENTO', 'INATIVO']
+            )
+        if pei.exists(): #valida se existe uma correspondência ao menos do filtro realizado acima
+            raise Erro(
+                f"O Aluno {self.aluno} já possui um PEI ativo, conclua ou feche o PEI existente para abrir umm novo."
+            )
+        
+    def save(self, *args, **kwargs):
+        try:
+            self.clean()
+        except Erro as e:
+            raise ValidationError(e.message or e.messages)
+                                     
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.aluno}, {self.status_pei}"

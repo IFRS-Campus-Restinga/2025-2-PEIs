@@ -81,7 +81,7 @@ export default function CursosCRUD() {
     
     try { 
       if (id) { 
-        await DBCURSOS.put(/${id}/, formData, { 
+        await DBCURSOS.put(`/${id}/`, formData, { 
           headers: { "Content-Type": "multipart/form-data" } 
         }); 
         setSucesso("Curso atualizado com sucesso!"); 

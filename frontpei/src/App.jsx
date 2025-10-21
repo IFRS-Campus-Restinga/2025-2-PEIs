@@ -13,6 +13,7 @@ import Home from "./pages/home/Home.jsx"
 import Pareceres from "./pages/Parecer.jsx";
 import PEIPeriodoLetivo from "./pages/PEIPeriodoLetivo.jsx";
 import PEIPeriodoLetivoLista from "./pages/listar_pei_periodo_letivo.jsx";
+import PeriodoLetivoPerfil from "./pages/periodoLetivoPerfil.jsx";
 import Cursos from "./pages/Curso/Curso.jsx";
 import CursosCRUD from "./pages/Curso/CursoCRUD.jsx";
 import Disciplinas from "./pages/Disciplina/Disciplina.jsx";
@@ -120,6 +121,7 @@ function App() {
                 <Route path="/periodo" element={<PEIPeriodoLetivo />} />
                 <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />
                 <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} /> {/**Teste Mau */}
+                <Route path="/periodoLetivoPerfil" element={<PeriodoLetivoPerfil />} />
                 <Route path="/disciplina" element={<Disciplinas/>}/>
                 <Route path="/disciplinasCadastrar" element={<DisciplinasCRUD/>}/>
                 <Route path="/disciplinaEditar/:id" element={<DisciplinasCRUD/>}/>

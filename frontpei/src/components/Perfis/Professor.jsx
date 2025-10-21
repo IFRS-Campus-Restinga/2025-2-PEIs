@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // ✅ Importa o hook para navegação
 
 const ProfessorView = ({ usuario }) => {
   const API_ALUNO = import.meta.env.VITE_ALUNO_URL;
@@ -12,6 +13,8 @@ const ProfessorView = ({ usuario }) => {
   const [cursos, setCursos] = useState([]);
   const [infoPorAluno, setInfoPorAluno] = useState([]);
 
+  const navigate = useNavigate(); // ✅ Inicializa o hook de navegação
+
   useEffect(() => {
     async function carregarDados() {
       try {
@@ -23,9 +26,15 @@ const ProfessorView = ({ usuario }) => {
         ]);
 
         const alunosData = resAlunos.data.results || [];
-        const peiCentralsData = Array.isArray(resPeiCentral.data) ? resPeiCentral.data : resPeiCentral.data?.results || [];
-        const cursosData = Array.isArray(resCursos.data) ? resCursos.data : resCursos.data?.results || [];
-        const periodosData = Array.isArray(resPeriodos.data) ? resPeriodos.data : resPeriodos.data?.results || [];
+        const peiCentralsData = Array.isArray(resPeiCentral.data)
+          ? resPeiCentral.data
+          : resPeiCentral.data?.results || [];
+        const cursosData = Array.isArray(resCursos.data)
+          ? resCursos.data
+          : resCursos.data?.results || [];
+        const periodosData = Array.isArray(resPeriodos.data)
+          ? resPeriodos.data
+          : resPeriodos.data?.results || [];
 
         setAlunos(alunosData);
         setPeiCentrals(peiCentralsData);
@@ -52,13 +61,14 @@ const ProfessorView = ({ usuario }) => {
 
               componentesInfo.push({
                 componente: disciplina.nome,
-                coordenador: cursoRelacionado?.coordenador?.nome || "—", 
+                coordenador: cursoRelacionado?.coordenador?.nome || "—",
               });
             });
           });
 
           return {
             aluno,
+            peiCentralId: peiCentral?.id || null,
             peiCentralStatus,
             componentesInfo,
           };
@@ -74,7 +84,11 @@ const ProfessorView = ({ usuario }) => {
   }, []);
 
   const handleVisualizarClick = (peiCentralId) => {
-    window.location.href = `${API_PEICENTRAL}${peiCentralId}`;
+    if (!peiCentralId) {
+      alert("Nenhum PEI Central vinculado a este aluno.");
+      return;
+    }
+    navigate("/periodoLetivoPerfil", { state: { peiCentralId } });
   };
 
   return (
@@ -120,9 +134,10 @@ const ProfessorView = ({ usuario }) => {
 
                   {cIdx === 0 ? (
                     <span
-                      onClick={() => handleVisualizarClick(info.aluno.pei_central || 1)}
+                      onClick={() => handleVisualizarClick(info.peiCentralId)}
                       style={{ cursor: "pointer" }}
                     >
+                      {/* Ícone Visualizar */}
                       <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                         <rect x="3" y="3" width="14" height="18" rx="3" stroke="#333" strokeWidth="2" />
                         <circle cx="18" cy="18" r="3" stroke="#333" strokeWidth="2" />
@@ -148,7 +163,7 @@ const ProfessorView = ({ usuario }) => {
                 <span>{info.peiCentralStatus}</span>
                 <span>—</span>
                 <span
-                  onClick={() => handleVisualizarClick(info.aluno.pei_central || 1)}
+                  onClick={() => handleVisualizarClick(info.peiCentralId)}
                   style={{ cursor: "pointer" }}
                 >
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -161,7 +176,9 @@ const ProfessorView = ({ usuario }) => {
             )
           )
         ) : (
-          <p style={{ textAlign: "center", marginTop: "20px" }}>Nenhum aluno encontrado.</p>
+          <p style={{ textAlign: "center", marginTop: "20px" }}>
+            Nenhum aluno encontrado.
+          </p>
         )}
       </div>
     </div>
