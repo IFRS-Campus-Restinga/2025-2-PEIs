@@ -28,7 +28,7 @@ const CoordenadorView = ({ usuario, infoPorAluno = [], onVisualizar = () => {} }
                 {cIdx === 0 ? (
                   <div>
                     <button
-                      onClick={() => onVisualizar(info.peiCentralId)}
+                      onClick={() => onVisualizar(info.peiCentralId, info.aluno, info.componentesInfo)}
                       style={{ background: "none", border: "none", cursor: "pointer" }}
                       title="Visualizar PEI"
                     >
@@ -59,7 +59,7 @@ const CoordenadorView = ({ usuario, infoPorAluno = [], onVisualizar = () => {} }
               <div>—</div>
               <div>
                 <button
-                  onClick={() => onVisualizar(info.peiCentralId)}
+                  onClick={() => onVisualizar(info.peiCentralId, info.aluno, info.componentesInfo)}
                   style={{ background: "none", border: "none", cursor: "pointer" }}
                   title="Visualizar PEI"
                 >

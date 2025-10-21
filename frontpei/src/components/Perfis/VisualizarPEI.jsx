@@ -1,21 +1,11 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import "./VisualizarPEI.css";
 
-const VisualizarPEI = ({ aluno, coordenador, interacoes }) => {
-  // Exemplo de dados caso não sejam passados via props
-  const exemploAluno = {
-    nome: "João Silva",
-    email: "joao.silva@email.com",
-    semestre: "2025/2",
-    curso: "Análise e Desenvolvimento de Sistemas",
-    foto: "https://randomuser.me/api/portraits/men/11.jpg",
-  };
+const VisualizarPEI = () => {
+  const { state } = useLocation();
 
-  const exemploCoordenador = {
-    nome: "Rato Falante",
-    foto: "https://randomuser.me/api/portraits/men/32.jpg",
-  };
-
+  // Exemplo de dados caso não sejam passados via state
   const exemploInteracoes = [
     {
       id: 1,
@@ -33,9 +23,10 @@ const VisualizarPEI = ({ aluno, coordenador, interacoes }) => {
     },
   ];
 
-  const alunoDados = aluno || exemploAluno;
-  const coordDados = coordenador || exemploCoordenador;
-  const listaInteracoes = interacoes || exemploInteracoes;
+  // Dados do estado ou fallback para exemplos
+  const alunoDados = state?.aluno || exemploAluno;
+  const coordDados = state?.coordenador || exemploCoordenador;
+  const listaInteracoes = exemploInteracoes; // Mantido como exemplo por enquanto
 
   return (
     <div className="visualizar-pei-container">
@@ -96,9 +87,9 @@ const VisualizarPEI = ({ aluno, coordenador, interacoes }) => {
           <div className="icone-item">
             <img
               src="https://img.icons8.com/ios-filled/50/000000/pdf.png"
-              alt="Parecer Desenvolvimento 2"
+              alt="Parecer"
             />
-            <span>Parecer Desenvolvimento 2</span>
+            <span>Parecer {alunoDados.disciplina}</span>
           </div>
         </div>
 

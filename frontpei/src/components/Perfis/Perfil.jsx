@@ -43,40 +43,45 @@ const Perfil = ({ usuario }) => {
         const periodos = Array.isArray(resPeriodos.data) ? resPeriodos.data : resPeriodos.data?.results || [];
         const cursos = Array.isArray(resCursos.data) ? resCursos.data : resCursos.data?.results || [];
 
-        const dadosCompletos = alunos.map((aluno) => {
-          const peiCentral = peiCentrals.find((p) => p.aluno?.id === aluno.id);
-          const peiCentralStatus = peiCentral?.status_pei || "—";
+        const dadosCompletos = alunos
+          .map((aluno) => {
+            const peiCentral = peiCentrals.find((p) => p.aluno?.id === aluno.id);
+            if (!peiCentral) return null;
 
-          const periodosDoAluno = peiCentral
-            ? periodos.filter((p) => p.pei_central === peiCentral.id)
-            : [];
+            const peiCentralStatus = peiCentral?.status_pei || "—";
+            const periodosDoAluno = peiCentral ? periodos.filter((p) => p.pei_central === peiCentral.id) : [];
 
-          const componentesInfo = [];
+            const componentesInfo = [];
+            periodosDoAluno.forEach((periodo) => {
+              (periodo.componentes_curriculares || []).forEach((comp) => {
+                const disciplina = comp.disciplina;
+                if (!disciplina) return;
 
-          periodosDoAluno.forEach((periodo) => {
-            (periodo.componentes_curriculares || []).forEach((comp) => {
-              const disciplina = comp.disciplina;
-              if (!disciplina) return;
+                const cursoRelacionado = cursos.find((curso) =>
+                  curso.disciplinas?.some((d) => d.id === disciplina.id)
+                );
 
-              const cursoRelacionado = cursos.find((curso) =>
-                curso.disciplinas?.some((d) => d.id === disciplina.id)
-              );
-
-              componentesInfo.push({
-                componente: disciplina.nome,
-                coordenador: cursoRelacionado?.coordenador?.nome || "—",
+                componentesInfo.push({
+                  componente: disciplina.nome,
+                  coordenador: cursoRelacionado?.coordenador?.nome || "—",
+                  coordenadorFoto: cursoRelacionado?.coordenador?.foto || "https://randomuser.me/api/portraits/lego/1.jpg",
+                  curso: cursoRelacionado?.name || "Curso Desconhecido", // Adiciona o curso
+                  disciplina: cursoRelacionado?.disciplinas?.find((d) => d.id === disciplina.id)?.nome || "Disciplina Desconhecida",
+                  semestre: periodo.periodo_principal || "2025/2", // Adiciona o semestre
+                });
               });
             });
-          });
 
-          return {
-            aluno,
-            peiCentralStatus,
-            componentesInfo,
-            peiCentralId: peiCentral?.id || null,
-          };
-        });
+            return {
+              aluno,
+              peiCentralStatus,
+              componentesInfo,
+              peiCentralId: peiCentral?.id || null,
+            };
+          })
+          .filter((item) => item !== null);
 
+        console.log("Dados completos:", dadosCompletos); // Log para depuração
         setInfoPorAluno(dadosCompletos);
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
@@ -93,9 +98,30 @@ const Perfil = ({ usuario }) => {
   const inicio = (pagina - 1) * itensPorPagina;
   const alunosDaPagina = infoPorAluno.slice(inicio, inicio + itensPorPagina);
 
-  const handleVisualizarClick = (peiCentralId) => {
+  const handleVisualizarClick = (peiCentralId, aluno, componentesInfo) => {
     if (peiCentralId) {
-      navigate(`/pei/${peiCentralId}`);
+      const coordenador = componentesInfo[0]?.coordenador
+        ? {
+            nome: componentesInfo[0].coordenador,
+            foto: componentesInfo[0].coordenadorFoto,
+          }
+        : {
+            nome: "Professor Desconhecido",
+            foto: "https://randomuser.me/api/portraits/men/32.jpg",
+          };
+      navigate(`/pei/${peiCentralId}`, {
+        state: {
+          aluno: {
+            nome: aluno.nome,
+            email: aluno.email,
+            semestre: componentesInfo[0]?.semestre || "2025/2", // Usa o semestre do componentesInfo
+            curso: componentesInfo[0]?.curso || "Curso Desconhecido", // Usa o curso do componentesInfo
+            disciplina: componentesInfo[0]?.disciplina || "Disciplina Desconhecida", // Usa a disciplina do componentesInfo
+            foto: aluno.foto || "https://randomuser.me/api/portraits/men/11.jpg",
+          },
+          coordenador,
+        },
+      });
     }
   };
 
@@ -216,8 +242,7 @@ const Perfil = ({ usuario }) => {
         )}
       </main>
 
-      <Link to="/" className="voltar-btn"
-      onClick={() => { setPerfilSelecionado(null)}}>
+      <Link to="/" className="voltar-btn" onClick={() => setPerfilSelecionado(null)}>
         Voltar
       </Link>
     </div>
