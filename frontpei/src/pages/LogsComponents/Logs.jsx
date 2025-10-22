@@ -23,7 +23,7 @@ function Logs() {
   async function fetchLogs(page = 1) {
     try {
       setLoading(true);
-      const LOGS_URL = import.meta.env.VITE_LOGS_URL || "http://localhost:8000/logs/logs/";
+      const LOGS_URL = import.meta.env.VITE_LOGS_URL || "http://localhost:8080/logs/logs/";
       const backendToken = import.meta.env.VITE_BACKEND_TOKEN;
       
       // Obtém a configuração de ordenação atual

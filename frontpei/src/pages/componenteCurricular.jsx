@@ -95,11 +95,11 @@ function ComponenteCurricular() {
       recuperaComponenteCurricular();
       addAlert("Componente cadastrado com sucesso!", "success");
     } catch (err) {
-      console.error(err);
+      
       if (err.response?.data) {
         const messages = Object.entries(err.response.data)
           .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-          .join(" | ");
+          .join(" \n ");
         addAlert(`Erro ao cadastrar ${messages}`, "error");
       } else {
         addAlert("Erro ao cadastrar (erro desconhecido).", "error");
@@ -139,7 +139,7 @@ function ComponenteCurricular() {
       if (err.response?.data) {
         const messages = Object.entries(err.response.data)
           .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-          .join(" | ");
+          .join(" \n ");
         addAlert(`Erro ao editar ${messages}`, "error");
       } else {
         addAlert("Erro ao editar (erro desconhecido).", "error");
@@ -160,7 +160,7 @@ function ComponenteCurricular() {
           if (err.response?.data) {
             const messages = Object.entries(err.response.data)
               .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-              .join(" | ");
+              .join(" \n ");
             addAlert(`Erro ao deletar ${messages}`, "error");
           } else {
             addAlert("Erro ao deletar (erro desconhecido).", "error");

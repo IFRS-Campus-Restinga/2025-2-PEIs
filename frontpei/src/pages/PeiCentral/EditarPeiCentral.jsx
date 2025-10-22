@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
-import "../pei_periodo_letivo.css";
+import "../peiPeriodoLetivo/pei_periodo_letivo.css";
 
 function EditarPeiCentral() {
   const { id } = useParams();
