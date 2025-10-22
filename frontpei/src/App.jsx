@@ -11,9 +11,9 @@ import Alert from "./components/alert/AlertComponent.jsx";
 // Imports das tuas páginas e componentes
 import Home from "./pages/home/Home.jsx"
 import Pareceres from "./pages/Parecer.jsx";
-import PEIPeriodoLetivo from "./pages/PEIPeriodoLetivo.jsx";
-import PEIPeriodoLetivoLista from "./pages/listar_pei_periodo_letivo.jsx";
-import PeriodoLetivoPerfil from "./pages/periodoLetivoPerfil.jsx";
+import PEIPeriodoLetivo from "./pages/peiPeriodoLetivo/PEIPeriodoLetivo.jsx";
+import PEIPeriodoLetivoLista from "./pages/peiPeriodoLetivo/listar_pei_periodo_letivo.jsx";
+import PeriodoLetivoPerfil from "./pages/telaPerfilProfessor/periodoLetivoPerfil.jsx";
 import Cursos from "./pages/Curso/Curso.jsx";
 import CursosCRUD from "./pages/Curso/CursoCRUD.jsx";
 import Disciplinas from "./pages/Disciplina/Disciplina.jsx";
