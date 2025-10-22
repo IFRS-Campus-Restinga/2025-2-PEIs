@@ -4,9 +4,9 @@ const AlertContext = createContext();
 
 export function AlertProvider({ children }) {
   const [alerts, setAlerts] = useState([]);       // toasts globais
-  const [fieldAlerts, setFieldAlerts] = useState({}); // mensagens inline
+  const [fieldAlerts, setFieldAlerts] = useState({}); // mensagens inline por campo
 
-  // Adiciona alerta global ou de campo
+  // Adiciona alerta global ou por campo
   const addAlert = (message, type = "info", options = {}) => {
     // alerta por campo
     if (options.fieldName) {
@@ -14,6 +14,16 @@ export function AlertProvider({ children }) {
         ...prev,
         [options.fieldName]: { message, type }
       }));
+
+      // remove o alerta inline após 4 segundos
+      setTimeout(() => {
+        setFieldAlerts(prev => {
+          const copy = { ...prev };
+          delete copy[options.fieldName];
+          return copy;
+        });
+      }, options.duration || 4000); // 4000ms por padrão
+
       return;
     }
 
@@ -69,3 +79,17 @@ export function AlertProvider({ children }) {
 export function useAlert() {
   return useContext(AlertContext);
 }
+
+// ------------------- Componente FieldAlert -------------------
+export const FieldAlert = ({ fieldName }) => {
+  const { fieldAlerts, clearFieldAlert } = useAlert();
+  const alert = fieldAlerts[fieldName];
+
+  if (!alert) return null;
+
+  return (
+    <div className={`alert inline ${alert.type}`}>
+      <span>{alert.message}</span>
+    </div>
+  );
+};

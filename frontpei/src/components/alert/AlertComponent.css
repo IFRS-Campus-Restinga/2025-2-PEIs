@@ -180,3 +180,27 @@
 .alert-btn:hover {
   opacity: 0.85;
 }
+
+/* Alertas inline (embaixo do campo) */
+.alert.inline {
+  position: relative;
+  margin-top: 4px;
+  padding: 6px 10px;
+  font-size: 13px;
+  border-left: 4px solid #dc3545; /* vermelho para erro */
+  background: #fbeaea;
+  color: #721c24;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert.inline .close-btn {
+  top: auto;
+  right: 5px;
+  font-size: 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}

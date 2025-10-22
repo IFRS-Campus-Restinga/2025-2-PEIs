@@ -14,7 +14,6 @@ const AlertComponent = () => {
         {alerts.filter(a => !a.isConfirm).map((alert) => (
           <div key={alert.id} className={`alert ${alert.type}`}>
             <span>{alert.message}</span>
-            <button className="close-btn" onClick={() => removeAlert(alert.id)}>x</button>
           </div>
         ))}
       </div>
