@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { useAlert } from "../context/AlertContext"; 
+import { validaCampos } from "../utils/validaCampos";
+import { useAlert, FieldAlert } from "../context/AlertContext"; 
 
 function Pareceres() {
   const { addAlert } = useAlert();
@@ -52,24 +53,12 @@ function Pareceres() {
     }
   }
 
-  async function adicionaParecer(event) {
-    event.preventDefault();
+  async function adicionaParecer(e) {
+    e.preventDefault();
 
     const confereTexto = texto.trim();
-    if (!confereTexto) {
-      addAlert("O texto do parecer não pode ficar vazio.", "warning");
-      return;
-    }
     if (confereTexto.length > 1000) {
       addAlert("O texto do parecer ultrapassa 1000 caracteres.", "warning");
-      return;
-    }
-    if (!componenteSelecionado) {
-      addAlert("Selecione um componente curricular.", "warning");
-      return;
-    }
-    if (!professorSelecionado) {
-      addAlert("Selecione um professor.", "warning");
       return;
     }
 
@@ -78,6 +67,19 @@ function Pareceres() {
       componente_curricular: Number(componenteSelecionado),
       texto: confereTexto,
     };
+
+    const mensagens = validaCampos(novoParecer, e.target);
+        if (mensagens.length > 0) {
+          // ALERTS INLINE
+          mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+          // TOAST GERAL
+          addAlert("Existem campos obrigatórios não preenchidos.", "warning");
+          return;
+        }
+
+    
+
+    
 
     try {
       await DBPARECERES.post("/", novoParecer);
@@ -114,6 +116,7 @@ function Pareceres() {
         <label>Componente Curricular:</label>
         <br />
         <select
+          name="componente"
           value={componenteSelecionado}
           onChange={(e) => setComponenteSelecionado(e.target.value)}
         >
@@ -127,12 +130,14 @@ function Pareceres() {
             );
           })}
         </select>
+        <FieldAlert fieldName="componente" />
 
         <br /><br />
 
         <label>Professor:</label>
         <br />
         <select
+          name="professor"
           value={professorSelecionado}
           onChange={(e) => setProfessorSelecionado(e.target.value)}
         >
@@ -143,12 +148,14 @@ function Pareceres() {
             </option>
           ))}
         </select>
+        <FieldAlert fieldName="professor" />
 
         <br /><br />
 
         <label>Texto (máx. 1000 caracteres):</label>
         <br />
         <textarea
+          name="texto"
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           placeholder="Escreva o parecer (até 1000 caracteres)"
@@ -156,6 +163,7 @@ function Pareceres() {
           maxLength={1000}
           style={{ width: "100%" }}
         />
+        <FieldAlert fieldName="texto" />
 
         <br /><br />
         <button type="submit">Adicionar Parecer</button>
