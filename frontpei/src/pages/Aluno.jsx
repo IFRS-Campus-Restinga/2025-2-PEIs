@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { validaCampos } from "../utils/validaCampos";
-import { useAlert } from "../context/AlertContext";
+import { useAlert, FieldAlert } from "../context/AlertContext";
 import "./professor.css"; // reutilizando o mesmo CSS
 
 function Alunos() {
@@ -29,7 +29,10 @@ function Alunos() {
     e.preventDefault();
     const mensagens = validaCampos(form, e.target);
     if (mensagens.length > 0) {
-      addAlert(mensagens.join("\n"), "warning");
+      // ALERTS INLINE
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      // TOAST GERAL
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
@@ -55,7 +58,8 @@ function Alunos() {
     e.preventDefault();
     const mensagens = validaCampos(editForm, document.getElementById("editForm"));
     if (mensagens.length > 0) {
-      addAlert(mensagens.join("\n"), "warning");
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
@@ -119,6 +123,7 @@ function Alunos() {
           onChange={(e) => setForm({ ...form, nome: e.target.value })}
           placeholder="Digite o nome do aluno"
         />
+        <FieldAlert fieldName="nome" />
 
         <label>Matrícula:</label>
         <input
@@ -128,6 +133,7 @@ function Alunos() {
           onChange={(e) => setForm({ ...form, matricula: e.target.value })}
           placeholder="Somente números"
         />
+        <FieldAlert fieldName="matricula" />
 
         <label>Email institucional:</label>
         <input
@@ -137,6 +143,7 @@ function Alunos() {
           onChange={(e) => setForm({ ...form, email: e.target.value })}
           placeholder="exemplo@restinga.ifrs.edu.br"
         />
+        <FieldAlert fieldName="email" />
 
         <button type="submit">Adicionar Aluno</button>
       </form>
@@ -155,18 +162,21 @@ function Alunos() {
                     value={editForm.nome}
                     onChange={(e) => setEditForm({ ...editForm, nome: e.target.value })}
                   />
+                  <FieldAlert fieldName="nome" />
                   <input
                     name="matricula"
                     type="text"
                     value={editForm.matricula}
                     onChange={(e) => setEditForm({ ...editForm, matricula: e.target.value })}
                   />
+                  <FieldAlert fieldName="matricula" />
                   <input
                     name="email"
                     type="email"
                     value={editForm.email}
                     onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
                   />
+                  <FieldAlert fieldName="email" />
                   <div className="btn-group">
                     <button type="submit">Salvar</button>
                     <button type="button" onClick={() => setEditId(null)}>Cancelar</button>

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./disciplina.css";
+import { useAlert, FieldAlert } from "../context/AlertContext"; 
+import { validaCampos } from "../utils/validaCampos";
 
 function Pedagogos() {
   const DBPEDAGOGO = axios.create({baseURL: import.meta.env.VITE_PEDAGOGO_URL});
@@ -9,6 +11,8 @@ function Pedagogos() {
   const [pedagogosCadastradas, setPedagogosCadastradas] = useState([]);
   const [editId, setEditId] = useState(null);
   const [editNome, setEditNome] = useState("");
+  const { addAlert } = useAlert();
+  const [form, setForm] = useState({ nome: "" });
 
   async function recuperaPedagogos() {
     try {
@@ -16,7 +20,7 @@ function Pedagogos() {
       const data = response.data;
       setPedagogosCadastradas(Array.isArray(data) ? data : data.results);
     } catch (err) {
-      console.error("Erro ao buscar disciplinas: ", err);
+      addAlert("Erro ao buscar disciplinas: ", err);
     }
   }
 
@@ -24,37 +28,59 @@ function Pedagogos() {
     event.preventDefault();
     const nomePedagogo = pedagogo.trim();
 
-    if (!nomePedagogo) {
-      alert("Por favor, insira um nome válido para a pedagogo.");
+    const mensagens = validaCampos(form, event.target);
+    if (mensagens.length > 0) {
+      // ALERTS INLINE
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      // TOAST GERAL
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
     try {
-      await DBPEDAGOGO.post("/", { nome: nomePedagogo });
+      await DBPEDAGOGO.post("/", form);
       await recuperaPedagogos();
       setPedagogo("");
     } catch (err) {
-      console.error("Erro ao criar pedagogo:", err);
-      alert("Falha ao cadastrar pedagogo!");
+      console.error("Erro completo:", err);
+      if (err.response?.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" \n ");
+        addAlert(`Erro ao cadastrar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+      }
     }
   }
 
   // Função para deletar disciplina
   async function deletaPedagogo(id) {
-    if (!window.confirm("Tem certeza que deseja deletar este pedagogo?")) return;
-
-    try {
-      await DBPEDAGOGO.delete(`/${id}/`);
-      await recuperaPedagogos();
-    } catch (err) {
-      console.error("Erro ao deletar pedagogo:", err);
-      alert("Falha ao deletar pedagogo!");
-    }
+    addAlert("Deseja realmente deletar este pedagogo?", "confirm", {
+      onConfirm: async () => {
+        try {
+          await DBPEDAGOGO.delete(`/${id}/`);
+          recuperaPedagogos();
+          addAlert("Pedagogo deletado com sucesso!", "success");
+        } catch (err) {
+          console.error(err);
+          if (err.response?.data) {
+            const messages = Object.entries(err.response.data)
+              .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+              .join(" | ");
+            addAlert(`Erro ao deletar ${messages}`, "error");
+          } else {
+            addAlert("Erro ao deletar pedagogo (erro desconhecido).", "error");
+          }
+        }
+      },
+      onCancel: () => addAlert("Exclusão cancelada pelo usuário.", "info"),
+    });
   }
 
   async function atualizaPedagogo(id) {
     const nomeTrim = editNome.trim();
-    if (!nomeTrim) return alert("Insira um nome válido!");
+    if (!nomeTrim) return addAlert("Insira um nome válido!", "warning");
 
     try {
       await DBPEDAGOGO.put(`/${id}/`, { nome: nomeTrim });
@@ -62,8 +88,14 @@ function Pedagogos() {
       setEditNome("");
       await recuperaPedagogos();
     } catch (err) {
-      console.error("Erro ao atualizar pedagogo:", err);
-      alert("Falha ao atualizar pedagogo!");
+      if (err.response?.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" \n ");
+        addAlert(`Erro ao cadastrar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+      }
     }
   }
 
@@ -81,9 +113,11 @@ function Pedagogos() {
         <label>Nome: </label>
         <br />
         <textarea
-          value={pedagogo}
-          onChange={(e) => setPedagogo(e.target.value)}
+          name="nome"
+          value={form.nome}
+          onChange={(e) => setForm({ ...form, nome: e.target.value })}
         />
+        <FieldAlert fieldName="nome" />
         <br />
         <button type="submit">Adicionar pedagogo</button>
       </form>

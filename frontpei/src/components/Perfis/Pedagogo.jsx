@@ -11,7 +11,7 @@ const PedagogoView = ({ usuario, infoPorAluno = [], onVisualizar = () => {} }) =
                 {cIdx === 0 ? (
                   <div className="aluno-info">
                     <img
-                      src={info.aluno.foto || "https://randomuser.me/api/portraits/men/12.jpg"}
+                      src={info.aluno.foto || "https://randomuser.me/api/portraits/men/13.jpg"}
                       alt={info.aluno.nome}
                       className="aluno-foto"
                     />
@@ -28,7 +28,7 @@ const PedagogoView = ({ usuario, infoPorAluno = [], onVisualizar = () => {} }) =
                 {cIdx === 0 ? (
                   <div>
                     <button
-                      onClick={() => onVisualizar(info.peiCentralId)}
+                      onClick={() => onVisualizar(info.peiCentralId, info.aluno, info.componentesInfo)}
                       style={{ background: "none", border: "none", cursor: "pointer" }}
                       title="Visualizar PEI"
                     >
@@ -48,7 +48,7 @@ const PedagogoView = ({ usuario, infoPorAluno = [], onVisualizar = () => {} }) =
             <div className="aluno-row" key={idx}>
               <div className="aluno-info">
                 <img
-                  src={info.aluno.foto || "https://randomuser.me/api/portraits/men/12.jpg"}
+                  src={info.aluno.foto || "https://randomuser.me/api/portraits/men/13.jpg"}
                   alt={info.aluno.nome}
                   className="aluno-foto"
                 />
@@ -59,7 +59,7 @@ const PedagogoView = ({ usuario, infoPorAluno = [], onVisualizar = () => {} }) =
               <div>—</div>
               <div>
                 <button
-                  onClick={() => onVisualizar(info.peiCentralId)}
+                  onClick={() => onVisualizar(info.peiCentralId, info.aluno, info.componentesInfo)}
                   style={{ background: "none", border: "none", cursor: "pointer" }}
                   title="Visualizar PEI"
                 >
