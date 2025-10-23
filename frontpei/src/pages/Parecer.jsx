@@ -81,6 +81,7 @@ function Pareceres() {
       return;
     }
 
+    // 🔹 Agora monta o objeto apenas com dados válidos
     const novoParecer = {
       professor_id: Number(professorSelecionado),
       componente_curricular: Number(componenteSelecionado),
