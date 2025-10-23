@@ -151,6 +151,7 @@ const VisualizarPEI = () => {
         </div>
       </div>
 
+      <br />
       {/* Corpo: ícones à esquerda, últimas interações à direita */}
       <div className="visualizar-pei-body">
         <div className="pei-icones">
@@ -175,7 +176,7 @@ const VisualizarPEI = () => {
               src="https://img.icons8.com/ios-filled/50/000000/pdf.png"
               alt="Parecer da disciplina"
             />
-            <span>Parecer {alunoDados.disciplina}</span>
+            <span>Parecer da Disciplina</span>
           </Link>
 
           <Link
