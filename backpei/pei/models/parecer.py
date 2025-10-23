@@ -21,4 +21,4 @@ class Parecer(BaseModel):
     data = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f"Parecer {self.id} - {self.periodo_letivo.periodo}"
+        return f"Parecer {self.id} - {self.componente_curricular.periodo_letivo.periodo}"
