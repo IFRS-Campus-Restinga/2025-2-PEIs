@@ -8,6 +8,7 @@ from .models.curso import Curso
 from .models.disciplina import Disciplina
 from .models.aluno import Aluno
 from .models.coordenadorCurso import CoordenadorCurso
+from .models.usuario import Usuario
 
-admin.site.register((Professor, PEIPeriodoLetivo, Parecer, Curso, Disciplina, Pedagogo, Aluno, CoordenadorCurso, PeiCentral))
+admin.site.register((Professor, PEIPeriodoLetivo, Parecer, Curso, Disciplina, Pedagogo, Aluno, CoordenadorCurso, PeiCentral, Usuario))
 

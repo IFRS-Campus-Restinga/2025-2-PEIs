@@ -13,7 +13,7 @@ def verificar_periodos_e_gerar_notificacoes():
     for periodo in periodos:
         titulo = "Período letivo próximo do fim"
         mensagem = (
-            f"O período {periodo.periodo_formatado} está prestes a terminar "
+            f"O período {periodo.periodo_formatado} irá terminar "
             f"em {periodo.data_termino.strftime('%d/%m/%Y')}."
         )
 
