@@ -35,6 +35,7 @@ import Pedagogos from './pages/Pedagogo.jsx'
 import LoginPage from './pages/login/login.jsx'
 import Professor from "./pages/Professor.jsx";
 import Perfil from './components/Perfis/Perfil.jsx';
+import VisualizarPEI from './components/Perfis/VisualizarPEI.jsx';
 import { mandaEmail } from "./lib/mandaEmail";
 import AlertComponent from './components/alert/AlertComponent.jsx';
 
@@ -142,6 +143,7 @@ function App() {
                 <Route path="/logs" element={<Logs/>}/>
                 <Route path="/professor" element={<Professor />} />
                 <Route path="/perfil/:perfil" element={<Perfil usuario={usuario} />} />
+	              <Route path="/pei/:alunoId" element={<VisualizarPEI />} />
               </Routes>
             </main>
             <Footer/>
