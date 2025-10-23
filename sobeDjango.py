@@ -146,7 +146,10 @@ if pergunta("Refazer o migrate do Django?"):
             f.write(token.key)
         # por fim adicionando entradas necessarias
         # chamando o script do jampier que popula o banco
-        roda([rodapy, os.path.join(baseDir, "populaBanco.py")])
+        if pergunta("Deseja popular o banco de dados com cadastros prévios?"):
+            roda([rodapy, os.path.join(baseDir, "populaBanco.py")])
+        else:
+            print("O banco vai iniciar sem entradas pré cadastradas.")
     else:
         print("Banco de dados mantido.")
         roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "makemigrations"])
