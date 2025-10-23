@@ -122,7 +122,7 @@ const VisualizarPEI = () => {
           <div className="aluno-dados">
             <h2>{alunoDados.nome}</h2>
             <p>Email: {alunoDados.email}</p>
-            <p>Semestre: {alunoDados.semestre}</p>
+            <p>Periodo: {alunoDados.semestre}</p>
             <p>Curso: {alunoDados.curso}</p>
           </div>
         </div>

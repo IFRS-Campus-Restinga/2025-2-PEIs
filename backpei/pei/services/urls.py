@@ -13,6 +13,8 @@ from .views.pedagogo_view_set import PedagogoViewSet
 from .views.disciplina_view_set import DisciplinaViewSet
 from .views.curso_view_set import CursoViewSet
 from .views.manda_email import manda_email
+from .views.notificacao_view import NotificacaoViewSet
+from .views.notificacao_lista import listar_notificacoes
 
 router = DefaultRouter()
 router.register(r'PEIPeriodoLetivo', PEIPeriodoLetivoViewSet, basename='PEIPeriodoLetivo')
@@ -27,9 +29,11 @@ router.register(r'disciplinas', DisciplinaViewSet, basename='disciplinas')
 router.register(r'pei_central', PeiCentralViewSet, basename='pei_central')
 router.register(r'ataDeAcompanhamento', AtaDeAcompanhamentoViewSet, basename='ataDeAcompanhamento')
 router.register(r'documentacaoComplementar', DocumentacaoComplementarViewSet, basename='documentacaoComplementar')
+router.register(r'notificacoes', NotificacaoViewSet, basename='notificacao')
 
 app_name = 'api'
 urlpatterns = [
     path('', include(router.urls)),
     path('mandaEmail/', manda_email, name='mandaEmail'),
+    path('notificacoes-lista/', listar_notificacoes, name='notificacoes-lista'),
 ]

@@ -12,3 +12,4 @@ from .componenteCurricular import *
 from .ataDeAcompanhamento import *
 from .documentacaoComplementar import *
 from .userNapne import *
+from .notificacao import *

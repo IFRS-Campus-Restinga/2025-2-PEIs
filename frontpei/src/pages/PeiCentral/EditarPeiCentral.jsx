@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
-import "../pei_periodo_letivo.css";
+import "../peiPeriodoLetivo/pei_periodo_letivo.css";
 
 function EditarPeiCentral() {
   const { id } = useParams();
@@ -18,7 +18,8 @@ function EditarPeiCentral() {
   const [habilidades, setHabilidades] = useState("");
   const [dificuldades_apresentadas, setDificuldadesApresentadas] = useState("");
   const [adaptacoes, setAdaptacoes] = useState("");
-
+  const [aluno, setAluno] = useState("");
+  
   useEffect(() => {
     async function carregarPeiCentral() {
       try {
@@ -29,6 +30,7 @@ function EditarPeiCentral() {
         setHabilidades(resposta.data.habilidades);
         setDificuldadesApresentadas(resposta.data.dificuldades_apresentadas);
         setAdaptacoes(resposta.data.adaptacoes);
+        setAluno(resposta.data.aluno);
       } catch (err) {
         console.error("Erro ao carregar PEI Central:", err);
         addAlert("Erro ao carregar PEI Central. Tente novamente.", "error");
@@ -40,14 +42,16 @@ function EditarPeiCentral() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
+    
     const campos = {
+      aluno_id: aluno.id,
       status_pei,
       historico_do_aluno,
       necessidades_educacionais_especificas,
       habilidades,
       dificuldades_apresentadas,
       adaptacoes,
+      
     };
 
     const mensagens = validaCampos(campos, e.target);
@@ -76,9 +80,11 @@ function EditarPeiCentral() {
 
   return (
     <div className="container">
-      <h1 className="text-xl font-bold mb-4">Editar PEI Central</h1>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <h1 className="text-xl font-bold mb-4">Editar PEI Central do aluno {aluno.nome}</h1>
+      
+      <br/>
+      <form onSubmit={handleSubmit} className="space-y-4">  
+        
         <div>
           <label className="block mb-1 font-medium">Status:</label>
           <select

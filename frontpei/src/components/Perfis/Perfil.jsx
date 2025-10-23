@@ -73,7 +73,7 @@ const Perfil = ({ usuario }) => {
                   coordenadorFoto: cursoRelacionado?.coordenador?.foto || "https://randomuser.me/api/portraits/lego/1.jpg",
                   curso: cursoRelacionado?.name || "Curso Desconhecido", // Adiciona o curso
                   disciplina: cursoRelacionado?.disciplinas?.find((d) => d.id === disciplina.id)?.nome || "Disciplina Desconhecida",
-                  periodo: periodo.periodo_principal || "2025/2", // Adiciona o semestre
+                  semestre: periodo.periodo_principal || "2025/2", // Adiciona o semestre
                 });
               });
             });
@@ -120,7 +120,7 @@ const Perfil = ({ usuario }) => {
           aluno: {
             nome: aluno.nome,
             email: aluno.email,
-            periodo: componentesInfo[0]?.semestre || "2025/2", 
+            semestre: componentesInfo[0]?.semestre || "2025/2", 
             curso: componentesInfo[0]?.curso || "Curso Desconhecido", 
             disciplina: componentesInfo[0]?.disciplina || "Disciplina Desconhecida", 
             foto: aluno.foto || "https://randomuser.me/api/portraits/men/11.jpg",
@@ -188,7 +188,7 @@ const Perfil = ({ usuario }) => {
           <div className="erro">{erro}</div>
         ) : (
           <>
-            {perfil !== "administrador" ? (
+            {perfil !== "professor" && perfil !== "administrador" ? (
               <>
                 {/*<h2 className="professor-title">
                   Bem-vindo, {perfilTituloMap[perfil] || "Usuário"} {usuario?.nome?.split(" ")[0]}!

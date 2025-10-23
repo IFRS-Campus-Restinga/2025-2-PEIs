@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "./pei_periodo_letivo.css";
-import { useAlert } from "../context/AlertContext";
+import { useAlert } from "../../context/AlertContext";
 import { Link } from "react-router-dom";
 
 function PEIPeriodoLetivo() {

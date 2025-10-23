@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import axios from "axios"; 
 import ErrorMessage from "../../components/errorMessage/ErrorMessage"; 
 import "../Curso.css"; 
+import { useAlert } from "../../context/AlertContext";
 
 export default function CursosCRUD() { 
   const { id } = useParams(); // se existir, é edição 
@@ -16,6 +17,8 @@ export default function CursosCRUD() {
   const [erro, setErro] = useState(""); 
   const [sucesso, setSucesso] = useState(""); 
   const [arquivo, setArquivo] = useState(null); //teste arquivo unico 
+  const { addAlert } = useAlert();
+
 
   const niveis = [
      { label: "Superior", value: "Superior" }, 
@@ -66,11 +69,6 @@ export default function CursosCRUD() {
     setErro(""); 
     setSucesso(""); 
     
-    if (!curso.trim()) { 
-      setErro("Informe o nome do curso!"); 
-      return; 
-    } 
-    
     const formData = new FormData(); 
     formData.append("name", curso.trim()); 
     formData.append("nivel", nivel); 
@@ -81,17 +79,23 @@ export default function CursosCRUD() {
     
     try { 
       if (id) { 
-        await DBCURSOS.put(/${id}/, formData, { 
+        await DBCURSOS.put(`/${id}/`, formData, { 
           headers: { "Content-Type": "multipart/form-data" } 
         }); 
-        setSucesso("Curso atualizado com sucesso!"); 
+        addAlert("Curso atualizado com sucesso!", "success"); 
       } else { 
         await DBCURSOS.post("/", formData, { headers: { "Content-Type": "multipart/form-data" } }); 
-        setSucesso("Curso cadastrado com sucesso!"); 
+        addAlert("Curso cadastrado com sucesso!", "success"); 
       } setTimeout(() => navigate("/curso"), 1500); 
     } catch (err) { 
-      console.error("Erro ao salvar curso:", err); 
-      setErro("Falha ao salvar curso!"); 
+      if (err.response?.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao cadastrar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+      } 
     } 
   } 
   

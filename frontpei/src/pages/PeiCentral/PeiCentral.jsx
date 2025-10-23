@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../pei_periodo_letivo.css";
-import "../listar_pei_periodo_letivo.css";
+import "../peiPeriodoLetivo/pei_periodo_letivo.css";
+import "../peiPeriodoLetivo/listar_pei_periodo_letivo.css";
 
 function PeiCentral() {
   const [pei_central, setPeiCentral] = useState([]);

@@ -1,23 +1,23 @@
-
-/**
- * Valida campos de um formulário com base nos atributos `name`
- * @param {Object} form - objeto do estado (ex: { objetivos: "", metodologia: "" })
- * @param {HTMLFormElement} formElement - referência ao elemento <form>
- * @returns {string[]} - lista de mensagens de erro
- */
 export function validaCampos(form, formElement) {
   const mensagens = [];
-
   if (!formElement) return mensagens;
 
-  // Pega todos os elementos que tenham atributo "name"
   const inputs = formElement.querySelectorAll("[name]");
 
   inputs.forEach((input) => {
     const nome = input.getAttribute("name");
-    const label = input.previousElementSibling?.innerText.replace(/:$/, '') || nome; // pega o texto do <label> antes do campo
+    const label =
+      input.previousElementSibling?.innerText.replace(/:$/, "") || nome;
+
+    if (input.type === "file") {
+      if (!input.files || input.files.length === 0) {
+        mensagens.push({ fieldName: nome, message: `Preencha o campo: ${label}` });
+      }
+      return;
+    }
+
     if (!form[nome] || form[nome].toString().trim() === "") {
-      mensagens.push(`Preencha o campo: ${label}`);
+      mensagens.push({ fieldName: nome, message: `Preencha o campo: ${label}` });
     }
   });
 

@@ -11,8 +11,9 @@ import Alert from "./components/alert/AlertComponent.jsx";
 // Imports das tuas páginas e componentes
 import Home from "./pages/home/Home.jsx"
 import Pareceres from "./pages/Parecer.jsx";
-import PEIPeriodoLetivo from "./pages/PEIPeriodoLetivo.jsx";
-import PEIPeriodoLetivoLista from "./pages/listar_pei_periodo_letivo.jsx";
+import PEIPeriodoLetivo from "./pages/peiPeriodoLetivo/PEIPeriodoLetivo.jsx";
+import PEIPeriodoLetivoLista from "./pages/peiPeriodoLetivo/listar_pei_periodo_letivo.jsx";
+import PeriodoLetivoPerfil from "./pages/telaPerfilProfessor/periodoLetivoPerfil.jsx";
 import Cursos from "./pages/Curso/Curso.jsx";
 import CursosCRUD from "./pages/Curso/CursoCRUD.jsx";
 import Disciplinas from "./pages/Disciplina/Disciplina.jsx";
@@ -36,6 +37,7 @@ import Professor from "./pages/Professor.jsx";
 import Perfil from './components/Perfis/Perfil.jsx';
 import VisualizarPEI from './components/Perfis/VisualizarPEI.jsx';
 import { mandaEmail } from "./lib/mandaEmail";
+import AlertComponent from './components/alert/AlertComponent.jsx';
 
 function App() {
   // estados para o login do google
@@ -98,7 +100,7 @@ function App() {
     <GoogleOAuthProvider clientId="992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com">
       <AlertProvider>
         {/* componente global que exibe alerts */}
-        <Alert />
+        <AlertComponent />
 
         { logado ? (
           <div className="app-container">
@@ -121,6 +123,7 @@ function App() {
                 <Route path="/periodo" element={<PEIPeriodoLetivo />} />
                 <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />
                 <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} /> {/**Teste Mau */}
+                <Route path="/periodoLetivoPerfil" element={<PeriodoLetivoPerfil />} />
                 <Route path="/disciplina" element={<Disciplinas/>}/>
                 <Route path="/disciplinasCadastrar" element={<DisciplinasCRUD/>}/>
                 <Route path="/disciplinaEditar/:id" element={<DisciplinasCRUD/>}/>
