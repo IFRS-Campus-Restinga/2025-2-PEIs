@@ -62,7 +62,6 @@ function Pareceres() {
       return;
     }
 
-    // 🔹 Validação manual ANTES de montar o objeto
     if (!componenteSelecionado) {
       addAlert("Preencha o campo: componente", "error", { fieldName: "componente" });
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
@@ -81,7 +80,6 @@ function Pareceres() {
       return;
     }
 
-    // 🔹 Agora monta o objeto apenas com dados válidos
     const novoParecer = {
       professor_id: Number(professorSelecionado),
       componente_curricular: Number(componenteSelecionado),

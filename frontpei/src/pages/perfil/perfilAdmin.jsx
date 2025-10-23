@@ -11,6 +11,7 @@ const PerfilAdmin = ({ usuario, onVoltar }) => {
       </p>
 
       <div className="botoes-admin-grid">
+        <Link to="/usuario" className="btn-admin">Cadastrar Usuários</Link>
         <Link to="/curso" className="btn-admin">Gerenciar Cursos</Link>
         <Link to="/disciplina" className="btn-admin">Gerenciar Disciplinas</Link>
         <Link to="/periodo" className="btn-admin">Gerenciar Períodos Letivos</Link>
