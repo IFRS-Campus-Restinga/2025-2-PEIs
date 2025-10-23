@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./professor.css";
-import { useAlert } from "../context/AlertContext";
+import { useAlert, FieldAlert } from "../context/AlertContext";
 import { validaCampos } from "../utils/validaCampos";
 
 function Professor() {
@@ -28,7 +28,10 @@ function Professor() {
     e.preventDefault();
     const mensagens = validaCampos(form, e.target);
     if (mensagens.length > 0) {
-      addAlert(mensagens.join("\n"), "warning");
+      // ALERTS INLINE
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      // TOAST GERAL
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
@@ -126,6 +129,7 @@ function Professor() {
           onChange={(e) => setForm({ ...form, nome: e.target.value })}
           placeholder="Digite o nome do professor"
         />
+        <FieldAlert fieldName="nome" />
 
         <label>Matrícula:</label>
         <input
@@ -135,6 +139,7 @@ function Professor() {
           onChange={(e) => setForm({ ...form, matricula: e.target.value })}
           placeholder="Somente números"
         />
+        <FieldAlert fieldName="matricula" />
 
         <label>Email institucional:</label>
         <input
@@ -144,6 +149,7 @@ function Professor() {
           onChange={(e) => setForm({ ...form, email: e.target.value })}
           placeholder="exemplo@restinga.ifrs.edu.br"
         />
+        <FieldAlert fieldName="email" />
 
         <button type="submit">Adicionar Professor</button>
       </form>

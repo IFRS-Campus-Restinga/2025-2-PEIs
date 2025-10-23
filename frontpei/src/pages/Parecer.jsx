@@ -69,13 +69,13 @@ function Pareceres() {
     };
 
     const mensagens = validaCampos(novoParecer, e.target);
-        if (mensagens.length > 0) {
-          // ALERTS INLINE
-          mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
-          // TOAST GERAL
-          addAlert("Existem campos obrigatórios não preenchidos.", "warning");
-          return;
-        }
+    if (mensagens.length > 0) {
+      // ALERTS INLINE
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      // TOAST GERAL
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
+      return;
+    }
 
     
 
