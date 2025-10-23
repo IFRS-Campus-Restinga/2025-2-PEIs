@@ -159,7 +159,7 @@ def criar_cursos():
 def criar_pei_central():
     PeiCentral.objects.all().delete()
     alunos = list(Aluno.objects.all())
-    status = [StatusDoPei.OPEN, StatusDoPei.INPROGRESS, StatusDoPei.CLOSED] * 2
+    status = [StatusDoPei.OPEN, StatusDoPei.INPROGRESS] * 3
 
     for i in range(6):
         PeiCentral.objects.create(

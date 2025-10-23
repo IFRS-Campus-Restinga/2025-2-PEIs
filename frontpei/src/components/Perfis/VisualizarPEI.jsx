@@ -74,7 +74,7 @@ const VisualizarPEI = () => {
               todosPareceres.push({
                 id: parecer.id,
                 professor: parecer.professor?.nome || "Professor não informado",
-                foto: "https://randomuser.me/api/portraits/men/55.jpg", // Placeholder, ajuste conforme API
+                foto: "https://randomuser.me/api/portraits/men/55.jpg",
                 data: parecer.data || "—",
                 texto: parecer.texto || "Sem texto disponível.",
                 disciplina: comp.disciplina?.nome || "Sem disciplina",
@@ -176,7 +176,7 @@ const VisualizarPEI = () => {
               src="https://img.icons8.com/ios-filled/50/000000/pdf.png"
               alt="Parecer da disciplina"
             />
-            <span>Parecer da Disciplina</span>
+            <span>Parecer {alunoDados.disciplina}</span>
           </Link>
 
           <Link
@@ -189,6 +189,18 @@ const VisualizarPEI = () => {
               alt="Atas de Reuniões Semestrais"
             />
             <span>Parecer Atas de Reuniões Semestrais</span>
+          </Link>
+
+          <Link
+            //to="/"
+            className="icone-item"
+            onClick={(e) => isPEIEncerrado && e.preventDefault()}
+          >
+            <img
+              src="https://img.icons8.com/ios-filled/50/000000/pdf.png"
+              alt="Parecer Assistência Estudantil"
+            />
+            <span>Parecer Assistência Estudantil</span>
           </Link>
         </div>
 
