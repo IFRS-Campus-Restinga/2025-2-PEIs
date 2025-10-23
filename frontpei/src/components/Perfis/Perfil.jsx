@@ -18,6 +18,7 @@ const Perfil = ({ usuario }) => {
   const [pagina, setPagina] = useState(1);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState(null);
+  const [mostrarEncerrados, setMostrarEncerrados] = useState(false);
 
   const itensPorPagina = 4;
 
@@ -43,9 +44,14 @@ const Perfil = ({ usuario }) => {
         const periodos = Array.isArray(resPeriodos.data) ? resPeriodos.data : resPeriodos.data?.results || [];
         const cursos = Array.isArray(resCursos.data) ? resCursos.data : resCursos.data?.results || [];
 
+        // Filtrar PEIs ativos ou encerrados baseado no estado
+        const peiCentralsFiltrados = mostrarEncerrados
+          ? peiCentrals.filter((p) => p.status_pei === "FECHADO")
+          : peiCentrals.filter((p) => p.status_pei !== "FECHADO");
+
         const dadosCompletos = alunos
           .map((aluno) => {
-            const peiCentral = peiCentrals.find((p) => p.aluno?.id === aluno.id);
+            const peiCentral = peiCentralsFiltrados.find((p) => p.aluno?.id === aluno.id);
             if (!peiCentral) return null;
 
             const peiCentralStatus = peiCentral?.status_pei || "—";
@@ -67,7 +73,7 @@ const Perfil = ({ usuario }) => {
                   coordenadorFoto: cursoRelacionado?.coordenador?.foto || "https://randomuser.me/api/portraits/lego/1.jpg",
                   curso: cursoRelacionado?.name || "Curso Desconhecido", // Adiciona o curso
                   disciplina: cursoRelacionado?.disciplinas?.find((d) => d.id === disciplina.id)?.nome || "Disciplina Desconhecida",
-                  semestre: periodo.periodo_principal || "2025/2", // Adiciona o semestre
+                  periodo: periodo.periodo_principal || "2025/2", // Adiciona o semestre
                 });
               });
             });
@@ -81,7 +87,7 @@ const Perfil = ({ usuario }) => {
           })
           .filter((item) => item !== null);
 
-        console.log("Dados completos:", dadosCompletos); // Log para depuração
+        console.log("Dados completos:", dadosCompletos);
         setInfoPorAluno(dadosCompletos);
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
@@ -92,7 +98,7 @@ const Perfil = ({ usuario }) => {
     };
 
     carregarDados();
-  }, []);
+  }, [mostrarEncerrados]);
 
   const totalPaginas = Math.ceil(infoPorAluno.length / itensPorPagina);
   const inicio = (pagina - 1) * itensPorPagina;
@@ -114,9 +120,9 @@ const Perfil = ({ usuario }) => {
           aluno: {
             nome: aluno.nome,
             email: aluno.email,
-            semestre: componentesInfo[0]?.semestre || "2025/2", // Usa o semestre do componentesInfo
-            curso: componentesInfo[0]?.curso || "Curso Desconhecido", // Usa o curso do componentesInfo
-            disciplina: componentesInfo[0]?.disciplina || "Disciplina Desconhecida", // Usa a disciplina do componentesInfo
+            periodo: componentesInfo[0]?.semestre || "2025/2", 
+            curso: componentesInfo[0]?.curso || "Curso Desconhecido", 
+            disciplina: componentesInfo[0]?.disciplina || "Disciplina Desconhecida", 
             foto: aluno.foto || "https://randomuser.me/api/portraits/men/11.jpg",
           },
           coordenador,
@@ -167,6 +173,12 @@ const Perfil = ({ usuario }) => {
 
   const conteudo = conteudosPorPerfil[perfil] || <p>Perfil não encontrado</p>;
 
+  // Função para alternar entre PEIs ativos e encerrados
+  const toggleMostrarEncerrados = () => {
+    setMostrarEncerrados(!mostrarEncerrados);
+    setPagina(1); // Resetar para a primeira página
+  };
+
   return (
     <div className="tela-padrao">
       <main>
@@ -178,7 +190,7 @@ const Perfil = ({ usuario }) => {
           <>
             {perfil !== "administrador" ? (
               <>
-                <h2 className="professor-title">
+                {/*<h2 className="professor-title">
                   Bem-vindo, {perfilTituloMap[perfil] || "Usuário"} {usuario?.nome?.split(" ")[0]}!
                 </h2>
 
@@ -192,6 +204,16 @@ const Perfil = ({ usuario }) => {
                     <h3>{usuario?.nome || "Usuário"}</h3>
                     <p>{usuario?.email || ""}</p>
                   </div>
+                </div>*/}
+
+                {/* Botão para alternar PEIs encerrados */}
+                <div className="filtro-peis">
+                  <button
+                    onClick={toggleMostrarEncerrados}
+                    className="btn-filtro-encerrados"
+                  >
+                    {mostrarEncerrados ? "Mostrar PEIs Ativos" : "Visualizar PEIs Encerrados"}
+                  </button>
                 </div>
 
                 <div className="alunos-table">
