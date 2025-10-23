@@ -11,3 +11,4 @@ from .pedagogo_view_set import PedagogoViewSet
 from .parecer_view_set import ParecerViewSet
 from .manda_email import manda_email
 from .notificacao_view import NotificacaoViewSet
+from .usuario_view_set import UsuarioViewSet

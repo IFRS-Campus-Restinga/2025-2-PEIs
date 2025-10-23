@@ -11,3 +11,4 @@ from .professor_seralizer import *
 from .PEIPeriodoLetivo_serializer import *
 from .pei_central_serializer import *
 from .notificacao_serializer import *
+from .usuario_serializer import *

@@ -15,6 +15,7 @@ from .views.curso_view_set import CursoViewSet
 from .views.manda_email import manda_email
 from .views.notificacao_view import NotificacaoViewSet
 from .views.notificacao_lista import listar_notificacoes
+from .views.usuario_view_set import UsuarioViewSet
 
 router = DefaultRouter()
 router.register(r'PEIPeriodoLetivo', PEIPeriodoLetivoViewSet, basename='PEIPeriodoLetivo')
@@ -30,6 +31,7 @@ router.register(r'pei_central', PeiCentralViewSet, basename='pei_central')
 router.register(r'ataDeAcompanhamento', AtaDeAcompanhamentoViewSet, basename='ataDeAcompanhamento')
 router.register(r'documentacaoComplementar', DocumentacaoComplementarViewSet, basename='documentacaoComplementar')
 router.register(r'notificacoes', NotificacaoViewSet, basename='notificacao')
+router.register(r'usuario', UsuarioViewSet, basename='usuario')
 
 app_name = 'api'
 urlpatterns = [

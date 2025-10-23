@@ -3,7 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import "./componenteCurricular.css";
 import { validaCampos } from "../utils/validaCampos";
-import { useAlert } from "../context/AlertContext";
+import { useAlert, FieldAlert } from "../context/AlertContext";
 
 /**
  * Componente para gerenciar a documentação complementar
@@ -54,7 +54,10 @@ function DocumentacaoComplementar() {
     const mensagens = validaCampos(form, formElement);
 
     if (mensagens.length > 0) {
-      addAlert(mensagens.join("\n"), "warning");
+      // ALERTS INLINE
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      // TOAST GERAL
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
@@ -136,6 +139,7 @@ function DocumentacaoComplementar() {
           value={form.autor}
           onChange={(e) => setForm({ ...form, autor: e.target.value })}
         />
+        <FieldAlert fieldName="autor" />
 
         <label>Tipo:</label>
         <input
@@ -144,6 +148,7 @@ function DocumentacaoComplementar() {
           value={form.tipo}
           onChange={(e) => setForm({ ...form, tipo: e.target.value })}
         />
+        <FieldAlert fieldName="tipo" />
 
         <label>Arquivo:</label>
         <input
@@ -152,6 +157,7 @@ function DocumentacaoComplementar() {
           accept=".pdf,.docx,.png,.jpg"
           onChange={(e) => setArquivo(e.target.files[0])}
         />
+        <FieldAlert fieldName="arquivo" />
 
         <button type="submit">Adicionar Documento</button>
       </form>
@@ -175,6 +181,7 @@ function DocumentacaoComplementar() {
                       setEditForm({ ...editForm, autor: e.target.value })
                     }
                   />
+                  <FieldAlert fieldName="autor" />
 
                   <label>Tipo:</label>
                   <input
@@ -185,6 +192,7 @@ function DocumentacaoComplementar() {
                       setEditForm({ ...editForm, tipo: e.target.value })
                     }
                   />
+                  <FieldAlert fieldName="tipo" />
 
                   <label>Novo Arquivo (opcional):</label>
                   <input
@@ -193,6 +201,7 @@ function DocumentacaoComplementar() {
                     accept=".pdf,.docx,.png,.jpg"
                     onChange={(e) => setEditArquivo(e.target.files[0])}
                   />
+                  <FieldAlert fieldName="arquivo" />
 
                   <div className="btn-group">
                     <button type="button" onClick={() => atualizaDoc(d.id)}>

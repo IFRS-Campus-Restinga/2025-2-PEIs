@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../pei_periodo_letivo.css";
+import "../peiPeriodoLetivo/pei_periodo_letivo.css";
 
 function DeletarPeiCentral() {
   const { id } = useParams();

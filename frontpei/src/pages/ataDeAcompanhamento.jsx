@@ -3,7 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import "./componenteCurricular.css"; // usando CSS de Componentes Curriculares
 import { validaCampos } from "../utils/validaCampos";
-import { useAlert } from "../context/AlertContext";
+import { useAlert, FieldAlert } from "../context/AlertContext";
 
 function AtaDeAcompanhamento() {
   const { addAlert } = useAlert();
@@ -33,9 +33,10 @@ function AtaDeAcompanhamento() {
     const mensagens = validaCampos(form, formElement);
 
     if (mensagens.length > 0) {
-      // Junta todas as mensagens em um único texto
-      const mensagemUnica = mensagens.join("\n");
-      addAlert(mensagemUnica, "warning"); // Apenas um alerta
+      // ALERTS INLINE
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      // TOAST GERAL
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
@@ -135,19 +136,23 @@ function AtaDeAcompanhamento() {
         name="dataReuniao"
         value={form.dataReuniao} 
         onChange={(e) => setForm({ ...form, dataReuniao: e.target.value })} />
+        <FieldAlert fieldName="dataReuniao" />
         <label>Participantes:</label>
         <input type="text"
         name="participantes"
         value={form.participantes}
         onChange={(e) => setForm({ ...form, participantes: e.target.value })} />
+        <FieldAlert fieldName="participantes" />
         <label>Descrição:</label>
         <input type="text"
         name="descricao"
         value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} />
+        <FieldAlert fieldName="descricao" />
         <label>Ator:</label>
         <input type="text"
         name="ator"
         value={form.ator} onChange={(e) => setForm({ ...form, ator: e.target.value })} />
+        <FieldAlert fieldName="ator" />
         <button type="submit">Adicionar Ata</button>
       </form>
 
@@ -161,7 +166,9 @@ function AtaDeAcompanhamento() {
                 <>
                 <form id="editForm" className="componente-edit-form">
                   <strong><label>Data da reunião: </label></strong>
-                  <input type="datetime-local" value={editForm.dataReuniao} onChange={(e) => setEditForm({ ...editForm, dataReuniao: e.target.value })} />
+                  <input type="datetime-local" 
+                    value={editForm.dataReuniao} 
+                    onChange={(e) => setEditForm({ ...editForm, dataReuniao: e.target.value })} />
                   <strong><label>Participantes: </label></strong>
                   <input type="text" value={editForm.participantes} onChange={(e) => setEditForm({ ...editForm, participantes: e.target.value })} placeholder="Participantes" />
                   <strong><label>Descrição: </label></strong>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { validaCampos } from "../utils/validaCampos";
-import { useAlert } from "../context/AlertContext";
+import { useAlert, FieldAlert } from "../context/AlertContext";
 import "./professor.css"; // reutilizando o mesmo CSS
 
 function CoordenadoresCurso() {
@@ -29,7 +29,10 @@ function CoordenadoresCurso() {
     event.preventDefault();
     const mensagens = validaCampos(coordenador, event.target);
     if (mensagens.length > 0) {
-      addAlert(mensagens.join("\n"), "warning");
+      // ALERTS INLINE
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      // TOAST GERAL
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
@@ -119,6 +122,7 @@ function CoordenadoresCurso() {
           onChange={(e) => setCoordenador({ ...coordenador, nome: e.target.value })}
           placeholder="Digite o nome do coordenador"
         />
+        <FieldAlert fieldName="nome" />
         <button type="submit">Adicionar Coordenador</button>
       </form>
 

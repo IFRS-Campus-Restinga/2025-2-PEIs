@@ -58,7 +58,8 @@ def apagar(caminho):
             pass
 
 # ------------------------------------------
-# popular o pei central com dados
+# popular o pei central com dados, POSSIVELMENTE OBSOLETO
+"""
 from pei.models.pei_central import PeiCentral
 def populaPeiCentral():
     # criando algumas entradas
@@ -95,6 +96,7 @@ def populaPeiCentral():
             print("PeiCentral inserido com sucesso!")
         except Exception as e:
             print(f"Erro ao inserir PeiCentral. Causa: {e}")
+"""
 
 
 print("\n****************************\n")
@@ -143,7 +145,8 @@ if pergunta("Refazer o migrate do Django?"):
         with open(arquivoToken, "w") as f:
             f.write(token.key)
         # por fim adicionando entradas necessarias
-        populaPeiCentral()
+        # chamando o script do jampier que popula o banco
+        roda([rodapy, os.path.join(baseDir, "populaBanco.py")])
     else:
         print("Banco de dados mantido.")
         roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "makemigrations"])

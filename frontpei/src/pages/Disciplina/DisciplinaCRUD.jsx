@@ -4,12 +4,14 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import ErrorMessage from "../../components/errorMessage/ErrorMessage";
 import "../Disciplina.css";
+import { useAlert } from "../../context/AlertContext";
 
 export default function DisciplinasCRUD() {
   const [disciplina, setDisciplina] = useState("");
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false); // ← Flag para evitar múltiplos submits
+  const { addAlert } = useAlert();
 
   const DB = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
   const navigate = useNavigate();
@@ -43,24 +45,25 @@ export default function DisciplinasCRUD() {
     setSucesso("");
 
     const nomeTrim = disciplina.trim();
-    if (!nomeTrim) {
-      setErro("Insira um nome válido!");
-      setIsSubmitting(false); // ← Libera o submit
-      return;
-    }
 
     try {
       if (id) {
         await DB.put(`/${id}/`, { nome: nomeTrim });
-        setSucesso("Disciplina atualizada com sucesso!");
+        addAlert("Disciplina atualizada com sucesso!", "success");
       } else {
         await DB.post("/", { nome: nomeTrim });
-        setSucesso("Disciplina cadastrada com sucesso!");
+        setSucesso("Disciplina cadastrada com sucesso!", "success");
       }
       setTimeout(() => navigate("/disciplina"), 1500);
     } catch (err) {
-      console.error("Erro ao salvar disciplina:", err);
-      setErro("Falha ao salvar disciplina!");
+      if (err.response?.data) {
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join(" | ");
+        addAlert(`Erro ao cadastrar ${messages}`, "error");
+      } else {
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+      }
     } finally {
       setIsSubmitting(false); // ← Sempre libera o submit
     }

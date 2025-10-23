@@ -3,7 +3,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { validaCampos } from "../../utils/validaCampos";
 import { useAlert } from "../../context/AlertContext";
-import "../pei_periodo_letivo.css";
+import "../peiPeriodoLetivo/pei_periodo_letivo.css";
 
 function CreatePeiCentral() {
   const [historico_do_aluno, setHistorico] = useState("");
@@ -76,7 +76,7 @@ function CreatePeiCentral() {
       if (err.response?.data) {
         const messages = Object.entries(err.response.data)
           .map(([campo, msgs]) => `${campo}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
-          .join(" | ");
+          .join("\n");
         addAlert(`Erro ao criar PEI Central:\n ${messages}`, "error");
       } else {
         addAlert("Erro ao criar PEI Central. Tente novamente.", "error");

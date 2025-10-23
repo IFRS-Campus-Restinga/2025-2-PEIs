@@ -39,7 +39,7 @@ const Header = ({ usuario, logado, logout }) => {
 
     const buscarNotificacoes = async () => {
         try {
-            const token = localStorage.getItem("access"); // assume JWT salvo localmente
+            const token = localStorage.getItem("access");
             const response = await axios.get("http://localhost:8000/services/notificacoes-lista/", {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -49,6 +49,27 @@ const Header = ({ usuario, logado, logout }) => {
         } catch (error) {
             console.error("Erro ao buscar notificações:", error);
         }
+    };
+
+    // metodo para formatar a data para exibição de quanto tempo faz que a notificacao foi emitida
+    const formatarData = (dataString) => {
+        const data = new Date(dataString);
+        const agora = new Date();
+        const diffMs = agora - data;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHoras = Math.floor(diffMs / 3600000);
+        const diffDias = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return "Agora mesmo";
+        if (diffMins < 60) return `Há ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
+        if (diffHoras < 24) return `Há ${diffHoras} hora${diffHoras > 1 ? 's' : ''}`;
+        if (diffDias < 7) return `Há ${diffDias} dia${diffDias > 1 ? 's' : ''}`;
+        
+        return data.toLocaleDateString('pt-BR', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric' 
+        });
     };
 
     return (
@@ -79,23 +100,39 @@ const Header = ({ usuario, logado, logout }) => {
                                 onClick={() => setNotificacoesAbertas(!notificacoesAbertas)}
                             >
                                 <img src={bellIcon} alt="Notificações" />
+                                {notificacoes.length > 0 && (
+                                    <span className="notif-badge">{notificacoes.length}</span>
+                                )}
                             </button>
 
                             <div className={`notif-dropdown ${notificacoesAbertas ? "active" : ""}`}>
-                                <p className="notif-title">Notificações</p>
-                                <ul className="notif-list">
-                                    {notificacoes.length > 0 ? (
-                                        notificacoes.map((n) => (
-                                            <li key={n.id}>
-                                                <strong>{n.mensagem}</strong>
-                                                <br />
-                                                <small style={{ color: "#777" }}>{n.data_criacao}</small>
-                                            </li>
-                                        ))
-                                    ) : (
-                                        <li className="empty">Nenhuma nova notificação</li>
+                                <div className="notif-header">
+                                    <p className="notif-title">Notificações</p>
+                                    {notificacoes.length > 0 && (
+                                        <span className="notif-count">{notificacoes.length} nova{notificacoes.length > 1 ? 's' : ''}</span>
                                     )}
-                                </ul>
+                                </div>
+                                
+                                <div className="notif-list-container">
+                                    {notificacoes.length > 0 ? (
+                                        <ul className="notif-list">
+                                            {notificacoes.map((n) => (
+                                                <li key={n.id} className="notif-item">
+                                                    <div className="notif-content">
+                                                        <h4 className="notif-item-title">{n.titulo}</h4>
+                                                        <p className="notif-item-message">{n.mensagem}</p>
+                                                        <span className="notif-item-time">{formatarData(n.data_criacao)}</span>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <div className="notif-empty">
+                                            <p className="notif-empty-text">Nenhuma notificação</p>
+                                            <span className="notif-empty-subtext">Você está em dia!</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 

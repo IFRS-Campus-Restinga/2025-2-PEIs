@@ -1,129 +1,82 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import React from "react";
 
-
-const CoordenadorView = ({ usuario }) => {
-  const [alunos, setAlunos] = useState([]);
-  const [componente, setComponente] = useState([]);
-  const [peiCentralStatus, setPeiCentralStatus] = useState(null);
-  const [coordenador, setCoordenador] = useState(null);
-
-  const API_BASE = import.meta.env.VITE_ALUNO_URL;
-  const PEI_CENTRAL_URL = import.meta.env.VITE_PEI_CENTRAL_URL;
-  const COORDENADOR_URL = import.meta.env.VITE_COORDENADORCURSO_URL;
-  const COMPONENTE_URL = import.meta.env.VITE_COMPONENTE_CURRICULAR;
-
-  useEffect(() => {
-    const buscarDados = async () => {
-      try {
-        const alunosResponse = await axios.get(`${API_BASE}`);
-        setAlunos(alunosResponse.data.results);
-
-        const componente = await axios.get(`${COMPONENTE_URL}`);
-        setComponente(componente.data.results);
-
-        const peiCentralResponse = await axios.get(`${PEI_CENTRAL_URL}1/`);
-        setPeiCentralStatus(peiCentralResponse.data.status_pei);
-
-        const coordenadorResponse = await axios.get(`${COORDENADOR_URL}`);
-        setCoordenador(coordenadorResponse.data.results[0]); 
-
-      } catch (error) {
-        console.error("Erro ao buscar dados:", error);
-      }
-    };
-
-    buscarDados();
-  }, []);
-
-  const handleVisualizarClick = () => {
-    // Navega para o PEI Central com id = 1
-    window.location.href = `${PEI_CENTRAL_URL}1`;
-  };
-
+const CoordenadorView = ({ usuario, infoPorAluno = [], onVisualizar = () => {} }) => {
   return (
-    <div className="telaPadrao-page">
+    <>
+      {infoPorAluno.length > 0 ? (
+        infoPorAluno.map((info, idx) =>
+          info.componentesInfo.length > 0 ? (
+            info.componentesInfo.map((comp, cIdx) => (
+              <div className="aluno-row" key={`${idx}-${cIdx}`}>
+                {cIdx === 0 ? (
+                  <div className="aluno-info">
+                    <img
+                      src={info.aluno.foto || "https://randomuser.me/api/portraits/men/13.jpg"}
+                      alt={info.aluno.nome}
+                      className="aluno-foto"
+                    />
+                    <span>{info.aluno.nome}</span>
+                  </div>
+                ) : (
+                  <div className="aluno-info-placeholder" />
+                )}
 
-      <div className="telaPadrao-profile">
-        <img
-          src={usuario.foto}
-          alt="Foto do Usuário"
-          className="professor-foto"
-        />
-        <div className="professor-info">
-          <h3>{usuario.nome}</h3>
-          <p>{usuario.email}</p>
-        </div>
-      </div>
+                <div>{comp.componente || "—"}</div>
+                {cIdx === 0 ? <div>{info.peiCentralStatus}</div> : <div>—</div>}
+                <div>{comp.coordenador}</div>
 
-      <div className="alunos-table">
-        <div className="alunos-header">
-          <span>Nome do aluno</span>
-          <span>Componente Curricular</span>
-          <span>Status</span>
-          <span>Coordenador de curso</span>
-          <span>Visualizar</span>
-        </div>
-
-        {alunos.length > 0 ? (
-          alunos.map((aluno, idx) => (
+                {cIdx === 0 ? (
+                  <div>
+                    <button
+                      onClick={() => onVisualizar(info.peiCentralId, info.aluno, info.componentesInfo)}
+                      style={{ background: "none", border: "none", cursor: "pointer" }}
+                      title="Visualizar PEI"
+                    >
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="3" width="14" height="18" rx="3" stroke="#333" strokeWidth="2" />
+                        <circle cx="18" cy="18" r="3" stroke="#333" strokeWidth="2" />
+                        <line x1="20" y1="20" x2="22" y2="22" stroke="#333" strokeWidth="2" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <div />
+                )}
+              </div>
+            ))
+          ) : (
             <div className="aluno-row" key={idx}>
               <div className="aluno-info">
                 <img
-                  src={"https://randomuser.me/api/portraits/men/11.jpg"}
-                  alt={aluno.nome}
+                  src={info.aluno.foto || "https://randomuser.me/api/portraits/men/13.jpg"}
+                  alt={info.aluno.nome}
                   className="aluno-foto"
                 />
-                <span>{aluno.nome}</span>
+                <span>{info.aluno.nome}</span>
               </div>
-              <span>{componente[0]?.disciplina?.nome || "—"}</span>
-              <span>{peiCentralStatus || "—"}</span>
-              <div className="coordenador-info">
-                <img
-                  src={"https://randomuser.me/api/portraits/men/32.jpg"}
-                  alt={aluno.coordenador?.nome}
-                  className="coordenador-foto"
-                />
-                
-                <span>{coordenador?.nome || "—"}</span>
+              <div>—</div>
+              <div>{info.peiCentralStatus}</div>
+              <div>—</div>
+              <div>
+                <button
+                  onClick={() => onVisualizar(info.peiCentralId, info.aluno, info.componentesInfo)}
+                  style={{ background: "none", border: "none", cursor: "pointer" }}
+                  title="Visualizar PEI"
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="3" width="14" height="18" rx="3" stroke="#333" strokeWidth="2" />
+                    <circle cx="18" cy="18" r="3" stroke="#333" strokeWidth="2" />
+                    <line x1="20" y1="20" x2="22" y2="22" stroke="#333" strokeWidth="2" />
+                  </svg>
+                </button>
               </div>
-              <span onClick={handleVisualizarClick} style={{ cursor: 'pointer' }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <rect
-                    x="3"
-                    y="3"
-                    width="14"
-                    height="18"
-                    rx="3"
-                    stroke="#333"
-                    strokeWidth="2"
-                  />
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="3"
-                    stroke="#333"
-                    strokeWidth="2"
-                  />
-                  <line
-                    x1="20"
-                    y1="20"
-                    x2="22"
-                    y2="22"
-                    stroke="#333"
-                    strokeWidth="2"
-                  />
-                </svg>
-              </span>
             </div>
-          ))
-        ) : (
-          <p style={{ textAlign: "center", marginTop: "20px" }}>
-            Nenhum aluno encontrado.
-          </p>
-        )}
-      </div>
-    </div>
+          )
+        )
+      ) : (
+        <p style={{ textAlign: "center", marginTop: 20 }}>Nenhum aluno encontrado.</p>
+      )}
+    </>
   );
 };
 
