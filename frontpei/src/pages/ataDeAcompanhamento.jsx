@@ -266,82 +266,123 @@ function AtaDeAcompanhamento() {
         <h3>Atas Cadastradas</h3>
         <ul>
           {atasCadastradas.length === 0 && <li>Nenhuma ata cadastrada.</li>}
-          {atasCadastradas.map((a) => (
-            <li key={a.id}>
-              {editId === a.id ? (
-                <>
-                <form id="editForm" className="componente-edit-form" onSubmit={(e) => atualizaAta(e, a.id)}>
-                  <strong><label>Data da reunião: </label></strong>
-                  <input type="datetime-local" 
-                    value={editForm.dataReuniao}
-                    name="dataReuniao" 
-                    onChange={(e) => {
-                      setEditForm({ ...editForm, dataReuniao: e.target.value })
-                      if (e.target.value.trim() !== "") {
-                        clearFieldAlert("dataReuniao");
-                      }
-                    }
-                    } />
+          {atasCadastradas.map((a) => {
+            const periodo = periodosLetivos.find(p => p.id === a.peiperiodoletivo);
+
+            return (
+              <li key={a.id}>
+                {editId === a.id ? (
+                  <form
+                    id="editForm"
+                    className="componente-edit-form"
+                    onSubmit={(e) => atualizaAta(e, a.id)}
+                  >
+                    <label>Período Letivo:</label>
+                    <select
+                      name="periodoLetivo"
+                      value={editForm.periodoLetivo}
+                      onChange={(e) => {
+                        setEditForm({ ...editForm, periodoLetivo: Number(e.target.value) });
+                        if (e.target.value.trim() !== "") {
+                          clearFieldAlert("edit-periodoLetivo");
+                        }
+                      }}
+                    >
+                      <option value="">Selecione um período letivo</option>
+                      {periodosLetivos.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.periodo_principal} ({p.data_criacao} a {p.data_termino})
+                        </option>
+                      ))}
+                    </select>
+                    <FieldAlert fieldName="edit-periodoLetivo" />
+
+                    {/* resto dos campos editáveis */}
+                    <strong><label>Data da reunião: </label></strong>
+                    <input
+                      type="datetime-local"
+                      value={editForm.dataReuniao}
+                      name="dataReuniao"
+                      onChange={(e) => {
+                        setEditForm({ ...editForm, dataReuniao: e.target.value });
+                        if (e.target.value.trim() !== "") clearFieldAlert("edit-dataReuniao");
+                      }}
+                    />
                     <FieldAlert fieldName="edit-dataReuniao" />
 
-                  <strong><label>Participantes: </label></strong>
-                  <input type="text"
-                  value={editForm.participantes}
-                  name="participantes"
-                  onChange={(e) => {
-                    setEditForm({ ...editForm, participantes: e.target.value })
-                    if (e.target.value.trim() !== "") {
-                      clearFieldAlert("participantes");
-                    }
-                  }} 
-                  placeholder="Participantes" />
-                  <FieldAlert fieldName="edit-participantes" />
+                    <strong><label>Participantes: </label></strong>
+                    <input
+                      type="text"
+                      value={editForm.participantes}
+                      name="participantes"
+                      onChange={(e) => {
+                        setEditForm({ ...editForm, participantes: e.target.value });
+                        if (e.target.value.trim() !== "") clearFieldAlert("edit-participantes");
+                      }}
+                      placeholder="Participantes"
+                    />
+                    <FieldAlert fieldName="edit-participantes" />
 
-                  <strong><label>Descrição: </label></strong>
-                  <input type="text"
-                  name="descricao"
-                  value={editForm.descricao} 
-                  onChange={(e) => {
-                    setEditForm({ ...editForm, descricao: e.target.value })
-                    if (e.target.value.trim() !== "") {
-                      clearFieldAlert("descricao");
-                    }
-                  }} 
-                  placeholder="Descrição" />
-                  <FieldAlert fieldName="edit-descricao" />
+                    <strong><label>Descrição: </label></strong>
+                    <input
+                      type="text"
+                      value={editForm.descricao}
+                      name="descricao"
+                      onChange={(e) => {
+                        setEditForm({ ...editForm, descricao: e.target.value });
+                        if (e.target.value.trim() !== "") clearFieldAlert("edit-descricao");
+                      }}
+                      placeholder="Descrição"
+                    />
+                    <FieldAlert fieldName="edit-descricao" />
 
-                  <strong><label>Ator: </label></strong>
-                  <input type="text" 
-                  value={editForm.ator}
-                  name="ator" 
-                  onChange={(e) => {
-                    setEditForm({ ...editForm, ator: e.target.value })
-                    if (e.target.value.trim() !== "") {
-                      clearFieldAlert("ator");
-                    }
-                  }} 
-                  placeholder="Ator" />
-                  <FieldAlert fieldName="edit-ator" />
-                  <div className="btn-group">
-                    <button type="submit">Salvar</button>
-                    <button onClick={() => setEditId(null)}>Cancelar</button>
-                  </div>
-                </form>
-                </>
-              ) : (
-                <>
-                  <strong>Data:</strong> {a.dataReuniao ? new Date(a.dataReuniao).toLocaleString() : "-"} <br />
-                  <strong>Participantes:</strong> {a.participantes || "-"} <br />
-                  <strong>Descrição:</strong> {a.descricao || "-"} <br />
-                  <strong>Ator:</strong> {a.ator || "-"} <br />
-                  <div className="btn-group">
-                    <button onClick={() => { setEditId(a.id); setEditForm({ dataReuniao: a.dataReuniao ? new Date(a.dataReuniao).toISOString().slice(0,16) : "", participantes: a.participantes, descricao: a.descricao, ator: a.ator }); }}>Editar</button>
-                    <button onClick={() => deletaAta(a.id)}>Deletar</button>
-                  </div>
-                </>
-              )}
-            </li>
-          ))}
+                    <strong><label>Ator: </label></strong>
+                    <input
+                      type="text"
+                      value={editForm.ator}
+                      name="ator"
+                      onChange={(e) => {
+                        setEditForm({ ...editForm, ator: e.target.value });
+                        if (e.target.value.trim() !== "") clearFieldAlert("edit-ator");
+                      }}
+                      placeholder="Ator"
+                    />
+                    <FieldAlert fieldName="edit-ator" />
+
+                    <div className="btn-group">
+                      <button type="submit">Salvar</button>
+                      <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <strong>PEI Período Letivo:</strong> {periodo ? `${periodo.periodo_principal} (${periodo.data_criacao} a ${periodo.data_termino})` : "-"} <br />
+                    <strong>Data:</strong> {a.dataReuniao ? new Date(a.dataReuniao).toLocaleString() : "-"} <br />
+                    <strong>Participantes:</strong> {a.participantes || "-"} <br />
+                    <strong>Descrição:</strong> {a.descricao || "-"} <br />
+                    <strong>Ator:</strong> {a.ator || "-"} <br />
+                    <div className="btn-group">
+                      <button
+                        onClick={() => {
+                          setEditId(a.id);
+                          setEditForm({
+                            dataReuniao: a.dataReuniao ? new Date(a.dataReuniao).toISOString().slice(0, 16) : "",
+                            participantes: a.participantes,
+                            descricao: a.descricao,
+                            ator: a.ator,
+                            periodoLetivo: a.peiperiodoletivo, // aqui preenchemos o ID corretamente
+                          });
+                        }}
+                      >
+                        Editar
+                      </button>
+                      <button onClick={() => deletaAta(a.id)}>Deletar</button>
+                    </div>
+                  </>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </div>
 
