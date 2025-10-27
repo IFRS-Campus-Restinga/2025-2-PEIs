@@ -2,6 +2,8 @@ from rest_framework.viewsets import ModelViewSet
 from ..serializers import AtaDeAcompanhamentoSerializer
 from pei.models import AtaDeAcompanhamento
 from ..permissions import BackendTokenPermission
+from rest_framework.response import Response
+from rest_framework import status
 from django.core.exceptions import ValidationError
 
 class AtaDeAcompanhamentoViewSet(ModelViewSet):
