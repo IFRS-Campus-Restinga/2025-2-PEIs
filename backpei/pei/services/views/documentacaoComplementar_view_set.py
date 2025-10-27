@@ -2,6 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from ..serializers import DocumentacaoComplementarSerializer
 from pei.models import DocumentacaoComplementar
 from ..permissions import BackendTokenPermission
+from django.core.exceptions import ValidationError
 
 class DocumentacaoComplementarViewSet(ModelViewSet):
     queryset = DocumentacaoComplementar.objects.all()

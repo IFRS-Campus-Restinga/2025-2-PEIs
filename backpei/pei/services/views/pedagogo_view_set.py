@@ -2,6 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from ..serializers.pedagogo_serializer import PedagogoSerializer
 from pei.models import *
 from ..permissions import BackendTokenPermission
+from django.core.exceptions import ValidationError
 
 class PedagogoViewSet(ModelViewSet):
     queryset = Pedagogo.objects.all()

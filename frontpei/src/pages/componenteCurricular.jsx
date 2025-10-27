@@ -190,10 +190,41 @@ async function atualizaComponenteCurricular(e, id) {
           await DBCOMPONENTECURRICULAR.delete(`/${id}/`);
           recuperaComponenteCurricular();
           addAlert("Componente deletado com sucesso!", "success");
-        } catch {
-          addAlert("Erro ao deletar componente.", "error");
-        }
+        } catch (err) {
+            console.error(err);
+
+            if (err.response?.data) {
+              const data = err.response.data;
+
+              // Caso 1: Erro genérico do backend (ex: { "erro": "mensagem" })
+              if (typeof data.erro === "string") {
+                addAlert(data.erro, "error");
+                return;
+              }
+
+              // Caso 2: Erros de campo (ex: { nome: ["Campo obrigatório"], email: [...] })
+              Object.entries(data).forEach(([field, msgs]) => {
+                if (Array.isArray(msgs)) {
+                  addAlert(msgs.join(", "), "error", { fieldName: field });
+                } else {
+                  addAlert(String(msgs), "error");
+                }
+              });
+
+              // Monta um resumo para o toast
+              const messages = Object.entries(data)
+                .map(([field, msgs]) =>
+                  Array.isArray(msgs) ? `${field}: ${msgs.join(", ")}` : `${field}: ${msgs}`
+                )
+                .join("\n");
+
+              addAlert(`Erro ao deletar:\n${messages}`, "error");
+            } else {
+              addAlert("Erro ao deletar (erro desconhecido).", "error");
+            }
+          }
       },
+      onCancel: () => addAlert("Exclusão cancelada pelo usuário.", "info"),
     });
   }
 

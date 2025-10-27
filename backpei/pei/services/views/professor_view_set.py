@@ -2,6 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from ..serializers.professor_seralizer import *
 from pei.models.professor import *
 from ..permissions import BackendTokenPermission
+from django.core.exceptions import ValidationError
 
 class ProfessorViewSet(ModelViewSet):
     queryset = Professor.objects.all()

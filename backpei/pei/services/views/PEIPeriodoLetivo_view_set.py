@@ -2,6 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from ..serializers.PEIPeriodoLetivo_serializer import PEIPeriodoLetivoSerializer
 from pei.models.PEIPeriodoLetivo import PEIPeriodoLetivo
 from ..permissions import BackendTokenPermission
+from django.core.exceptions import ValidationError
 
 class PEIPeriodoLetivoViewSet(ModelViewSet):
     queryset = PEIPeriodoLetivo.objects.all()

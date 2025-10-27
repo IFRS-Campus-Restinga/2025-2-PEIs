@@ -6,6 +6,7 @@ from django.http import FileResponse
 from ..serializers.curso_serializer import CursoSerializer
 from pei.models import Curso
 from ..permissions import BackendTokenPermission
+from django.core.exceptions import ValidationError
 
 class CursoViewSet(ModelViewSet):
     queryset = Curso.objects.all()

@@ -2,6 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from ..serializers.coordenadorCurso_serializer import *
 from pei.models.coordenadorCurso import *
 from ..permissions import BackendTokenPermission
+from django.core.exceptions import ValidationError
 
 class CoordenadorCursoViewSet(ModelViewSet):
     queryset = CoordenadorCurso.objects.all()

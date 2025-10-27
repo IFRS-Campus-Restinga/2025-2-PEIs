@@ -4,6 +4,8 @@ from pei.models.aluno import *
 from ..permissions import BackendTokenPermission
 from rest_framework.response import Response
 from rest_framework import status
+from django.core.exceptions import ValidationError
+
 
 
 class AlunoViewSet(ModelViewSet):
