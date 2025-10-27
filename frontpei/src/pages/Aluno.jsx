@@ -109,24 +109,38 @@ function Alunos() {
           recuperaAlunos();
           addAlert("Aluno deletado com sucesso!", "success");
         } catch (err) {
-          console.error(err);
+            console.error(err);
 
-    if (err.response?.data) {
-        // Exibe mensagens inline específicas do backend
-        Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: field });
-        });
+            if (err.response?.data) {
+              const data = err.response.data;
 
-        // Monta o texto completo para o toast
-        const messages = Object.entries(err.response.data)
-          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-          .join("\n");
+              // Caso 1: Erro genérico do backend (ex: { "erro": "mensagem" })
+              if (typeof data.erro === "string") {
+                addAlert(data.erro, "error");
+                return;
+              }
 
-        addAlert(`Erro ao deletar:\n${messages}`, "error");
-      } else {
-        addAlert("Erro ao deletar (erro desconhecido).", "error");
-      }
-        }
+              // Caso 2: Erros de campo (ex: { nome: ["Campo obrigatório"], email: [...] })
+              Object.entries(data).forEach(([field, msgs]) => {
+                if (Array.isArray(msgs)) {
+                  addAlert(msgs.join(", "), "error", { fieldName: field });
+                } else {
+                  addAlert(String(msgs), "error");
+                }
+              });
+
+              // Monta um resumo para o toast
+              const messages = Object.entries(data)
+                .map(([field, msgs]) =>
+                  Array.isArray(msgs) ? `${field}: ${msgs.join(", ")}` : `${field}: ${msgs}`
+                )
+                .join("\n");
+
+              addAlert(`Erro ao deletar:\n${messages}`, "error");
+            } else {
+              addAlert("Erro ao deletar (erro desconhecido).", "error");
+            }
+          }
       },
       onCancel: () => addAlert("Exclusão cancelada pelo usuário.", "info"),
     });
