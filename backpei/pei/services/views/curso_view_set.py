@@ -6,6 +6,7 @@ from django.http import FileResponse
 from ..serializers.curso_serializer import CursoSerializer
 from pei.models import Curso
 from ..permissions import BackendTokenPermission
+from django.core.exceptions import ValidationError
 
 class CursoViewSet(ModelViewSet):
     queryset = Curso.objects.all()
@@ -36,6 +37,16 @@ class CursoViewSet(ModelViewSet):
         self.perform_update(serializer)
         return Response(serializer.data)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            instance.safe_delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ValidationError as e:
+            return Response(
+                {"erro": e.message},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
     # Endpoint de download de arquivo

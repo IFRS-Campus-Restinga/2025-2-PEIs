@@ -7,6 +7,8 @@ const AlertComponent = () => {
 
   if (alerts.length === 0) return null;
 
+  
+
   return (
     <>
       {/* Toats normais (canto inferior direito) */}

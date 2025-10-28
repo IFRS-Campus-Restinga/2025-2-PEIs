@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // ✅ Importa o hook para navegação
+import { useNavigate } from "react-router-dom"; 
+import "./Professor.css";
 
 const ProfessorView = ({ usuario }) => {
   const API_ALUNO = import.meta.env.VITE_ALUNO_URL;
@@ -12,8 +13,9 @@ const ProfessorView = ({ usuario }) => {
   const [peiCentrals, setPeiCentrals] = useState([]);
   const [cursos, setCursos] = useState([]);
   const [infoPorAluno, setInfoPorAluno] = useState([]);
+  const [cargoSelecionado, setCargoSelecionado] = useState(""); 
 
-  const navigate = useNavigate(); // ✅ Inicializa o hook de navegação
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     async function carregarDados() {
@@ -88,7 +90,13 @@ const ProfessorView = ({ usuario }) => {
       alert("Nenhum PEI Central vinculado a este aluno.");
       return;
     }
-    navigate("/periodoLetivoPerfil", { state: { peiCentralId } });
+    // mostrar isso pro pessoal pq é bem interessante
+    navigate("/periodoLetivoPerfil", { 
+      state: { 
+        peiCentralId,
+        cargoSelecionado 
+      } 
+    });
   };
 
   return (
@@ -99,6 +107,23 @@ const ProfessorView = ({ usuario }) => {
           <h3>{usuario.nome}</h3>
           <p>{usuario.email}</p>
         </div>
+      </div>
+
+      <div className="cargo-dropdown-container">
+        <label htmlFor="cargo" className="cargo-label">Selecione o cargo:</label>
+        <select
+          id="cargo"
+          className="cargo-dropdown"
+          value={cargoSelecionado}
+          onChange={(e) => setCargoSelecionado(e.target.value)}
+        >
+          <option value="">— Escolher —</option>
+          <option value="Professor">Professor</option>
+          <option value="NAPNE">NAPNE</option>
+          <option value="Coordenador de Curso">Coordenador de Curso</option>
+          <option value="Pedagogo">Pedagogo</option>
+          <option value="Administrador">Administrador</option>
+        </select>
       </div>
 
       <div className="alunos-table">
@@ -137,7 +162,6 @@ const ProfessorView = ({ usuario }) => {
                       onClick={() => handleVisualizarClick(info.peiCentralId)}
                       style={{ cursor: "pointer" }}
                     >
-                      {/* Ícone Visualizar */}
                       <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                         <rect x="3" y="3" width="14" height="18" rx="3" stroke="#333" strokeWidth="2" />
                         <circle cx="18" cy="18" r="3" stroke="#333" strokeWidth="2" />

@@ -5,8 +5,8 @@ import "./periodoLetivoPerfil.css";
 
 const PeriodoLetivoPerfil = () => {
   const location = useLocation();
-  const navigate = useNavigate(); // ✅ Hook para voltar
-  const { peiCentralId } = location.state || {};
+  const navigate = useNavigate();
+  const { peiCentralId, cargoSelecionado: cargoInicial } = location.state || {};
 
   const API_ALUNO = import.meta.env.VITE_ALUNO_URL;
   const API_PEICENTRAL = import.meta.env.VITE_PEI_CENTRAL_URL;
@@ -19,6 +19,7 @@ const PeriodoLetivoPerfil = () => {
   const [periodoPrincipal, setPeriodoPrincipal] = useState(null);
   const [periodos, setPeriodos] = useState([]);
   const [erro, setErro] = useState(false);
+  const [cargoSelecionado, setCargoSelecionado] = useState(cargoInicial || ""); 
 
   useEffect(() => {
     async function carregarDados() {
@@ -66,8 +67,6 @@ const PeriodoLetivoPerfil = () => {
           if (cursoEncontrado) {
             setCurso(cursoEncontrado);
             setCoordenador(cursoEncontrado.coordenador || null);
-          } else {
-            console.warn("Nenhum curso correspondente encontrado para as disciplinas do PEI.");
           }
         }
       } catch (err) {
@@ -87,7 +86,22 @@ const PeriodoLetivoPerfil = () => {
 
   return (
     <div className="pei-detalhe-container">
-      {/* Cabeçalho */}
+      <div className="cargo-dropdown-container">
+        <label htmlFor="cargo" className="cargo-label">Selecione o cargo:</label>
+        <select
+          id="cargo"
+          className="cargo-dropdown"
+          value={cargoSelecionado}
+          onChange={(e) => setCargoSelecionado(e.target.value)}
+        >
+          <option value="">— Escolher —</option>
+          <option value="Professor">Professor</option>
+          <option value="NAPNE">NAPNE</option>
+          <option value="Coordenador de Curso">Coordenador de Curso</option>
+          <option value="Pedagogo">Pedagogo</option>
+        </select>
+      </div>
+
       <div className="pei-header">
         <div className="aluno-info">
           <img
@@ -108,16 +122,71 @@ const PeriodoLetivoPerfil = () => {
         </div>
       </div>
 
-      {/* Corpo */}
       <div className="pei-corpo">
         <div className="pei-documentos">
-          <Link to="/peicentral" className="btn-admin">Documentação PEI Central</Link>
+          <h3>Ações Disponíveis</h3>
 
           <div className="botoes-parecer">
-            <Link to="/pareceres" className="btn-verde">Parecer Disciplina</Link>
-            <Link to="/atadeacompanhamento" className="btn-verde">Ata Semestral</Link>
+            {cargoSelecionado === "Professor" && (
+              <>
+                <Link to="/pareceres" className="btn-verde">Cadastrar Parecer</Link>
+                <Link to="/documentacaocomplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
+              </>
+            )}
+
+            {cargoSelecionado === "Pedagogo" && (
+              <>
+                <Link to="/atadeacompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
+                <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
+                <Link to="/documentacaocomplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+              </>
+            )}
+
+            {cargoSelecionado === "NAPNE" && (
+              <>
+                <Link to="/periodo" className="btn-verde">Gerenciar Períodos Letivos</Link>
+                <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
+                <Link to="/componentecurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
+                <Link to="/peicentral" className="btn-verde">Gerenciar PEIs</Link>
+                <Link to="/atadeacompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
+                <Link to="/pedagogo" className="btn-verde">Gerenciar Pedagogos</Link>
+                <Link to="/documentacaocomplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+              </>
+            )}
+
+            {cargoSelecionado === "Coordenador de Curso" && (
+              <>
+                <Link to="/curso" className="btn-verde">Gerenciar Cursos</Link>
+                <Link to="/disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
+                <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
+                <Link to="/aluno" className="btn-verde">Gerenciar Alunos</Link>
+                <Link to="/professor" className="btn-verde">Gerenciar Professores</Link>
+                <Link to="/atadeacompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
+                <Link to="/documentacaocomplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+              </>
+            )}
+
+            {cargoSelecionado === "Administrador" && (
+              <>
+                <Link to="/usuario" className="btn-verde">Cadastrar Usuários</Link>
+                <Link to="/curso" className="btn-verde">Gerenciar Cursos</Link>
+                <Link to="/disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
+                <Link to="/periodo" className="btn-verde">Gerenciar Períodos Letivos</Link>
+                <Link to="/coordenador" className="btn-verde">Gerenciar Coordenadores</Link>
+                <Link to="/aluno" className="btn-verde">Gerenciar Alunos</Link>
+                <Link to="/professor" className="btn-verde">Gerenciar Professores</Link>
+                <Link to="/peicentral" className="btn-verde">Gerenciar PEIs</Link>
+                <Link to="/pareceres" className="btn-verde">Gerenciar Pareceres</Link>
+                <Link to="/componentecurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
+                <Link to="/atadeacompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
+                <Link to="/documentacaocomplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                <Link to="/pedagogo" className="btn-verde">Gerenciar Pedagogos</Link>
+              </>
+            )}
+
             <button className="btn-verde" onClick={() => navigate(-1)}>
-                Voltar
+              Voltar
             </button>
           </div>
         </div>

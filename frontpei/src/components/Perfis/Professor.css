@@ -115,7 +115,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: -60px 1500px 20px 10px;
+  margin: 6px 1500px 20px 10px;
   flex-wrap: nowrap; 
   white-space: nowrap; 
 }

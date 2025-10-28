@@ -3,27 +3,19 @@ import React, { createContext, useContext, useState } from "react";
 const AlertContext = createContext();
 
 export function AlertProvider({ children }) {
-  const [alerts, setAlerts] = useState([]);       // toasts globais
+  const [alerts, setAlerts] = useState([]);        // toasts globais
   const [fieldAlerts, setFieldAlerts] = useState({}); // mensagens inline por campo
 
   // Adiciona alerta global ou por campo
   const addAlert = (message, type = "info", options = {}) => {
-    // alerta por campo
+    // alerta por campo (inline)
     if (options.fieldName) {
       setFieldAlerts(prev => ({
         ...prev,
         [options.fieldName]: { message, type }
       }));
 
-      // remove o alerta inline após 4 segundos
-      setTimeout(() => {
-        setFieldAlerts(prev => {
-          const copy = { ...prev };
-          delete copy[options.fieldName];
-          return copy;
-        });
-      }, options.duration || 4000); // 4000ms por padrão
-
+      // Removido o timeout automático — agora só sai com clearFieldAlert()
       return;
     }
 
@@ -46,8 +38,10 @@ export function AlertProvider({ children }) {
     }
   };
 
-  const removeAlert = id => setAlerts(prev => prev.filter(alert => alert.id !== id));
+  const removeAlert = id =>
+    setAlerts(prev => prev.filter(alert => alert.id !== id));
 
+  // limpa o alerta de um campo específico — chame isso quando o usuário corrigir o campo
   const clearFieldAlert = fieldName => {
     setFieldAlerts(prev => {
       const copy = { ...prev };
@@ -61,15 +55,20 @@ export function AlertProvider({ children }) {
     setFieldAlerts({});
   };
 
+  globalAlertManager = { addAlert, removeAlert, clearAlerts, clearFieldAlert };
+
+
   return (
-    <AlertContext.Provider value={{
-      alerts,
-      fieldAlerts,
-      addAlert,
-      removeAlert,
-      clearAlerts,
-      clearFieldAlert
-    }}>
+    <AlertContext.Provider
+      value={{
+        alerts,
+        fieldAlerts,
+        addAlert,
+        removeAlert,
+        clearAlerts,
+        clearFieldAlert
+      }}
+    >
       {children}
     </AlertContext.Provider>
   );
@@ -82,7 +81,7 @@ export function useAlert() {
 
 // ------------------- Componente FieldAlert -------------------
 export const FieldAlert = ({ fieldName }) => {
-  const { fieldAlerts, clearFieldAlert } = useAlert();
+  const { fieldAlerts } = useAlert();
   const alert = fieldAlerts[fieldName];
 
   if (!alert) return null;
@@ -93,3 +92,9 @@ export const FieldAlert = ({ fieldName }) => {
     </div>
   );
 };
+// ---------- Permite acessar o contexto sem Hooks (útil fora de componentes React) ----------
+let globalAlertManager = null;
+
+export function getAlertManager() {
+  return globalAlertManager;
+}
