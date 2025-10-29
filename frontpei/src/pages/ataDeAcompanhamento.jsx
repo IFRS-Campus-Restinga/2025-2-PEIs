@@ -172,7 +172,7 @@ function AtaDeAcompanhamento() {
       if (err.response?.data) {
         // Exibe mensagens inline específicas do backend
         Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: field });
+          addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
         });
 
         // Monta o texto completo para o toast
