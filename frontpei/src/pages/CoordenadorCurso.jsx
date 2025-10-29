@@ -160,8 +160,15 @@ function CoordenadoresCurso() {
                     name="nome"
                     type="text"
                     value={editForm.nome}
-                    onChange={(e) => setEditForm({ ...editForm, nome: e.target.value })}
+                    onChange={(e) => {
+                      setCoordenador({ ...coordenador, nome: e.target.value})
+                      if (e.target.value.trim() !== "") {
+                        clearFieldAlert("edit-nome");
+                      }
+                    }
+                  }
                   />
+                  <FieldAlert fieldName="edit-nome" />
                   <div className="btn-group">
                     <button type="submit">Salvar</button>
                     <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
