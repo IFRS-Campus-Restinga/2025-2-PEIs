@@ -6,7 +6,7 @@ html, body {
   box-sizing: border-box;
   overflow-x: hidden;
   font-family: 'Roboto', sans-serif;
-  background-image: url('./assets/Papel_de_parede1.jpg');
+  background-image: url('./assets/Papel_de_parede2.jpg');
 }
 *, *::before, *::after {
   box-sizing: inherit;
