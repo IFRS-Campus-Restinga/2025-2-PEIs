@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert, FieldAlert } from "../context/AlertContext";
 import "./professor.css"; // reutilizando o mesmo CSS
@@ -14,7 +13,6 @@ function Alunos() {
   const [form, setForm] = useState({ nome: "", matricula: "", email: "" });
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({ nome: "", matricula: "", email: "" });
-=======
 
 function Alunos() {
   const DBALUNOS = axios.create({baseURL: import.meta.env.VITE_ALUNO_URL});
@@ -26,13 +24,11 @@ function Alunos() {
   });
 
   const [alunosCadastrados, setAlunosCadastrados] = useState([]);
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 
   async function recuperaAlunos() {
     try {
       const response = await DBALUNOS.get("/");
       const data = response.data;
-<<<<<<< HEAD
       setAlunos(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
       console.error("Erro ao buscar alunos: ", err);
@@ -51,7 +47,6 @@ function Alunos() {
 
       // ALERTA GLOBAL
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
-=======
       setAlunosCadastrados(Array.isArray(data) ? data : data.results);
     } catch (err) {
       console.error("Erro ao buscar alunos: ", err);
@@ -64,7 +59,6 @@ function Alunos() {
 
     if (!nome.trim() || !matricula.trim() || !email.trim()) {
       alert("Preencha todos os campos corretamente.");
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
       return;
     }
 
