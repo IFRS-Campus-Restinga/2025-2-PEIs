@@ -20,7 +20,6 @@ class Curso(BaseModel):
     disciplinas = models.ManyToManyField("Disciplina", related_name="cursos", blank=True)
     coordenador = models.ForeignKey(CoordenadorCurso, on_delete=models.RESTRICT, related_name="coordenador")
     arquivo = models.FileField(
-        upload_to='cursos/',  # pasta dentro de MEDIA_ROOT
         validators=[
             FileExtensionValidator(allowed_extensions=['pdf', 'docx', 'png', 'jpg']),
             validate_file_size
