@@ -20,6 +20,8 @@ export default function Cursos() {
     } catch (err) { 
         setErro("Não foi possível carregar os cursos."); 
     } 
+
+    console.log("Teste")
   } 
   
   useEffect(() => {
