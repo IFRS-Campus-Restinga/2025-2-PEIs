@@ -1,5 +1,4 @@
 from rest_framework.viewsets import ModelViewSet
-<<<<<<< HEAD
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,17 +7,11 @@ from ..serializers.curso_serializer import CursoSerializer
 from pei.models import Curso
 from ..permissions import BackendTokenPermission
 from django.core.exceptions import ValidationError
-=======
-from ..serializers.curso_serializer import *
-from pei.models import *
-from ..permissions import BackendTokenPermission
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 
 class CursoViewSet(ModelViewSet):
     queryset = Curso.objects.all()
     serializer_class = CursoSerializer
     permission_classes = [BackendTokenPermission]
-<<<<<<< HEAD
 
     # Create padrão (DRF já trata o arquivo automaticamente)
     def create(self, request, *args, **kwargs):
@@ -65,5 +58,3 @@ class CursoViewSet(ModelViewSet):
         
         filename = curso.arquivo.name.split('/')[-1]
         return FileResponse(curso.arquivo, as_attachment=True, filename=filename)
-=======
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d

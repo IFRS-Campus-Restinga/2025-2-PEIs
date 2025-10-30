@@ -3,7 +3,6 @@ import { useAlert } from "../../context/AlertContext";
 import "./AlertComponent.css";
 
 const AlertComponent = () => {
-<<<<<<< HEAD
   const { alerts, removeAlert } = useAlert();
 
   if (alerts.length === 0) return null;
@@ -50,26 +49,6 @@ const AlertComponent = () => {
         </div>
       ))}
     </>
-=======
-  const { alerts, clearAlerts } = useAlert();
-
-  if (alerts.length === 0) return null;
-
-  return (
-    <div className="alert-overlay">
-      <div className="alert-box">
-        {alerts.map((alert) => (
-          <div key={alert.id} className={`alert ${alert.type}`}>
-            {alert.message}
-          </div>
-        ))}
-        {/* Botão único para fechar todos os alertas */}
-        <button className="close-all-btn" onClick={clearAlerts}>
-          Fechar
-        </button>
-      </div>
-    </div>
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   );
 };
 

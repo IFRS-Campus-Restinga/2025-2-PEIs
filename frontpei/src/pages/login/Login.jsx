@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React from 'react';
 import './Login.css';
 import { GoogleLogin } from '@react-oauth/google';
@@ -109,22 +108,3 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
 };
 
 export default LoginPage;
-=======
-import './Login.css'
-import { GoogleLogin } from '@react-oauth/google'
-import ErrorMessage from "../../components/errorMessage/errorMessage.jsx"
-
-const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
-  return (
-    <div className="login-page">
-      <img src='./src/assets/logo.png' alt="Logo" className="login-logo" />
-      <h2>Sistema PEI</h2>
-      <p>Você precisa fazer login para acessar o sistema.</p>
-      {mensagemErro && <ErrorMessage message={mensagemErro} align="center" />}
-      <GoogleLogin onSuccess={onLoginSuccess} onError={onLoginError} />
-    </div>
-  )
-}
-
-export default LoginPage
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d

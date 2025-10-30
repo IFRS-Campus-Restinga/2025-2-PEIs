@@ -1,19 +1,14 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-<<<<<<< HEAD
 from .views.PEIPeriodoLetivo_view_set import PEIPeriodoLetivoViewSet
-=======
-from .views.dados_view_set import DadosViewSet
-from .views.pei_periodo_letivo_view_set import PEIPeriodoLetivoViewSet
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 from .views.parecer_view_set import ParecerViewSet
 from .views.professor_view_set import ProfessorViewSet
 from .views.pei_central_view_set import PeiCentralViewSet
 from .views.aluno_view_set import AlunoViewSet
-from .views.coordenador_curso_view_set import CoordenadorCursoViewSet
-from .views.componente_curricular_view_set import ComponenteCurricularViewSet
-from .views.ata_de_acompanhamento_view_set import AtaDeAcompanhamentoViewSet
-from .views.documentacao_complementar_view_set import DocumentacaoComplementarViewSet
+from .views.coordenadorCurso_view_set import CoordenadorCursoViewSet
+from .views.componenteCurricular_view_set import ComponenteCurricularViewSet
+from .views.ataDeAcompanhamento_view_set import AtaDeAcompanhamentoViewSet
+from .views.documentacaoComplementar_view_set import DocumentacaoComplementarViewSet
 from .views.pedagogo_view_set import PedagogoViewSet
 from .views.disciplina_view_set import DisciplinaViewSet
 from .views.curso_view_set import CursoViewSet

@@ -3,7 +3,6 @@ import React, { createContext, useContext, useState } from "react";
 const AlertContext = createContext();
 
 export function AlertProvider({ children }) {
-<<<<<<< HEAD
   const [alerts, setAlerts] = useState([]);        // toasts globais
   const [fieldAlerts, setFieldAlerts] = useState({}); // mensagens inline por campo
 
@@ -70,30 +69,11 @@ export function AlertProvider({ children }) {
         clearFieldAlert
       }}
     >
-=======
-  const [alerts, setAlerts] = useState([]);
-
-  const addAlert = (message, type = "info") => {
-    const id = Date.now();
-    setAlerts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setAlerts((prev) => prev.filter((alert) => alert.id !== id));
-    }, 4000); // mantém o fechamento automático
-  };
-
-  const clearAlerts = () => {
-    setAlerts([]); // remove todos os alertas imediatamente
-  };
-
-  return (
-    <AlertContext.Provider value={{ alerts, addAlert, clearAlerts }}>
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
       {children}
     </AlertContext.Provider>
   );
 }
 
-<<<<<<< HEAD
 // Hook para usar alertas em qualquer componente
 export function useAlert() {
   return useContext(AlertContext);
@@ -118,9 +98,3 @@ let globalAlertManager = null;
 export function getAlertManager() {
   return globalAlertManager;
 }
-=======
-// Hook para consumir em qualquer componente
-export function useAlert() {
-  return useContext(AlertContext);
-}
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d

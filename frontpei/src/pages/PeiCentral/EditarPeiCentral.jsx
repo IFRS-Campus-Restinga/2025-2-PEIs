@@ -1,39 +1,25 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-<<<<<<< HEAD
 import { useAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
 import "../peiPeriodoLetivo/pei_periodo_letivo.css";
-=======
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 
 function EditarPeiCentral() {
   const { id } = useParams();
   const navigate = useNavigate();
-<<<<<<< HEAD
   const { addAlert } = useAlert();
 
   const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
 
   const [status_pei, setStatus] = useState("");
-=======
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
-
-  const [status, setStatus] = useState("");
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   const [historico_do_aluno, setHistorico] = useState("");
   const [necessidades_educacionais_especificas, setNecessidades] = useState("");
   const [habilidades, setHabilidades] = useState("");
   const [dificuldades_apresentadas, setDificuldadesApresentadas] = useState("");
   const [adaptacoes, setAdaptacoes] = useState("");
-<<<<<<< HEAD
   const [aluno, setAluno] = useState("");
   
-=======
-  
-
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   useEffect(() => {
     async function carregarPeiCentral() {
       try {
@@ -44,15 +30,10 @@ function EditarPeiCentral() {
         setHabilidades(resposta.data.habilidades);
         setDificuldadesApresentadas(resposta.data.dificuldades_apresentadas);
         setAdaptacoes(resposta.data.adaptacoes);
-<<<<<<< HEAD
         setAluno(resposta.data.aluno);
       } catch (err) {
         console.error("Erro ao carregar PEI Central:", err);
         addAlert("Erro ao carregar PEI Central. Tente novamente.", "error");
-=======
-      } catch (err) {
-        console.error("Erro ao carregar PEI Central:", err);
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
       }
     }
 
@@ -61,7 +42,6 @@ function EditarPeiCentral() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-<<<<<<< HEAD
     
     const campos = {
       aluno_id: aluno.id,
@@ -95,29 +75,10 @@ function EditarPeiCentral() {
       } else {
         addAlert("Erro ao atualizar PEI Central. Tente novamente.", "error");
       }
-=======
-
-    try {
-      await DB.put(`/${id}/`, {
-        status_pei: status,
-        historico_do_aluno: historico_do_aluno,
-        necessidades_educacionais_especificas: necessidades_educacionais_especificas,
-        habilidades: habilidades,
-        dificuldades_apresentadas: dificuldades_apresentadas,
-        adaptacoes: adaptacoes,
-      });
-
-      alert("PEI Central atualizado com sucesso!");
-      navigate("/peicentral");
-    } catch (err) {
-      console.error("Erro ao atualizar PEI Central:", err);
-      alert("Não foi possível atualizar o PEI Central.");
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
     }
   }
 
   return (
-<<<<<<< HEAD
     <div className="container">
       <h1 className="text-xl font-bold mb-4">Editar PEI Central do aluno {aluno.nome}</h1>
       
@@ -215,85 +176,6 @@ function EditarPeiCentral() {
             Deletar
           </button>
         </div>
-=======
-    <div>
-      <h1>Editar PEI Central</h1>
-      <form onSubmit={handleSubmit}>
-        <label>Status:</label>
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="">Selecione</option>
-          <option value="ABERTO">Aberto</option>
-          <option value="EM ANDAMENTO">Em Andamento</option>
-          <option value="FECHADO">Fechado</option>
-        </select>
-
-        <br /><br />
-
-        <label>Histórico do Aluno:</label>
-        <br />
-        <textarea
-          value={historico_do_aluno}
-          onChange={(e) => setHistorico(e.target.value)}
-          rows={6}
-          style={{ width: "100%" }}
-        />
-
-        <br /><br />
-
-        <label>Necessidades Educacionais Específicas:</label>
-        <br />
-        <textarea
-          value={necessidades_educacionais_especificas}
-          onChange={(e) => setNecessidades(e.target.value)}
-          rows={6}
-          style={{ width: "100%" }}
-        />
-
-        <br /><br />
-
-        <label>Habilidades:</label>
-        <br />
-        <textarea
-          value={habilidades}
-          onChange={(e) => setHabilidades(e.target.value)}
-          rows={6}
-          style={{ width: "100%" }}
-        />
-
-        <br /><br />
-
-         <label>Dificuldades Apresentadas:</label>
-        <br />
-        <textarea
-          value={dificuldades_apresentadas}
-          onChange={(e) => setDificuldadesApresentadas(e.target.value)}
-          rows={6}
-          style={{ width: "100%" }}
-        />
-
-        <br /><br />
-
-        <br /><br />
-
-         <label>Adaptações:</label>
-        <br />
-        <textarea
-          value={adaptacoes}
-          onChange={(e) => setAdaptacoes(e.target.value)}
-          rows={6}
-          style={{ width: "100%" }}
-        />
-
-        <br /><br />
-
-        <button type="submit">Salvar Alterações</button>
-        <button type="button" onClick={() => navigate("/peicentral")}>
-          Cancelar
-        </button>
-        <button>
-            <Link to={`/deletar_peicentral/${id}`}> Deletar </Link> 
-        </button>
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
       </form>
     </div>
   );

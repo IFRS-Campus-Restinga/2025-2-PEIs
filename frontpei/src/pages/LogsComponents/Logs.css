@@ -38,7 +38,6 @@
   width: 100%;
   border-collapse: collapse;
   margin: 0 auto;
-<<<<<<< HEAD
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   border-radius: 12px;
   overflow: hidden;
@@ -50,21 +49,10 @@
   background: linear-gradient(135deg, #055C0F 0%, #0a7d2c 100%);
   color: #fff;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-=======
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.logs-table thead {
-  background: linear-gradient(90deg, #055C0F 70%, #0a7d2c 100%);
-  color: #fff;
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 }
 
 .logs-table th,
 .logs-table td {
-<<<<<<< HEAD
   padding: 16px 20px;
   text-align: left;
   font-size: 15px;
@@ -80,20 +68,10 @@
 
 .logs-table tbody tr:nth-child(even) {
   background: #fafafa;
-=======
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 14px;
-}
-
-.logs-table tbody tr:nth-child(even) {
-  background: #f9f9f9;
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 }
 
 .logs-table tbody tr:hover {
   background: #e6f4ea;
-<<<<<<< HEAD
   transform: scale(1.01);
   transition: all 0.2s ease;
 }
@@ -399,6 +377,3 @@
     height: 14px;
   }
 }
-=======
-}
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d

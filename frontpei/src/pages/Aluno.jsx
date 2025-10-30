@@ -14,17 +14,6 @@ function Alunos() {
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({ nome: "", matricula: "", email: "" });
 
-function Alunos() {
-  const DBALUNOS = axios.create({baseURL: import.meta.env.VITE_ALUNO_URL});
-
-  const [aluno, setAluno] = useState({
-    nome: "",
-    matricula: "",
-    email: "",
-  });
-
-  const [alunosCadastrados, setAlunosCadastrados] = useState([]);
-
   async function recuperaAlunos() {
     try {
       const response = await DBALUNOS.get("/");
@@ -47,23 +36,10 @@ function Alunos() {
 
       // ALERTA GLOBAL
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
-      setAlunosCadastrados(Array.isArray(data) ? data : data.results);
-    } catch (err) {
-      console.error("Erro ao buscar alunos: ", err);
-    }
-  }
-
-  async function adicionaAluno(event) {
-    event.preventDefault();
-    const { nome, matricula, email } = aluno;
-
-    if (!nome.trim() || !matricula.trim() || !email.trim()) {
-      alert("Preencha todos os campos corretamente.");
       return;
     }
 
     try {
-<<<<<<< HEAD
       await DBALUNOS.post("/", form);
       setForm({ nome: "", matricula: "", email: "" });
       recuperaAlunos();
@@ -170,33 +146,11 @@ function Alunos() {
     });
   }
 
-=======
-      await DBALUNOS.post("/", { nome, matricula, email });
-      await recuperaAlunos();
-      setAluno({ nome: "", matricula: "", email: "" });
-    } catch (err) {
-      console.error("Erro ao cadastrar aluno:", err);
-      alert("Falha ao cadastrar aluno!");
-    }
-  }
-
-  async function excluirAluno(id) {
-    try {
-      await DBALUNOS.delete(`/${id}/`);
-      await recuperaAlunos();
-    } catch (err) {
-      console.error("Erro ao excluir aluno:", err);
-      alert("Falha ao excluir aluno!");
-    }
-  }
-
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   useEffect(() => {
     recuperaAlunos();
   }, []);
 
   return (
-<<<<<<< HEAD
     <div className="professores-container">
       <h1>Gerenciar Alunos</h1>
 
@@ -330,69 +284,14 @@ function Alunos() {
                   </div>
                 </>
               )}
-=======
-    <>
-      <h1>Gerenciar Alunos</h1>
-      <h2>Cadastrar aluno</h2>
-
-      <form onSubmit={adicionaAluno}>
-        <label>Nome:</label>
-        <br />
-        <input
-          type="text"
-          value={aluno.nome}
-          onChange={(e) => setAluno({ ...aluno, nome: e.target.value })}
-        />
-        <br />
-
-        <label>Matrícula:</label>
-        <br />
-        <input
-          type="text"
-          value={aluno.matricula}
-          onChange={(e) => setAluno({ ...aluno, matricula: e.target.value })}
-        />
-        <br />
-
-        <label>Email institucional:</label>
-        <br />
-        <input
-          type="email"
-          value={aluno.email}
-          onChange={(e) => setAluno({ ...aluno, email: e.target.value })}
-        />
-        <br />
-
-        <button type="submit">Adicionar aluno</button>
-      </form>
-
-      <div>
-        <h3>Alunos Cadastrados</h3>
-        <ul>
-          {alunosCadastrados.map((a) => (
-            <li key={a.id}>
-              {a.nome} - Matrícula: {a.matricula} - Email: {a.email} {}
-              <button onClick={() => excluirAluno(a.id)}>Excluir</button>
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
             </li>
           ))}
         </ul>
       </div>
 
-<<<<<<< HEAD
       <Link to="/" className="voltar-btn">Voltar</Link>
     </div>
   );
 }
 
 export default Alunos;
-=======
-      <button>
-        <Link to="/">Voltar</Link>
-      </button>
-    </>
-  );
-}
-
-export default Alunos;
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d

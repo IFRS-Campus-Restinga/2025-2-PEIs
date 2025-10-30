@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert, FieldAlert } from "../context/AlertContext";
 import "./professor.css"; // reutilizando o mesmo CSS
@@ -13,55 +12,31 @@ function CoordenadoresCurso() {
   const [coordenador, setCoordenador] = useState({ nome: "" });
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({ nome: "" });
-=======
-
-function CoordenadoresCurso() {
-  const DBCOORDENADORES = axios.create({ baseURL: import.meta.env.VITE_COORDENADORCURSO_URL });
-
-  const [coordenador, setCoordenador] = useState({
-    nome: "",
-  });
-
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   const [coordenadoresCadastrados, setCoordenadoresCadastrados] = useState([]);
 
   async function recuperaCoordenadores() {
     try {
       const response = await DBCOORDENADORES.get("/");
       const data = response.data;
-<<<<<<< HEAD
       setCoordenadoresCadastrados(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
       console.error("Erro ao buscar coordenadores: ", err);
       addAlert("Erro ao carregar lista de coordenadores!", "error");
-=======
-      setCoordenadoresCadastrados(Array.isArray(data) ? data : data.results);
-    } catch (err) {
-      console.error("Erro ao buscar coordenadores: ", err);
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
     }
   }
 
   async function adicionaCoordenador(event) {
     event.preventDefault();
-<<<<<<< HEAD
     const mensagens = validaCampos(coordenador, event.target);
     if (mensagens.length > 0) {
       // ALERTS INLINE
       mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
       // TOAST GERAL
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
-=======
-    const { nome } = coordenador;
-
-    if (!nome.trim()) {
-      alert("Preencha o nome corretamente.");
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
       return;
     }
 
     try {
-<<<<<<< HEAD
       await DBCOORDENADORES.post("/", coordenador);
       setCoordenador({ nome: "" });
       recuperaCoordenadores();
@@ -145,33 +120,11 @@ function CoordenadoresCurso() {
     });
   }
 
-=======
-      await DBCOORDENADORES.post("/", { nome });
-      await recuperaCoordenadores();
-      setCoordenador({ nome: "" });
-    } catch (err) {
-      console.error("Erro ao cadastrar coordenador:", err);
-      alert("Falha ao cadastrar coordenador!");
-    }
-  }
-
-  async function excluirCoordenador(id) {
-    try {
-      await DBCOORDENADORES.delete(`/${id}/`);
-      await recuperaCoordenadores();
-    } catch (err) {
-      console.error("Erro ao excluir coordenador:", err);
-      alert("Falha ao excluir coordenador!");
-    }
-  }
-
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   useEffect(() => {
     recuperaCoordenadores();
   }, []);
 
   return (
-<<<<<<< HEAD
     <div className="professores-container">
       <h1>Gerenciar Coordenadores de Curso</h1>
 
@@ -237,45 +190,13 @@ function CoordenadoresCurso() {
                   </div>
                 </>
               )}
-=======
-    <>
-      <h1>Gerenciar Coordenadores de Curso</h1>
-      <h2>Cadastrar coordenador</h2>
-
-      <form onSubmit={adicionaCoordenador}>
-        <label>Nome:</label>
-        <br />
-        <input
-          type="text"
-          value={coordenador.nome}
-          onChange={(e) => setCoordenador({ ...coordenador, nome: e.target.value })}
-        />
-        <br />
-
-        <button type="submit">Adicionar coordenador</button>
-      </form>
-
-      <div>
-        <h3>Coordenadores Cadastrados</h3>
-        <ul>
-          {coordenadoresCadastrados.map((c) => (
-            <li key={c.id}>{c.nome} {}
-            <button onClick={() => excluirCoordenador(c.id)}>Excluir</button>
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
             </li>
           ))}
         </ul>
       </div>
 
-<<<<<<< HEAD
       <Link to="/" className="voltar-btn">Voltar</Link>
     </div>
-=======
-      <button>
-        <Link to="/">Voltar</Link>
-      </button>
-    </>
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   );
 }
 

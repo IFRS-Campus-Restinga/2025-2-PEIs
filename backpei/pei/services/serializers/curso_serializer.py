@@ -1,11 +1,7 @@
 from rest_framework import serializers
 from pei.models import Curso, Disciplina, CoordenadorCurso
 from pei.services.serializers.disciplina_serializer import DisciplinaSerializer
-<<<<<<< HEAD
 from pei.services.serializers.coordenadorCurso_serializer import CoordenadorCursoSerializer
-=======
-from pei.services.serializers.coordenador_curso_serializer import CoordenadorCursoSerializer
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 
 class CursoSerializer(serializers.ModelSerializer):
     disciplinas = DisciplinaSerializer(many=True, read_only=True)
@@ -22,13 +18,8 @@ class CursoSerializer(serializers.ModelSerializer):
         source="coordenador",
         write_only=True
     )
-<<<<<<< HEAD
     arquivo_nome = serializers.SerializerMethodField()
     arquivo_upload = serializers.FileField(write_only=True, required=False)
-=======
-    arquivo = serializers.FileField(required=False, allow_null=True)
-
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 
     class Meta:
         model = Curso
@@ -36,7 +27,6 @@ class CursoSerializer(serializers.ModelSerializer):
             "id", "name", "nivel",
             "disciplinas", "disciplinas_ids",
             "coordenador", "coordenador_id",
-<<<<<<< HEAD
             "arquivo", "arquivo_upload",
             "arquivo_nome",
         ]
@@ -57,7 +47,3 @@ class CursoSerializer(serializers.ModelSerializer):
         if arquivo:
             instance.arquivo = arquivo
         return super().update(instance, validated_data)
-=======
-            "arquivo",
-        ]
->>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
