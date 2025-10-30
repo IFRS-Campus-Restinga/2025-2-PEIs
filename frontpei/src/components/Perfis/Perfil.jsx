@@ -3,6 +3,9 @@ import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import "./Perfil.css";
 
+// Configuração central de rotas e token
+import { API_ROUTES } from "../../configs/apiRoutes.js";
+
 // Views dos perfis
 import CoordenadorView from "./Coordenador.jsx";
 import PedagogoView from "./Pedagogo.jsx";
@@ -22,15 +25,17 @@ const Perfil = ({ usuario }) => {
 
   const itensPorPagina = 4;
 
-  const API_ALUNO = import.meta.env.VITE_ALUNO_URL;
-  const API_PEICENTRAL = import.meta.env.VITE_PEI_CENTRAL_URL;
-  const API_PEIPERIODO = import.meta.env.VITE_PEIPERIODOLETIVO_URL;
-  const API_CURSO = import.meta.env.VITE_CURSOS_URL;
+  // URLs centralizadas
+  const API_ALUNO = API_ROUTES.ALUNO;
+  const API_PEICENTRAL = API_ROUTES.PEI_CENTRAL;
+  const API_PEIPERIODO = API_ROUTES.PEIPERIODOLETIVO;
+  const API_CURSO = API_ROUTES.CURSOS;
 
   useEffect(() => {
     const carregarDados = async () => {
       setLoading(true);
       setErro(null);
+
       try {
         const [resAlunos, resPeiCentral, resPeriodos, resCursos] = await Promise.all([
           axios.get(API_ALUNO),
@@ -40,9 +45,15 @@ const Perfil = ({ usuario }) => {
         ]);
 
         const alunos = resAlunos.data?.results || [];
-        const peiCentrals = Array.isArray(resPeiCentral.data) ? resPeiCentral.data : resPeiCentral.data?.results || [];
-        const periodos = Array.isArray(resPeriodos.data) ? resPeriodos.data : resPeriodos.data?.results || [];
-        const cursos = Array.isArray(resCursos.data) ? resCursos.data : resCursos.data?.results || [];
+        const peiCentrals = Array.isArray(resPeiCentral.data)
+          ? resPeiCentral.data
+          : resPeiCentral.data?.results || [];
+        const periodos = Array.isArray(resPeriodos.data)
+          ? resPeriodos.data
+          : resPeriodos.data?.results || [];
+        const cursos = Array.isArray(resCursos.data)
+          ? resCursos.data
+          : resCursos.data?.results || [];
 
         // Filtrar PEIs ativos ou encerrados baseado no estado
         const peiCentralsFiltrados = mostrarEncerrados
@@ -55,7 +66,9 @@ const Perfil = ({ usuario }) => {
             if (!peiCentral) return null;
 
             const peiCentralStatus = peiCentral?.status_pei || "—";
-            const periodosDoAluno = peiCentral ? periodos.filter((p) => p.pei_central === peiCentral.id) : [];
+            const periodosDoAluno = peiCentral
+              ? periodos.filter((p) => p.pei_central === peiCentral.id)
+              : [];
 
             const componentesInfo = [];
             periodosDoAluno.forEach((periodo) => {
@@ -70,10 +83,14 @@ const Perfil = ({ usuario }) => {
                 componentesInfo.push({
                   componente: disciplina.nome,
                   coordenador: cursoRelacionado?.coordenador?.nome || "—",
-                  coordenadorFoto: cursoRelacionado?.coordenador?.foto || "https://randomuser.me/api/portraits/lego/1.jpg",
-                  curso: cursoRelacionado?.name || "Curso Desconhecido", // Adiciona o curso
-                  disciplina: cursoRelacionado?.disciplinas?.find((d) => d.id === disciplina.id)?.nome || "Disciplina Desconhecida",
-                  semestre: periodo.periodo_principal || "2025/2", // Adiciona o semestre
+                  coordenadorFoto:
+                    cursoRelacionado?.coordenador?.foto ||
+                    "https://randomuser.me/api/portraits/lego/1.jpg",
+                  curso: cursoRelacionado?.name || "Curso Desconhecido",
+                  disciplina:
+                    cursoRelacionado?.disciplinas?.find((d) => d.id === disciplina.id)?.nome ||
+                    "Disciplina Desconhecida",
+                  semestre: periodo.periodo_principal || "2025/2",
                 });
               });
             });
@@ -120,9 +137,9 @@ const Perfil = ({ usuario }) => {
           aluno: {
             nome: aluno.nome,
             email: aluno.email,
-            semestre: componentesInfo[0]?.semestre || "2025/2", 
-            curso: componentesInfo[0]?.curso || "Curso Desconhecido", 
-            disciplina: componentesInfo[0]?.disciplina || "Disciplina Desconhecida", 
+            semestre: componentesInfo[0]?.semestre || "2025/2",
+            curso: componentesInfo[0]?.curso || "Curso Desconhecido",
+            disciplina: componentesInfo[0]?.disciplina || "Disciplina Desconhecida",
             foto: aluno.foto || "https://randomuser.me/api/portraits/men/11.jpg",
           },
           coordenador,
@@ -173,10 +190,9 @@ const Perfil = ({ usuario }) => {
 
   const conteudo = conteudosPorPerfil[perfil] || <p>Perfil não encontrado</p>;
 
-  // Função para alternar entre PEIs ativos e encerrados
   const toggleMostrarEncerrados = () => {
     setMostrarEncerrados(!mostrarEncerrados);
-    setPagina(1); // Resetar para a primeira página
+    setPagina(1);
   };
 
   return (
@@ -190,22 +206,6 @@ const Perfil = ({ usuario }) => {
           <>
             {perfil !== "professor" && perfil !== "administrador" ? (
               <>
-                {/*<h2 className="professor-title">
-                  Bem-vindo, {perfilTituloMap[perfil] || "Usuário"} {usuario?.nome?.split(" ")[0]}!
-                </h2>
-
-                <div className="professor-profile">
-                  <img
-                    src={usuario?.foto || "https://randomuser.me/api/portraits/lego/1.jpg"}
-                    alt="Foto do Usuário"
-                    className="professor-foto"
-                  />
-                  <div className="professor-info">
-                    <h3>{usuario?.nome || "Usuário"}</h3>
-                    <p>{usuario?.email || ""}</p>
-                  </div>
-                </div>*/}
-
                 {/* Botão para alternar PEIs encerrados */}
                 <div className="filtro-peis">
                   <button
@@ -264,7 +264,7 @@ const Perfil = ({ usuario }) => {
         )}
       </main>
 
-      <Link to="/" className="voltar-btn" onClick={() => setPerfilSelecionado(null)}>
+      <Link to="/" className="voltar-btn">
         Voltar
       </Link>
     </div>
