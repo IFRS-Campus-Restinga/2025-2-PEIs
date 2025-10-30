@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./componenteCurricular.css"; // usando CSS de Componentes Curriculares
+<<<<<<< HEAD
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert, FieldAlert } from "../context/AlertContext";
 
@@ -9,17 +10,26 @@ function AtaDeAcompanhamento() {
   const { addAlert, clearFieldAlert } = useAlert();
   const DBATA = axios.create({ baseURL: import.meta.env.VITE_ATA_ACOMPANHAMENTO });
   const PERIODO_LETIVO_API = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
+=======
+
+function AtaDeAcompanhamento() {
+  const DBATA = axios.create({ baseURL: import.meta.env.VITE_ATA_ACOMPANHAMENTO });
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 
   const [form, setForm] = useState({
     dataReuniao: "",
     participantes: "",
     descricao: "",
     ator: "",
+<<<<<<< HEAD
     periodoLetivo: "",
+=======
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   });
 
   const [atasCadastradas, setAtasCadastradas] = useState([]);
   const [editId, setEditId] = useState(null);
+<<<<<<< HEAD
   const [editForm, setEditForm] = useState({ dataReuniao: "", participantes: "", descricao: "", ator: "", periodoLetivo: "" });
   const [periodosLetivos, setPeriodosLetivos] = useState([]);
 
@@ -27,11 +37,15 @@ function AtaDeAcompanhamento() {
     recuperaAtas();
     recuperaPeriodosLetivos();
   }, []);
+=======
+  const [editForm, setEditForm] = useState({ dataReuniao: "", participantes: "", descricao: "", ator: "" });
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 
   async function recuperaAtas() {
     try {
       const res = await DBATA.get("/");
       setAtasCadastradas(Array.isArray(res.data) ? res.data : res.data.results || []);
+<<<<<<< HEAD
     } catch (err) { 
       console.error(err);
       addAlert("Erro ao carregar atas de acompanhamento!", "error") }
@@ -61,6 +75,15 @@ function AtaDeAcompanhamento() {
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
+=======
+    } catch (err) { console.error(err); }
+  }
+
+  async function adicionaAta(e) {
+    e.preventDefault();
+    if (!form.dataReuniao || !form.participantes || !form.descricao || !form.ator)
+      return alert("Preencha todos os campos!");
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 
     try {
       await DBATA.post("/", {
@@ -68,6 +91,7 @@ function AtaDeAcompanhamento() {
         participantes: form.participantes,
         descricao: form.descricao,
         ator: form.ator,
+<<<<<<< HEAD
         peiperiodoletivo: form.periodoLetivo
       });
       setForm({ dataReuniao: "", participantes: "", descricao: "", ator: "", periodoLetivo: "" });
@@ -153,6 +177,23 @@ function AtaDeAcompanhamento() {
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
+=======
+      });
+      setForm({ dataReuniao: "", participantes: "", descricao: "", ator: "" });
+      recuperaAtas();
+    } catch (err) { console.error(err); alert("Erro ao cadastrar!"); }
+  }
+
+  async function deletaAta(id) {
+    if (!window.confirm("Deseja deletar esta ata?")) return;
+    try { await DBATA.delete(`/${id}/`); recuperaAtas(); }
+    catch (err) { console.error(err); alert("Erro ao deletar!"); }
+  }
+
+  async function atualizaAta(id) {
+    if (!editForm.dataReuniao || !editForm.participantes || !editForm.descricao || !editForm.ator)
+      return alert("Preencha todos os campos!");
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 
     try {
       await DBATA.put(`/${id}/`, {
@@ -160,6 +201,7 @@ function AtaDeAcompanhamento() {
         participantes: editForm.participantes,
         descricao: editForm.descricao,
         ator: editForm.ator,
+<<<<<<< HEAD
         peiperiodoletivo: editForm.periodoLetivo
       });
       setEditId(null);
@@ -185,6 +227,13 @@ function AtaDeAcompanhamento() {
         addAlert("Erro ao atualizar (erro desconhecido).", "error");
       }
     }
+=======
+      });
+      setEditId(null);
+      setEditForm({ dataReuniao: "", participantes: "", descricao: "", ator: "" });
+      recuperaAtas();
+    } catch (err) { console.error(err); alert("Erro ao atualizar!"); }
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   }
 
   useEffect(() => { recuperaAtas(); }, []);
@@ -195,6 +244,7 @@ function AtaDeAcompanhamento() {
       <h2>Cadastrar Ata</h2>
 
       <form className="componente-form" onSubmit={adicionaAta}>
+<<<<<<< HEAD
         <label>Período Letivo:</label>
           <select
             name="periodoLetivo"
@@ -259,6 +309,16 @@ function AtaDeAcompanhamento() {
             }
           }} />
         <FieldAlert fieldName="ator" />
+=======
+        <label>Data da Reunião:</label>
+        <input type="datetime-local" value={form.dataReuniao} onChange={(e) => setForm({ ...form, dataReuniao: e.target.value })} />
+        <label>Participantes:</label>
+        <input type="text" value={form.participantes} onChange={(e) => setForm({ ...form, participantes: e.target.value })} />
+        <label>Descrição:</label>
+        <input type="text" value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} />
+        <label>Ator:</label>
+        <input type="text" value={form.ator} onChange={(e) => setForm({ ...form, ator: e.target.value })} />
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
         <button type="submit">Adicionar Ata</button>
       </form>
 
@@ -266,6 +326,7 @@ function AtaDeAcompanhamento() {
         <h3>Atas Cadastradas</h3>
         <ul>
           {atasCadastradas.length === 0 && <li>Nenhuma ata cadastrada.</li>}
+<<<<<<< HEAD
           {atasCadastradas.map((a) => {
             const periodo = periodosLetivos.find(p => p.id === a.peiperiodoletivo);
 
@@ -383,6 +444,35 @@ function AtaDeAcompanhamento() {
               </li>
             );
           })}
+=======
+          {atasCadastradas.map((a) => (
+            <li key={a.id}>
+              {editId === a.id ? (
+                <>
+                  <input type="datetime-local" value={editForm.dataReuniao} onChange={(e) => setEditForm({ ...editForm, dataReuniao: e.target.value })} />
+                  <input type="text" value={editForm.participantes} onChange={(e) => setEditForm({ ...editForm, participantes: e.target.value })} placeholder="Participantes" />
+                  <input type="text" value={editForm.descricao} onChange={(e) => setEditForm({ ...editForm, descricao: e.target.value })} placeholder="Descrição" />
+                  <input type="text" value={editForm.ator} onChange={(e) => setEditForm({ ...editForm, ator: e.target.value })} placeholder="Ator" />
+                  <div className="btn-group">
+                    <button onClick={() => atualizaAta(a.id)}>Salvar</button>
+                    <button onClick={() => setEditId(null)}>Cancelar</button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <strong>Data:</strong> {a.dataReuniao ? new Date(a.dataReuniao).toLocaleString() : "-"} <br />
+                  <strong>Participantes:</strong> {a.participantes || "-"} <br />
+                  <strong>Descrição:</strong> {a.descricao || "-"} <br />
+                  <strong>Ator:</strong> {a.ator || "-"} <br />
+                  <div className="btn-group">
+                    <button onClick={() => { setEditId(a.id); setEditForm({ dataReuniao: a.dataReuniao ? new Date(a.dataReuniao).toISOString().slice(0,16) : "", participantes: a.participantes, descricao: a.descricao, ator: a.ator }); }}>Editar</button>
+                    <button onClick={() => deletaAta(a.id)}>Deletar</button>
+                  </div>
+                </>
+              )}
+            </li>
+          ))}
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
         </ul>
       </div>
 

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework', 'rest_framework.authtoken', "corsheaders",
+<<<<<<< HEAD
     'pei', 'logs',
 ]
 
@@ -56,6 +57,24 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "pei.services.middleware.AddBackendTokenHeaderMiddleware",
+=======
+    # apps criados
+    'pei', 'logs', 'pei.services',
+]
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # adicionado para funcionar do react no navegador
+    'corsheaders.middleware.CorsMiddleware',
+    # middleware customizado do app services para o token
+    'pei.services.middleware.AddBackendTokenHeaderMiddleware',
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 ]
 
 # configuracao para uso de token para autenticacao
@@ -73,10 +92,12 @@ REST_FRAMEWORK = {
 
 ROOT_URLCONF = 'backpei.urls'
 
+
 # configuracao dos hosts permitidos do cors
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
+CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -169,8 +190,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+<<<<<<< HEAD
 MEDIA_URL = '/exportProDrive/'
 MEDIA_ROOT = BASE_DIR / 'exportProDrive'
+=======
+# Arquivos de mídia (uploads de usuários, como PDFs, imagens, etc.)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

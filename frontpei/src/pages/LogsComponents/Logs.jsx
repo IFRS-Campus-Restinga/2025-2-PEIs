@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+<<<<<<< HEAD
 import eyeIcon from "../../assets/eye-show.svg";
+=======
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 import "./Logs.css";
 
 function Logs() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+<<<<<<< HEAD
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -152,10 +156,40 @@ function Logs() {
     <div>
       <Link to="/" className="voltar-btn">
         Voltar
+=======
+
+  useEffect(() => {
+    async function fetchLogs() {
+      try {
+        const LOGS_URL = import.meta.env.VITE_LOGS_URL || "http://localhost:8000/logs/logs/";
+        // Valor do token.txt via variável de ambiente
+        const backendToken = import.meta.env.VITE_BACKEND_TOKEN;
+        const response = await axios.get(LOGS_URL, {
+          headers: {
+            'X-BACKEND-TOKEN': backendToken
+          }
+        });
+
+        setLogs(response.data);
+      } catch (err) {
+        setError("Erro ao buscar logs");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchLogs();
+  }, []);
+
+  const VoltarBtn = () => (
+    <div>
+      <Link to="/" className="voltar-btn">
+        Voltar para a Home
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
       </Link>
     </div>
   );
 
+<<<<<<< HEAD
   const PaginationControls = () => {
     if (totalPages <= 1) return null; //se só tiver uma pagina, nao mostra os botoes de pagina
 
@@ -217,11 +251,14 @@ function Logs() {
     );
   };
 
+=======
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   if (loading) return <div>Carregando logs... </div>;
   if (error) return <div><VoltarBtn />{error}</div>;
 
   return (
     <div className="logs-container">
+<<<<<<< HEAD
       <h2 className="logs-title">Relatório de Logs</h2>
       
       <div className="logs-info">
@@ -256,10 +293,20 @@ function Logs() {
             >
               ID {getSortIcon('objeto_id')}
             </th>
+=======
+      <Link to="/" className="voltar-btn">Voltar para a Home</Link>
+      <h2 className="logs-title">Relatório de Logs</h2>
+      <table className="logs-table">
+        <thead>
+          <tr>
+            <th>Data/Hora</th>
+            <th>Ação</th>
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
             <th>Detalhes</th>
           </tr>
         </thead>
         <tbody>
+<<<<<<< HEAD
           {logs.map(log => {
             const isNew = isNewStructure(log); //funcao pra detectar estrutura do log (nova ou antiga)
             return ( //retorna a tabela com os logs
@@ -349,8 +396,23 @@ function Logs() {
         </div>
       )}
       <Link to="/" className="voltar-btn">Voltar</Link>
+=======
+          {logs.map(log => (
+            <tr key={log.id}>
+              <td>{new Date(log.timestamp).toLocaleString()}</td>
+              <td>{log.acao}</td>
+              <td>{log.detalhes}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
     </div>
   );
 }
 
+<<<<<<< HEAD
 export default Logs;
+=======
+export default Logs;
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d

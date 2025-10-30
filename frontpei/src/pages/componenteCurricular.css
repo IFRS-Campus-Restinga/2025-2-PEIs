@@ -143,6 +143,7 @@
     width: 100%;
   }
 }
+<<<<<<< HEAD
 .componente-edit-form {
   display: flex;
   flex-direction: column;
@@ -185,3 +186,5 @@
 .componente-form label {
   font-weight: bold;
 }
+=======
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { getAlertManager } from "../context/AlertContext";
 
 // 🔹 Mantém um gerenciador global para exibir alertas inline sem hooks
@@ -13,10 +14,21 @@ const alertManager = getAlertManager();
  * @returns {Array<{ fieldName: string, message: string }>}
  */
 export function validaCampos(form, formElement, backendErrors = null) {
+=======
+
+/**
+ * Valida campos de um formulário com base nos atributos `name`
+ * @param {Object} form - objeto do estado (ex: { objetivos: "", metodologia: "" })
+ * @param {HTMLFormElement} formElement - referência ao elemento <form>
+ * @returns {string[]} - lista de mensagens de erro
+ */
+export function validaCampos(form, formElement) {
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   const mensagens = [];
 
   if (!formElement) return mensagens;
 
+<<<<<<< HEAD
   const inputs = formElement.querySelectorAll("[name]");
 
   // 1️⃣ Verifica campos obrigatórios
@@ -49,5 +61,18 @@ export function validaCampos(form, formElement, backendErrors = null) {
     });
   }
 
+=======
+  // Pega todos os elementos que tenham atributo "name"
+  const inputs = formElement.querySelectorAll("[name]");
+
+  inputs.forEach((input) => {
+    const nome = input.getAttribute("name");
+    const label = input.previousElementSibling?.innerText || nome; // pega o texto do <label> antes do campo
+    if (!form[nome] || form[nome].toString().trim() === "") {
+      mensagens.push(`Preencha o campo: ${label}`);
+    }
+  });
+
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   return mensagens;
 }

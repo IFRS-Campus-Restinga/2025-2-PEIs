@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .login-container {
   display: flex;
   min-height: 100vh;
@@ -320,3 +321,34 @@
     font-size: 24px;
   }
 }
+=======
+.login-page {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 300px;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  border-radius: 12px;
+  background-color: #fff;
+}
+
+.login-logo {
+  height: 150px;
+  width: auto;
+  margin-bottom: 1rem;
+}
+
+.login-page h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.login-page p {
+  margin-bottom: 1rem;
+  color: #555;
+  font-size: 1rem;
+}
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d

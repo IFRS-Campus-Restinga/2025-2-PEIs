@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*  Container dos alertas (fixo no canto inferior direito) */
 .alert-container {
   position: fixed;
@@ -126,11 +127,16 @@
 
 /* Overlay escura para confirmação */
 .alert-confirm-overlay {
+=======
+/* Fundo semi-transparente cobrindo a tela */
+.alert-overlay {
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+<<<<<<< HEAD
   background: rgba(0,0,0,0.5);
   display: flex;
   align-items: center;
@@ -203,4 +209,76 @@
   background: transparent;
   border: none;
   cursor: pointer;
+=======
+  background: rgba(0, 0, 0, 0.4); /* escurece fundo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* sempre acima */
+}
+
+/* Caixa central do popup */
+.alert-box {
+  position: relative; /* ESSENCIAL */
+  background: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+
+/* Estilo das mensagens */
+.alert {
+  margin: 10px 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.alert.info {
+  color: #004085;
+}
+
+.alert.success {
+  color: #155724;
+}
+
+.alert.error {
+  color: #721c24;
+}
+
+.alert.warning {
+  color: #856404;
+}
+
+/* Animação suave */
+@keyframes fadeIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.close-all-btn {
+  padding: 8px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background-color: #ccc;
+  color: #333;
+  align-self: center; /* centraliza horizontalmente */
+  transition: background-color 0.2s ease;
+}
+
+.close-all-btn:hover {
+  background-color: #aaa;
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 }

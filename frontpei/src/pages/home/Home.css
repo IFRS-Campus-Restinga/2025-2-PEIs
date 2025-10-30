@@ -31,7 +31,11 @@
 }
 
 .perfil-btn {
+<<<<<<< HEAD
   background: #a5a5a5;
+=======
+  background: #e0e0e0;
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
   border: none;
   padding: 10px 18px;
   border-radius: 6px;
@@ -55,4 +59,7 @@
   font-size: 16px;
   color: #333;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d

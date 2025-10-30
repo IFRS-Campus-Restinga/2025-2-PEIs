@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+<<<<<<< HEAD
 import { useNavigate } from "react-router-dom";
 import "../peiPeriodoLetivo/pei_periodo_letivo.css";
 import "../peiPeriodoLetivo/listar_pei_periodo_letivo.css";
+=======
+import { Link } from "react-router-dom";
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 
 function PeiCentral() {
   const [pei_central, setPeiCentral] = useState([]);
   const [erro, setErro] = useState(false);
+<<<<<<< HEAD
   const navigate = useNavigate();
+=======
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
 
   const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
 
@@ -36,6 +43,7 @@ function PeiCentral() {
   }, []);
 
   return (
+<<<<<<< HEAD
     <div className="container">
       <h1 textAlign='center'>
         PEI CENTRAL  
@@ -115,6 +123,69 @@ function PeiCentral() {
           Voltar
         </button>
       </div>
+=======
+    <div>
+      <h1>PEI CENTRAL</h1>
+
+      {/* Botão sempre visível */}
+      <button>
+        <Link to="/create_peicentral">Criar novo PEI</Link>
+      </button><br />
+      <br></br>
+      {erro ? (
+        <p style={{ color: "red" }}>Não foi possível carregar os períodos.</p>
+      ) : (
+        pei_central.map((pei) => (
+          <div
+            key={pei.id}
+            style={{
+              marginBottom: "20px",
+              padding: "10px",
+              border: "1px solid #ccc",
+            }}
+          >
+            
+            <Link to={'/editar_peicentral/'+ pei.id}>Editar</Link>
+            <br /><br />
+            
+            <b>Aluno(PENDENTE):</b> Fulano da Silva <br />
+            <b>Status:</b> {pei.status_pei}<br />
+            <br></br>   
+            <b>Histórico do Aluno:</b> {pei.historico_do_aluno} <br />
+            <br></br>
+            <b>Necessidades:</b> {pei.necessidades_educacionais_especificas} <br />
+            <br></br>
+            <b>Habilidades:</b> {pei.habilidades} <br />
+            <br></br>
+            <b>Dificuldades Apresentadas</b> {pei.dificuldades_apresentadas} <br />
+            <br></br>
+            <b>Adaptações:</b> {pei.adaptacoes}<br />
+            <br />
+            
+            {pei.periodos && pei.periodos.length > 0 ? (
+              <div>
+                <b>Períodos:</b>
+                <ul>
+                  {pei.periodos.map((periodo) => (
+                    <li key={periodo.id}>
+                      <b>Data de Criação:</b> {periodo.periodo} <br />
+                      <b>Período Letivo:</b> {periodo.data_criacao} {/* exemplo */}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p><i>Nenhum período vinculado</i></p>
+            )}
+
+          </div>
+        ))
+      )}
+
+      <button>
+        <Link to="/">Voltar</Link>
+      </button>
+>>>>>>> 43901ff731fb63267482abcdd449d17dc21ff40d
     </div>
   );
 }
