@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useAlert, FieldAlert } from "../context/AlertContext"; 
+import BotaoVoltar from "../components/customButtons/botaoVoltar";
 
 function Pareceres() {
   const { addAlert } = useAlert();
@@ -175,7 +176,7 @@ function Pareceres() {
       </form>
 
       <br />
-      <Link to="/" className="voltar-btn">Voltar</Link>
+      <BotaoVoltar/>
     </div>
   );
 }

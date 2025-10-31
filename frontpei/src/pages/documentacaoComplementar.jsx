@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import "./componenteCurricular.css";
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert, FieldAlert } from "../context/AlertContext";
+import BotaoVoltar from "../components/customButtons/botaoVoltar";
 
 /**
  * Componente para gerenciar a documentação complementar
@@ -242,9 +243,7 @@ function DocumentacaoComplementar() {
         </ul>
       </div>
 
-      <Link to="/" className="voltar-btn">
-        Voltar
-      </Link>
+      <BotaoVoltar/>
     </div>
   );
 }

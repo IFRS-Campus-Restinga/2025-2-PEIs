@@ -5,6 +5,7 @@ import axios from "axios";
 import ErrorMessage from "../../components/errorMessage/ErrorMessage";
 import "../Disciplina.css";
 import { useAlert } from "../../context/AlertContext";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 
 export default function DisciplinasCRUD() {
   const [disciplina, setDisciplina] = useState("");
@@ -97,9 +98,7 @@ export default function DisciplinasCRUD() {
         </button>
       </form>
 
-      <Link to="/disciplina" className="voltar-btn">
-        Voltar
-      </Link>
+      <BotaoVoltar/>
     </div>
   );
 }

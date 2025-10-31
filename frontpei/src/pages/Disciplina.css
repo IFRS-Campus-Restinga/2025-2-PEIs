@@ -102,30 +102,7 @@
   justify-content: flex-end;
 }
 
-/* Botão Voltar */
-.voltar-btn {
-  display: block;
-  margin: 24px auto 0;
-  padding: 10px 22px;
-  background: #ccc;
-  color: #333;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background 0.2s, transform 0.1s;
-}
 
-.voltar-btn:hover {
-  background: #999;
-  color: #fff;
-}
-
-.voltar-btn:active {
-  transform: scale(0.97);
-}
 
 /* Responsividade */
 @media (max-width: 600px) {

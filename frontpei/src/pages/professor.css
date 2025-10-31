@@ -104,24 +104,6 @@
   color: #fff;
 }
 
-/* Botão voltar */
-.professores-container .voltar-btn {
-  margin-top: 24px;
-  padding: 8px 20px;
-  background: #055C0F;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  transition: background 0.2s, color 0.2s;
-}
-
-.professores-container .voltar-btn:hover {
-  background: #1976d2;
-  color: #fff;
-}
 
 /* Responsivo */
 @media (max-width: 600px) {

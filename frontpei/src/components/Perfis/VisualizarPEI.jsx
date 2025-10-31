@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./VisualizarPEI.css";
+import BotaoVoltar from "../customButtons/botaoVoltar.jsx";
 
 const VisualizarPEI = () => {
   const { state } = useLocation();
@@ -230,9 +231,7 @@ const VisualizarPEI = () => {
           </div>
         </div>
       </div>
-      <Link to="" className="voltar-btn" onClick={() => navigate(-1)}>
-        Voltar
-      </Link>
+      <BotaoVoltar/>
 
       {/* Popup de confirmação */}
       {showConfirmPopup && (

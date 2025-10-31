@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "./periodoLetivoPerfil.css";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 
 const PeriodoLetivoPerfil = () => {
   const location = useLocation();
@@ -185,9 +186,7 @@ const PeriodoLetivoPerfil = () => {
               </>
             )}
 
-            <button className="btn-verde" onClick={() => navigate(-1)}>
-              Voltar
-            </button>
+            <BotaoVoltar/>
           </div>
         </div>
 

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import "./componenteCurricular.css"; // usando CSS de Componentes Curriculares
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert, FieldAlert } from "../context/AlertContext";
+import BotaoVoltar from "../components/customButtons/botaoVoltar";
 
 function AtaDeAcompanhamento() {
   const { addAlert, clearFieldAlert } = useAlert();
@@ -386,7 +387,8 @@ function AtaDeAcompanhamento() {
         </ul>
       </div>
 
-      <Link to="/" className="voltar-btn">Voltar</Link>
+      <BotaoVoltar/>
+
     </div>
   );
 }

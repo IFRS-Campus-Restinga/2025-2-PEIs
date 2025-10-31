@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./deletar.css"; // vamos criar estilos separados
+import "../../cssGlobal.css";
 
 export default function BotaoDeletar({ id, axiosInstance, onDeletarSucesso }) {
   const [modalAberto, setModalAberto] = useState(false);

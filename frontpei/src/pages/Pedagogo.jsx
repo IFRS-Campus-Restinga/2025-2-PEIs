@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import "./disciplina.css";
 import { useAlert, FieldAlert } from "../context/AlertContext"; 
 import { validaCampos } from "../utils/validaCampos";
+import BotaoVoltar from "../components/customButtons/botaoVoltar";
 
 function Pedagogos() {
   const DBPEDAGOGO = axios.create({baseURL: import.meta.env.VITE_PEDAGOGO_URL});
@@ -159,7 +160,7 @@ function Pedagogos() {
       </div>
 
 
-      <Link to="/" className="voltar-btn">Voltar</Link>
+      <BotaoVoltar/>
     </div>
   );
 }

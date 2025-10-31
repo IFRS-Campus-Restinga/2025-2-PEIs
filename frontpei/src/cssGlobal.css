@@ -1,0 +1,73 @@
+/* Botões Voltar, Editar e Deletar */
+
+.voltar-btn {
+  background: #055c0f;
+  color: #ffffff;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+  text-decoration: none;
+  margin-bottom: 16px;
+  display: inline-block;
+  justify-content: center;
+  margin: 24px auto 0;
+  padding: 1px 22px;
+}
+
+.voltar-btn:hover {
+  background: #ffffff;
+  transition: 3.s all ease;
+  transform: scale(1.02);
+  color: #055c0f;
+  border: 1px solid #055c0f;
+}
+
+
+.botao-editar {
+  background-color: #055C0F;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  text-decoration: none;
+  width: 60px;
+}
+
+.botao-editar:hover {
+  background: #ffffff;
+  transition: 3.s all ease;
+  transform: scale(1.02);
+  color: #055c0f;
+  border: 1px solid #055c0f;
+}
+
+.botao-deletar {
+  background-color: #f50909;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  text-decoration: none;
+  width: 60px;
+}
+
+.botao-deletar:hover {
+  background: #ffffff;
+  transition: 3.s all ease;
+  transform: scale(1.02);
+  color: #f50909;
+  border: 1px solid #f50909;
+}
+

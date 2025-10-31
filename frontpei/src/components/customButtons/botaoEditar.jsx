@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import "./editar.css"
+import "../../cssGlobal.css";
 
 export default function BotaoEditar({ id, rotaEdicao }) {
   const navigate = useNavigate();

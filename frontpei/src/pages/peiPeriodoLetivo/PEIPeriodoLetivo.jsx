@@ -3,6 +3,7 @@ import axios from "axios";
 import "./pei_periodo_letivo.css";
 import { useAlert } from "../../context/AlertContext";
 import { Link } from "react-router-dom";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 
 function PEIPeriodoLetivo() {
   const { addAlert } = useAlert();
@@ -159,7 +160,7 @@ function PEIPeriodoLetivo() {
           {editingId ? "Atualizar" : "Adicionar"}
         </button>
       </form>
-      <Link to="/" className="voltar-btn">Voltar</Link>
+      <BotaoVoltar/>
     </div>
   );
 }

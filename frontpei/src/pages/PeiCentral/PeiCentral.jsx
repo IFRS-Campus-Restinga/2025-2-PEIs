@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../peiPeriodoLetivo/pei_periodo_letivo.css";
 import "../peiPeriodoLetivo/listar_pei_periodo_letivo.css";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar"; 
 
 function PeiCentral() {
   const [pei_central, setPeiCentral] = useState([]);
@@ -111,9 +112,7 @@ function PeiCentral() {
           ))
         )}
 
-        <button type="button" onClick={()=>navigate("/")}>
-          Voltar
-        </button>
+        <BotaoVoltar/>
       </div>
     </div>
   );

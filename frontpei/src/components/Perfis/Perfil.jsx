@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import "./Perfil.css";
+import BotaoVoltar from "../customButtons/botaoVoltar.jsx";
 
 // Views dos perfis
 import CoordenadorView from "./Coordenador.jsx";
@@ -264,9 +265,7 @@ const Perfil = ({ usuario }) => {
         )}
       </main>
 
-      <Link to="/" className="voltar-btn" onClick={() => setPerfilSelecionado(null)}>
-        Voltar
-      </Link>
+      <BotaoVoltar/>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import eyeIcon from "../../assets/eye-show.svg";
 import "./Logs.css";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 
 function Logs() {
   const [logs, setLogs] = useState([]);
@@ -348,7 +349,7 @@ function Logs() {
           </div>
         </div>
       )}
-      <Link to="/" className="voltar-btn">Voltar</Link>
+      <BotaoVoltar/>
     </div>
   );
 }

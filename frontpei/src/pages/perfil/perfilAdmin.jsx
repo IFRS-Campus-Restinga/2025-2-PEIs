@@ -29,6 +29,7 @@ const PerfilAdmin = ({ usuario, onVoltar }) => {
 
       </div>
       
+      
     </div>
   );
 };

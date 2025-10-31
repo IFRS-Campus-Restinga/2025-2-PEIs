@@ -4,6 +4,7 @@ import axios from "axios";
 import ErrorMessage from "../../components/errorMessage/ErrorMessage"; 
 import "../Curso.css"; 
 import { useAlert } from "../../context/AlertContext";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar"; 
 
 export default function CursosCRUD() { 
   const { id } = useParams(); // se existir, é edição 
@@ -155,7 +156,7 @@ export default function CursosCRUD() {
           </form>
         <div className="cursos-form">
         <div className="form-buttons">
-          <Link to="/curso" className="voltar-btn"> Voltar </Link>
+          <BotaoVoltar/>
         </div>
       </div>
     </div>

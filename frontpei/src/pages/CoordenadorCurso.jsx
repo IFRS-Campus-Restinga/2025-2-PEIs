@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert, FieldAlert } from "../context/AlertContext";
 import "./professor.css"; // reutilizando o mesmo CSS
+import BotaoVoltar from "../components/customButtons/botaoVoltar";
 
 function CoordenadoresCurso() {
   const { addAlert } = useAlert();
@@ -166,7 +167,7 @@ function CoordenadoresCurso() {
         </ul>
       </div>
 
-      <Link to="/" className="voltar-btn">Voltar</Link>
+      <BotaoVoltar/>
     </div>
   );
 }

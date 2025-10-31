@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { validaCampos } from "../../utils/validaCampos";
 import { useAlert } from "../../context/AlertContext";
 import "../peiPeriodoLetivo/pei_periodo_letivo.css";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 
 function CreatePeiCentral() {
   const [historico_do_aluno, setHistorico] = useState("");
@@ -191,6 +192,7 @@ function CreatePeiCentral() {
           </select>
         </div>
 
+          
         {/* Botão salvar */}
         <button
           type="submit"
@@ -200,13 +202,7 @@ function CreatePeiCentral() {
         </button>
       </form>
 
-      <div className="mt-4">
-        <button>
-          <Link to="/peicentral" className="text-blue-600 hover:underline">
-            Voltar
-          </Link>
-        </button>
-      </div>
+      <BotaoVoltar/>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./disciplina.css";
+import BotaoVoltar from "../components/customButtons/botaoVoltar";
 
 
 function Usuarios() {
@@ -100,7 +101,7 @@ function Usuarios() {
         <pre>{JSON.stringify(usuarios, null, 2)}</pre> ) } 
 
       </div>
-      <Link to="/" className="voltar-btn">Voltar</Link>
+      <BotaoVoltar/>
     </div>
 
   </> ) }
