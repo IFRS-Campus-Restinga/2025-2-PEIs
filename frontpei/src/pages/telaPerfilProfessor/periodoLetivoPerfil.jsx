@@ -86,22 +86,6 @@ const PeriodoLetivoPerfil = () => {
 
   return (
     <div className="pei-detalhe-container">
-      <div className="cargo-dropdown-container">
-        <label htmlFor="cargo" className="cargo-label">Selecione o cargo:</label>
-        <select
-          id="cargo"
-          className="cargo-dropdown"
-          value={cargoSelecionado}
-          onChange={(e) => setCargoSelecionado(e.target.value)}
-        >
-          <option value="">— Escolher —</option>
-          <option value="Professor">Professor</option>
-          <option value="NAPNE">NAPNE</option>
-          <option value="Coordenador de Curso">Coordenador de Curso</option>
-          <option value="Pedagogo">Pedagogo</option>
-        </select>
-      </div>
-
       <div className="pei-header">
         <div className="aluno-info">
           <img
