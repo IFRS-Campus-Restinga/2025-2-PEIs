@@ -3,6 +3,14 @@ python/
 node/
 git/
 frontpei/node_modules/
+backpei/pei/migrations/0001_initial.py
+backpei/logs/migrations/0001_initial.py
+
+# precisamos testar isso aqui melhor
+#backpei/**/migrations/*.py
+#!backpei/**/migrations/__init__.py
+
+.idea
 # outros comuns
 *.log
 *.sqlite3

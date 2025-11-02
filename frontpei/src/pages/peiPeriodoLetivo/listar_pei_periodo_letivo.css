@@ -1,0 +1,113 @@
+.container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  color: #222;
+  margin-bottom: 20px;
+}
+
+.periodo-card {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.periodo-card b {
+  color: #333;
+}
+
+.periodo-card i {
+  color: #444;
+}
+
+.componente-container {
+  margin-top: -20px;
+  background-color: #f9f9f9;
+  box-shadow: none;
+}
+
+.componente-nome {
+  font-style: italic;
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.parecer-card {
+  background-color: #d9d9d9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin: 8px 0;
+  position: relative;
+  max-height: 90px;
+  overflow-y: auto;
+}
+
+.parecer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.parecer-header span {
+  color: #333;
+}
+
+.parecer-header small {
+  color: #666;
+}
+
+.parecer-texto {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.4;
+}
+
+button {
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color: #055C0F;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  margin-top: 5px;
+  margin-right: 10px;
+}
+
+button:hover {
+  background-color: #003d80;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
+
+.parecer-card::-webkit-scrollbar {
+  width: 10px;
+}
+
+.parecer-card::-webkit-scrollbar-track {
+  background: #e6e6e6;
+  border-radius: 10px;
+}
+
+.parecer-card::-webkit-scrollbar-thumb {
+  background: #b0b0b0;
+  border-radius: 10px;
+}
+
+.parecer-card::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}

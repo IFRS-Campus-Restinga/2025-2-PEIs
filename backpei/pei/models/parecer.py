@@ -4,8 +4,8 @@ from django.core.validators import MinLengthValidator, MaxLengthValidator, MinVa
 
 
 class Parecer(BaseModel):
-    periodo_letivo = models.ForeignKey(
-        "pei.PEIPeriodoLetivo",
+    componente_curricular = models.ForeignKey(
+        "pei.componenteCurricular",
         on_delete=models.CASCADE,  
         related_name="pareceres"   
     )
@@ -21,4 +21,4 @@ class Parecer(BaseModel):
     data = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f"Parecer {self.id} - {self.periodo_letivo.periodo}"
+        return f"Parecer {self.id} - {self.componente_curricular.periodo_letivo.periodo}"

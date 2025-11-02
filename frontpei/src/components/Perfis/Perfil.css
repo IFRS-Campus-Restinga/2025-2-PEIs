@@ -1,0 +1,129 @@
+.professor-page {
+  padding: 32px;
+  font-family: Arial, sans-serif;
+}
+
+.subheader {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.subheader-btn {
+  background: #eee;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.professor-title {
+  text-align: center;
+  margin: 0 auto 32px auto;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.professor-profile {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 32px;
+  gap: 32px;
+  margin-left: 150px;
+}
+
+.professor-foto {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 24px;
+  border: 2px solid #2e7d32;
+}
+
+.professor-info h3 {
+  margin: 0;
+}
+
+.professor-info p {
+  margin: 4px 0 0 0;
+  color: #555;
+}
+
+.alunos-table {
+  margin-top: 24px;
+  max-width: 1500px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.alunos-header {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr 2fr 1fr;
+  font-weight: bold;
+  padding: 12px 16px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.aluno-row {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr 2fr 1fr;
+  align-items: center;
+  background: #055c0f;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  gap: 8px;
+  color: white;
+  transition: transform 0.15s ease;
+}
+
+.aluno-row:hover {
+  transform: scale(1.02);
+}
+
+/* Alinhamento dos itens do cabeçalho */
+.alunos-header > div:nth-child(1) {
+  justify-self: start;
+}
+
+.alunos-header > div:nth-child(5) {
+  justify-self: end;
+}
+
+.aluno-info,
+.coordenador-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-start; /* Adicionado para alinhar à esquerda */
+}
+
+.aluno-foto,
+.coordenador-foto {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #388e3c;
+}
+
+.voltar-btn {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 10px 15px;
+  background-color: #055c0f;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  width: 100px;
+}

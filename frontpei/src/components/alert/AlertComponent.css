@@ -1,0 +1,206 @@
+/*  Container dos alertas (fixo no canto inferior direito) */
+.alert-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  z-index: 1000;
+  pointer-events: none; /* evita bloquear cliques na página */
+  white-space: pre-line;
+}
+
+/*  Cada alerta individual */
+.alert {
+  background: #fff;
+  padding: 16px 22px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  min-width: 300px;
+  max-width: 380px;
+  font-size: 15px;
+  font-weight: 500;
+  pointer-events: all; /* permite clicar nos botões dentro */
+  animation: slideIn 0.4s ease forwards;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  white-space: pre-line;
+}
+
+/*  Animação de entrada (de baixo para cima + fade-in) */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*  Tipos de alerta */
+.alert.success {
+  border-left: 6px solid #28a745;
+  color: #155724;
+  background: #eaf9ed;
+}
+
+.alert.error {
+  border-left: 6px solid #dc3545;
+  color: #721c24;
+  background: #fbeaea;
+}
+
+.alert.warning {
+  border-left: 6px solid #ffc107;
+  color: #856404;
+  background: #fff8e5;
+}
+
+.alert.info {
+  border-left: 6px solid #17a2b8;
+  color: #0c5460;
+  background: #e8f7fa;
+}
+
+/*  Mensagem do alerta */
+.alert-message {
+  white-space: pre-line;
+  margin-bottom: 8px;
+  
+}
+
+/*  Botões dentro do alerta */
+.alert-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.alert-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: opacity 0.2s ease;
+}
+
+.alert-btn.confirm {
+  background-color: #28a745;
+  color: white;
+}
+
+.alert-btn.cancel {
+  background-color: #dc3545;
+  color: white;
+}
+
+.alert-btn:hover {
+  opacity: 0.8;
+}
+
+/* Botão de fechar (x) */
+.close-btn,
+.close-all-btn {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close-btn:hover,
+.close-all-btn:hover {
+  color: #333;
+}
+
+/* Overlay escura para confirmação */
+.alert-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+/* Box central da confirmação */
+.alert-confirm-box {
+  background: #fff;
+  padding: 24px 32px;
+  border-radius: 12px;
+  min-width: 320px;
+  max-width: 400px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+}
+
+/* Botões de confirmação */
+.alert-confirm-box .alert-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.alert-btn.confirm {
+  background-color: #28a745;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.alert-btn.cancel {
+  background-color: #dc3545;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.alert-btn:hover {
+  opacity: 0.85;
+}
+
+/* Alertas inline (embaixo do campo) */
+.alert.inline {
+  position: relative;
+  margin-top: 4px;
+  padding: 6px 10px;
+  font-size: 13px;
+  border-left: 4px solid #dc3545; /* vermelho para erro */
+  background: #fbeaea;
+  color: #721c24;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert.inline .close-btn {
+  top: auto;
+  right: 5px;
+  font-size: 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}

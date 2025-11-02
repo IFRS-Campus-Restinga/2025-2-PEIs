@@ -42,24 +42,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # pacotes adicionais
     'rest_framework', 'rest_framework.authtoken', "corsheaders",
-    # apps criados
-    'services', 'pei',
+    'pei', 'logs',
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # adicionado para funcionar do react no navegador
-    'corsheaders.middleware.CorsMiddleware',
-    # middleware customizado do app services para o token
-    'services.middleware.AddBackendTokenHeaderMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "pei.services.middleware.AddBackendTokenHeaderMiddleware",
 ]
 
 # configuracao para uso de token para autenticacao
@@ -71,6 +67,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
         #'rest_framework.permissions.AllowAny',
     ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
 }
 
 ROOT_URLCONF = 'backpei.urls'
@@ -80,9 +78,28 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "x-backend-token",  # permite o header customizado
+]
+
 # adiciona nosso token do usuario administrador
 # ele le o arquivo token.txt que criamos no sobeDjango
+# adicionada correcao para criar vazio se nao existe
 TOKEN_FILE = BASE_DIR / "token.txt"
+if not os.path.exists(TOKEN_FILE):
+    with open(TOKEN_FILE, "w") as f:
+        f.write("")
 with open(TOKEN_FILE) as f:
     API_TOKEN = f.read().strip()
 
@@ -138,7 +155,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'pt-br'
 
 TIME_ZONE = 'UTC'
 
@@ -152,6 +169,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -160,3 +178,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #LOGIN_URL = '/accounts/login/'
 #LOGIN_REDIRECT_URL = '/'
 #LOGOUT_REDIRECT_URL = '/'
+
+# -------------------------- #
+# envio de e-mail pelo gmail #
+# -------------------------- #
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "ifrspei@gmail.com"
+EMAIL_HOST_PASSWORD = "sfer mxfq ouoz hkkq"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
