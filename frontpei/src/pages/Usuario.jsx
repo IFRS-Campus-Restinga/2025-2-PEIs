@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import "./disciplina.css";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
+import BotaoDeletar from "../components/customButtons/botaoDeletar";
+import "../cssGlobal.css"
 
 
 function Usuarios() {
@@ -82,7 +83,7 @@ function Usuarios() {
           </select>
         </label>
         <br /><br />
-        <div style={{textAlign: "center"}}><button type="submit">Cadastrar Usuário</button></div>
+        <div style={{textAlign: "center"}}><button className="submit-btn">Cadastrar Usuário</button></div>
       </form>
 
       <div className="disciplinas-list">
@@ -92,7 +93,7 @@ function Usuarios() {
         usuarios.map(u => (
           <li key={u.id}>
             <p><b>Email:</b> {u.email} <br /> <b>Categoria:</b> { u.categoria }</p>
-            <button style={{backgroundColor: "red"}} onClick={() => deletarUsuario(u.id)}>Excluir</button>
+            <BotaoDeletar id={u.id} axiosInstance={DBUsuario} onDeletarSucesso={recuperaUsuarios}/>
           </li>
         ) ) ) }
         </ul>

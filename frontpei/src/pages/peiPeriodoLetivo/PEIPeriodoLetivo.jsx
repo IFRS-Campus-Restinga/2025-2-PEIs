@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import "./pei_periodo_letivo.css";
 import { useAlert } from "../../context/AlertContext";
 import { Link } from "react-router-dom";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
 
 function PEIPeriodoLetivo() {
   const { addAlert } = useAlert();
@@ -156,7 +156,7 @@ function PEIPeriodoLetivo() {
             ))}
         </select>
 
-        <button type="submit">
+        <button className="submit-btn">
           {editingId ? "Atualizar" : "Adicionar"}
         </button>
       </form>

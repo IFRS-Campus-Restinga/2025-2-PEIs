@@ -1,6 +1,6 @@
 import React from "react";
 import { useAlert } from "../../context/AlertContext";
-import "./AlertComponent.css";
+import "../../cssGlobal.css";
 
 const AlertComponent = () => {
   const { alerts, removeAlert } = useAlert();

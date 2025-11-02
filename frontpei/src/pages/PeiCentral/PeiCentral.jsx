@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../peiPeriodoLetivo/pei_periodo_letivo.css";
-import "../peiPeriodoLetivo/listar_pei_periodo_letivo.css";
-import BotaoVoltar from "../../components/customButtons/botaoVoltar"; 
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
+import BotaoEditar from "../../components/customButtons/botaoEditar";
+
 
 function PeiCentral() {
   const [pei_central, setPeiCentral] = useState([]);
@@ -41,7 +42,7 @@ function PeiCentral() {
       <h1 textAlign='center'>
         PEI CENTRAL  
       </h1> 
-      <button type="button" style={{fontSize: '21px', }} onClick={() => navigate("/create_peicentral")}>
+      <button className="submit-btn" style={{fontSize: '21px', }} onClick={() => navigate("/create_peicentral")}>
           Criar novo PEI
       </button><br /><br/>
         <div>
@@ -58,9 +59,7 @@ function PeiCentral() {
                 border: "1px solid #ccc",
               }}
             >
-              <button type="button" onClick={() => navigate("/editar_peicentral/" + pei.id)}>
-                Editar
-              </button>
+              <BotaoEditar id={pei.id} rotaEdicao="/editar_peicentral/" />
               <br /><br />
               <div className="periodo-card" style={{textAlign: 'center', fontSize: '20px', margin:'10px', background:'#d3d3d3ff'}}>
                   <br/>
@@ -93,7 +92,7 @@ function PeiCentral() {
                         <p><b>Data de Criação:</b> {periodo.data_criacao} <b>Data de Término:</b> {periodo.data_termino}</p>
                         <p><b>Período Letivo:</b> {periodo.periodo_principal}        
                         <div style={{ display: "flex", gap: "20px" }}>
-                          <button type="button" onClick={() => navigate("/listar_periodos/"+ periodo.id)}>
+                          <button className="btn-verde" onClick={() => navigate("/listar_periodos/"+ periodo.id)}>
                             Visualizar Periodo
                           </button>
                         </div>

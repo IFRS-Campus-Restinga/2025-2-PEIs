@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import "./disciplina.css";
 import { useAlert, FieldAlert } from "../context/AlertContext"; 
 import { validaCampos } from "../utils/validaCampos";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
+import "../cssGlobal.css"
+import BotaoDeletar from "../components/customButtons/botaoDeletar";
 
 function Pedagogos() {
   const DBPEDAGOGO = axios.create({baseURL: import.meta.env.VITE_PEDAGOGO_URL});
@@ -120,7 +121,7 @@ function Pedagogos() {
         />
         <FieldAlert fieldName="nome" />
         <br />
-        <button type="submit">Adicionar pedagogo</button>
+        <button className="submit-btn">Adicionar pedagogo</button>
       </form>
 
       <div className="disciplinas-list">
@@ -134,15 +135,17 @@ function Pedagogos() {
                     value={editNome}
                     onChange={(e) => setEditNome(e.target.value)}
                   />
-                  <div className="btn-group">
-                    <button onClick={() => atualizaPedagogo(d.id)}>Salvar</button>
+                  <div className="posicao-buttons">
+                    <button className="btn-salvar" onClick={() => atualizaPedagogo(d.id)}>Salvar</button>
+                    <button className="botao-deletar" onClick={() => setEditId(null)}>Cancelar</button>
                   </div>
                 </>
               ) : (
                 <>
                   <span>{d.nome}</span>
-                  <div className="btn-group">
-                    <button
+                  <div className="posicao-buttons">
+                    <button  
+                      className="botao-editar"
                       onClick={() => {
                         setEditId(d.id);
                         setEditNome(d.nome);
@@ -150,7 +153,7 @@ function Pedagogos() {
                     >
                       Editar
                     </button>
-                    <button onClick={() => deletaPedagogo(d.id)}>Deletar</button>
+                    <button className="botao-deletar" onClick={() => deletaPedagogo(d.id)}>Deletar</button>
                   </div>
                 </>
               )}

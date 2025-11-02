@@ -1,4 +1,4 @@
-import './App.css'
+import "../src/cssGlobal.css"
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
 import { useState, useEffect } from 'react'
@@ -23,8 +23,8 @@ import Footer from './components/customFooter/Footer.jsx'
 import SubHeader from './components/customSubHeader/Subheader.jsx'
 import PeiCentral from './pages/PeiCentral/PeiCentral.jsx'
 import CreatePeiCentral from './pages/PeiCentral/CreatePeiCentral.jsx'
-import EditarPeiCentral from './pages/peiCentral/EditarPeiCentral.jsx'
-import DeletarPeiCentral from './pages/peiCentral/DeletarPeiCentral.jsx'
+import EditarPeiCentral from './pages/PeiCentral/EditarPeiCentral.jsx'
+import DeletarPeiCentral from './pages/PeiCentral/DeletarPeiCentral.jsx'
 import Alunos from './pages/Aluno.jsx'
 import CoordenadorCurso from './pages/CoordenadorCurso.jsx'
 import Logs from './pages/LogsComponents/Logs.jsx'
@@ -32,13 +32,12 @@ import ComponenteCurricular from './pages/componenteCurricular.jsx'
 import AtaDeAcompanhamento from './pages/ataDeAcompanhamento.jsx'
 import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
 import Pedagogos from './pages/Pedagogo.jsx'
-import LoginPage from './pages/login/login.jsx'
+import LoginPage from './pages/login/Login.jsx'
 import Professor from "./pages/Professor.jsx";
-import Perfil from './components/Perfis/Perfil.jsx';
-import VisualizarPEI from './components/Perfis/VisualizarPEI.jsx';
 import Usuarios from './pages/Usuario.jsx';
 import { mandaEmail } from "./lib/mandaEmail";
 import AlertComponent from './components/alert/AlertComponent.jsx';
+
 
 function App() {
   // estados para o login do google
@@ -144,8 +143,6 @@ function App() {
                 <Route path="/logs" element={<Logs/>}/>
                 <Route path="/professor" element={<Professor />} />
                 <Route path="/usuario" element={<Usuarios/>}/>
-                <Route path="/perfil/:perfil" element={<Perfil usuario={usuario} />} />
-                <Route path="/pei/:alunoId" element={<VisualizarPEI />} />
               </Routes>
             </main>
             <Footer/>

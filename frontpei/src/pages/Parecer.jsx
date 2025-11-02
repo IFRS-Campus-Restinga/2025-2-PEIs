@@ -3,9 +3,11 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { useAlert, FieldAlert } from "../context/AlertContext"; 
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
+import { validaCampos } from "../utils/validaCampos";
+import "../cssGlobal.css"
 
 function Pareceres() {
-  const { addAlert } = useAlert();
+  const { addAlert, clearFieldAlert } = useAlert();
 
   const DBCOMPONENTES = axios.create({ baseURL: import.meta.env.VITE_COMPONENTE_CURRICULAR });
   const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
@@ -15,6 +17,8 @@ function Pareceres() {
   const [componentes, setComponentes] = useState([]);
   const [disciplinas, setDisciplinas] = useState([]);
   const [professores, setProfessores] = useState([]);
+
+  const[form, setForm] = useState({componente: "", professor: "", texto: ""});
 
   const [componenteSelecionado, setComponenteSelecionado] = useState("");
   const [professorSelecionado, setProfessorSelecionado] = useState("");
@@ -56,9 +60,21 @@ function Pareceres() {
   async function adicionaParecer(e) {
     e.preventDefault();
 
-    const confereTexto = texto.trim();
+    const mensagens = validaCampos(form, e.target);
+    if (mensagens.length > 0) {
+      // ALERTAS INLINE por campo
+      mensagens.forEach((m) =>
+      addAlert(m.message, "error", { fieldName: m.fieldName })
+      );
 
-    if (confereTexto.length > 1000) {
+      // ALERTA GLOBAL
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
+      return;
+    }
+
+    //const confereTexto = texto.trim();
+
+    /* if (confereTexto.length > 1000) {
       addAlert("O texto do parecer ultrapassa 1000 caracteres.", "warning");
       return;
     }
@@ -79,29 +95,37 @@ function Pareceres() {
       addAlert("Preencha o campo: texto", "error", { fieldName: "texto" });
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
-    }
+    } */
 
     const novoParecer = {
-      professor_id: Number(professorSelecionado),
-      componente_curricular: Number(componenteSelecionado),
-      texto: confereTexto,
-    };
+        professor_id: Number(form.professor),
+        componente_curricular: Number(form.componente),
+        texto: form.texto,
+    };  
 
     try {
       await DBPARECERES.post("/", novoParecer);
-      setTexto("");
-      setComponenteSelecionado("");
-      setProfessorSelecionado("");
+      setForm({componente: "", professor: "", texto: ""});
+      recuperaComponentes();
+      recuperaDisciplinas();
+      recuperaProfessores();
       addAlert("Parecer cadastrado com sucesso!", "success");
     } catch (err) {
       console.error("Erro ao criar parecer:", err);
       if (err.response?.data) {
+        // Exibe mensagens inline específicas do backend
+        Object.entries(err.response.data).forEach(([field, msgs]) => {
+          addAlert(msgs.join(", "), "error", { fieldName: field });
+        });
+
+        // Monta o texto completo para o toast
         const messages = Object.entries(err.response.data)
-          .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
-          .join(" | ");
-        addAlert(`Erro ao cadastrar parecer: ${messages}`, "error");
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join("\n");
+
+        addAlert(`Erro ao cadastrar:\n${messages}`, "error");
       } else {
-        addAlert("Erro ao cadastrar parecer (erro desconhecido).", "error");
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
       }
     }
   }
@@ -123,8 +147,14 @@ function Pareceres() {
         <br />
         <select
           name="componente"
-          value={componenteSelecionado}
-          onChange={(e) => setComponenteSelecionado(e.target.value)}
+          value={form.componente}
+          onChange={(e) => {
+            setForm({ ...form, componente: e.target.value })
+            if (e.target.value.trim() !== "") {
+              clearFieldAlert("componente");
+            }
+            }
+          }
         >
           <option value="">-- selecione --</option>
           {componentes.map((c) => {
@@ -144,8 +174,14 @@ function Pareceres() {
         <br />
         <select
           name="professor"
-          value={professorSelecionado}
-          onChange={(e) => setProfessorSelecionado(e.target.value)}
+          value={form.professor}
+          onChange={(e) => {
+            setForm({ ...form, professor: e.target.value })
+            if (e.target.value.trim() !== "") {
+              clearFieldAlert("professor");
+            }
+            }
+          }
         >
           <option value="">-- selecione --</option>
           {professores.map((prof) => (
@@ -162,8 +198,14 @@ function Pareceres() {
         <br />
         <textarea
           name="texto"
-          value={texto}
-          onChange={(e) => setTexto(e.target.value)}
+          value={form.texto}
+          onChange={(e) => {
+            setForm({ ...form, texto: e.target.value })
+            if (e.target.value.trim() !== "") {
+              clearFieldAlert("texto");
+            }
+            }
+          }
           placeholder="Escreva o parecer (até 1000 caracteres)"
           rows={6}
           maxLength={1000}
@@ -172,7 +214,7 @@ function Pareceres() {
         <FieldAlert fieldName="texto" />
 
         <br /><br />
-        <button type="submit">Adicionar Parecer</button>
+        <button className="submit-btn">Adicionar Parecer</button>
       </form>
 
       <br />

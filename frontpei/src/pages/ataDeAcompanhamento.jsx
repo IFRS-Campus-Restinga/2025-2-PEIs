@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import "./componenteCurricular.css"; // usando CSS de Componentes Curriculares
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert, FieldAlert } from "../context/AlertContext";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
+import "../cssGlobal.css"
 
 function AtaDeAcompanhamento() {
   const { addAlert, clearFieldAlert } = useAlert();
@@ -173,7 +173,7 @@ function AtaDeAcompanhamento() {
       if (err.response?.data) {
         // Exibe mensagens inline específicas do backend
         Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: field });
+          addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
         });
 
         // Monta o texto completo para o toast
@@ -260,7 +260,7 @@ function AtaDeAcompanhamento() {
             }
           }} />
         <FieldAlert fieldName="ator" />
-        <button type="submit">Adicionar Ata</button>
+        <button className="submit-btn">Adicionar Ata</button>
       </form>
 
       <div className="componente-list">

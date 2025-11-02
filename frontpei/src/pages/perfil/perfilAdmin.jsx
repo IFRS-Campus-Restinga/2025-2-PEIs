@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./perfilAdmin.css";
+import "../../cssGlobal.css";
 
 const PerfilAdmin = ({ usuario, onVoltar }) => {
   return (

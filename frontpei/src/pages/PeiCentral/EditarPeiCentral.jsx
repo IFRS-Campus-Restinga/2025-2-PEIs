@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
-import "../peiPeriodoLetivo/pei_periodo_letivo.css";
+import "../../cssGlobal.css";
 
 function EditarPeiCentral() {
   const { id } = useParams();
@@ -154,23 +154,21 @@ function EditarPeiCentral() {
           />
         </div>
 
-        <div className="flex gap-3 mt-4">
+        <div className="posicao-buttons esquerda mt-4">
           <button
-            type="submit"
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            className="btn-salvar"
           >
             Salvar Alterações
           </button>&nbsp;
           <button
-            type="button"
+            className="btn-cancelar"
             onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            
           >
             Cancelar
           </button>&nbsp;
          <button
-            type="button"
-            style={{ backgroundColor: "red", color: "white", marginRight: "10px" }}
+            className="botao-deletar"
             onClick={() => navigate(`/deletar_peicentral/${id}`)}
           >
             Deletar

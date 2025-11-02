@@ -3,8 +3,10 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert, FieldAlert } from "../context/AlertContext";
-import "./professor.css"; // reutilizando o mesmo CSS
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
+import BotaoDeletar from "../components/customButtons/botaoDeletar";
+import BotaoEditar from "../components/customButtons/botaoEditar";
+import "../cssGlobal.css";
 
 function Alunos() {
   const { addAlert, clearFieldAlert } = useAlert();
@@ -70,7 +72,7 @@ function Alunos() {
     e.preventDefault();
     const mensagens = validaCampos(editForm, document.getElementById("editForm"));
     if (mensagens.length > 0) {
-      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}`}));
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
@@ -87,7 +89,7 @@ function Alunos() {
       if (err.response?.data) {
         // Exibe mensagens inline específicas do backend
         Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: field });
+          addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
         });
 
         // Monta o texto completo para o toast
@@ -205,38 +207,59 @@ function Alunos() {
         />
         <FieldAlert fieldName="email" />
 
-        <button type="submit">Adicionar Aluno</button>
+        <button className="submit-btn">Adicionar Aluno</button>
       </form>
 
-      <div className="professores-list">
+      <div className="componente-list">
         <h3>Alunos Cadastrados</h3>
         <ul>
           {alunos.length === 0 && <li>Nenhum aluno cadastrado.</li>}
           {alunos.map((a) => (
             <li key={a.id}>
               {editId === a.id ? (
-                <form id="editForm" onSubmit={(e) => atualizaAluno(e, a.id)}>
+                <form id="editForm" className="componente-edit-form" onSubmit={(e) => atualizaAluno(e, a.id)}>
+                  <label>Nome:</label>
                   <input
                     name="nome"
                     type="text"
                     value={editForm.nome}
-                    onChange={(e) => setEditForm({ ...editForm, nome: e.target.value })}
+                    onChange={(e) => {
+                      setEditForm({ ...editForm, nome: e.target.value })
+                      if (e.target.value.trim() !== "") {
+                        clearFieldAlert("edit-nome");
+                      }
+                    }
+                    }
                   />
-                  <FieldAlert fieldName="nome" />
+                  <FieldAlert fieldName="edit-nome" />
+                  <label>Matrícula:</label>
                   <input
                     name="matricula"
                     type="text"
                     value={editForm.matricula}
-                    onChange={(e) => setEditForm({ ...editForm, matricula: e.target.value })}
+                    onChange={(e) => {
+                      setEditForm({ ...editForm, matricula: e.target.value })
+                      if (e.target.value.trim() !== "") {
+                        clearFieldAlert("edit-matricula");
+                      }
+                    }
+                    }
                   />
-                  <FieldAlert fieldName="matricula" />
+                  <FieldAlert fieldName="edit-matricula" />
+                  <label>Email:</label>
                   <input
                     name="email"
                     type="email"
                     value={editForm.email}
-                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    onChange={(e) => {
+                      setEditForm({ ...editForm, email: e.target.value })
+                      if (e.target.value.trim() !== "") {
+                        clearFieldAlert("edit-email");
+                      }
+                    }
+                    }
                   />
-                  <FieldAlert fieldName="email" />
+                  <FieldAlert fieldName="edit-email" />
                   <div className="btn-group">
                     <button type="submit">Salvar</button>
                     <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
@@ -247,7 +270,7 @@ function Alunos() {
                   <strong>{a.nome}</strong><br />
                   Matrícula: {a.matricula}<br />
                   Email: {a.email}<br />
-                  <div className="professor-buttons">
+                  <div className="posicao-buttons">
                     <button
                       onClick={() => {
                         setEditId(a.id);
@@ -260,7 +283,9 @@ function Alunos() {
                     >
                       Editar
                     </button>
-                    <button onClick={() => excluirAluno(a.id)}>Deletar</button>
+                    
+                    <BotaoEditar id={a.id} rotaEdicao="/alunoEditar" />
+                    <BotaoDeletar id={a.id} axiosInstance={DBALUNOS} onDeletarSucesso={recuperaAlunos} /> 
                   </div>
                 </>
               )}

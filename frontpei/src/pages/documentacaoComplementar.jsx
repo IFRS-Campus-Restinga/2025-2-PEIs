@@ -1,28 +1,29 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import "./componenteCurricular.css";
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert, FieldAlert } from "../context/AlertContext";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
+import "../cssGlobal.css"
+
 
 /**
  * Componente para gerenciar a documentação complementar
  * com upload, edição e exclusão de arquivos.
  */
 function DocumentacaoComplementar() {
-  const { addAlert } = useAlert();
+  const { addAlert, clearFieldAlert } = useAlert();
 
   // Cria instância da API
   const DBDOC = axios.create({
     baseURL: import.meta.env.VITE_DOC_COMPLEMENTAR,
   });
 
-  const [form, setForm] = useState({ autor: "", tipo: "" });
+  const [form, setForm] = useState({ autor: "", tipo: "", arquivo: null });
   const [arquivo, setArquivo] = useState(null);
   const [docs, setDocs] = useState([]);
   const [editId, setEditId] = useState(null);
-  const [editForm, setEditForm] = useState({ autor: "", tipo: "" });
+  const [editForm, setEditForm] = useState({ autor: "", tipo: "", arquivo: null });
   const [editArquivo, setEditArquivo] = useState(null);
 
   // Recupera documentos cadastrados
@@ -51,13 +52,15 @@ function DocumentacaoComplementar() {
   // Adiciona novo documento
   const adicionaDoc = async (e) => {
     e.preventDefault();
-    const formElement = e.target;
-    const mensagens = validaCampos(form, formElement);
+    const mensagens = validaCampos(form, e.target);
 
     if (mensagens.length > 0) {
-      // ALERTS INLINE
-      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
-      // TOAST GERAL
+      // ALERTAS INLINE por campo
+      mensagens.forEach((m) =>
+      addAlert(m.message, "error", { fieldName: m.fieldName })
+      );
+
+      // ALERTA GLOBAL
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
@@ -72,21 +75,31 @@ function DocumentacaoComplementar() {
       recuperaDocs();
     } catch (err) {
       console.error(err);
-      const message = err.response?.data
-        ? Object.entries(err.response.data)
-            .map(([f, m]) => `${f}: ${m.join(", ")}`)
-            .join(" | ")
-        : "Erro desconhecido.";
-      addAlert(`Erro ao cadastrar: ${message}`, "error");
+      if (err.response?.data) {
+        // Exibe mensagens inline específicas do backend
+        Object.entries(err.response.data).forEach(([field, msgs]) => {
+          addAlert(msgs.join(", "), "error", { fieldName: field });
+        });
+
+        // Monta o texto completo para o toast
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join("\n");
+
+        addAlert(`Erro ao cadastrar:\n${messages}`, "error");
+      } else {
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+      }
     }
   };
 
   // Atualiza documento existente
   const atualizaDoc = async (id) => {
     const formElement = document.getElementById("editForm");
-    const mensagens = validaCampos(editForm, formElement);
+    const mensagens = validaCampos(editForm, document.getElementById("editForm"));
     if (mensagens.length > 0) {
-      mensagens.forEach((msg) => addAlert(msg, "warning"));
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}`}));
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
@@ -101,12 +114,21 @@ function DocumentacaoComplementar() {
       recuperaDocs();
     } catch (err) {
       console.error(err);
-      const message = err.response?.data
-        ? Object.entries(err.response.data)
-            .map(([f, m]) => `${f}: ${m.join(", ")}`)
-            .join(" | ")
-        : "Erro desconhecido.";
-      addAlert(`Erro ao atualizar: ${message}`, "error");
+      if (err.response?.data) {
+        // Exibe mensagens inline específicas do backend
+        Object.entries(err.response.data).forEach(([field, msgs]) => {
+          addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
+        });
+
+        // Monta o texto completo para o toast
+        const messages = Object.entries(err.response.data)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join("\n");
+
+        addAlert(`Erro ao atualizar:\n${messages}`, "error");
+      } else {
+        addAlert("Erro ao atualizar (erro desconhecido).", "error");
+      }
     }
   };
 
@@ -138,7 +160,13 @@ function DocumentacaoComplementar() {
           type="text"
           name="autor"
           value={form.autor}
-          onChange={(e) => setForm({ ...form, autor: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, autor: e.target.value })
+            if (e.target.value.trim() !== ""){
+              clearFieldAlert("autor");
+            }
+            }
+          }
         />
         <FieldAlert fieldName="autor" />
 
@@ -147,7 +175,13 @@ function DocumentacaoComplementar() {
           type="text"
           name="tipo"
           value={form.tipo}
-          onChange={(e) => setForm({ ...form, tipo: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, tipo: e.target.value })
+            if (e.target.value.trim() !== ""){
+              clearFieldAlert("tipo");
+            }
+            }
+          }
         />
         <FieldAlert fieldName="tipo" />
 
@@ -156,11 +190,18 @@ function DocumentacaoComplementar() {
           type="file"
           name="arquivo"
           accept=".pdf,.docx,.png,.jpg"
-          onChange={(e) => setArquivo(e.target.files[0])}
+          onChange={(e) => {
+            setForm({...form, arquivo: e.target.files[0]})
+            if (e.target.value.trim() !== ""){
+              clearFieldAlert("arquivo");
+            }
+            }
+          }
         />
         <FieldAlert fieldName="arquivo" />
-
-        <button type="submit">Adicionar Documento</button>
+        
+        <br /> <br />
+        <button className="submit-btn">Adicionar Documento</button>
       </form>
 
       {/* Lista de documentos */}
@@ -178,31 +219,45 @@ function DocumentacaoComplementar() {
                     type="text"
                     name="autor"
                     value={editForm.autor}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setEditForm({ ...editForm, autor: e.target.value })
+                      if (e.target.value.trim() !== ""){
+                        clearFieldAlert("edit-autor");
+                      }
+                    }
                     }
                   />
-                  <FieldAlert fieldName="autor" />
+                  <FieldAlert fieldName="edit-autor" />
 
                   <label>Tipo:</label>
                   <input
                     type="text"
                     name="tipo"
                     value={editForm.tipo}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setEditForm({ ...editForm, tipo: e.target.value })
+                      if (e.target.value.trim() !== ""){
+                        clearFieldAlert("edit-tipo");
+                      }
+                      }
                     }
                   />
-                  <FieldAlert fieldName="tipo" />
+                  <FieldAlert fieldName="edit-tipo" />
 
-                  <label>Novo Arquivo (opcional):</label>
+                  <label>Novo Arquivo:</label>
                   <input
                     type="file"
                     name="arquivo"
                     accept=".pdf,.docx,.png,.jpg"
-                    onChange={(e) => setEditArquivo(e.target.files[0])}
+                    onChange={(e) => {
+                      setEditForm({...editForm, arquivo: e.target.files[0]})
+                      if (e.target.value.trim() !== ""){
+                        clearFieldAlert("edit-arquivo");
+                      }
+                      }
+                    }
                   />
-                  <FieldAlert fieldName="arquivo" />
+                  <FieldAlert fieldName="edit-arquivo" />
 
                   <div className="btn-group">
                     <button type="button" onClick={() => atualizaDoc(d.id)}>

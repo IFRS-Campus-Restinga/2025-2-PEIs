@@ -3,9 +3,9 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import ErrorMessage from "../../components/errorMessage/ErrorMessage";
-import "../Disciplina.css";
 import { useAlert } from "../../context/AlertContext";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
 
 export default function DisciplinasCRUD() {
   const [disciplina, setDisciplina] = useState("");

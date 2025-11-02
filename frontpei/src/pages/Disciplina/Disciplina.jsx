@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import BotaoEditar from "../../components/customButtons/botaoEditar";
 import BotaoDeletar from "../../components/customButtons/botaoDeletar";
 import axios from "axios";
-import "../Disciplina.css";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
 
 export default function Disciplinas() {
   const [disciplinas, setDisciplinas] = useState([]);

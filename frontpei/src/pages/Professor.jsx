@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import "./professor.css";
 import { useAlert, FieldAlert } from "../context/AlertContext";
 import { validaCampos } from "../utils/validaCampos";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
+import BotaoDeletar from "../components/customButtons/botaoDeletar";
+import BotaoEditar from "../components/customButtons/botaoEditar";
+import "../cssGlobal.css"
 
 function Professor() {
   const { addAlert } = useAlert();
@@ -152,7 +154,7 @@ function Professor() {
         />
         <FieldAlert fieldName="email" />
 
-        <button type="submit">Adicionar Professor</button>
+        <button className="submit-btn">Adicionar Professor</button>
       </form>
 
       <div className="professores-list">
@@ -181,30 +183,32 @@ function Professor() {
                     value={editForm.email}
                     onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
                   />
-                  <div className="btn-group">
-                    <button type="submit">Salvar</button>
-                    <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
+                  <div className="posicao-buttons esquerda">
+                    <button className="btn-salvar">Salvar</button>
+                    <button className="" onClick={() => setEditId(null)}>Cancelar</button>
                   </div>
                 </form>
               ) : (
                 <>
-                  <strong>{p.nome}</strong><br />
-                  Matrícula: {p.matricula}<br />
-                  Email: {p.email}<br />
-                  <div className="professor-buttons">
-                    <button
-                      onClick={() => {
-                        setEditId(p.id);
-                        setEditForm({
-                          nome: p.nome,
-                          matricula: p.matricula,
-                          email: p.email,
-                        });
-                      }}
-                    >
-                      Editar
-                    </button>
-                    <button onClick={() => deletaProfessor(p.id)}>Deletar</button>
+                  <div className="professor-list">
+                    <strong>{p.nome}</strong><br />
+                    Matrícula: {p.matricula}<br />
+                    Email: {p.email}<br />
+                    <div className="posicao-buttons">
+                      <button className="botao-editar"
+                        onClick={() => {
+                          setEditId(p.id);
+                          setEditForm({
+                            nome: p.nome,
+                            matricula: p.matricula,
+                            email: p.email,
+                          });
+                        }}
+                      >
+                        Editar
+                      </button>
+                      <button onClick={() => deletaProfessor(d.id)}>Deletar</button> 
+                    </div>
                   </div>
                 </>
               )}

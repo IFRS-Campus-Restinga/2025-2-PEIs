@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./listar_pei_periodo_letivo.css";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
 
 function PEIPeriodoLetivoLista() {
   const DB = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });

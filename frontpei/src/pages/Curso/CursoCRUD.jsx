@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom"; 
 import axios from "axios"; 
 import ErrorMessage from "../../components/errorMessage/ErrorMessage"; 
-import "../Curso.css"; 
 import { useAlert } from "../../context/AlertContext";
-import BotaoVoltar from "../../components/customButtons/botaoVoltar"; 
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
 
 export default function CursosCRUD() { 
   const { id } = useParams(); // se existir, é edição 
