@@ -1,5 +1,4 @@
 import { jsPDF } from "jspdf";
-import React from "react";
 import axios from "axios";
 
 export default function BotaoExportar({ DBDATA, nomeArquivo }) {
