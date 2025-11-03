@@ -63,14 +63,13 @@ function Usuarios() {
   }, []);
 
   return ( <>
-    <div className="disciplinas-container">
+    <div className="container-padrao">
       <h1>Cadastro de Usuários</h1>
-      <form onSubmit={cadastrarUsuario}>
+      <form className="form-padrao" onSubmit={cadastrarUsuario}>
         <label>
           Email (apenas institucional do IFRS): <br />
           <input type="email" name="email" required style={{ width: "100%", height: "30px" }} />
         </label>
-        <br /><br />
         <label>
           Categoria de acesso: <br />
           <select name="categoria" required style={{ width: "200px" }}>
@@ -82,18 +81,19 @@ function Usuarios() {
             <option value="PEDAGOGO">Pedagogo</option>
           </select>
         </label>
-        <br /><br />
         <div style={{textAlign: "center"}}><button className="submit-btn">Cadastrar Usuário</button></div>
       </form>
 
-      <div className="disciplinas-list">
+      <div className="list-padrao">
         <h3>Usuários Cadastrados</h3>
         <ul>
         { erroBanco ? ( <p>Não foi possível acessar o backend do django...</p> ) : (
         usuarios.map(u => (
           <li key={u.id}>
             <p><b>Email:</b> {u.email} <br /> <b>Categoria:</b> { u.categoria }</p>
-            <BotaoDeletar id={u.id} axiosInstance={DBUsuario} onDeletarSucesso={recuperaUsuarios}/>
+            <div className="posicao-buttons">
+              <BotaoDeletar id={u.id} axiosInstance={DBUsuario} onDeletarSucesso={recuperaUsuarios}/>
+            </div>
           </li>
         ) ) ) }
         </ul>

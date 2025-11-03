@@ -101,14 +101,14 @@ export default function CursosCRUD() {
   } 
   
   return ( 
-      <div className="cursos-container"> 
+      <div className="container-padrao"> 
         <h1>{id ? "Editar Curso" : "Cadastrar Curso"}</h1> 
         
         <ErrorMessage message={erro} /> 
         
         {sucesso && <p style={{ color: "green", textAlign: "center" }}>{sucesso}</p>} 
         
-          <form className="cursos-form" onSubmit={salvarCurso}> 
+          <form className="form-padrao" onSubmit={salvarCurso}> 
             <div className="form-group"> 
               <label>Nome do curso:</label> 
                 <input type="text" value={curso} onChange={(e) => setCurso(e.target.value)} placeholder="Digite o nome do curso" /> 
@@ -154,7 +154,7 @@ export default function CursosCRUD() {
             <button type="submit" className="submit-btn">
               {id ? "Salvar alterações" : "Adicionar curso"} </button>
           </form>
-        <div className="cursos-form">
+        <div className="form-padrao">
         <div className="form-buttons">
           <BotaoVoltar/>
         </div>

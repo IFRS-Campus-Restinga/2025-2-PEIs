@@ -38,7 +38,7 @@ function PeiCentral() {
   }, []);
 
   return (
-    <div className="container">
+    <div className="container-padrao">
       <h1 textAlign='center'>
         PEI CENTRAL  
       </h1> 

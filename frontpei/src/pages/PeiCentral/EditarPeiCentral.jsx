@@ -79,11 +79,11 @@ function EditarPeiCentral() {
   }
 
   return (
-    <div className="container">
+    <div className="container-padrao">
       <h1 className="text-xl font-bold mb-4">Editar PEI Central do aluno {aluno.nome}</h1>
       
       <br/>
-      <form onSubmit={handleSubmit} className="space-y-4">  
+      <form className="form-padrao" onSubmit={handleSubmit}>  
         
         <div>
           <label className="block mb-1 font-medium">Status:</label>

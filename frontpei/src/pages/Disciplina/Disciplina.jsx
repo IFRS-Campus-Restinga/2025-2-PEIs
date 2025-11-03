@@ -28,11 +28,11 @@ export default function Disciplinas() {
   }, []);
 
   return (
-    <div className="disciplinas-container">
+    <div className="container-padrao">
       <h1>Disciplinas</h1>
 
       {/* Botão criar nova disciplina */}
-      <div className="disciplinas-form">
+      <div className="form-padrao">
         <Link to="/disciplinasCadastrar">
           <button className="submit-btn">Criar nova disciplina</button>
         </Link>
@@ -44,12 +44,12 @@ export default function Disciplinas() {
           Não foi possível carregar as disciplinas.
         </p>
       ) : (
-        <div className="disciplinas-list">
+        <div className="list-padrao">
           <ul>
             {disciplinas.map((d) => (
               <li key={d.id}>
                 <span><b>{d.nome}</b></span>
-                <div className="curso-buttons">
+                <div className="posicao-buttons">
                   <BotaoEditar id={d.id} rotaEdicao="/disciplinaEditar" />
                   <BotaoDeletar 
                     id={d.id} 

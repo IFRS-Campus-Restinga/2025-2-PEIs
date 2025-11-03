@@ -24,19 +24,21 @@ function DeletarPeiCentral() {
   }
 
   return (
-    <div>
-      <h2>Excluir PEI Central</h2>
-      <p>Tem certeza que deseja excluir o registro <b>{id}</b>?</p>
+    <div className="container-padrao">
+      <div className="form-padrao">
+        <h2>Excluir PEI Central</h2>
+        <p>Tem certeza que deseja excluir o registro <b>{id}</b>?</p>
 
-      <div className="posicao-buttons esquerda">
-        <button 
-          onClick={handleDelete} 
-          className="botao-deletar"
-        >
-          Sim, deletar
-        </button>
+        <div className="posicao-buttons esquerda">
+          <button 
+            onClick={handleDelete} 
+            className="botao-deletar"
+          >
+            Sim, deletar
+          </button>
 
-        <button className="btn-cancelar" onClick={handleCancel}>Cancelar</button>
+          <button className="btn-cancelar" onClick={handleCancel}>Cancelar</button>
+        </div>
       </div>
     </div>
   );

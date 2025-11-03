@@ -137,14 +137,13 @@ function Pareceres() {
   }, []);
 
   return (
-    <div className="parecer-container">
+    <div className="container-padrao">
       <h1>Gerenciar Pareceres</h1>
       <hr />
       <h2>Cadastrar Parecer</h2>
 
-      <form onSubmit={adicionaParecer}>
+      <form className="form-padrao" onSubmit={adicionaParecer}>
         <label>Componente Curricular:</label>
-        <br />
         <select
           name="componente"
           value={form.componente}
@@ -168,10 +167,9 @@ function Pareceres() {
         </select>
         <FieldAlert fieldName="componente" />
 
-        <br /><br />
+        <br />
 
         <label>Professor:</label>
-        <br />
         <select
           name="professor"
           value={form.professor}
@@ -192,10 +190,9 @@ function Pareceres() {
         </select>
         <FieldAlert fieldName="professor" />
 
-        <br /><br />
+        <br />
 
         <label>Texto (máx. 1000 caracteres):</label>
-        <br />
         <textarea
           name="texto"
           value={form.texto}
@@ -213,7 +210,7 @@ function Pareceres() {
         />
         <FieldAlert fieldName="texto" />
 
-        <br /><br />
+        <br />
         <button className="submit-btn">Adicionar Parecer</button>
       </form>
 

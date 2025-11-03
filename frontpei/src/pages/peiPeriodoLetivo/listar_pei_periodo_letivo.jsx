@@ -41,7 +41,7 @@ function PEIPeriodoLetivoLista() {
 
   if (id && periodoUnico) {
     return (
-      <div className="container">
+      <div className="container-padrao">
         <h1>Período Letivo #{periodoUnico.id}</h1>
         <div className="periodo-card">
           <b>Data Criação:</b> {periodoUnico.data_criacao} <br />
@@ -51,7 +51,7 @@ function PEIPeriodoLetivoLista() {
           <b>Pareceres:</b>
           {periodoUnico.componentes_curriculares?.length > 0 ? (
             periodoUnico.componentes_curriculares.map((comp) => (
-              <div key={comp.id} className="componente-container">
+              <div key={comp.id} >
                 <i>
                   Componente Curricular:{" "}
                   {comp.disciplina?.nome || "Sem disciplina vinculada"}
@@ -80,7 +80,7 @@ function PEIPeriodoLetivoLista() {
           )}
         </div>
         <div className="botoes-navegacao">
-          <button type="button" onClick={() => navigate("/listar_periodos/")}>
+          <button type="button" className="btn-visualizar" onClick={() => navigate("/listar_periodos/")}>
             Visualizar Lista de Períodos
           </button>
           <BotaoVoltar/>

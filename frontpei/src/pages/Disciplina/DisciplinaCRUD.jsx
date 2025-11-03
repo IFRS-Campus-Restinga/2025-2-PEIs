@@ -71,13 +71,13 @@ export default function DisciplinasCRUD() {
   }
 
   return (
-    <div className="disciplinas-container">
+    <div className="container-padrao">
       <h1>{id ? "Editar Disciplina" : "Cadastrar Disciplina"}</h1>
 
       <ErrorMessage message={erro} />
       {sucesso && <p style={{ color: "green", textAlign: "center" }}>{sucesso}</p>}
 
-      <form className="cursos-form" onSubmit={salvarDisciplina}>
+      <form className="form-padrao" onSubmit={salvarDisciplina}>
         <div className="form-group">
           <label htmlFor="nome">Nome da disciplina:</label>
           <input

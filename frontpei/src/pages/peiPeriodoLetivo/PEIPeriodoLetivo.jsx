@@ -110,13 +110,13 @@ function PEIPeriodoLetivo() {
   }
 
   return (
-    <div className="container">
+    <div className="container-padrao">
       <h1>Gerenciar Períodos Letivos</h1>
 
       <hr />
       <h2>{editingId ? "Editar Período" : "Cadastrar Período"}</h2>
 
-      <form onSubmit={salvarPeriodo}>
+      <form className="form-padrao" onSubmit={salvarPeriodo}>
         <label>Data de Criação:</label>
         <input
           type="date"
@@ -155,7 +155,7 @@ function PEIPeriodoLetivo() {
               </option>
             ))}
         </select>
-
+            <br /><br />
         <button className="submit-btn">
           {editingId ? "Atualizar" : "Adicionar"}
         </button>
