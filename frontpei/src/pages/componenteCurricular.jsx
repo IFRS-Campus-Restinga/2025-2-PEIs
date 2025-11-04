@@ -180,7 +180,6 @@ async function atualizaComponenteCurricular(e, id) {
   }
 }
 
-
   function deletaComponenteCurricular(id) {
     addAlert("Deseja realmente deletar este componente?", "confirm", {
       onConfirm: async () => {
@@ -222,7 +221,6 @@ async function atualizaComponenteCurricular(e, id) {
             }
           }
       },
-      onCancel: () => addAlert("Exclusão cancelada pelo usuário.", "info"),
     });
   }
 
