@@ -6,7 +6,7 @@ import { useAlert, FieldAlert } from "../context/AlertContext";
 import { validaCampos } from "../utils/validaCampos";
 
 function Professor() {
-  const { addAlert } = useAlert();
+  const { addAlert, clearFieldAlert } = useAlert();
   const DBPROFESSORES = axios.create({ baseURL: import.meta.env.VITE_PROFESSORES_URL });
 
   const [professores, setProfessores] = useState([]);
@@ -27,6 +27,7 @@ function Professor() {
   async function adicionaProfessor(e) {
     e.preventDefault();
     const mensagens = validaCampos(form, e.target);
+
     if (mensagens.length > 0) {
       // ALERTS INLINE
       mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
@@ -47,12 +48,19 @@ function Professor() {
     } catch (err) {
       console.error(err);
       if (err.response?.data) {
-        const messages = Object.entries(err.response.data)
-          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-          .join(" | ");
-        addAlert(`Erro ao cadastrar ${messages}`, "error");
+      // Exibe mensagens inline específicas do backend
+      Object.entries(err.response.data).forEach(([field, msgs]) => {
+        addAlert(msgs.join(", "), "error", { fieldName: field });
+      });
+
+      // Monta o texto completo para o toast
+      const messages = Object.entries(err.response.data)
+        .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+        .join("\n");
+
+        addAlert(`Erro ao cadastrar:\n${messages}`, "error");
       } else {
-        addAlert("Erro ao cadastrar professor (erro desconhecido).", "error");
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
       }
     }
   }
@@ -61,7 +69,8 @@ function Professor() {
     e.preventDefault();
     const mensagens = validaCampos(editForm, document.getElementById("editForm"));
     if (mensagens.length > 0) {
-      addAlert(mensagens.join("\n"), "warning");
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}`}));
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
@@ -78,12 +87,19 @@ function Professor() {
     } catch (err) {
       console.error(err);
       if (err.response?.data) {
-        const messages = Object.entries(err.response.data)
-          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-          .join(" | ");
-        addAlert(`Erro ao atualizar ${messages}`, "error");
+      // Exibe mensagens inline específicas do backend
+      Object.entries(err.response.data).forEach(([field, msgs]) => {
+        addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
+      });
+
+      // Monta o texto completo para o toast
+      const messages = Object.entries(err.response.data)
+        .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+        .join("\n");
+
+        addAlert(`Erro ao editar:\n${messages}`, "error");
       } else {
-        addAlert("Erro ao atualizar professor (erro desconhecido).", "error");
+        addAlert("Erro ao editar (erro desconhecido).", "error");
       }
     }
   }
@@ -98,13 +114,34 @@ function Professor() {
         } catch (err) {
           console.error(err);
           if (err.response?.data) {
-            const messages = Object.entries(err.response.data)
-              .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-              .join(" | ");
-            addAlert(`Erro ao deletar ${messages}`, "error");
-          } else {
-            addAlert("Erro ao deletar professor (erro desconhecido).", "error");
-          }
+              const data = err.response.data;
+
+              // Caso 1: Erro genérico do backend (ex: { "erro": "mensagem" })
+              if (typeof data.erro === "string") {
+                addAlert(data.erro, "error");
+                return;
+              }
+
+              // Caso 2: Erros de campo (ex: { nome: ["Campo obrigatório"], email: [...] })
+              Object.entries(data).forEach(([field, msgs]) => {
+                if (Array.isArray(msgs)) {
+                  addAlert(msgs.join(", "), "error", { fieldName: field });
+                } else {
+                  addAlert(String(msgs), "error");
+                }
+              });
+
+              // Monta um resumo para o toast
+              const messages = Object.entries(data)
+                .map(([field, msgs]) =>
+                  Array.isArray(msgs) ? `${field}: ${msgs.join(", ")}` : `${field}: ${msgs}`
+                )
+                .join("\n");
+
+              addAlert(`Erro ao deletar:\n${messages}`, "error");
+            } else {
+              addAlert("Erro ao deletar (erro desconhecido).", "error");
+            }
         }
       },
       onCancel: () => addAlert("Exclusão cancelada pelo usuário.", "info"),
@@ -126,7 +163,13 @@ function Professor() {
           name="nome"
           type="text"
           value={form.nome}
-          onChange={(e) => setForm({ ...form, nome: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, nome: e.target.value })
+            if (e.target.value.trim() !== "") {
+              clearFieldAlert("nome");
+            }
+          }
+        }
           placeholder="Digite o nome do professor"
         />
         <FieldAlert fieldName="nome" />
@@ -136,7 +179,13 @@ function Professor() {
           name="matricula"
           type="text"
           value={form.matricula}
-          onChange={(e) => setForm({ ...form, matricula: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, matricula: e.target.value })
+            if (e.target.value.trim() !== "") {
+              clearFieldAlert("matricula");
+            }
+          }
+        }
           placeholder="Somente números"
         />
         <FieldAlert fieldName="matricula" />
@@ -146,7 +195,13 @@ function Professor() {
           name="email"
           type="email"
           value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, email: e.target.value })
+            if (e.target.value.trim() !== "") {
+              clearFieldAlert("email");
+            }
+          }
+        }
           placeholder="exemplo@restinga.ifrs.edu.br"
         />
         <FieldAlert fieldName="email" />
@@ -166,19 +221,36 @@ function Professor() {
                     name="nome"
                     type="text"
                     value={editForm.nome}
-                    onChange={(e) => setEditForm({ ...editForm, nome: e.target.value })}
+                    onChange={(e) => {
+                      setEditForm({ ...editForm, nome: e.target.value })
+                      if (e.target.value.trim() !== "") {
+                        clearFieldAlert("edit-nome");
+                      }
+                    }
+                  }
                   />
                   <input
                     name="matricula"
                     type="text"
                     value={editForm.matricula}
-                    onChange={(e) => setEditForm({ ...editForm, matricula: e.target.value })}
+                    onChange={(e) => {
+                      setEditForm({ ...editForm, matricula: e.target.value })
+                      if (e.target.value.trim() !== "") {
+                        clearFieldAlert("edit-matricula");
+                      }
+                    }
+                  }
                   />
                   <input
                     name="email"
-                    type="email"
                     value={editForm.email}
-                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    onChange={(e) => {
+                      setEditForm({ ...editForm, email: e.target.value })
+                      if (e.target.value.trim() !== "") {
+                        clearFieldAlert("edit-email");
+                      }
+                    }
+                  }
                   />
                   <div className="btn-group">
                     <button type="submit">Salvar</button>
