@@ -3,21 +3,12 @@ import axios from "axios";
 import "./pei_periodo_letivo.css";
 import { useAlert } from "../../context/AlertContext";
 import { Link } from "react-router-dom";
-import { API_ROUTES, BACKEND_TOKEN } from "../../configs/apiRoutes";
 
 function PEIPeriodoLetivo() {
   const { addAlert } = useAlert();
 
-  // Instâncias Axios com base na nova estrutura de rotas e token
-  const DB = axios.create({
-    baseURL: API_ROUTES.PEIPERIODOLETIVO,
-    headers: { Authorization: `Token ${BACKEND_TOKEN}` },
-  });
-
-  const DB_CENTRAL = axios.create({
-    baseURL: API_ROUTES.PEI_CENTRAL,
-    headers: { Authorization: `Token ${BACKEND_TOKEN}` },
-  });
+  const DB = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
+  const DB_CENTRAL = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
 
   const [dataCriacao, setDataCriacao] = useState("");
   const [dataTermino, setDataTermino] = useState("");
@@ -67,7 +58,6 @@ function PEIPeriodoLetivo() {
         addAlert("Período cadastrado com sucesso!", "success");
       }
 
-      // Limpa os campos e estado
       setDataCriacao("");
       setDataTermino("");
       setPeriodoEscolhido("");
@@ -77,10 +67,7 @@ function PEIPeriodoLetivo() {
       console.error("Erro ao salvar período:", err);
       if (err.response?.data) {
         const messages = Object.entries(err.response.data)
-          .map(
-            ([field, msgs]) =>
-              `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`
-          )
+          .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
           .join(" | ");
         addAlert(`Erro ao salvar período: ${messages}`, "error");
       } else {
@@ -109,10 +96,7 @@ function PEIPeriodoLetivo() {
           console.error("Erro ao deletar período:", err);
           if (err.response?.data) {
             const messages = Object.entries(err.response.data)
-              .map(
-                ([field, msgs]) =>
-                  `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`
-              )
+              .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
               .join(" | ");
             addAlert(`Erro ao deletar período: ${messages}`, "error");
           } else {
@@ -166,7 +150,7 @@ function PEIPeriodoLetivo() {
           {Array.isArray(peiCentrals) &&
             peiCentrals.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.aluno?.nome || `PEI Central ${p.id}`}
+                {p.aluno.nome || `PEI Central ${p.id}`}
               </option>
             ))}
         </select>
@@ -175,10 +159,7 @@ function PEIPeriodoLetivo() {
           {editingId ? "Atualizar" : "Adicionar"}
         </button>
       </form>
-
-      <Link to="/" className="voltar-btn">
-        Voltar
-      </Link>
+      <Link to="/" className="voltar-btn">Voltar</Link>
     </div>
   );
 }

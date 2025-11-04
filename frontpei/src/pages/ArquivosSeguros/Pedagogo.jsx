@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 import "./disciplina.css";
 import { useAlert, FieldAlert } from "../context/AlertContext"; 
 import { validaCampos } from "../utils/validaCampos";
-import { API_ROUTES, BACKEND_TOKEN } from "../configs/apiRoutes.js";
 
 function Pedagogos() {
+  const DBPEDAGOGO = axios.create({baseURL: import.meta.env.VITE_PEDAGOGO_URL});
   const [pedagogo, setPedagogo] = useState("");
   const [pedagogosCadastradas, setPedagogosCadastradas] = useState([]);
   const [editId, setEditId] = useState(null);
@@ -16,14 +16,11 @@ function Pedagogos() {
 
   async function recuperaPedagogos() {
     try {
-      const response = await axios.get(API_ROUTES.PEDAGOGO, {
-        headers: { Authorization: `Bearer ${BACKEND_TOKEN}` },
-      });
+      const response = await DBPEDAGOGO.get("/");
       const data = response.data;
       setPedagogosCadastradas(Array.isArray(data) ? data : data.results);
     } catch (err) {
-      addAlert("Erro ao buscar pedagogos: ", "error");
-      console.error(err);
+      addAlert("Erro ao buscar disciplinas: ", err);
     }
   }
 
@@ -33,18 +30,17 @@ function Pedagogos() {
 
     const mensagens = validaCampos(form, event.target);
     if (mensagens.length > 0) {
+      // ALERTS INLINE
       mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      // TOAST GERAL
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
     try {
-      await axios.post(API_ROUTES.PEDAGOGO, form, {
-        headers: { Authorization: `Bearer ${BACKEND_TOKEN}` },
-      });
+      await DBPEDAGOGO.post("/", form);
       await recuperaPedagogos();
       setPedagogo("");
-      addAlert("Pedagogo cadastrado com sucesso!", "success");
     } catch (err) {
       console.error("Erro completo:", err);
       if (err.response?.data) {
@@ -58,13 +54,12 @@ function Pedagogos() {
     }
   }
 
+  // Função para deletar disciplina
   async function deletaPedagogo(id) {
     addAlert("Deseja realmente deletar este pedagogo?", "confirm", {
       onConfirm: async () => {
         try {
-          await axios.delete(`${API_ROUTES.PEDAGOGO}${id}/`, {
-            headers: { Authorization: `Bearer ${BACKEND_TOKEN}` },
-          });
+          await DBPEDAGOGO.delete(`/${id}/`);
           recuperaPedagogos();
           addAlert("Pedagogo deletado com sucesso!", "success");
         } catch (err) {
@@ -88,26 +83,22 @@ function Pedagogos() {
     if (!nomeTrim) return addAlert("Insira um nome válido!", "warning");
 
     try {
-      await axios.put(
-        `${API_ROUTES.PEDAGOGO}${id}/`,
-        { nome: nomeTrim },
-        { headers: { Authorization: `Bearer ${BACKEND_TOKEN}` } }
-      );
+      await DBPEDAGOGO.put(`/${id}/`, { nome: nomeTrim });
       setEditId(null);
       setEditNome("");
       await recuperaPedagogos();
-      addAlert("Pedagogo atualizado com sucesso!", "success");
     } catch (err) {
       if (err.response?.data) {
         const messages = Object.entries(err.response.data)
           .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
           .join(" \n ");
-        addAlert(`Erro ao atualizar ${messages}`, "error");
+        addAlert(`Erro ao cadastrar ${messages}`, "error");
       } else {
-        addAlert("Erro ao atualizar (erro desconhecido).", "error");
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
       }
     }
   }
+
 
   useEffect(() => {
     recuperaPedagogos();
@@ -166,6 +157,7 @@ function Pedagogos() {
           ))}
         </ul>
       </div>
+
 
       <Link to="/" className="voltar-btn">Voltar</Link>
     </div>

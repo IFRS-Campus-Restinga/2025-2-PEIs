@@ -5,37 +5,27 @@ import "./Home.css";
 import DT from "datatables.net-dt";
 import DataTable from "datatables.net-react";
 import "../../utils/dataTables.css";
-import { API_ROUTES } from "../../configs/apiRoutes";
-
-// Componentes individuais
-import CoordenadorCurso from "../CoordenadorCurso.jsx";
-import ComponenteCurricular from "../componenteCurricular.jsx";
-import Aluno from "../Aluno.jsx";
-import Pedagogo from "../Pedagogo.jsx";
-// import Napne from "../Napne.jsx";
 
 DataTable.use(DT);
 
-const Home = ({ usuario }) => {
-  const navigate = useNavigate();
+const ProfessorView = ({ usuario }) => {
+  const API_ALUNO = import.meta.env.VITE_ALUNO_URL;
+  const API_PEICENTRAL = import.meta.env.VITE_PEI_CENTRAL_URL;
+  const API_CURSO = import.meta.env.VITE_CURSOS_URL;
+  const API_PEIPERIODO = import.meta.env.VITE_PEIPERIODOLETIVO_URL;
 
   const [cargoSelecionado, setCargoSelecionado] = useState("");
   const [tableData, setTableData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [erro, setErro] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function carregarDados() {
-      setErro(null);
-      setLoading(true);
-
       try {
-        // chamadas principais da tabela inicial
         const [resAlunos, resPeiCentral, resCursos, resPeriodos] = await Promise.all([
-          axios.get(API_ROUTES.ALUNO),
-          axios.get(API_ROUTES.PEI_CENTRAL),
-          axios.get(API_ROUTES.CURSOS),
-          axios.get(API_ROUTES.PEIPERIODOLETIVO),
+          axios.get(API_ALUNO),
+          axios.get(API_PEICENTRAL),
+          axios.get(API_CURSO),
+          axios.get(API_PEIPERIODO),
         ]);
 
         const alunosData = resAlunos.data.results || [];
@@ -92,9 +82,6 @@ const Home = ({ usuario }) => {
         setTableData(dadosTabela);
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
-        setErro("Falha ao carregar os dados.");
-      } finally {
-        setLoading(false);
       }
     }
 
@@ -106,6 +93,7 @@ const Home = ({ usuario }) => {
       alert("Nenhum PEI Central vinculado a este aluno.");
       return;
     }
+    //mostrar isso pro pessoal pq é interessante
     navigate("/periodoLetivoPerfil", {
       state: {
         peiCentralId,
@@ -121,34 +109,15 @@ const Home = ({ usuario }) => {
         handleVisualizarClick(peiCentralId);
       }
     };
+
     document.addEventListener("click", handleButtonClick);
     return () => document.removeEventListener("click", handleButtonClick);
   }, [cargoSelecionado]);
 
-  // Renderiza o componente conforme o cargo selecionado
-  const renderComponenteCargo = () => {
-    switch (cargoSelecionado) {
-      case "Coordenador de Curso":
-        return <CoordenadorCurso />;
-      case "Componente Curricular":
-        return <ComponenteCurricular />;
-      case "Aluno":
-        return <Aluno />;
-      case "Pedagogo":
-        return <Pedagogo />;
-      // case "NAPNE":
-      //   return <Napne />;
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="telaPadrao-page">
       <div className="cargo-dropdown-container">
-        <label htmlFor="cargo" className="cargo-label">
-          Selecione o cargo:
-        </label>
+        <label htmlFor="cargo" className="cargo-label">Selecione o cargo:</label>
         <select
           id="cargo"
           className="cargo-dropdown"
@@ -157,68 +126,61 @@ const Home = ({ usuario }) => {
         >
           <option value="">— Escolher —</option>
           <option value="Professor">Professor</option>
+          <option value="NAPNE">NAPNE</option>
           <option value="Coordenador de Curso">Coordenador de Curso</option>
-          <option value="Componente Curricular">Componente Curricular</option>
           <option value="Pedagogo">Pedagogo</option>
-          {/* <option value="NAPNE">NAPNE</option> */}
           <option value="Administrador">Administrador</option>
         </select>
       </div>
 
-      {loading && <p className="carregando">Carregando dados...</p>}
-      {erro && <p className="erro">{erro}</p>}
-
-      {/* Renderiza a tabela principal apenas quando o cargo é Professor ou não há seleção */}
-      {(cargoSelecionado === "" || cargoSelecionado === "Professor") && (
-        <DataTable
-          data={tableData}
-          columns={[
-            { title: "Nome do aluno", data: "nome" },
-            { title: "Componente Curricular", data: "componente" },
-            { title: "Status", data: "status" },
-            { title: "Coordenador de curso", data: "coordenador" },
-            {
-              title: "Visualizar",
-              data: "peiCentralId",
-              render: (peiCentralId) => `
-                <button class="btn btn-sm btn-success visualizar-btn" data-id="${peiCentralId}">
-                  Visualizar
-                </button>
-              `,
+      <DataTable
+        data={tableData}
+        columns={[
+          { title: "Nome do aluno", data: "nome" },
+          { title: "Componente Curricular", data: "componente" },
+          { title: "Status", data: "status" },
+          { title: "Coordenador de curso", data: "coordenador" },
+          {
+            title: "Visualizar",
+            data: "peiCentralId",
+            render: (peiCentralId) => `
+              <button class="btn btn-sm btn-primary visualizar-btn" data-id="${peiCentralId}">
+                Visualizar
+              </button>
+            `,
+          },
+        ]}
+        className="display table table-striped table-hover w-100"
+        options={{
+          pageLength: 10,
+          language: {
+            decimal: ",",
+            thousands: ".",
+            processing: "Processando...",
+            search: "Pesquisar:",
+            lengthMenu: "Mostrar _MENU_ PEIs",
+            info: '<span class="custom-info-text">Mostrando de _START_ até _END_ de _TOTAL_ PEIs',
+            infoEmpty: "Mostrando 0 até 0 de 0 PEIs",
+            infoFiltered: "(filtrado de _MAX_ PEIs no total)",
+            infoPostFix: "",
+            loadingRecords: "Carregando...",
+            zeroRecords: "Nenhum PEI encontrado",
+            emptyTable: "Nenhum dado disponível nesta tabela",
+            paginate: {
+              first: "Primeiro",
+              previous: "Anterior",
+              next: "Próximo",
+              last: "Último",
             },
-          ]}
-          className="display table table-striped table-hover w-100"
-          options={{
-            pageLength: 10,
-            language: {
-              decimal: ",",
-              thousands: ".",
-              processing: "Processando...",
-              search: "Pesquisar:",
-              lengthMenu: "Mostrar _MENU_ PEIs",
-              info: '<span class="custom-info-text">Mostrando de _START_ até _END_ de _TOTAL_ PEIs</span>',
-              infoEmpty: "Mostrando 0 até 0 de 0 PEIs",
-              infoFiltered: "(filtrado de _MAX_ PEIs no total)",
-              loadingRecords: "Carregando...",
-              zeroRecords: "Nenhum PEI encontrado",
-              emptyTable: "Nenhum dado disponível nesta tabela",
-              paginate: {
-                first: "Primeiro",
-                previous: "Anterior",
-                next: "Próximo",
-                last: "Último",
-              },
+            aria: {
+              sortAscending: ": ativar para ordenar a coluna em ordem crescente",
+              sortDescending: ": ativar para ordenar a coluna em ordem decrescente",
             },
-          }}
-        />
-      )}
-
-      {/* Renderiza outros componentes se o cargo for diferente de Professor */}
-      {cargoSelecionado !== "" && cargoSelecionado !== "Professor" && (
-        <div className="conteudo-home">{renderComponenteCargo()}</div>
-      )}
+          },
+        }}
+      />
     </div>
   );
 };
 
-export default Home;
+export default ProfessorView;

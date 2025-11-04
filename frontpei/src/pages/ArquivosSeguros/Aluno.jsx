@@ -29,7 +29,12 @@ function Alunos() {
     e.preventDefault();
     const mensagens = validaCampos(form, e.target);
     if (mensagens.length > 0) {
-      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      // ALERTAS INLINE por campo
+      mensagens.forEach((m) =>
+      addAlert(m.message, "error", { fieldName: m.fieldName })
+      );
+
+      // ALERTA GLOBAL
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
@@ -41,13 +46,18 @@ function Alunos() {
       addAlert("Aluno cadastrado com sucesso!", "success");
     } catch (err) {
       console.error(err);
+
       if (err.response?.data) {
+        // Exibe mensagens inline específicas do backend
         Object.entries(err.response.data).forEach(([field, msgs]) => {
           addAlert(msgs.join(", "), "error", { fieldName: field });
         });
+
+        // Monta o texto completo para o toast
         const messages = Object.entries(err.response.data)
           .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
           .join("\n");
+
         addAlert(`Erro ao cadastrar:\n${messages}`, "error");
       } else {
         addAlert("Erro ao cadastrar (erro desconhecido).", "error");
@@ -59,9 +69,7 @@ function Alunos() {
     e.preventDefault();
     const mensagens = validaCampos(editForm, document.getElementById("editForm"));
     if (mensagens.length > 0) {
-      mensagens.forEach((m) =>
-        addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}` })
-      );
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}`}));
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
@@ -74,13 +82,18 @@ function Alunos() {
       addAlert("Aluno atualizado com sucesso!", "success");
     } catch (err) {
       console.error(err);
+
       if (err.response?.data) {
+        // Exibe mensagens inline específicas do backend
         Object.entries(err.response.data).forEach(([field, msgs]) => {
           addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
         });
+
+        // Monta o texto completo para o toast
         const messages = Object.entries(err.response.data)
           .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
           .join("\n");
+
         addAlert(`Erro ao atualizar:\n${messages}`, "error");
       } else {
         addAlert("Erro ao atualizar (erro desconhecido).", "error");
@@ -96,32 +109,38 @@ function Alunos() {
           recuperaAlunos();
           addAlert("Aluno deletado com sucesso!", "success");
         } catch (err) {
-          console.error(err);
-          if (err.response?.data) {
-            const data = err.response.data;
-            if (typeof data.erro === "string") {
-              addAlert(data.erro, "error");
-              return;
-            }
-            Object.entries(data).forEach(([field, msgs]) => {
-              if (Array.isArray(msgs)) {
-                addAlert(msgs.join(", "), "error", { fieldName: field });
-              } else {
-                addAlert(String(msgs), "error");
+            console.error(err);
+
+            if (err.response?.data) {
+              const data = err.response.data;
+
+              // Caso 1: Erro genérico do backend (ex: { "erro": "mensagem" })
+              if (typeof data.erro === "string") {
+                addAlert(data.erro, "error");
+                return;
               }
-            });
-            const messages = Object.entries(data)
-              .map(([field, msgs]) =>
-                Array.isArray(msgs)
-                  ? `${field}: ${msgs.join(", ")}`
-                  : `${field}: ${msgs}`
-              )
-              .join("\n");
-            addAlert(`Erro ao deletar:\n${messages}`, "error");
-          } else {
-            addAlert("Erro ao deletar (erro desconhecido).", "error");
+
+              // Caso 2: Erros de campo (ex: { nome: ["Campo obrigatório"], email: [...] })
+              Object.entries(data).forEach(([field, msgs]) => {
+                if (Array.isArray(msgs)) {
+                  addAlert(msgs.join(", "), "error", { fieldName: field });
+                } else {
+                  addAlert(String(msgs), "error");
+                }
+              });
+
+              // Monta um resumo para o toast
+              const messages = Object.entries(data)
+                .map(([field, msgs]) =>
+                  Array.isArray(msgs) ? `${field}: ${msgs.join(", ")}` : `${field}: ${msgs}`
+                )
+                .join("\n");
+
+              addAlert(`Erro ao deletar:\n${messages}`, "error");
+            } else {
+              addAlert("Erro ao deletar (erro desconhecido).", "error");
+            }
           }
-        }
       },
       onCancel: () => addAlert("Exclusão cancelada pelo usuário.", "info"),
     });
@@ -143,9 +162,12 @@ function Alunos() {
           type="text"
           value={form.nome}
           onChange={(e) => {
-            setForm({ ...form, nome: e.target.value });
-            if (e.target.value.trim() !== "") clearFieldAlert("nome");
-          }}
+            setForm({ ...form, nome: e.target.value })
+            if (e.target.value.trim() !== "") {
+              clearFieldAlert("nome");
+            }
+            }
+          }
           placeholder="Digite o nome do aluno"
         />
         <FieldAlert fieldName="nome" />
@@ -156,9 +178,12 @@ function Alunos() {
           type="text"
           value={form.matricula}
           onChange={(e) => {
-            setForm({ ...form, matricula: e.target.value });
-            if (e.target.value.trim() !== "") clearFieldAlert("matricula");
-          }}
+            setForm({ ...form, matricula: e.target.value })
+            if (e.target.value.trim() !== "") {
+              clearFieldAlert("matricula");
+            }
+          }
+          }
           placeholder="Somente números"
         />
         <FieldAlert fieldName="matricula" />
@@ -169,9 +194,12 @@ function Alunos() {
           type="email"
           value={form.email}
           onChange={(e) => {
-            setForm({ ...form, email: e.target.value });
-            if (e.target.value.trim() !== "") clearFieldAlert("email");
-          }}
+            setForm({ ...form, email: e.target.value })
+            if (e.target.value.trim() !== "") {
+              clearFieldAlert("email");
+            }
+          }
+          }
           placeholder="exemplo@restinga.ifrs.edu.br"
         />
         <FieldAlert fieldName="email" />
@@ -186,21 +214,19 @@ function Alunos() {
           {alunos.map((a) => (
             <li key={a.id}>
               {editId === a.id ? (
-                <form
-                  id="editForm"
-                  className="componente-edit-form"
-                  onSubmit={(e) => atualizaAluno(e, a.id)}
-                >
+                <form id="editForm" className="componente-edit-form" onSubmit={(e) => atualizaAluno(e, a.id)}>
                   <label>Nome:</label>
                   <input
                     name="nome"
                     type="text"
                     value={editForm.nome}
                     onChange={(e) => {
-                      setEditForm({ ...editForm, nome: e.target.value });
-                      if (e.target.value.trim() !== "")
+                      setEditForm({ ...editForm, nome: e.target.value })
+                      if (e.target.value.trim() !== "") {
                         clearFieldAlert("edit-nome");
-                    }}
+                      }
+                    }
+                    }
                   />
                   <FieldAlert fieldName="edit-nome" />
                   <label>Matrícula:</label>
@@ -209,13 +235,12 @@ function Alunos() {
                     type="text"
                     value={editForm.matricula}
                     onChange={(e) => {
-                      setEditForm({
-                        ...editForm,
-                        matricula: e.target.value,
-                      });
-                      if (e.target.value.trim() !== "")
+                      setEditForm({ ...editForm, matricula: e.target.value })
+                      if (e.target.value.trim() !== "") {
                         clearFieldAlert("edit-matricula");
-                    }}
+                      }
+                    }
+                    }
                   />
                   <FieldAlert fieldName="edit-matricula" />
                   <label>Email:</label>
@@ -224,31 +249,25 @@ function Alunos() {
                     type="email"
                     value={editForm.email}
                     onChange={(e) => {
-                      setEditForm({ ...editForm, email: e.target.value });
-                      if (e.target.value.trim() !== "")
+                      setEditForm({ ...editForm, email: e.target.value })
+                      if (e.target.value.trim() !== "") {
                         clearFieldAlert("edit-email");
-                    }}
+                      }
+                    }
+                    }
                   />
                   <FieldAlert fieldName="edit-email" />
                   <div className="btn-group">
                     <button type="submit">Salvar</button>
-                    <button type="button" onClick={() => setEditId(null)}>
-                      Cancelar
-                    </button>
+                    <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
                   </div>
                 </form>
               ) : (
                 <>
-                  <strong>{a.nome}</strong>
-                  <br />
-                  Matrícula: {a.matricula}
-                  <br />
-                  Email: {a.email}
-                  <br />
+                  <strong>{a.nome}</strong><br />
+                  Matrícula: {a.matricula}<br />
+                  Email: {a.email}<br />
                   <div className="professor-buttons">
-                    <Link to={`/aluno/${a.id}`} className="visualizar-btn">
-                      Visualizar
-                    </Link>
                     <button
                       onClick={() => {
                         setEditId(a.id);
@@ -270,9 +289,7 @@ function Alunos() {
         </ul>
       </div>
 
-      <Link to="/" className="voltar-btn">
-        Voltar
-      </Link>
+      <Link to="/" className="voltar-btn">Voltar</Link>
     </div>
   );
 }
