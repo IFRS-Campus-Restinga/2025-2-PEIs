@@ -5,7 +5,8 @@ import BotaoEditar from "../../components/customButtons/botaoEditar";
 import BotaoDeletar from "../../components/customButtons/botaoDeletar"; 
 import ErrorMessage from "../../components/errorMessage/ErrorMessage"; 
 import axios from "axios"; 
-import "../Curso.css"; 
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css"
 
 export default function Cursos() { 
   const [cursos, setCursos] = useState([]); 
@@ -87,7 +88,7 @@ export default function Cursos() {
                   "Nenhum"
                 )}
               </td>
-              <td className="acoes-cell"> 
+              <td className="posicao-buttons"> 
                 <BotaoEditar id={curso.id} rotaEdicao="/cursoEditar" />
                 <BotaoDeletar id={curso.id} axiosInstance={DBCURSOS} onDeletarSucesso={carregarCursos} /> 
               </td> 
@@ -96,7 +97,7 @@ export default function Cursos() {
         </table> 
       </div> 
 
-      <Link to="/" className="voltar-btn"> Voltar </Link> 
+      <BotaoVoltar/>
     </div>
   ); 
 }

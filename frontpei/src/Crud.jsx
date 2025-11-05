@@ -3,6 +3,7 @@ import axios from "axios";
 import PEIPeriodoLetivo from "./components/PEIPeriodoLetivo";
 import Pareceres from "./components/Parecer";
 import { Link } from "react-router-dom";
+import "../cssGlobal.css"
 
 function Crud() {
   const DB = axios.create({ baseURL: import.meta.env.VITE_API_URL });

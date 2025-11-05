@@ -1,4 +1,4 @@
-import "./ErrorMessage.css";
+import "../../cssGlobal.css";
 
 const ErrorMessage = ({ message, align = "center" }) => {
   if (!message) return null;

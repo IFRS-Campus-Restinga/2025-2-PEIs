@@ -3,8 +3,9 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import ErrorMessage from "../../components/errorMessage/ErrorMessage";
-import "../Disciplina.css";
 import { useAlert } from "../../context/AlertContext";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
 
 export default function DisciplinasCRUD() {
   const [disciplina, setDisciplina] = useState("");
@@ -70,13 +71,13 @@ export default function DisciplinasCRUD() {
   }
 
   return (
-    <div className="disciplinas-container">
+    <div className="container-padrao">
       <h1>{id ? "Editar Disciplina" : "Cadastrar Disciplina"}</h1>
 
       <ErrorMessage message={erro} />
       {sucesso && <p style={{ color: "green", textAlign: "center" }}>{sucesso}</p>}
 
-      <form className="cursos-form" onSubmit={salvarDisciplina}>
+      <form className="form-padrao" onSubmit={salvarDisciplina}>
         <div className="form-group">
           <label htmlFor="nome">Nome da disciplina:</label>
           <input
@@ -97,9 +98,7 @@ export default function DisciplinasCRUD() {
         </button>
       </form>
 
-      <Link to="/disciplina" className="voltar-btn">
-        Voltar
-      </Link>
+      <BotaoVoltar/>
     </div>
   );
 }

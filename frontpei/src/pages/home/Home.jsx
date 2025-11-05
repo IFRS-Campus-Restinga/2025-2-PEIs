@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./Home.css";
 import DT from "datatables.net-dt";
 import DataTable from "datatables.net-react";
 import "../../utils/dataTables.css";
@@ -13,6 +12,7 @@ import ComponenteCurricular from "../componenteCurricular.jsx";
 import Aluno from "../Aluno.jsx";
 import Pedagogo from "../Pedagogo.jsx";
 // import Napne from "../Napne.jsx";
+import "../../cssGlobal.css";
 
 DataTable.use(DT);
 

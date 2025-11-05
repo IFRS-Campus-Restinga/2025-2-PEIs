@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom"; 
 import axios from "axios"; 
 import ErrorMessage from "../../components/errorMessage/ErrorMessage"; 
-import "../Curso.css"; 
 import { useAlert } from "../../context/AlertContext";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
 
 export default function CursosCRUD() { 
   const { id } = useParams(); // se existir, é edição 
@@ -100,14 +101,14 @@ export default function CursosCRUD() {
   } 
   
   return ( 
-      <div className="cursos-container"> 
+      <div className="container-padrao"> 
         <h1>{id ? "Editar Curso" : "Cadastrar Curso"}</h1> 
         
         <ErrorMessage message={erro} /> 
         
         {sucesso && <p style={{ color: "green", textAlign: "center" }}>{sucesso}</p>} 
         
-          <form className="cursos-form" onSubmit={salvarCurso}> 
+          <form className="form-padrao" onSubmit={salvarCurso}> 
             <div className="form-group"> 
               <label>Nome do curso:</label> 
                 <input type="text" value={curso} onChange={(e) => setCurso(e.target.value)} placeholder="Digite o nome do curso" /> 
@@ -153,9 +154,9 @@ export default function CursosCRUD() {
             <button type="submit" className="submit-btn">
               {id ? "Salvar alterações" : "Adicionar curso"} </button>
           </form>
-        <div className="cursos-form">
+        <div className="form-padrao">
         <div className="form-buttons">
-          <Link to="/curso" className="voltar-btn"> Voltar </Link>
+          <BotaoVoltar/>
         </div>
       </div>
     </div>

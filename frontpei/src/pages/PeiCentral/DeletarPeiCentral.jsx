@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../peiPeriodoLetivo/pei_periodo_letivo.css";
+import "../../cssGlobal.css";
 
 function DeletarPeiCentral() {
   const { id } = useParams();
@@ -24,18 +24,22 @@ function DeletarPeiCentral() {
   }
 
   return (
-    <div className="container">
-      <h2>Excluir PEI Central</h2>
-      <p>Tem certeza que deseja excluir o registro <b>{id}</b>?</p>
+    <div className="container-padrao">
+      <div className="form-padrao">
+        <h2>Excluir PEI Central</h2>
+        <p>Tem certeza que deseja excluir o registro <b>{id}</b>?</p>
 
-      <button 
-        onClick={handleDelete} 
-        style={{ backgroundColor: "red", color: "white", marginRight: "10px" }}
-      >
-        Sim, deletar
-      </button>
+        <div className="posicao-buttons esquerda">
+          <button 
+            onClick={handleDelete} 
+            className="botao-deletar"
+          >
+            Sim, deletar
+          </button>
 
-      <button onClick={handleCancel}>Cancelar</button>
+          <button className="btn-cancelar" onClick={handleCancel}>Cancelar</button>
+        </div>
+      </div>
     </div>
   );
 }

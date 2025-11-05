@@ -3,7 +3,8 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { validaCampos } from "../../utils/validaCampos";
 import { useAlert } from "../../context/AlertContext";
-import "../peiPeriodoLetivo/pei_periodo_letivo.css";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
 
 function CreatePeiCentral() {
   const [historico_do_aluno, setHistorico] = useState("");
@@ -190,23 +191,17 @@ function CreatePeiCentral() {
             <option value="FECHADO">Fechado</option>
           </select>
         </div>
-
+          <br />
+          
         {/* Botão salvar */}
         <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          className="submit-btn"
         >
           Salvar
         </button>
       </form>
 
-      <div className="mt-4">
-        <button>
-          <Link to="/peicentral" className="text-blue-600 hover:underline">
-            Voltar
-          </Link>
-        </button>
-      </div>
+      <BotaoVoltar/>
     </div>
   );
 }

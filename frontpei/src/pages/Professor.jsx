@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
-import "./professor.css";
 import { useAlert, FieldAlert } from "../context/AlertContext";
 import { validaCampos } from "../utils/validaCampos";
+import BotaoVoltar from "../components/customButtons/botaoVoltar";
+import BotaoDeletar from "../components/customButtons/botaoDeletar";
+import BotaoEditar from "../components/customButtons/botaoEditar";
+import "../cssGlobal.css";
 
 function Professor() {
-  const { addAlert } = useAlert();
+  const { addAlert, clearFieldAlert } = useAlert();
   const DBPROFESSORES = axios.create({ baseURL: import.meta.env.VITE_PROFESSORES_URL });
 
   const [professores, setProfessores] = useState([]);
@@ -28,31 +30,28 @@ function Professor() {
     e.preventDefault();
     const mensagens = validaCampos(form, e.target);
     if (mensagens.length > 0) {
-      // ALERTS INLINE
       mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
-      // TOAST GERAL
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
     try {
-      await DBPROFESSORES.post("/", {
-        nome: form.nome,
-        matricula: form.matricula,
-        email: form.email,
-      });
+      await DBPROFESSORES.post("/", form);
       setForm({ nome: "", matricula: "", email: "" });
       recuperaProfessores();
       addAlert("Professor cadastrado com sucesso!", "success");
     } catch (err) {
       console.error(err);
       if (err.response?.data) {
+        Object.entries(err.response.data).forEach(([field, msgs]) => {
+          addAlert(msgs.join(", "), "error", { fieldName: field });
+        });
         const messages = Object.entries(err.response.data)
-          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-          .join(" | ");
-        addAlert(`Erro ao cadastrar ${messages}`, "error");
+          .map(([f, m]) => `${f}: ${m.join(", ")}`)
+          .join("\n");
+        addAlert(`Erro ao cadastrar:\n${messages}`, "error");
       } else {
-        addAlert("Erro ao cadastrar professor (erro desconhecido).", "error");
+        addAlert("Erro ao cadastrar professor.", "error");
       }
     }
   }
@@ -61,16 +60,13 @@ function Professor() {
     e.preventDefault();
     const mensagens = validaCampos(editForm, document.getElementById("editForm"));
     if (mensagens.length > 0) {
-      addAlert(mensagens.join("\n"), "warning");
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}` }));
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
     try {
-      await DBPROFESSORES.put(`/${id}/`, {
-        nome: editForm.nome,
-        matricula: editForm.matricula,
-        email: editForm.email,
-      });
+      await DBPROFESSORES.put(`/${id}/`, editForm);
       setEditId(null);
       setEditForm({ nome: "", matricula: "", email: "" });
       recuperaProfessores();
@@ -78,37 +74,17 @@ function Professor() {
     } catch (err) {
       console.error(err);
       if (err.response?.data) {
+        Object.entries(err.response.data).forEach(([field, msgs]) => {
+          addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
+        });
         const messages = Object.entries(err.response.data)
-          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-          .join(" | ");
-        addAlert(`Erro ao atualizar ${messages}`, "error");
+          .map(([f, m]) => `${f}: ${m.join(", ")}`)
+          .join("\n");
+        addAlert(`Erro ao atualizar:\n${messages}`, "error");
       } else {
-        addAlert("Erro ao atualizar professor (erro desconhecido).", "error");
+        addAlert("Erro ao atualizar professor.", "error");
       }
     }
-  }
-
-  function deletaProfessor(id) {
-    addAlert("Deseja realmente deletar este professor?", "confirm", {
-      onConfirm: async () => {
-        try {
-          await DBPROFESSORES.delete(`/${id}/`);
-          recuperaProfessores();
-          addAlert("Professor deletado com sucesso!", "success");
-        } catch (err) {
-          console.error(err);
-          if (err.response?.data) {
-            const messages = Object.entries(err.response.data)
-              .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-              .join(" | ");
-            addAlert(`Erro ao deletar ${messages}`, "error");
-          } else {
-            addAlert("Erro ao deletar professor (erro desconhecido).", "error");
-          }
-        }
-      },
-      onCancel: () => addAlert("Exclusão cancelada pelo usuário.", "info"),
-    });
   }
 
   useEffect(() => {
@@ -116,17 +92,20 @@ function Professor() {
   }, []);
 
   return (
-    <div className="professores-container">
+    <div className="container-padrao">
       <h1>Gerenciar Professores</h1>
 
       <h2>Cadastrar Professor</h2>
-      <form className="professor-form" onSubmit={adicionaProfessor}>
+      <form className="form-padrao" onSubmit={adicionaProfessor}>
         <label>Nome:</label>
         <input
           name="nome"
           type="text"
           value={form.nome}
-          onChange={(e) => setForm({ ...form, nome: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, nome: e.target.value });
+            if (e.target.value.trim()) clearFieldAlert("nome");
+          }}
           placeholder="Digite o nome do professor"
         />
         <FieldAlert fieldName="nome" />
@@ -136,7 +115,10 @@ function Professor() {
           name="matricula"
           type="text"
           value={form.matricula}
-          onChange={(e) => setForm({ ...form, matricula: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, matricula: e.target.value });
+            if (e.target.value.trim()) clearFieldAlert("matricula");
+          }}
           placeholder="Somente números"
         />
         <FieldAlert fieldName="matricula" />
@@ -146,15 +128,18 @@ function Professor() {
           name="email"
           type="email"
           value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, email: e.target.value });
+            if (e.target.value.trim()) clearFieldAlert("email");
+          }}
           placeholder="exemplo@restinga.ifrs.edu.br"
         />
         <FieldAlert fieldName="email" />
 
-        <button type="submit">Adicionar Professor</button>
+        <button className="submit-btn">Adicionar Professor</button>
       </form>
 
-      <div className="professores-list">
+      <div className="list-padrao">
         <h3>Professores Cadastrados</h3>
         <ul>
           {professores.length === 0 && <li>Nenhum professor cadastrado.</li>}
@@ -162,57 +147,76 @@ function Professor() {
             <li key={p.id}>
               {editId === p.id ? (
                 <form id="editForm" onSubmit={(e) => atualizaProfessor(e, p.id)}>
+                  <label>Nome:</label>
                   <input
                     name="nome"
                     type="text"
                     value={editForm.nome}
-                    onChange={(e) => setEditForm({ ...editForm, nome: e.target.value })}
+                    onChange={(e) => {
+                      setEditForm({ ...editForm, nome: e.target.value });
+                      if (e.target.value.trim()) clearFieldAlert("edit-nome");
+                    }}
                   />
+                  <FieldAlert fieldName="edit-nome" />
+
+                  <label>Matrícula:</label>
                   <input
                     name="matricula"
                     type="text"
                     value={editForm.matricula}
-                    onChange={(e) => setEditForm({ ...editForm, matricula: e.target.value })}
+                    onChange={(e) => {
+                      setEditForm({ ...editForm, matricula: e.target.value });
+                      if (e.target.value.trim()) clearFieldAlert("edit-matricula");
+                    }}
                   />
+                  <FieldAlert fieldName="edit-matricula" />
+
+                  <label>Email:</label>
                   <input
                     name="email"
                     type="email"
                     value={editForm.email}
-                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    onChange={(e) => {
+                      setEditForm({ ...editForm, email: e.target.value });
+                      if (e.target.value.trim()) clearFieldAlert("edit-email");
+                    }}
                   />
-                  <div className="btn-group">
-                    <button type="submit">Salvar</button>
-                    <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
+                  <FieldAlert fieldName="edit-email" />
+
+                  <div className="posicao-buttons esquerda">
+                    <button type="submit" className="btn-salvar">Salvar</button>
+                    <button type="button" className="botao-deletar" onClick={() => setEditId(null)}>
+                      Cancelar
+                    </button>
                   </div>
                 </form>
               ) : (
-                <>
+                <div className="list-padrao">
                   <strong>{p.nome}</strong><br />
                   Matrícula: {p.matricula}<br />
                   Email: {p.email}<br />
-                  <div className="professor-buttons">
-                    <button
-                      onClick={() => {
+                  <div className="posicao-buttons">
+                    <BotaoEditar
+                      id={p.id}
+                      onClickInline={() => {
                         setEditId(p.id);
-                        setEditForm({
-                          nome: p.nome,
-                          matricula: p.matricula,
-                          email: p.email,
-                        });
+                        setEditForm({ nome: p.nome, matricula: p.matricula, email: p.email });
                       }}
-                    >
-                      Editar
-                    </button>
-                    <button onClick={() => deletaProfessor(p.id)}>Deletar</button>
+                    />
+                    <BotaoDeletar
+                      id={p.id}
+                      axiosInstance={DBPROFESSORES}
+                      onDeletarSucesso={recuperaProfessores}
+                    />
                   </div>
-                </>
+                </div>
               )}
             </li>
           ))}
         </ul>
       </div>
 
-      <Link to="/" className="voltar-btn">Voltar</Link>
+      <BotaoVoltar />
     </div>
   );
 }

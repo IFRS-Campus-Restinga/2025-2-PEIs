@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./listar_pei_periodo_letivo.css";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
 
 function PEIPeriodoLetivoLista() {
   const DB = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
@@ -40,7 +41,7 @@ function PEIPeriodoLetivoLista() {
 
   if (id && periodoUnico) {
     return (
-      <div className="container">
+      <div className="container-padrao">
         <h1>Período Letivo #{periodoUnico.id}</h1>
         <div className="periodo-card">
           <b>Data Criação:</b> {periodoUnico.data_criacao} <br />
@@ -50,7 +51,7 @@ function PEIPeriodoLetivoLista() {
           <b>Pareceres:</b>
           {periodoUnico.componentes_curriculares?.length > 0 ? (
             periodoUnico.componentes_curriculares.map((comp) => (
-              <div key={comp.id} className="componente-container">
+              <div key={comp.id} >
                 <i>
                   Componente Curricular:{" "}
                   {comp.disciplina?.nome || "Sem disciplina vinculada"}
@@ -79,12 +80,10 @@ function PEIPeriodoLetivoLista() {
           )}
         </div>
         <div className="botoes-navegacao">
-          <button type="button" onClick={() => navigate("/listar_periodos/")}>
+          <button type="button" className="btn-visualizar" onClick={() => navigate("/listar_periodos/")}>
             Visualizar Lista de Períodos
           </button>
-          <button type="button" onClick={() => navigate("/")}>
-            Voltar para Home
-          </button>
+          <BotaoVoltar/>
         </div>
       </div>
     );
@@ -137,9 +136,7 @@ function PEIPeriodoLetivoLista() {
           </div>
         ))
       )}
-      <button style={{ marginTop: "20px" }}>
-        <Link to="/">Voltar</Link>
-      </button>
+      <BotaoVoltar/>
     </div>
   );
 }
