@@ -1,14 +1,13 @@
 import './App.css'
 import { GoogleOAuthProvider } from '@react-oauth/google'
-import { jwtDecode } from 'jwt-decode'
 import { useState, useEffect } from 'react'
 import { Routes, Route } from "react-router-dom";
 
 // Importações dos contextos/alerts
 import { AlertProvider } from "./context/AlertContext";
-import Alert from "./components/alert/AlertComponent.jsx";
+import AlertComponent from "./components/alert/AlertComponent.jsx";
 
-// Imports das tuas páginas e componentes
+// Imports das páginas e componentes
 import Home from "./pages/home/Home.jsx"
 import Pareceres from "./pages/Parecer.jsx";
 import PEIPeriodoLetivo from "./pages/peiPeriodoLetivo/PEIPeriodoLetivo.jsx";
@@ -32,78 +31,72 @@ import ComponenteCurricular from './pages/componenteCurricular.jsx'
 import AtaDeAcompanhamento from './pages/ataDeAcompanhamento.jsx'
 import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
 import Pedagogos from './pages/Pedagogo.jsx'
-import LoginPage from './pages/login/login.jsx'
+import LoginPage from './pages/login/Login.jsx';
 import Professor from "./pages/Professor.jsx";
 import Perfil from './components/Perfis/Perfil.jsx';
 import VisualizarPEI from './components/Perfis/VisualizarPEI.jsx';
 import Usuarios from './pages/Usuario.jsx';
 import { mandaEmail } from "./lib/mandaEmail";
-import AlertComponent from './components/alert/AlertComponent.jsx';
 
 function App() {
-  // estados para o login do google
+  // Estados do login
+  //console.log("CLIENT_ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
+
   const [usuario, setUsuario] = useState(null)
   const [logado, setLogado] = useState(false)
   const [mensagemErro, setMensagemErro] = useState(null);
   const [perfilSelecionado, setPerfilSelecionado] = useState(null);
 
+  // Carrega usuário do localStorage ao iniciar
   useEffect(() => {
-    const usuarioSalvo = localStorage.getItem("usuario")
-    if (usuarioSalvo) {
-      setUsuario(JSON.parse(usuarioSalvo))
-      setLogado(true)
+    const usuarioSalvo = localStorage.getItem("usuario");
+    const tokenSalvo = localStorage.getItem("django_token");
+    if (usuarioSalvo && tokenSalvo) {
+      setUsuario(JSON.parse(usuarioSalvo));
+      setLogado(true);
     }
-  }, [])
+  }, []);
 
-  const sucessoLoginGoogle = (credentialResponse) => {
-    try {
-      const dados = jwtDecode(credentialResponse.credential)
-      const email = dados.email || ""
-      const partes = email.split("@")
-      if (partes.length !== 2 || !email.endsWith("ifrs.edu.br")) {
-        console.error("Email invalido ou nao autorizado:", email)
-        setUsuario(null)
-        setLogado(false)
-        localStorage.removeItem("usuario")
-        localStorage.removeItem("token")
-        setMensagemErro("Acesso negado. Use um email institucional do IFRS.")
-        return
-      }
-      const userData = { email: dados.email, nome: dados.name, foto: dados.picture }
-      setUsuario(userData)
-      setLogado(true)
-      localStorage.setItem("usuario", JSON.stringify(userData))
-      localStorage.setItem("token", credentialResponse.credential)
-      mandaEmail(email, "Login PEI", "Um novo login acaba de ser realizado com sucesso usando essa conta no sistema PEI!");
-    } catch (erro) {
-      console.error('Erro ao decodificar token do Google:', erro)
-      setUsuario(null)
-      setLogado(false)
+  // Função chamada após login bem-sucedido (pelo LoginPage)
+  const sucessoLoginGoogle = () => {
+    const usuarioSalvo = localStorage.getItem("usuario");
+    const tokenSalvo = localStorage.getItem("django_token");
+    if (usuarioSalvo && tokenSalvo) {
+      const user = JSON.parse(usuarioSalvo);
+      setUsuario(user);
+      setLogado(true);
+      setMensagemErro(null);
+
+      // Envia e-mail de notificação
+      mandaEmail(user.email, "Login PEI", "Um novo login foi realizado com sucesso no sistema PEI!");
     }
-  }
+  };
 
-  const erroLoginGoogle = () => {
-    console.error('Falha no login com o Google')
-    setUsuario(null)
-    setLogado(false)
-    setMensagemErro("Falha no login com o Google. Tente novamente.")
-  }
+  // Função chamada em caso de erro
+  const erroLoginGoogle = (msg = "Falha no login com o Google. Tente novamente.") => {
+    setMensagemErro(msg);
+    setUsuario(null);
+    setLogado(false);
+    localStorage.removeItem("usuario");
+    localStorage.removeItem("django_token");
+  };
 
+  // Função de logout
   const logout = () => {
-    setUsuario(null)
-    setLogado(false)
-    setPerfilSelecionado(null)
-    localStorage.removeItem("usuario")
-    localStorage.removeItem("token")
-  }
+    setUsuario(null);
+    setLogado(false);
+    setPerfilSelecionado(null);
+    localStorage.removeItem("usuario");
+    localStorage.removeItem("django_token");
+    setMensagemErro(null);
+  };
 
   return (
-    <GoogleOAuthProvider clientId="992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <AlertProvider>
-        {/* componente global que exibe alerts */}
         <AlertComponent />
 
-        { logado ? (
+        {logado ? (
           <div className="app-container">
             <Header usuario={usuario} logado={logado} logout={logout} />
             <SubHeader perfilSelecionado={perfilSelecionado} />
@@ -113,17 +106,18 @@ function App() {
               <Routes>
                 <Route 
                   path="/" 
-                  element={<Home 
-                    usuario={usuario} 
-                    perfilSelecionado={perfilSelecionado} 
-                    setPerfilSelecionado={setPerfilSelecionado} 
-                  />} 
+                  element={
+                    <Home 
+                      usuario={usuario} 
+                      perfilSelecionado={perfilSelecionado} 
+                      setPerfilSelecionado={setPerfilSelecionado} 
+                    />
+                  } 
                 />
-                <Route path="/" element={<Home />} />
                 <Route path="/pareceres" element={<Pareceres />} />
                 <Route path="/periodo" element={<PEIPeriodoLetivo />} />
                 <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />
-                <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} /> {/**Teste Mau */}
+                <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} />
                 <Route path="/periodoLetivoPerfil" element={<PeriodoLetivoPerfil />} />
                 <Route path="/disciplina" element={<Disciplinas/>}/>
                 <Route path="/disciplinasCadastrar" element={<DisciplinasCRUD/>}/>

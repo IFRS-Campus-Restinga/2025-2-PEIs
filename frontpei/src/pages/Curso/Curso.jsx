@@ -3,7 +3,7 @@ import downloadIcon from "../../assets/download.svg";
 import { Link } from "react-router-dom"; 
 import BotaoEditar from "../../components/customButtons/botaoEditar"; 
 import BotaoDeletar from "../../components/customButtons/botaoDeletar"; 
-import ErrorMessage from "../../components/errorMessage/ErrorMessage"; 
+import ErrorMessage from "../../components/errorMessage/errorMessage.jsx";
 import axios from "axios"; 
 import "../Curso.css"; 
 import BotaoExportar from "../../components/customButtons/botaoExportar";

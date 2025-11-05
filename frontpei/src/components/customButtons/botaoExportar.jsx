@@ -1,40 +1,86 @@
+// components/customButtons/botaoExportar.jsx
+import { useState } from "react";
 import { jsPDF } from "jspdf";
 import axios from "axios";
 
-export default function BotaoExportar({ DBDATA, nomeArquivo }) {
-    const DBEXPORTAR = axios.create({baseURL: import.meta.env.VITE_EXPORTAR_URL,});
+export default function BotaoExportar({ DBDATA, nomeArquivo, className }) {
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState("");
 
-    async function handleExportar() {
-        try {
-            const pdf = new jsPDF();
-            pdf.text(`Exportação de dados - ${nomeArquivo}`, 10, 10);
+  const DBEXPORTAR = axios.create({
+    baseURL: import.meta.env.VITE_EXPORTAR_URL,
+  });
 
-            let y = 20;
-            DBDATA.forEach((item, index) => {
-                pdf.text(`${index + 1}. ${JSON.stringify(item)}`, 10, y);
-                y += 10;
-            });
+  async function handleExportar() {
+    setLoading(true);
+    setErro("");
 
-            const pdfBlob = pdf.output("blob");
+    try {
+      // 1. Gera o PDF
+      const pdf = new jsPDF();
+      pdf.setFontSize(14);
+      pdf.text(`Exportação de Cursos - ${nomeArquivo}`, 10, 15);
 
-            const formData = new FormData();
-            formData.append("file", pdfBlob, `${nomeArquivo}.pdf`);
-
-            // Envia para o backend via axios
-            const response = await DBEXPORTAR.post("/", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-
-            alert(`PDF enviado com sucesso!`);
-        } catch (err) {
-            console.error(err);
-            alert("Erro ao exportar PDF");
+      let y = 30;
+      DBDATA.forEach((curso, index) => {
+        const linha = `${index + 1}. ${curso.name} (${curso.nivel || "N/D"})`;
+        if (y > 280) {
+          pdf.addPage();
+          y = 20;
         }
-    }
+        pdf.setFontSize(10);
+        pdf.text(linha, 10, y);
+        y += 8;
+      });
 
-    return (
-        <button onClick={handleExportar}>
-        Exportar dados para o Drive
-        </button>
-    );
+      const pdfBlob = pdf.output("blob");
+
+      // 2. Prepara FormData
+      const formData = new FormData();
+      formData.append("file", pdfBlob, `${nomeArquivo}.pdf`);
+
+      // 3. Pega token do Django (do login com Google)
+      const token = localStorage.getItem("django_token");
+      if (!token) {
+        alert("Faça login com Google primeiro!");
+        setLoading(false);
+        return;
+      }
+
+      // 4. Envia pro backend
+      const response = await DBEXPORTAR.post("/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Token ${token}`,
+        },
+        withCredentials: true, // para sessão
+      });
+
+      // 5. Abre o arquivo no Google Drive
+      window.open(response.data.link, "_blank");
+      alert("PDF exportado com sucesso no Google Drive!");
+
+    } catch (err) {
+      console.error("Erro ao exportar:", err);
+      const msg = err.response?.data?.error || "Erro ao enviar PDF";
+      setErro(msg);
+      alert(msg);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div>
+      <button
+        onClick={handleExportar}
+        disabled={loading}
+        className={className}
+        style={{ opacity: loading ? 0.7 : 1 }}
+      >
+        {loading ? "Exportando..." : "Exportar para o Drive"}
+      </button>
+      {erro && <p style={{ color: "red", fontSize: "12px" }}>{erro}</p>}
+    </div>
+  );
 }

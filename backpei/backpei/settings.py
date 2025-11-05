@@ -189,3 +189,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "ifrspei@gmail.com"
 EMAIL_HOST_PASSWORD = "sfer mxfq ouoz hkkq"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# settings.py
+GOOGLE_REDIRECT_URI = "http://localhost:8000/services/auth/google/callback/"
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = True  # True em produção

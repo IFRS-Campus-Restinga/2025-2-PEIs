@@ -17,6 +17,7 @@ from .views.notificacao_view import NotificacaoViewSet
 from .views.notificacao_lista import listar_notificacoes
 from .views.usuario_view_set import UsuarioViewSet
 from .views.export_view import ExportarView
+from .views.callback import google_callback
 
 router = DefaultRouter()
 router.register(r'PEIPeriodoLetivo', PEIPeriodoLetivoViewSet, basename='PEIPeriodoLetivo')
@@ -39,5 +40,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('mandaEmail/', manda_email, name='mandaEmail'),
     path('notificacoes-lista/', listar_notificacoes, name='notificacoes-lista'),
-    path('exportar/', ExportarView.as_view(), name='exportar')
+    path('exportar/', ExportarView.as_view(), name='exportar'),
+    path('auth/google/callback/', google_callback.as_view(), name='google-callback'),
 ]
