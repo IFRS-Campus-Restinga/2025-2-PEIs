@@ -14,6 +14,7 @@ import Pareceres from "./pages/Parecer.jsx";
 import PEIPeriodoLetivo from "./pages/peiPeriodoLetivo/PEIPeriodoLetivo.jsx";
 import PEIPeriodoLetivoLista from "./pages/peiPeriodoLetivo/listar_pei_periodo_letivo.jsx";
 import PeriodoLetivoPerfil from "./pages/telaPerfilProfessor/periodoLetivoPerfil.jsx";
+import Perfil from "./pages/perfil/Perfil.jsx";
 import Cursos from "./pages/Curso/Curso.jsx";
 import CursosCRUD from "./pages/Curso/CursoCRUD.jsx";
 import Disciplinas from "./pages/Disciplina/Disciplina.jsx";
@@ -142,6 +143,8 @@ function App() {
                 <Route path="/logs" element={<Logs/>}/>
                 <Route path="/professor" element={<Professor />} />
                 <Route path="/usuario" element={<Usuarios/>}/>
+                <Route path="/perfil" element={<Perfil/>} />
+
               </Routes>
             </main>
             <Footer/>

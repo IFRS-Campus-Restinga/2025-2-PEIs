@@ -461,12 +461,12 @@
 
 .user-card button {
   color: #fff;
-  background-color: #055C0F;
+  background-color: #d9534f;
 }
 
 /* Botão Sair vermelho no hover */
 .user-card button:hover {
-  background-color: #dc3545;
+  background-color: #c9302c;
   box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
   transform: translateY(-2px);
 }
