@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import { useAlert } from "../../context/AlertContext";
+import { useAlert, FieldAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
 import "../peiPeriodoLetivo/pei_periodo_letivo.css";
 
 function EditarPeiCentral() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addAlert } = useAlert();
+  const { addAlert, clearFieldAlert } = useAlert();
 
   const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
 
