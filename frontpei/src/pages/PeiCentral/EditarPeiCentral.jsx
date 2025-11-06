@@ -43,7 +43,7 @@ function EditarPeiCentral() {
           habilidades: dados.habilidades || "",
           dificuldades_apresentadas: dados.dificuldades_apresentadas || "",
           adaptacoes: dados.adaptacoes || "",
-          aluno_id: dados.aluno_id || ""
+          aluno_id: dados.aluno_id || dados.aluno?.id || ""
         });
         setAluno(dados.aluno);
       } catch (err) {

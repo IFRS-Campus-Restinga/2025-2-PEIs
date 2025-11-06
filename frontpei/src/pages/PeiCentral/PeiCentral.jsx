@@ -41,7 +41,7 @@ function PeiCentral() {
   }, []);
 
   // === Função para gerar PDF ===
-  /*const gerarPDF = async () => {
+  const gerarPDF = async () => {
     if (!selectPei) return;
 
     const { jsPDF } = await import("jspdf");
@@ -60,7 +60,7 @@ function PeiCentral() {
 
     pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
     pdf.save(`PEI_${selectPei.aluno?.nome || "aluno"}.pdf`);
-  }; */
+  };
 
   return (
     <div className="container-padrao">

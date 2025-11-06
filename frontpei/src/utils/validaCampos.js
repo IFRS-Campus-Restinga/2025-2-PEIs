@@ -1,6 +1,6 @@
 import { getAlertManager } from "../context/AlertContext";
 
-// 🔹 Mantém um gerenciador global para exibir alertas inline sem hooks
+// Mantém um gerenciador global para exibir alertas inline sem hooks
 const alertManager = getAlertManager();
 
 /**
