@@ -8,13 +8,14 @@ import BotaoEditar from "../components/customButtons/botaoEditar";
 import "../cssGlobal.css";
 
 function Pedagogos() {
-  const { addAlert, clearFieldAlert } = useAlert();
-  const DBPEDAGOGO = axios.create({ baseURL: import.meta.env.VITE_PEDAGOGO_URL });
-
-  const [form, setForm] = useState({ nome: "" });
+  const DBPEDAGOGO = axios.create({baseURL: import.meta.env.VITE_PEDAGOGO_URL});
+  const [pedagogo, setPedagogo] = useState("");
+  const [pedagogosCadastradas, setPedagogosCadastradas] = useState([]);
   const [editId, setEditId] = useState(null);
-  const [editForm, setEditForm] = useState({ nome: "" });
-  const [pedagogos, setPedagogos] = useState([]);
+  const [editNome, setEditNome] = useState("");
+  const { addAlert, clearFieldAlert } = useAlert();
+  const [form, setForm] = useState({ nome: "" });
+  const [editForm, setEditForm] = useState({nome: ""});
 
   async function recuperaPedagogos() {
     try {
@@ -28,6 +29,7 @@ function Pedagogos() {
   async function adicionaPedagogo(e) {
     e.preventDefault();
     const mensagens = validaCampos(form, e.target);
+    
     if (mensagens.length > 0) {
       mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
       addAlert("Campo obrigatório não preenchido.", "warning");
@@ -35,51 +37,108 @@ function Pedagogos() {
     }
 
     try {
-      await DBPEDAGOGO.post("/", form);
-      setForm({ nome: "" });
-      recuperaPedagogos();
+      await DBPEDAGOGO.post("/", {
+        nome: form.nome
+      });
+
+      setForm({nome: ""});
+      await recuperaPedagogos();
       addAlert("Pedagogo cadastrado com sucesso!", "success");
+      setPedagogo("");
     } catch (err) {
       if (err.response?.data) {
-        Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: field });
-        });
-        const msg = Object.entries(err.response.data)
-          .map(([f, m]) => `${f}: ${m.join(", ")}`)
-          .join("\n");
-        addAlert(`Erro ao cadastrar:\n${msg}`, "error");
+      // Exibe mensagens inline específicas do backend
+      Object.entries(err.response.data).forEach(([field, msgs]) => {
+        addAlert(msgs.join(", "), "error", { fieldName: field });
+      });
+
+      // Monta o texto completo para o toast
+      const messages = Object.entries(err.response.data)
+        .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+        .join("\n");
+
+      addAlert(`Erro ao cadastrar:\n${messages}`, "error");
       } else {
-        addAlert("Erro ao cadastrar pedagogo.", "error");
+      addAlert("Erro ao cadastrar (erro desconhecido).", "error");
       }
     }
+  }
+
+  // Função para deletar disciplina
+  async function deletaPedagogo(id) {
+    addAlert("Deseja realmente deletar este pedagogo?", "confirm", {
+      onConfirm: async () => {
+        try {
+          await DBPEDAGOGO.delete(`/${id}/`);
+          recuperaPedagogos();
+          addAlert("Pedagogo deletado com sucesso!", "success");
+        } catch (err) {
+          console.error(err);
+          if (err.response?.data) {
+              const data = err.response.data;
+
+              // Caso 1: Erro genérico do backend (ex: { "erro": "mensagem" })
+              if (typeof data.erro === "string") {
+                addAlert(data.erro, "error");
+                return;
+              }
+
+              // Caso 2: Erros de campo (ex: { nome: ["Campo obrigatório"], email: [...] })
+              Object.entries(data).forEach(([field, msgs]) => {
+                if (Array.isArray(msgs)) {
+                  addAlert(msgs.join(", "), "error", { fieldName: field });
+                } else {
+                  addAlert(String(msgs), "error");
+                }
+              });
+
+              // Monta um resumo para o toast
+              const messages = Object.entries(data)
+                .map(([field, msgs]) =>
+                  Array.isArray(msgs) ? `${field}: ${msgs.join(", ")}` : `${field}: ${msgs}`
+                )
+                .join("\n");
+
+              addAlert(`Erro ao deletar:\n${messages}`, "error");
+            } else {
+              addAlert("Erro ao deletar (erro desconhecido).", "error");
+            }
+        }
+      },
+      onCancel: () => addAlert("Exclusão cancelada pelo usuário.", "info"),
+    });
   }
 
   async function atualizaPedagogo(e, id) {
     e.preventDefault();
     const mensagens = validaCampos(editForm, document.getElementById("editForm"));
+
     if (mensagens.length > 0) {
-      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}` }));
-      addAlert("Nome é obrigatório.", "warning");
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}`}));
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
     try {
-      await DBPEDAGOGO.put(`/${id}/`, editForm);
+      await DBPEDAGOGO.put(`/${id}/`, { nome: editForm.nome });
       setEditId(null);
-      setEditForm({ nome: "" });
-      recuperaPedagogos();
-      addAlert("Pedagogo atualizado com sucesso!", "success");
+      setEditForm({nome: ""});
+      await recuperaPedagogos();
     } catch (err) {
       if (err.response?.data) {
-        Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
-        });
-        const msg = Object.entries(err.response.data)
-          .map(([f, m]) => `${f}: ${m.join(", ")}`)
-          .join("\n");
-        addAlert(`Erro ao atualizar:\n${msg}`, "error");
+      // Exibe mensagens inline específicas do backend
+      Object.entries(err.response.data).forEach(([field, msgs]) => {
+        addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
+      });
+
+      // Monta o texto completo para o toast
+      const messages = Object.entries(err.response.data)
+        .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+        .join("\n");
+
+        addAlert(`Erro ao editar:\n${messages}`, "error");
       } else {
-        addAlert("Erro ao atualizar pedagogo.", "error");
+        addAlert("Erro ao editar (erro desconhecido).", "error");
       }
     }
   }
@@ -100,10 +159,12 @@ function Pedagogos() {
           type="text"
           value={form.nome}
           onChange={(e) => {
-            setForm({ ...form, nome: e.target.value });
-            if (e.target.value.trim()) clearFieldAlert("nome");
-          }}
-          placeholder="Digite o nome do pedagogo"
+            setForm({ ...form, nome: e.target.value })
+              if (e.target.value.trim() !== "") {
+                clearFieldAlert("nome");
+              }
+            }
+          }
         />
         <FieldAlert fieldName="nome" />
         <button className="submit-btn">Adicionar Pedagogo</button>
@@ -112,38 +173,35 @@ function Pedagogos() {
       <div className="list-padrao">
         <h3>Pedagogos Cadastrados</h3>
         <ul>
-          {pedagogos.length === 0 && <li>Nenhum pedagogo cadastrado.</li>}
-          {pedagogos.map((p) => (
-            <li key={p.id}>
-              {editId === p.id ? (
-                <form id="editForm" onSubmit={(e) => atualizaPedagogo(e, p.id)}>
-                  <label>Nome:</label>
+          {pedagogosCadastradas.map((d) => (
+            <li key={d.id}>
+              {editId === d.id ? (
+                <>
+                  <form id="editForm" onSubmit={(e) => atualizaPedagogo(e, d.id)}>
                   <input
-                    name="nome"
-                    type="text"
                     value={editForm.nome}
                     onChange={(e) => {
-                      setEditForm({ ...editForm, nome: e.target.value });
-                      if (e.target.value.trim()) clearFieldAlert("edit-nome");
-                    }}
+                      setEditForm({...editForm, nome: e.target.value})
+                      if (e.target.value.trim() !== "") {
+                        clearFieldAlert("edit-nome");
+                      }
+                    }
+                  }
                   />
                   <FieldAlert fieldName="edit-nome" />
-                  <div className="posicao-buttons esquerda">
-                    <button type="submit" className="btn-salvar">Salvar</button>
-                    <button type="button" className="botao-deletar" onClick={() => setEditId(null)}>
-                      Cancelar
-                    </button>
+                  <div className="btn-group">
+                    <button onClick={(e) => atualizaPedagogo(e, d.id)}>Salvar</button>
                   </div>
-                </form>
+                  </form>
+                </>
               ) : (
                 <>
-                  <strong>{p.nome}</strong>
-                  <div className="posicao-buttons">
-                    <BotaoEditar
-                      id={p.id}
-                      onClickInline={() => {
-                        setEditId(p.id);
-                        setEditForm({ nome: p.nome });
+                  <span>{d.nome}</span>
+                  <div className="btn-group">
+                    <button
+                      onClick={() => {
+                        setEditId(d.id);
+                        setEditForm(editForm.nome);
                       }}
                     />
                     <BotaoDeletar

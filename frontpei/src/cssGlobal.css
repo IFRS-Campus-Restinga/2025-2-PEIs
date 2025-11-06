@@ -414,6 +414,107 @@ body {
 .icone-item a:focus { color: #000; text-decoration: none; outline: none; }
 .icone-item span { margin-top: 4px; text-align: center; font-weight: bold; font-size: 11px; color: #000; }
 
+
+/* ========================================
+   MODAL DE CONFIRMAÇÃO (BotaoDeletar)
+   ======================================== */
+
+/* Container do modal (genérico) */
+.modal-content {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 420px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: modalFadeIn 0.3s ease-out;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+}
+
+.modal-content h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #055C0F;
+}
+
+.modal-content p {
+  margin: 0;
+  font-size: 16px;
+  color: #444;
+  line-height: 1.5;
+}
+
+.modal-content .erro {
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 500;
+  background: #fee2e2;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 25%;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.modal-buttons button {
+  padding: 6px 12px;          
+  border-radius: 6px;         
+  font-weight: bold;        
+  cursor: pointer;
+  transition: all .3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  min-width: 70px;
+  border: 1px solid transparent;
+  font-size: 14px;             
+}
+
+.modal-buttons .confirmar {
+  background: #055C0F;
+  color: #fff;
+}
+
+.modal-buttons .cancelar {
+  background: #f50909;
+  color: #fff;
+}
+
+.modal-buttons .confirmar:hover:not(:disabled) {
+  background: #fff !important;
+  color: #055C0F !important;
+  border: 1px solid #055C0F !important;
+  transform: scale(1.02);
+  box-shadow: 0 2px 6px rgba(5,92,15,.2);
+}
+
+.modal-buttons .cancelar:hover:not(:disabled) {
+  background: #fff !important;
+  color: #f50909 !important;
+  border: 1px solid #f50909 !important;
+  transform: scale(1.02);
+  box-shadow: 0 2px 6px rgba(245,9,9,.2);
+}
+
+/* DESABILITADO */
+.modal-buttons button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+
 /* ========================================
    MODAL DE LOGS
    ======================================== */
@@ -762,49 +863,6 @@ div.dt-container div.dt-paging ul.pagination {
   gap: 4px;
 }
 
-/*  BOTÕES DE PAGINAÇÃO (VERDES) */
-dt-paging-button {
-  background: #055C0F !important;
-  color: #fff !important;
-  border: 1px solid #055C0F !important;
-  border-radius: 6px !important;
-  min-width: 36px !important;
-  height: 36px !important;
-  padding: 0 8px !important;
-  font-weight: 500 !important;
-  font-size: 13px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  text-decoration: none !important;
-  box-shadow: none !important;
-  transition: all .2s ease !important;
-  margin: 0 2px !important;
-}
-
-/* Hover */
-dt-paging-button:hover:not([disabled]) {
-  background: #067416 !important;
-  border-color: #067416 !important;
-}
-
-/* Página atual */
-dt-paging-button.current {
-  background: #055C0F !important;
-  color: #fff !important;
-  border-color: #055C0F !important;
-  font-weight: 600 !important;
-}
-
-/* Desabilitado */
-dt-paging-button[disabled] {
-  background: #f8f9fa !important;
-  color: #6c757d !important;
-  border-color: #dee2e6 !important;
-  opacity: 0.6 !important;
-  cursor: not-allowed !important;
-}
-
 /* Info: centralizada e em cima */
 div.dt-container .dt-info {
   order: 1;
@@ -827,6 +885,86 @@ div.dt-container .dt-info {
     text-align: center;
   }
 }
+
+/* ========================================
+   PAGINAÇÃO DATATABLES - VERSÃO CLEAN & ELEGANTE
+   ======================================== */
+
+/* Container da paginação */
+.dataTables_wrapper .dataTables_paginate {
+  text-align: center !important;
+  margin-top: 20px !important;
+  padding: 12px 0 !important;
+}
+
+/* Botões (classe correta: dt-paging-button) */
+.dt-paging-button {
+  background: #ffffff !important;
+  color: #055C0F !important;
+  border: 2px solid #055C0F !important;
+  border-radius: 10px !important;
+  min-width: 15px !important;
+  height: 15px !important;
+  padding: 0 8px !important;
+  font-weight: 600 !important;
+  font-size: 13.5px !important;
+  line-height: 38px !important;
+  text-align: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+  box-shadow: 0 3px 8px rgba(5, 92, 15, 0.12) !important;
+  transition: all .28s ease !important;
+  margin: 0 5px !important;
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif !important;
+  letter-spacing: 0.4px;
+}
+
+/* Hover */
+.dt-paging-button:hover:not(.disabled):not(.current) {
+  background: #055C0F !important;
+  color: #fff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(5, 92, 15, 0.25) !important;
+}
+
+/* Página atual */
+.dt-paging-button.current,
+.dt-paging-button.current:hover {
+  background: #055C0F !important;
+  color: #fff !important;
+  border-color: #055C0F !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 16px rgba(5, 92, 15, 0.35) !important;
+  transform: scale(1.06) !important;
+}
+
+/* Desabilitado */
+.dt-paging-button.disabled,
+.dt-paging-button.disabled:hover {
+  background: #f8f9fa !important;
+  color: #adb5bd !important;
+  border-color: #dee2e6 !important;
+  opacity: 0.7 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+  .dt-paging-button {
+    min-width: 64px !important;
+    height: 38px !important;
+    font-size: 12.5px !important;
+    padding: 0 10px !important;
+    margin: 0 3px !important;
+  }
+}
+
+
 /* ========================================
     PÁGINAS ESPECÍFICAS
    ======================================== */
@@ -1280,5 +1418,4 @@ textarea {
   .cargo-dropdown-container { flex-direction: column; align-items: flex-start; }
   .cargo-dropdown { width: 100%; max-width: none; }
 }
-
 

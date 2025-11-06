@@ -70,14 +70,14 @@ export default function BotaoDeletar({ id, axiosInstance, onDeletarSucesso }) {
 
             <div className="modal-buttons">
               <button
-                className="confirmar"
+                className="btn-salvar"
                 onClick={handleDeletar}
                 disabled={carregando}
                 style={{ opacity: carregando ? 0.7 : 1 }}
               >
                 {carregando ? "Deletando..." : "Sim"}
               </button>
-              <button className="cancelar" onClick={fecharModal} disabled={carregando}>
+              <button className="botao-deletar" onClick={fecharModal} disabled={carregando}>
                 Não
               </button>
             </div>
