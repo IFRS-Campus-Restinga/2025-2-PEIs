@@ -18,74 +18,84 @@ const ProfessorView = ({ usuario }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function carregarDados() {
-      try {
-        const [resAlunos, resPeiCentral, resCursos, resPeriodos] = await Promise.all([
-          axios.get(API_ALUNO),
-          axios.get(API_PEICENTRAL),
-          axios.get(API_CURSO),
-          axios.get(API_PEIPERIODO),
-        ]);
+  async function carregarDados() {
+    try {
+      const [resAlunos, resPeiCentral, resCursos, resPeriodos] = await Promise.all([
+        axios.get(API_ALUNO),
+        axios.get(API_PEICENTRAL),
+        axios.get(API_CURSO),
+        axios.get(API_PEIPERIODO),
+      ]);
 
-        const alunosData = resAlunos.data.results || [];
-        const peiCentralsData = Array.isArray(resPeiCentral.data)
-          ? resPeiCentral.data
-          : resPeiCentral.data?.results || [];
-        const cursosData = Array.isArray(resCursos.data)
-          ? resCursos.data
-          : resCursos.data?.results || [];
-        const periodosData = Array.isArray(resPeriodos.data)
-          ? resPeriodos.data
-          : resPeriodos.data?.results || [];
+      // PADRONIZA TODAS AS RESPOSTAS COM .results
+      const alunosData = resAlunos.data?.results || resAlunos.data || [];
+      const peiCentralsData = resPeiCentral.data?.results || resPeiCentral.data || [];
+      const cursosData = resCursos.data?.results || resCursos.data || [];
+      const periodosData = resPeriodos.data?.results || resPeriodos.data || [];
 
-        const dadosTabela = [];
+      console.log("Dados carregados:", { alunosData, peiCentralsData, cursosData, periodosData }); // REMOVA DEPOIS
 
-        alunosData.forEach((aluno) => {
-          const peiCentral = peiCentralsData.find((p) => p.aluno?.id === aluno.id);
-          const peiCentralStatus = peiCentral?.status_pei || "—";
+      const dadosTabela = [];
 
-          const periodos = peiCentral
-            ? periodosData.filter((periodo) => periodo.pei_central === peiCentral.id)
-            : [];
+      alunosData.forEach((aluno) => {
+        const peiCentral = peiCentralsData.find((p) => p.aluno?.id === aluno.id);
+        const peiCentralStatus = peiCentral?.status_pei || "Sem PEI";
 
-          if (periodos.length > 0) {
-            periodos.forEach((periodo) => {
-              (periodo.componentes_curriculares || []).forEach((comp) => {
+        const periodosDoAluno = peiCentral
+          ? periodosData.filter((periodo) => periodo.pei_central === peiCentral.id)
+          : [];
+
+        if (periodosDoAluno.length > 0) {
+          periodosDoAluno.forEach((periodo) => {
+            const componentes = periodo.componentes_curriculares || [];
+            if (componentes.length === 0) {
+              dadosTabela.push({
+                nome: aluno.nome,
+                componente: "—",
+                status: peiCentralStatus,
+                coordenador: "—",
+                peiCentralId: peiCentral?.id || null,
+              });
+            } else {
+              componentes.forEach((comp) => {
                 const disciplina = comp.disciplina;
                 if (!disciplina) return;
 
                 const cursoRelacionado = cursosData.find((curso) =>
-                  curso.disciplinas.some((d) => d.id === disciplina.id)
+                  curso.disciplinas?.some((d) => d.id === disciplina.id)
                 );
 
                 dadosTabela.push({
                   nome: aluno.nome,
-                  componente: disciplina.nome,
+                  componente: disciplina.nome || "Disciplina sem nome",
                   status: peiCentralStatus,
-                  coordenador: cursoRelacionado?.coordenador?.nome || "—",
+                  coordenador: cursoRelacionado?.coordenador?.nome || "Sem coordenador",
                   peiCentralId: peiCentral?.id || null,
                 });
               });
-            });
-          } else {
-            dadosTabela.push({
-              nome: aluno.nome,
-              componente: "—",
-              status: peiCentralStatus,
-              coordenador: "—",
-              peiCentralId: peiCentral?.id || null,
-            });
-          }
-        });
+            }
+          });
+        } else {
+          // Aluno sem período letivo
+          dadosTabela.push({
+            nome: aluno.nome,
+            componente: "—",
+            status: peiCentralStatus,
+            coordenador: "—",
+            peiCentralId: peiCentral?.id || null,
+          });
+        }
+      });
 
-        setTableData(dadosTabela);
-      } catch (err) {
-        console.error("Erro ao carregar dados:", err);
-      }
+      setTableData(dadosTabela);
+    } catch (err) {
+      console.error("Erro ao carregar dados:", err);
+      alert("Erro ao carregar dados. Verifique o console.");
     }
+  }
 
-    carregarDados();
-  }, []);
+  carregarDados();
+}, []);
 
   const handleVisualizarClick = (peiCentralId) => {
     if (!peiCentralId) {

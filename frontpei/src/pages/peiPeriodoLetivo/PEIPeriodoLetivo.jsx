@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useAlert } from "../../context/AlertContext";
+import { useAlert, FieldAlert } from "../../context/AlertContext";
+import { validaCampos } from "../../utils/validaCampos";
 import { Link } from "react-router-dom";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import "../../cssGlobal.css";
 
 function PEIPeriodoLetivo() {
-  const { addAlert } = useAlert();
+  const { addAlert, clearFieldAlert } = useAlert();
 
   const DB = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
   const DB_CENTRAL = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
@@ -17,6 +18,22 @@ function PEIPeriodoLetivo() {
   const [peiCentralId, setPeiCentralId] = useState("");
   const [peiCentrals, setPeiCentrals] = useState([]);
   const [editingId, setEditingId] = useState(null);
+
+  const [form, setForm] = useState({
+    dataCriacao: "",
+    dataTermino: "",
+    periodo: "",
+    peiCentral: "",
+
+  });
+
+  const [editForm, setEditForm] = useState({
+    dataCriacao: "",
+    dataTermino: "",
+    periodo: "",
+    peiCentral: "",
+
+  });
 
   useEffect(() => {
     async function carregarPeiCentrals() {
@@ -38,41 +55,65 @@ function PEIPeriodoLetivo() {
   async function salvarPeriodo(event) {
     event.preventDefault();
 
-    if (!dataCriacao || !dataTermino || !periodoEscolhido || !peiCentralId) {
-      addAlert("Preencha todos os campos!", "warning");
-      return;
-    }
+    const mensagens = validaCampos(form, event.target);
+    
+      if (mensagens.length > 0) {
+        // ALERTAS INLINE por campo
+        mensagens.forEach((m) =>
+          addAlert(m.message, "error", { fieldName: m.fieldName })
+        );
+    
+        // ALERTA GLOBAL
+        addAlert("Existem campos obrigatórios não preenchidos.", "warning");
+        return;
+      }
 
-    const novo = {
-      data_criacao: dataCriacao,
-      data_termino: dataTermino,
-      periodo: periodoEscolhido,
-      pei_central: peiCentralId,
-    };
+    
 
     try {
       if (editingId) {
-        await DB.put(`${editingId}/`, novo);
+        await DB.put(`${editingId}/`, {
+          data_criacao: editForm.dataCriacao,
+          data_termino: editForm.dataTermino,
+          periodo: editForm.periodo,
+          pei_central: editForm.peiCentral,
+        });
         addAlert("Período atualizado com sucesso!", "success");
       } else {
-        await DB.post("/", novo);
+        await DB.post("/", {
+          data_criacao: form.dataCriacao,
+          data_termino: form.dataTermino,
+          periodo: form.periodo,
+          pei_central: form.peiCentral,
+        });
+        setForm({
+          dataCriacao: "",
+          dataTermino: "",
+          periodo: "",
+          peiCentral: "",
+        })
+
         addAlert("Período cadastrado com sucesso!", "success");
       }
 
-      setDataCriacao("");
-      setDataTermino("");
-      setPeriodoEscolhido("");
-      setPeiCentralId("");
       setEditingId(null);
     } catch (err) {
-      console.error("Erro ao salvar período:", err);
+      console.error(err);
+
       if (err.response?.data) {
+        // Exibe mensagens inline específicas do backend
+        Object.entries(err.response.data).forEach(([field, msgs]) => {
+          addAlert(msgs.join(", "), "error", { fieldName: field });
+        });
+
+        // Monta o texto completo para o toast
         const messages = Object.entries(err.response.data)
-          .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
-          .join(" | ");
-        addAlert(`Erro ao salvar período: ${messages}`, "error");
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+          .join("\n");
+
+        addAlert(`Erro ao cadastrar:\n${messages}`, "error");
       } else {
-        addAlert("Falha ao salvar período (erro desconhecido).", "error");
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
       }
     }
   }
@@ -120,32 +161,59 @@ function PEIPeriodoLetivo() {
         <label>Data de Criação:</label>
         <input
           type="date"
-          value={dataCriacao}
-          onChange={(e) => setDataCriacao(e.target.value)}
+          name="dataCriacao"
+          value={form.dataCriacao}
+          onChange={(e) => {
+            setForm({ ...form, dataCriacao: e.target.value })
+            if (e.target.value.trim() !== "") {
+              clearFieldAlert("dataCriacao");
+            }
+          }}
         />
+        <FieldAlert fieldName="dataCriacao" />
 
         <label>Data de Término:</label>
         <input
           type="date"
-          value={dataTermino}
-          onChange={(e) => setDataTermino(e.target.value)}
+          name = "dataTermino"
+          value={form.dataTermino}
+          onChange={(e) => {
+            setForm({ ...form, dataTermino: e.target.value })
+            if (e.target.value.trim() !== "") {
+              clearFieldAlert("dataTermino");
+            }
+          }}
         />
+        <FieldAlert fieldName="dataTermino" />
 
         <label>Período:</label>
         <select
-          value={periodoEscolhido}
-          onChange={(e) => setPeriodoEscolhido(e.target.value)}
+          value={form.periodo}
+          name= "periodo"
+          onChange={(e) => {
+            setForm({ ...form, periodo: e.target.value })
+            if (e.target.value.trim() !== "") {
+              clearFieldAlert("periodo");
+            }
+          }}
         >
           <option value="">-- selecione --</option>
           <option value="BIMESTRE">Bimestre</option>
           <option value="TRIMESTRE">Trimestre</option>
           <option value="SEMESTRE">Semestre</option>
         </select>
+        <FieldAlert fieldName="periodo" />
 
         <label>PEI do Aluno:</label>
         <select
-          value={peiCentralId}
-          onChange={(e) => setPeiCentralId(e.target.value)}
+          value={form.peiCentral}
+          name = "peiCentral"
+          onChange={(e) => {
+            setForm({ ...form, peiCentral: e.target.value })
+            if (e.target.value.trim() !== "") {
+              clearFieldAlert("peiCentral");
+            }
+          }}
         >
           <option value="">-- selecione --</option>
           {Array.isArray(peiCentrals) &&
@@ -155,8 +223,9 @@ function PEIPeriodoLetivo() {
               </option>
             ))}
         </select>
-            <br /><br />
-        <button className="submit-btn">
+        <FieldAlert fieldName="peiCentral" />
+
+        <button type="submit-btn" className="submit-btn">
           {editingId ? "Atualizar" : "Adicionar"}
         </button>
       </form>
