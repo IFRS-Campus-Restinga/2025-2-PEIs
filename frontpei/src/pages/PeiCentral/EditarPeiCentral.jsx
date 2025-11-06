@@ -11,7 +11,7 @@ function EditarPeiCentral() {
   const navigate = useNavigate();
   const { addAlert } = useAlert();
 
-  const DB = axios.create(API_ROUTES.PEI_CENTRAL);
+  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 
   const [status_pei, setStatus] = useState("");
   const [historico_do_aluno, setHistorico] = useState("");

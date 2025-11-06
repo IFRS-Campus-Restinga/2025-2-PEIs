@@ -10,10 +10,10 @@ import "../cssGlobal.css"
 function Pareceres() {
   const { addAlert, clearFieldAlert } = useAlert();
 
-  const DBCOMPONENTES = axios.create(API_ROUTES.COMPONENTECURRICULAR);
-  const DBDISCIPLINAS = axios.create(API_ROUTES.DISCIPLINAS);
-  const DBPROF = axios.create(API_ROUTES.PROFESSOR);
-  const DBPARECERES = axios.create(API_ROUTES.PARECER);
+  const DBCOMPONENTES = axios.create({ baseURL: API_ROUTES.COMPONENTECURRICULAR });
+  const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
+  const DBPROF = axios.create({ baseURL: API_ROUTES.PROFESSOR });
+  const DBPARECERES = axios.create({ baseURL: API_ROUTES.PARECER });
 
   const [componentes, setComponentes] = useState([]);
   const [disciplinas, setDisciplinas] = useState([]);

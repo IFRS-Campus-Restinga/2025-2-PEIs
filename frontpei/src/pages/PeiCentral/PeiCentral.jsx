@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
-import { API_ROUTES } from "../../configs/apiRoutes";
+import { API_ROUTES, BACKEND_TOKEN } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
 import BotaoEditar from "../../components/customButtons/botaoEditar";
 

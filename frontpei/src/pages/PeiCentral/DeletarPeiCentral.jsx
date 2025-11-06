@@ -7,7 +7,7 @@ function DeletarPeiCentral() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const DB = axios.create(API_ROUTES.PEI_CENTRAL);
+  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 
   async function handleDelete() {
     try {

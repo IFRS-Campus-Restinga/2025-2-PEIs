@@ -10,7 +10,7 @@ import "../cssGlobal.css";
 
 function Professor() {
   const { addAlert, clearFieldAlert } = useAlert();
-  const DBPROFESSORES = axios.create(API_ROUTES.PROFESSOR);
+  const DBPROFESSORES = axios.create({ baseURL: API_ROUTES.PROFESSOR });
 
   const [professores, setProfessores] = useState([]);
   const [form, setForm] = useState({ nome: "", matricula: "", email: "" });

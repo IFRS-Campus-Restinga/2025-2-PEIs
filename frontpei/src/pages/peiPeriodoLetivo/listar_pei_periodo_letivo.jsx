@@ -6,7 +6,7 @@ import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
 
 function PEIPeriodoLetivoLista() {
-  const DB = axios.create(API_ROUTES.PEIPERIODOLETIVO);
+  const DB = axios.create({ baseURL: API_ROUTES.PEIPERIODOLETIVO });
   const [periodos, setPeriodos] = useState([]);
   const [erro, setErro] = useState(false);
   const [periodoUnico, setPeriodoUnico] = useState(null);

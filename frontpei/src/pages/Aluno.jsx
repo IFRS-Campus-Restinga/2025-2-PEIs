@@ -10,7 +10,7 @@ import "../cssGlobal.css";
 
 function Alunos() {
   const { addAlert, clearFieldAlert } = useAlert();
-  const DBALUNOS = axios.create(API_ROUTES.ALUNOS);
+  const DBALUNOS = axios.create({ baseURL: API_ROUTES.ALUNOS });
 
   const [alunos, setAlunos] = useState([]);
   const [form, setForm] = useState({ nome: "", matricula: "", email: "" });

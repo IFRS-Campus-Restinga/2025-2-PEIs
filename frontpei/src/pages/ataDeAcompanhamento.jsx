@@ -10,8 +10,8 @@ import "../cssGlobal.css";
 
 function AtaDeAcompanhamento() {
   const { addAlert, clearFieldAlert } = useAlert();
-  const DBATA = axios.create(API_ROUTES.ATADEACOMPANHAMENTO);
-  const PERIODO_LETIVO_API = axios.create(API_ROUTES.PEIPERIODOLETIVO);
+  const DBATA = axios.create({ baseURL: API_ROUTES.ATADEACOMPANHAMENTO });
+  const PERIODO_LETIVO_API = axios.create({ baseURL: API_ROUTES.PEIPERIODOLETIVO });
 
   const [form, setForm] = useState({
     dataReuniao: "",

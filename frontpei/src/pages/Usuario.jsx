@@ -9,9 +9,9 @@ import "../cssGlobal.css"
 
 function Usuarios() {
   // estados necessarios
-  const DBUsuario = axios.create(API_ROUTES.USUARIO);
-  const [usuarios, setUsuarios] = useState([])
-  const [erroBanco, setErroBanco] = useState(false)
+  const DBUsuario = axios.create({ baseURL: API_ROUTES.USUARIO });
+  const [usuarios, setUsuarios] = useState([]);
+  const [erroBanco, setErroBanco] = useState(false);
 
 
   // funcao para buscar no rest/django os usuarios cadastrados

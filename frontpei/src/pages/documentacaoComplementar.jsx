@@ -10,7 +10,7 @@ import "../cssGlobal.css";
 
 function DocumentacaoComplementar() {
   const { addAlert, clearFieldAlert } = useAlert();
-  const DBDOC = axios.create(API_ROUTES.DOCUMENTACAOCOMPLEMENTAR);
+  const DBDOC = axios.create({ baseURL: API_ROUTES.DOCUMENTACAOCOMPLEMENTAR });
 
   const [form, setForm] = useState({ autor: "", tipo: "", arquivo: null });
   const [arquivo, setArquivo] = useState(null);

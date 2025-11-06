@@ -28,9 +28,9 @@ export default function CursosCRUD() {
      { label: "Não informado", value: "Não informado" } 
   ]; 
   
-  const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL }); 
-  const DBCURSOS = axios.create(API_ROUTES.CURSOS); 
-  const DBCOORDENADOR = axios.create({ baseURL: import.meta.env.VITE_COORDENADORCURSO_URL }); 
+  const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS }); 
+  const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS }); 
+  const DBCOORDENADOR = axios.create({ baseURL: API_ROUTES.COORDENADORCURSO }); 
   
   useEffect(() => {
     async function fetchData() {

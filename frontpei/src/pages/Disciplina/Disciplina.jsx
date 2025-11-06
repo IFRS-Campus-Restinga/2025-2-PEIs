@@ -11,7 +11,7 @@ export default function Disciplinas() {
   const [disciplinas, setDisciplinas] = useState([]);
   const [erro, setErro] = useState(false);
 
-  const DBDISCIPLINAS = axios.create(API_ROUTES.DISCIPLINAS);
+  const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
 
   async function carregarDisciplinas() {
     try {

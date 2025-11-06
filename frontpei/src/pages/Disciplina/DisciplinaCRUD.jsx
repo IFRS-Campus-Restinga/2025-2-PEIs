@@ -15,7 +15,7 @@ export default function DisciplinasCRUD() {
   const [isSubmitting, setIsSubmitting] = useState(false); // ← Flag para evitar múltiplos submits
   const { addAlert } = useAlert();
 
-  const DB = axios.create(API_ROUTES.DISCIPLINAS);
+  const DB = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
   const navigate = useNavigate();
   const { id } = useParams();
 

@@ -11,7 +11,7 @@ import "../cssGlobal.css";
 function ComponenteCurricular() {
   const { addAlert, clearFieldAlert } = useAlert();
 
-  const DBCOMPONENTECURRICULAR = axios.create(API_ROUTES.COMPONENTECURRICULAR);
+  const DBCOMPONENTECURRICULAR = axios.create({ baseURL: API_ROUTES.COMPONENTECURRICULAR });
   const DISCIPLINAS_API = API_ROUTES.DISCIPLINAS;
   const PERIODO_LETIVO_API = API_ROUTES.PEIPERIODOLETIVO;
 

@@ -10,7 +10,7 @@ import "../cssGlobal.css";
 
 function Pedagogos() {
   const { addAlert, clearFieldAlert } = useAlert();
-  const DBPEDAGOGO = axios.create(API_ROUTES.PEDAGOGO);
+  const DBPEDAGOGO = axios.create({ baseURL: API_ROUTES.PEDAGOGO });
 
   const [form, setForm] = useState({ nome: "" });
   const [editId, setEditId] = useState(null);

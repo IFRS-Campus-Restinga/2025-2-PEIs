@@ -12,7 +12,7 @@ import "../../cssGlobal.css"
 export default function Cursos() { 
   const [cursos, setCursos] = useState([]); 
   const [erro, setErro] = useState(""); 
-  const DBCURSOS = axios.create(API_ROUTES.CURSOS); 
+  const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS }); 
   
   async function carregarCursos() { 
     try {
