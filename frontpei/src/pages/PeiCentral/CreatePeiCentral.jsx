@@ -5,6 +5,7 @@ import { validaCampos } from "../../utils/validaCampos";
 import { useAlert } from "../../context/AlertContext";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import "../../cssGlobal.css";
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 function CreatePeiCentral() {
   const [historico_do_aluno, setHistorico] = useState("");
@@ -19,8 +20,8 @@ function CreatePeiCentral() {
   const { addAlert } = useAlert();
   const navigate = useNavigate();
 
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
-  const DBALUNO = axios.create({ baseURL: import.meta.env.VITE_ALUNO_URL });
+  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
+  const DBALUNO = axios.create({ baseURL: API_ROUTES.ALUNO });
 
   // 🔹 Carrega alunos na abertura da tela
   useEffect(() => {

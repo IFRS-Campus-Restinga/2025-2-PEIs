@@ -5,12 +5,13 @@ import { validaCampos } from "../../utils/validaCampos";
 import { Link } from "react-router-dom";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import "../../cssGlobal.css";
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 function PEIPeriodoLetivo() {
   const { addAlert, clearFieldAlert } = useAlert();
 
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
-  const DB_CENTRAL = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
+  const DB = axios.create({ baseURL: API_ROUTES.PEIPERIODOLETIVO });
+  const DB_CENTRAL = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 
   const [dataCriacao, setDataCriacao] = useState("");
   const [dataTermino, setDataTermino] = useState("");

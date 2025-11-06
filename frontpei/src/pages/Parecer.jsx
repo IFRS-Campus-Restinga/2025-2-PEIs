@@ -5,14 +5,15 @@ import { useAlert, FieldAlert } from "../context/AlertContext";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import { validaCampos } from "../utils/validaCampos";
 import "../cssGlobal.css"
+import { API_ROUTES } from "../configs/apiRoutes";
 
 function Pareceres() {
   const { addAlert, clearFieldAlert } = useAlert();
 
-  const DBCOMPONENTES = axios.create({ baseURL: import.meta.env.VITE_COMPONENTE_CURRICULAR });
-  const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
-  const DBPROF = axios.create({ baseURL: import.meta.env.VITE_PROFESSORES_URL });
-  const DBPARECERES = axios.create({ baseURL: import.meta.env.VITE_PEIPARECERES_URL });
+  const DBCOMPONENTES = axios.create({ baseURL: API_ROUTES.COMPONENTECURRICULAR });
+  const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
+  const DBPROF = axios.create({ baseURL: API_ROUTES.PROFESSOR });
+  const DBPARECERES = axios.create({ baseURL: API_ROUTES.PARECER });
 
   const [componentes, setComponentes] = useState([]);
   const [disciplinas, setDisciplinas] = useState([]);

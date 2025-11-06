@@ -6,10 +6,11 @@ import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import "../cssGlobal.css";
+import { API_ROUTES } from "../configs/apiRoutes";
 
 function Pedagogos() {
-  const DBPEDAGOGO = axios.create({ baseURL: import.meta.env.VITE_PEDAGOGO_URL });
-  
+  const DBPEDAGOGO = axios.create({baseURL: API_ROUTES.PEDAGOGO});
+  const [pedagogo, setPedagogo] = useState("");
   const [pedagogosCadastradas, setPedagogosCadastradas] = useState([]);
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({ nome: "" });

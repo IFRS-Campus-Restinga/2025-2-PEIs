@@ -6,10 +6,11 @@ import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import "../cssGlobal.css";
+import { API_ROUTES } from "../configs/apiRoutes";
 
 function CoordenadoresCurso() {
   const { addAlert, clearFieldAlert } = useAlert();
-  const DBCOORDENADORES = axios.create({ baseURL: import.meta.env.VITE_COORDENADORCURSO_URL });
+  const DBCOORDENADORES = axios.create({ baseURL: API_ROUTES.COORDENADORCURSO });
 
   const [form, setForm] = useState({ nome: "" });
   const [editId, setEditId] = useState(null);

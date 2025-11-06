@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../cssGlobal.css";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import { validaCampos } from "../../utils/validaCampos";
 import { useAlert, FieldAlert } from "../../context/AlertContext";
 
@@ -9,7 +10,7 @@ function DeletarPeiCentral() {
   const navigate = useNavigate();
   const {addAlert} = useAlert();
 
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
+  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 
   async function handleDelete() {
     try {

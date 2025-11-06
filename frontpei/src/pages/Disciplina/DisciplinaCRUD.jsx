@@ -5,13 +5,19 @@ import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import "../../cssGlobal.css";
 import { useAlert, FieldAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 export default function DisciplinasCRUD() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { addAlert, clearFieldAlert } = useAlert();
-  const [form, setForm] = useState({ nome: "" });
-  
-  const DB = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
+  const [form, setForm] = useState({
+    nome: ""
+  })
+  const [editForm, setEditForm] = useState({
+    nome: ""
+  })
+
+  const DB = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
   const navigate = useNavigate();
   const { id } = useParams();
 

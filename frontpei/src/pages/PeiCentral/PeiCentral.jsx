@@ -5,6 +5,7 @@ import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import "../../cssGlobal.css";
 import BotaoEditar from "../../components/customButtons/botaoEditar";
 
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 function PeiCentral() {
   const [pei_central, setPeiCentral] = useState([]);
@@ -13,7 +14,7 @@ function PeiCentral() {
   const [modalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
+  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 
   useEffect(() => {
     async function carregarPeiCentral() {

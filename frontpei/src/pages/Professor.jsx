@@ -6,10 +6,11 @@ import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import "../cssGlobal.css";
+import { API_ROUTES } from "../configs/apiRoutes";
 
 function Professor() {
   const { addAlert, clearFieldAlert } = useAlert();
-  const DBPROFESSORES = axios.create({ baseURL: import.meta.env.VITE_PROFESSORES_URL });
+  const DBPROFESSORES = axios.create({ baseURL: API_ROUTES.PROFESSOR });
 
   const [professores, setProfessores] = useState([]);
   const [form, setForm] = useState({ nome: "", matricula: "", email: "" });
