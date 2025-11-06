@@ -21,7 +21,7 @@ function CreatePeiCentral() {
   const navigate = useNavigate();
 
   const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
-  const DBALUNO = axios.create({ baseURL: API_ROUTES.ALUNOS });
+  const DBALUNO = axios.create({ baseURL: API_ROUTES.ALUNO });
 
   // 🔹 Carrega alunos na abertura da tela
   useEffect(() => {
