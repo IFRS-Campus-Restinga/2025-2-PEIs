@@ -5,11 +5,12 @@ import { validaCampos } from "../utils/validaCampos";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
+import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css";
 
 function Pedagogos() {
   const { addAlert, clearFieldAlert } = useAlert();
-  const DBPEDAGOGO = axios.create({ baseURL: import.meta.env.VITE_PEDAGOGO_URL });
+  const DBPEDAGOGO = axios.create(API_ROUTES.PEDAGOGO);
 
   const [form, setForm] = useState({ nome: "" });
   const [editId, setEditId] = useState(null);

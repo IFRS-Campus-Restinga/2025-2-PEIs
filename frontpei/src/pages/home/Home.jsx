@@ -3,15 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import DT from "datatables.net-dt";
 import DataTable from "datatables.net-react";
-import "../../utils/dataTables.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
-
-// Componentes individuais
-import CoordenadorCurso from "../CoordenadorCurso.jsx";
-import ComponenteCurricular from "../componenteCurricular.jsx";
-import Aluno from "../Aluno.jsx";
-import Pedagogo from "../Pedagogo.jsx";
-// import Napne from "../Napne.jsx";
 import "../../cssGlobal.css";
 
 DataTable.use(DT);
@@ -106,6 +98,7 @@ const Home = ({ usuario }) => {
       alert("Nenhum PEI Central vinculado a este aluno.");
       return;
     }
+    //mostrar isso pro pessoal pq é interessante
     navigate("/periodoLetivoPerfil", {
       state: {
         peiCentralId,
@@ -125,24 +118,6 @@ const Home = ({ usuario }) => {
     return () => document.removeEventListener("click", handleButtonClick);
   }, [cargoSelecionado]);
 
-  // Renderiza o componente conforme o cargo selecionado
-  const renderComponenteCargo = () => {
-    switch (cargoSelecionado) {
-      case "Coordenador de Curso":
-        return <CoordenadorCurso />;
-      case "Componente Curricular":
-        return <ComponenteCurricular />;
-      case "Aluno":
-        return <Aluno />;
-      case "Pedagogo":
-        return <Pedagogo />;
-      // case "NAPNE":
-      //   return <Napne />;
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="telaPadrao-page">
       <div className="cargo-dropdown-container">
@@ -157,20 +132,14 @@ const Home = ({ usuario }) => {
         >
           <option value="">— Escolher —</option>
           <option value="Professor">Professor</option>
+          <option value="NAPNE">NAPNE</option>
           <option value="Coordenador de Curso">Coordenador de Curso</option>
-          <option value="Componente Curricular">Componente Curricular</option>
           <option value="Pedagogo">Pedagogo</option>
-          {/* <option value="NAPNE">NAPNE</option> */}
           <option value="Administrador">Administrador</option>
         </select>
       </div>
 
-      {loading && <p className="carregando">Carregando dados...</p>}
-      {erro && <p className="erro">{erro}</p>}
-
-      {/* Renderiza a tabela principal apenas quando o cargo é Professor ou não há seleção */}
-      {(cargoSelecionado === "" || cargoSelecionado === "Professor") && (
-        <DataTable
+      <DataTable
           data={tableData}
           columns={[
             { title: "Nome do aluno", data: "nome" },
@@ -211,12 +180,6 @@ const Home = ({ usuario }) => {
             },
           }}
         />
-      )}
-
-      {/* Renderiza outros componentes se o cargo for diferente de Professor */}
-      {cargoSelecionado !== "" && cargoSelecionado !== "Professor" && (
-        <div className="conteudo-home">{renderComponenteCargo()}</div>
-      )}
     </div>
   );
 };

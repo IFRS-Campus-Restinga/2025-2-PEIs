@@ -6,12 +6,13 @@ import BotaoDeletar from "../../components/customButtons/botaoDeletar";
 import ErrorMessage from "../../components/errorMessage/ErrorMessage"; 
 import axios from "axios"; 
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css"
 
 export default function Cursos() { 
   const [cursos, setCursos] = useState([]); 
   const [erro, setErro] = useState(""); 
-  const DBCURSOS = axios.create({ baseURL: import.meta.env.VITE_CURSOS_URL }); 
+  const DBCURSOS = axios.create(API_ROUTES.CURSOS); 
   
   async function carregarCursos() { 
     try {

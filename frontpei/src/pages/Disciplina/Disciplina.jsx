@@ -4,13 +4,14 @@ import BotaoEditar from "../../components/customButtons/botaoEditar";
 import BotaoDeletar from "../../components/customButtons/botaoDeletar";
 import axios from "axios";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
 
 export default function Disciplinas() {
   const [disciplinas, setDisciplinas] = useState([]);
   const [erro, setErro] = useState(false);
 
-  const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
+  const DBDISCIPLINAS = axios.create(API_ROUTES.DISCIPLINAS);
 
   async function carregarDisciplinas() {
     try {

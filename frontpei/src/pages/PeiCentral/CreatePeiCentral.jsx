@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { validaCampos } from "../../utils/validaCampos";
 import { useAlert } from "../../context/AlertContext";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
 
 function CreatePeiCentral() {
@@ -19,8 +20,8 @@ function CreatePeiCentral() {
   const { addAlert } = useAlert();
   const navigate = useNavigate();
 
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
-  const DBALUNO = axios.create({ baseURL: import.meta.env.VITE_ALUNO_URL });
+  const DB = axios.create(API_ROUTES.PEI_CENTRAL);
+  const DBALUNO = axios.create(API_ROUTES.ALUNOS);
 
   // 🔹 Carrega alunos na abertura da tela
   useEffect(() => {

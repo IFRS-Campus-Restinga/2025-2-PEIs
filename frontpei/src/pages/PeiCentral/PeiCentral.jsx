@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
 import BotaoEditar from "../../components/customButtons/botaoEditar";
 
@@ -12,7 +13,7 @@ function PeiCentral() {
   const navigate = useNavigate();
 
   const DB = axios.create({
-    baseURL: API_ROUTES.PEI_CENTRAL, // usa o padrão do projeto
+    baseURL: API_ROUTES.PEI_CENTRAL,
     headers: {
       Authorization: `Token ${BACKEND_TOKEN}`,
     },

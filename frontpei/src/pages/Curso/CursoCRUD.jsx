@@ -4,6 +4,7 @@ import axios from "axios";
 import ErrorMessage from "../../components/errorMessage/ErrorMessage"; 
 import { useAlert } from "../../context/AlertContext";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
 
 export default function CursosCRUD() { 
@@ -28,7 +29,7 @@ export default function CursosCRUD() {
   ]; 
   
   const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL }); 
-  const DBCURSOS = axios.create({ baseURL: import.meta.env.VITE_CURSOS_URL }); 
+  const DBCURSOS = axios.create(API_ROUTES.CURSOS); 
   const DBCOORDENADOR = axios.create({ baseURL: import.meta.env.VITE_COORDENADORCURSO_URL }); 
   
   useEffect(() => {

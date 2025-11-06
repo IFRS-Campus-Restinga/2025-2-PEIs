@@ -3,12 +3,13 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
+import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css"
 
 
 function Usuarios() {
   // estados necessarios
-  const DBUsuario = axios.create({baseURL: import.meta.env.VITE_USUARIO_URL});
+  const DBUsuario = axios.create(API_ROUTES.USUARIO);
   const [usuarios, setUsuarios] = useState([])
   const [erroBanco, setErroBanco] = useState(false)
 

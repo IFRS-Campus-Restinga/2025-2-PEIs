@@ -5,12 +5,13 @@ import { useAlert, FieldAlert } from "../context/AlertContext";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
+import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css";
 
 function AtaDeAcompanhamento() {
   const { addAlert, clearFieldAlert } = useAlert();
-  const DBATA = axios.create({ baseURL: import.meta.env.VITE_ATA_ACOMPANHAMENTO });
-  const PERIODO_LETIVO_API = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
+  const DBATA = axios.create(API_ROUTES.ATADEACOMPANHAMENTO);
+  const PERIODO_LETIVO_API = axios.create(API_ROUTES.PEIPERIODOLETIVO);
 
   const [form, setForm] = useState({
     dataReuniao: "",

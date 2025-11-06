@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
 
 function PEIPeriodoLetivoLista() {
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
+  const DB = axios.create(API_ROUTES.PEIPERIODOLETIVO);
   const [periodos, setPeriodos] = useState([]);
   const [erro, setErro] = useState(false);
   const [periodoUnico, setPeriodoUnico] = useState(null);

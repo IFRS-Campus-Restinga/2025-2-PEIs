@@ -1262,7 +1262,7 @@ textarea {
   text-decoration: none;
 }
 .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.775rem; border-radius: 0.5rem; }
-.btn-primary { color: #fff; background-color: #055C0F; border-color: #055C0F; }
+.btn-primary { color: #ffffff; background-color: #055C0F; border-color: #055C0F; }
 .btn-primary:hover { background-color: #067416; border-color: #067416; color: #fff; }
 .btn-primary:focus { box-shadow: 0 0 0 0.2rem rgba(5, 92, 15, 0.5); }
 

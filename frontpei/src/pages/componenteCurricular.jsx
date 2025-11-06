@@ -5,16 +5,15 @@ import { validaCampos } from "../utils/validaCampos";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
+import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css";
 
 function ComponenteCurricular() {
   const { addAlert, clearFieldAlert } = useAlert();
 
-  const DBCOMPONENTECURRICULAR = axios.create({
-    baseURL: import.meta.env.VITE_COMPONENTE_CURRICULAR,
-  });
-  const DISCIPLINAS_API = import.meta.env.VITE_DISCIPLINAS_URL;
-  const PERIODO_LETIVO_API = import.meta.env.VITE_PEIPERIODOLETIVO_URL;
+  const DBCOMPONENTECURRICULAR = axios.create(API_ROUTES.COMPONENTECURRICULAR);
+  const DISCIPLINAS_API = API_ROUTES.DISCIPLINAS;
+  const PERIODO_LETIVO_API = API_ROUTES.PEIPERIODOLETIVO;
 
   const [form, setForm] = useState({
     objetivos: "",
