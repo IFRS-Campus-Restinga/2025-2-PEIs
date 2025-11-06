@@ -2,16 +2,19 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import ErrorMessage from "../../components/errorMessage/ErrorMessage";
 import "../Disciplina.css";
-import { useAlert } from "../../context/AlertContext";
+import { useAlert, FieldAlert } from "../../context/AlertContext";
+import { validaCampos } from "../../utils/validaCampos";
 
 export default function DisciplinasCRUD() {
-  const [disciplina, setDisciplina] = useState("");
-  const [erro, setErro] = useState("");
-  const [sucesso, setSucesso] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false); // ← Flag para evitar múltiplos submits
-  const { addAlert } = useAlert();
+  const { addAlert, clearFieldAlert } = useAlert();
+  const [form, setForm] = useState({
+    nome: ""
+  })
+  const [editForm, setEditForm] = useState({
+    nome: ""
+  })
 
   const DB = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
   const navigate = useNavigate();
@@ -36,31 +39,55 @@ export default function DisciplinasCRUD() {
   // Salvar (criação ou edição)
   async function salvarDisciplina(event) {
     event.preventDefault();
+    const mensagens = validaCampos(form, event.target);
+
     if (isSubmitting) {
       console.log("Submit já em andamento, ignorando...");
       return;
     }
     setIsSubmitting(true); // ← Bloqueia novos submits
-    setErro("");
-    setSucesso("");
 
-    const nomeTrim = disciplina.trim();
+    if (mensagens.length > 0) {
+      // ALERTAS INLINE por campo
+      mensagens.forEach((m) =>
+        addAlert(m.message, "error", { fieldName: m.fieldName })
+      );
+
+      // ALERTA GLOBAL
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
+      return;
+    }
 
     try {
       if (id) {
-        await DB.put(`/${id}/`, { nome: nomeTrim });
+        await DB.put(`/${id}/`, { 
+          nome: form.nome
+        });
+
+        setForm({nome: ""});
+
+        carregarDisciplina();
         addAlert("Disciplina atualizada com sucesso!", "success");
       } else {
-        await DB.post("/", { nome: nomeTrim });
+        await DB.post("/", { nome: form.nome });
         setSucesso("Disciplina cadastrada com sucesso!", "success");
       }
       setTimeout(() => navigate("/disciplina"), 1500);
     } catch (err) {
+      console.error(err);
+
       if (err.response?.data) {
+        // Exibe mensagens inline específicas do backend
+        Object.entries(err.response.data).forEach(([field, msgs]) => {
+          addAlert(msgs.join(", "), "error", { fieldName: field });
+        });
+
+        // Monta o texto completo para o toast
         const messages = Object.entries(err.response.data)
           .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-          .join(" | ");
-        addAlert(`Erro ao cadastrar ${messages}`, "error");
+          .join("\n");
+
+        addAlert(`Erro ao cadastrar:\n${messages}`, "error");
       } else {
         addAlert("Erro ao cadastrar (erro desconhecido).", "error");
       }
@@ -73,7 +100,6 @@ export default function DisciplinasCRUD() {
     <div className="disciplinas-container">
       <h1>{id ? "Editar Disciplina" : "Cadastrar Disciplina"}</h1>
 
-      <ErrorMessage message={erro} />
       {sucesso && <p style={{ color: "green", textAlign: "center" }}>{sucesso}</p>}
 
       <form className="cursos-form" onSubmit={salvarDisciplina}>
@@ -82,10 +108,18 @@ export default function DisciplinasCRUD() {
           <input
             id="nome"
             type="text"
-            value={disciplina}
-            onChange={(e) => setDisciplina(e.target.value)}
+            name = "nome"
+            value={form.nome}
+            onChange={(e) => {
+              setForm({...form, nome: e.target.value})
+              if (e.target.value.trim() !== "") {
+                clearFieldAlert("nome");
+              }
+            }
+            }
             placeholder="Digite o nome da disciplina"
           />
+          <FieldAlert fieldName="nome" />
         </div>
 
         <button
