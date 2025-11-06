@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { API_ROUTES } from "../configs/apiRoutes";
 import "./disciplina.css";
 
 
 function Usuarios() {
   // estados necessarios
-  const DBUsuario = axios.create({baseURL: import.meta.env.VITE_USUARIO_URL});
+  const DBUsuario = axios.create({baseURL: API_ROUTES.USUARIO});
   const [usuarios, setUsuarios] = useState([])
   const [erroBanco, setErroBanco] = useState(false)
 

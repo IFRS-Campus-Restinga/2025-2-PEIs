@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import BotaoEditar from "../../components/customButtons/botaoEditar";
 import BotaoDeletar from "../../components/customButtons/botaoDeletar";
 import axios from "axios";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../Disciplina.css";
 
 export default function Disciplinas() {
   const [disciplinas, setDisciplinas] = useState([]);
   const [erro, setErro] = useState(false);
 
-  const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
+  const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
 
   async function carregarDisciplinas() {
     try {

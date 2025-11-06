@@ -4,15 +4,15 @@ import { Link } from "react-router-dom";
 import "./componenteCurricular.css";
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert, FieldAlert } from "../context/AlertContext";
+import { API_ROUTES } from "../configs/apiRoutes";
 
 function ComponenteCurricular() {
   const { addAlert, clearFieldAlert } = useAlert();
 
   const DBCOMPONENTECURRICULAR = axios.create({
-    baseURL: import.meta.env.VITE_COMPONENTE_CURRICULAR,
-  });
-  const DISCIPLINAS_API = import.meta.env.VITE_DISCIPLINAS_URL;
-  const PERIODO_LETIVO_API = import.meta.env.VITE_PEIPERIODOLETIVO_URL;
+    baseURL: API_ROUTES.COMPONENTECURRICULAR });
+  const DISCIPLINAS_API = API_ROUTES.DISCIPLINAS;
+  const PERIODO_LETIVO_API = API_ROUTES.PEIPERIODOLETIVO;
 
   const [form, setForm] = useState({
     objetivos: "",
@@ -134,12 +134,10 @@ async function atualizaComponenteCurricular(e, id) {
   const mensagens = validaCampos(editForm, document.getElementById("editForm"));
 
   if (mensagens.length > 0) {
-    mensagens.forEach((m) =>
-      addAlert(m.message, "error", { fieldName: m.fieldName })
-    );
-    addAlert("Existem campos obrigatórios não preenchidos.", "warning");
-    return;
-  }
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}`}));
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
+      return;
+    }
 
   try {
     await DBCOMPONENTECURRICULAR.put(`/${id}/`, {
@@ -167,7 +165,7 @@ async function atualizaComponenteCurricular(e, id) {
     if (err.response?.data) {
       // Exibe mensagens inline específicas do backend
       Object.entries(err.response.data).forEach(([field, msgs]) => {
-        addAlert(msgs.join(", "), "error", { fieldName: field });
+        addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
       });
 
       // Monta o texto completo para o toast
@@ -182,7 +180,6 @@ async function atualizaComponenteCurricular(e, id) {
   }
 }
 
-
   function deletaComponenteCurricular(id) {
     addAlert("Deseja realmente deletar este componente?", "confirm", {
       onConfirm: async () => {
@@ -190,9 +187,39 @@ async function atualizaComponenteCurricular(e, id) {
           await DBCOMPONENTECURRICULAR.delete(`/${id}/`);
           recuperaComponenteCurricular();
           addAlert("Componente deletado com sucesso!", "success");
-        } catch {
-          addAlert("Erro ao deletar componente.", "error");
-        }
+        } catch (err) {
+            console.error(err);
+
+            if (err.response?.data) {
+              const data = err.response.data;
+
+              // Caso 1: Erro genérico do backend (ex: { "erro": "mensagem" })
+              if (typeof data.erro === "string") {
+                addAlert(data.erro, "error");
+                return;
+              }
+
+              // Caso 2: Erros de campo (ex: { nome: ["Campo obrigatório"], email: [...] })
+              Object.entries(data).forEach(([field, msgs]) => {
+                if (Array.isArray(msgs)) {
+                  addAlert(msgs.join(", "), "error", { fieldName: field });
+                } else {
+                  addAlert(String(msgs), "error");
+                }
+              });
+
+              // Monta um resumo para o toast
+              const messages = Object.entries(data)
+                .map(([field, msgs]) =>
+                  Array.isArray(msgs) ? `${field}: ${msgs.join(", ")}` : `${field}: ${msgs}`
+                )
+                .join("\n");
+
+              addAlert(`Erro ao deletar:\n${messages}`, "error");
+            } else {
+              addAlert("Erro ao deletar (erro desconhecido).", "error");
+            }
+          }
       },
     });
   }
@@ -298,7 +325,7 @@ async function atualizaComponenteCurricular(e, id) {
           {componenteCurricularCadastrado.map((d) => (
             <li key={d.id} className="componente-item">
               {editId === d.id ? (
-                <form ref={editFormRef} onSubmit={(e) => atualizaComponenteCurricular(e, d.id)}>
+                <form ref={editFormRef} className="componente-edit-form" onSubmit={(e) => atualizaComponenteCurricular(e, d.id)}>
                   <label>Objetivos:</label>
                   <input
                     name="objetivos"
@@ -306,12 +333,12 @@ async function atualizaComponenteCurricular(e, id) {
                     onChange={(e) => {
                       setEditForm({ ...editForm, objetivos: e.target.value })
                       if (e.target.value.trim() !== "") {
-                        clearFieldAlert("objetivos");
+                        clearFieldAlert("edit-objetivos");
                       }
                     }
                   }
                   />
-                  <FieldAlert fieldName="objetivos" />
+                  <FieldAlert fieldName="edit-objetivos" />
 
                   <label>Conteúdo Programático:</label>
                   <input
@@ -320,12 +347,12 @@ async function atualizaComponenteCurricular(e, id) {
                     onChange={(e) => {
                       setEditForm({ ...editForm, conteudo_prog: e.target.value })
                       if (e.target.value.trim() !== "") {
-                        clearFieldAlert("conteudo_prog");
+                        clearFieldAlert("edit-conteudo_prog");
                       }
                     }
                   }
                   />
-                  <FieldAlert fieldName="conteudo_prog" />
+                  <FieldAlert fieldName="edit-conteudo_prog" />
 
                   <label>Metodologia:</label>
                   <textarea
@@ -334,12 +361,12 @@ async function atualizaComponenteCurricular(e, id) {
                     onChange={(e) => {
                       setEditForm({ ...editForm, metodologia: e.target.value })
                       if (e.target.value.trim() !== "") {
-                        clearFieldAlert("metodologia");
+                        clearFieldAlert("edit-metodologia");
                       }
                     }
                   }
                   />
-                  <FieldAlert fieldName="metodologia" />
+                  <FieldAlert fieldName="edit-metodologia" />
 
                   <label>Disciplina:</label>
                   <select
@@ -348,7 +375,7 @@ async function atualizaComponenteCurricular(e, id) {
                     onChange={(e) => {
                       setEditForm({ ...editForm, disciplinaId: e.target.value })
                       if (e.target.value.trim() !== "") {
-                        clearFieldAlert("disciplinaId");
+                        clearFieldAlert("edit-disciplinaId");
                       }
                     }
                   }
@@ -360,7 +387,7 @@ async function atualizaComponenteCurricular(e, id) {
                       </option>
                     ))}
                   </select>
-                  <FieldAlert fieldName="disciplinaId" />
+                  <FieldAlert fieldName="edit-disciplinaId" />
 
                   <label>Período Letivo:</label>
                   <select
@@ -369,7 +396,7 @@ async function atualizaComponenteCurricular(e, id) {
                     onChange={(e) => {
                       setEditForm({ ...editForm, periodoLetivoId: e.target.value })
                       if (e.target.value.trim() !== "") {
-                        clearFieldAlert("periodoLetivoId");
+                        clearFieldAlert("edit-periodoLetivoId");
                       }
                     }
                   }
@@ -381,7 +408,7 @@ async function atualizaComponenteCurricular(e, id) {
                       </option>
                     ))}
                   </select>
-                  <FieldAlert fieldName="periodoLetivoId" />
+                  <FieldAlert fieldName="edit-periodoLetivoId" />
 
                   <div className="btn-group">
                     <button type="submit">Salvar</button>

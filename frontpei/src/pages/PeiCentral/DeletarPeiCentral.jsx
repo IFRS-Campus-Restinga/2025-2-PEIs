@@ -1,21 +1,25 @@
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../peiPeriodoLetivo/pei_periodo_letivo.css";
+import { validaCampos } from "../../utils/validaCampos";
+import { useAlert, FieldAlert } from "../../context/AlertContext";
 
 function DeletarPeiCentral() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const {addAlert} = useAlert();
 
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
+  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 
   async function handleDelete() {
     try {
       await DB.delete(`/${id}/`);
-      alert("PEI Central deletado com sucesso!");
+      addAlert("PEI Central deletado com sucesso!", "success");
       navigate("/peicentral"); 
     } catch (error) {
       console.error("Erro ao deletar PEI Central:", error);
-      alert("Erro ao tentar deletar. Verifique o console.");
+      addAlert("Erro ao tentar deletar. Verifique o console.", "error");
     }
   }
 

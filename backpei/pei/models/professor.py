@@ -1,6 +1,6 @@
 from .base_model import BaseModel
 from django.db import models
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinLengthValidator
 from django.core.exceptions import ValidationError
 
 def validar_email_institucional(value):
@@ -9,7 +9,8 @@ def validar_email_institucional(value):
 
 
 class Professor(BaseModel):
-    nome = models.CharField(max_length=150, blank=False, null=False)
+    nome = models.CharField(max_length=150, blank=False, null=False,
+                            validators=[MinLengthValidator(7)])
     matricula = models.CharField(
     max_length=20,
     unique=True,

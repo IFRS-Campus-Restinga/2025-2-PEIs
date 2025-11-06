@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { validaCampos } from "../utils/validaCampos";
-import { useAlert, FieldAlert } from "../context/AlertContext";
+import { useAlert, FieldAlert } from "../context/AlertContext";import { API_ROUTES } from "../configs/apiRoutes";
 import "./professor.css"; // reutilizando o mesmo CSS
 
 function CoordenadoresCurso() {
-  const { addAlert } = useAlert();
-  const DBCOORDENADORES = axios.create({ baseURL: import.meta.env.VITE_COORDENADORCURSO_URL });
+  const { addAlert, clearFieldAlert } = useAlert();
+  const DBCOORDENADORES = axios.create({ baseURL: API_ROUTES.COORDENADORCURSO });
 
   const [coordenador, setCoordenador] = useState({ nome: "" });
   const [editId, setEditId] = useState(null);
@@ -44,12 +44,20 @@ function CoordenadoresCurso() {
     } catch (err) {
       console.error(err);
       if (err.response?.data) {
+        // Exibe mensagens inline específicas do backend
+        Object.entries(err.response.data).forEach(([field, msgs]) => {
+          const mensagens = Array.isArray(msgs) ? msgs.join(", ") : msgs;
+          addAlert(mensagens, "error", { fieldName: field });
+        });
+
+        // Monta o texto completo para o toast
         const messages = Object.entries(err.response.data)
           .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-          .join(" | ");
-        addAlert(`Erro ao cadastrar ${messages}`, "error");
+          .join("\n");
+
+        addAlert(`Erro ao cadastrar:\n${messages}`, "error");
       } else {
-        addAlert("Erro ao cadastrar coordenador (erro desconhecido).", "error");
+        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
       }
     }
   }
@@ -58,7 +66,8 @@ function CoordenadoresCurso() {
     e.preventDefault();
     const mensagens = validaCampos(editForm, document.getElementById("editForm"));
     if (mensagens.length > 0) {
-      addAlert(mensagens.join("\n"), "warning");
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}`}));
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
@@ -71,12 +80,19 @@ function CoordenadoresCurso() {
     } catch (err) {
       console.error(err);
       if (err.response?.data) {
+        // Exibe mensagens inline específicas do backend
+        Object.entries(err.response.data).forEach(([field, msgs]) => {
+          addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
+        });
+
+        // Monta o texto completo para o toast
         const messages = Object.entries(err.response.data)
           .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-          .join(" | ");
-        addAlert(`Erro ao atualizar ${messages}`, "error");
+          .join("\n");
+
+        addAlert(`Erro ao atualizar:\n${messages}`, "error");
       } else {
-        addAlert("Erro ao atualizar coordenador (erro desconhecido).", "error");
+        addAlert("Erro ao atualizar (erro desconhecido).", "error");
       }
     }
   }
@@ -119,7 +135,13 @@ function CoordenadoresCurso() {
           name="nome"
           type="text"
           value={coordenador.nome}
-          onChange={(e) => setCoordenador({ ...coordenador, nome: e.target.value })}
+          onChange={(e) => {
+              setCoordenador({ ...coordenador, nome: e.target.value})
+              if (e.target.value.trim() !== "") {
+                clearFieldAlert("nome");
+              }
+            }
+          }
           placeholder="Digite o nome do coordenador"
         />
         <FieldAlert fieldName="nome" />
@@ -138,8 +160,15 @@ function CoordenadoresCurso() {
                     name="nome"
                     type="text"
                     value={editForm.nome}
-                    onChange={(e) => setEditForm({ ...editForm, nome: e.target.value })}
+                    onChange={(e) => {
+                      setCoordenador({ ...coordenador, nome: e.target.value})
+                      if (e.target.value.trim() !== "") {
+                        clearFieldAlert("edit-nome");
+                      }
+                    }
+                  }
                   />
+                  <FieldAlert fieldName="edit-nome" />
                   <div className="btn-group">
                     <button type="submit">Salvar</button>
                     <button type="button" onClick={() => setEditId(null)}>Cancelar</button>

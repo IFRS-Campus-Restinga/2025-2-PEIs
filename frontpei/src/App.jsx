@@ -14,6 +14,7 @@ import Pareceres from "./pages/Parecer.jsx";
 import PEIPeriodoLetivo from "./pages/peiPeriodoLetivo/PEIPeriodoLetivo.jsx";
 import PEIPeriodoLetivoLista from "./pages/peiPeriodoLetivo/listar_pei_periodo_letivo.jsx";
 import PeriodoLetivoPerfil from "./pages/telaPerfilProfessor/periodoLetivoPerfil.jsx";
+import Perfil from "./pages/perfil/Perfil.jsx";
 import Cursos from "./pages/Curso/Curso.jsx";
 import CursosCRUD from "./pages/Curso/CursoCRUD.jsx";
 import Disciplinas from "./pages/Disciplina/Disciplina.jsx";
@@ -34,8 +35,6 @@ import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
 import Pedagogos from './pages/Pedagogo.jsx'
 import LoginPage from './pages/login/login.jsx'
 import Professor from "./pages/Professor.jsx";
-import Perfil from './components/Perfis/Perfil.jsx';
-import VisualizarPEI from './components/Perfis/VisualizarPEI.jsx';
 import Usuarios from './pages/Usuario.jsx';
 import { mandaEmail } from "./lib/mandaEmail";
 import AlertComponent from './components/alert/AlertComponent.jsx';
@@ -144,8 +143,8 @@ function App() {
                 <Route path="/logs" element={<Logs/>}/>
                 <Route path="/professor" element={<Professor />} />
                 <Route path="/usuario" element={<Usuarios/>}/>
-                <Route path="/perfil/:perfil" element={<Perfil usuario={usuario} />} />
-                <Route path="/pei/:alunoId" element={<VisualizarPEI />} />
+                <Route path="/perfil" element={<Perfil/>} />
+
               </Routes>
             </main>
             <Footer/>

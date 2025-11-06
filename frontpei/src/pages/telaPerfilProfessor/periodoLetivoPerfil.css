@@ -110,3 +110,27 @@
   color: #444;
   line-height: 1.4;
 }
+
+.cargo-dropdown-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -60px 1500px 20px 10px;
+  flex-wrap: nowrap; 
+  white-space: nowrap; 
+}
+
+.cargo-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.cargo-dropdown {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  background-color: #fff;
+  cursor: pointer;
+}
+

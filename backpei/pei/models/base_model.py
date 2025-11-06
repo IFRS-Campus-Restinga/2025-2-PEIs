@@ -2,6 +2,8 @@ from django.db import models
 from django.forms.models import model_to_dict
 import json
 from logs.models import Log
+from django.core.exceptions import ValidationError
+from ..validators.relationship_validator import RelationshipValidator
 
 class BaseModel(models.Model):
     class Meta:
@@ -41,6 +43,18 @@ class BaseModel(models.Model):
                 "depois": safe_new,
             }
         )
+
+    def safe_delete(self, *args, **kwargs):
+        """
+        Método genérico que valida antes de excluir.
+        """
+        validator = RelationshipValidator()
+        try:
+            validator(self)  # Chama o validador antes de excluir
+            super().delete(*args, **kwargs)
+        except ValidationError as e:
+            # Repassa a exceção para o DRF tratar
+            raise e
 
     def delete(self, *args, **kwargs):
         old_values = model_to_dict(self)

@@ -25,6 +25,11 @@ class AtaDeAcompanhamento(BaseModel):
         max_length=100,
         validators=[MinLengthValidator(5), MaxLengthValidator(100)],
     )
+    peiperiodoletivo = models.ForeignKey(
+        "PEIPeriodoLetivo",
+        on_delete=models.CASCADE,  # se o período letivo for deletado, apaga as atas
+        related_name="atasDeAcompanhamento"       # permite acessar todas as atas de um período letivo com peiperiodoletivo.atas.all()
+    )
 
     def __str__(self):
         return f"Ata de acompanhamento - {self.id}"
