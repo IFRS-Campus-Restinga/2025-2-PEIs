@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../peiPeriodoLetivo/pei_periodo_letivo.css";
 import "../peiPeriodoLetivo/listar_pei_periodo_letivo.css";
 
@@ -11,7 +12,7 @@ function PeiCentral() {
   const [modalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
+  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 
   useEffect(() => {
     async function carregarPeiCentral() {

@@ -4,6 +4,7 @@ import axios from "axios";
 import "../Curso.css";
 import { useAlert, FieldAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 function CursoCRUD() {
   const { id } = useParams();
@@ -11,9 +12,9 @@ function CursoCRUD() {
   const { addAlert, clearFieldAlert } = useAlert();
 
   // Instâncias da API
-  const DBCURSOS = axios.create({ baseURL: import.meta.env.VITE_CURSOS_URL });
-  const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
-  const DBCOORDENADOR = axios.create({ baseURL: import.meta.env.VITE_COORDENADORCURSO_URL });
+  const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS });
+  const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
+  const DBCOORDENADOR = axios.create({ baseURL: API_ROUTES.COORDENADORCURSO });
 
   // Estados principais
   const [form, setForm] = useState({

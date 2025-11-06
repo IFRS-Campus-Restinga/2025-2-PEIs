@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { validaCampos } from "../utils/validaCampos";
-import { useAlert, FieldAlert } from "../context/AlertContext";
+import { useAlert, FieldAlert } from "../context/AlertContext";import { API_ROUTES } from "../configs/apiRoutes";
 import "./professor.css"; // reutilizando o mesmo CSS
 
 function CoordenadoresCurso() {
   const { addAlert, clearFieldAlert } = useAlert();
-  const DBCOORDENADORES = axios.create({ baseURL: import.meta.env.VITE_COORDENADORCURSO_URL });
+  const DBCOORDENADORES = axios.create({ baseURL: API_ROUTES.COORDENADORCURSO });
 
   const [coordenador, setCoordenador] = useState({ nome: "" });
   const [editId, setEditId] = useState(null);

@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { validaCampos } from "../../utils/validaCampos";
 import { useAlert } from "../../context/AlertContext";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../peiPeriodoLetivo/pei_periodo_letivo.css";
 
 function CreatePeiCentral() {
@@ -18,8 +19,8 @@ function CreatePeiCentral() {
   const { addAlert } = useAlert();
   const navigate = useNavigate();
 
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
-  const DBALUNO = axios.create({ baseURL: import.meta.env.VITE_ALUNO_URL });
+  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
+  const DBALUNO = axios.create({ baseURL: API_ROUTES.ALUNO });
 
   // 🔹 Carrega alunos na abertura da tela
   useEffect(() => {

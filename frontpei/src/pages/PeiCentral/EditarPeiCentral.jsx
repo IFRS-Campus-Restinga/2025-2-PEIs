@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../peiPeriodoLetivo/pei_periodo_letivo.css";
 
 function EditarPeiCentral() {
@@ -10,7 +11,7 @@ function EditarPeiCentral() {
   const navigate = useNavigate();
   const { addAlert } = useAlert();
 
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
+  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 
   const [status_pei, setStatus] = useState("");
   const [historico_do_aluno, setHistorico] = useState("");

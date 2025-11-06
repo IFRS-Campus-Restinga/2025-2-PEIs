@@ -4,9 +4,10 @@ import { Link } from "react-router-dom";
 import "./disciplina.css";
 import { useAlert, FieldAlert } from "../context/AlertContext"; 
 import { validaCampos } from "../utils/validaCampos";
+import { API_ROUTES } from "../configs/apiRoutes";
 
 function Pedagogos() {
-  const DBPEDAGOGO = axios.create({baseURL: import.meta.env.VITE_PEDAGOGO_URL});
+  const DBPEDAGOGO = axios.create({baseURL: API_ROUTES.PEDAGOGO});
   const [pedagogo, setPedagogo] = useState("");
   const [pedagogosCadastradas, setPedagogosCadastradas] = useState([]);
   const [editId, setEditId] = useState(null);

@@ -4,11 +4,12 @@ import { Link } from "react-router-dom";
 import "./componenteCurricular.css"; // usando CSS de Componentes Curriculares
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert, FieldAlert } from "../context/AlertContext";
+import { API_ROUTES } from "../configs/apiRoutes";
 
 function AtaDeAcompanhamento() {
   const { addAlert, clearFieldAlert } = useAlert();
-  const DBATA = axios.create({ baseURL: import.meta.env.VITE_ATA_ACOMPANHAMENTO });
-  const PERIODO_LETIVO_API = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
+  const DBATA = axios.create({ baseURL: API_ROUTES.ATADEACOMPANHAMENTO });
+  const PERIODO_LETIVO_API = axios.create({ baseURL: API_ROUTES.PEIPERIODOLETIVO });
 
   const [form, setForm] = useState({
     dataReuniao: "",

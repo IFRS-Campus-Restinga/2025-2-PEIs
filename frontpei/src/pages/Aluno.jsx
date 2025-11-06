@@ -3,11 +3,12 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert, FieldAlert } from "../context/AlertContext";
+import { API_ROUTES } from "../configs/apiRoutes";
 import "./professor.css"; // reutilizando o mesmo CSS
 
 function Alunos() {
   const { addAlert, clearFieldAlert } = useAlert();
-  const DBALUNOS = axios.create({ baseURL: import.meta.env.VITE_ALUNO_URL });
+  const DBALUNOS = axios.create({ baseURL: API_ROUTES.ALUNO });
 
   const [alunos, setAlunos] = useState([]);
   const [form, setForm] = useState({ nome: "", matricula: "", email: "" });

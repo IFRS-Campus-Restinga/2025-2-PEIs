@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "./listar_pei_periodo_letivo.css";
 
 function PEIPeriodoLetivoLista() {
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
+  const DB = axios.create({ baseURL: API_ROUTES.PEI_PERIODO_LETIVO });
   const [periodos, setPeriodos] = useState([]);
   const [erro, setErro] = useState(false);
   const [periodoUnico, setPeriodoUnico] = useState(null);

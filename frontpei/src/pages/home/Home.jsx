@@ -4,15 +4,12 @@ import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import DT from "datatables.net-dt";
 import DataTable from "datatables.net-react";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../utils/dataTables.css";
 
 DataTable.use(DT);
 
 const ProfessorView = ({ usuario }) => {
-  const API_ALUNO = import.meta.env.VITE_ALUNO_URL;
-  const API_PEICENTRAL = import.meta.env.VITE_PEI_CENTRAL_URL;
-  const API_CURSO = import.meta.env.VITE_CURSOS_URL;
-  const API_PEIPERIODO = import.meta.env.VITE_PEIPERIODOLETIVO_URL;
 
   const [cargoSelecionado, setCargoSelecionado] = useState("");
   const [tableData, setTableData] = useState([]);
@@ -22,10 +19,10 @@ const ProfessorView = ({ usuario }) => {
     async function carregarDados() {
       try {
         const [resAlunos, resPeiCentral, resCursos, resPeriodos] = await Promise.all([
-          axios.get(API_ALUNO),
-          axios.get(API_PEICENTRAL),
-          axios.get(API_CURSO),
-          axios.get(API_PEIPERIODO),
+          axios.get(API_ROUTES.ALUNO),
+          axios.get(API_ROUTES.PEI_CENTRAL),
+          axios.get(API_ROUTES.CURSOS),
+          axios.get(API_ROUTES.PEIPERIODOLETIVO),
         ]);
 
         const alunosData = resAlunos.data.results || [];

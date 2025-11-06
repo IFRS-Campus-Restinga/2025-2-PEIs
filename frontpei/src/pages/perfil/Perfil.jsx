@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { API_ROUTES, BACKEND_TOKEN } from "../../configs/apiRoutes";
 import { useNavigate } from "react-router-dom";
 import "./Perfil.css";
 import defaultAvatar from "../../assets/user.svg";
 
 const Perfil = () => {
   const navigate = useNavigate();
-  const USUARIO_URL = import.meta.env.VITE_USUARIO_URL || "http://localhost:8000/services/usuario/";
-  const TOKEN_HEADER = import.meta.env.VITE_BACKEND_TOKEN || "";
+  const USUARIO_URL = API_ROUTES.USUARIO || "http://localhost:8000/services/usuario/";
+  const TOKEN_HEADER = BACKEND_TOKEN || "";
   const TOKEN_BEARER = localStorage.getItem("access") || localStorage.getItem("token") || "";
 
   const [usuario, setUsuario] = useState(null);

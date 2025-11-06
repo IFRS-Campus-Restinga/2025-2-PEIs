@@ -4,10 +4,11 @@ import { Link } from "react-router-dom";
 import "./professor.css";
 import { useAlert, FieldAlert } from "../context/AlertContext";
 import { validaCampos } from "../utils/validaCampos";
+import { API_ROUTES } from "../configs/apiRoutes";
 
 function Professor() {
   const { addAlert, clearFieldAlert } = useAlert();
-  const DBPROFESSORES = axios.create({ baseURL: import.meta.env.VITE_PROFESSORES_URL });
+  const DBPROFESSORES = axios.create({ baseURL: API_ROUTES.PROFESSOR });
 
   const [professores, setProfessores] = useState([]);
   const [form, setForm] = useState({ nome: "", matricula: "", email: "" });

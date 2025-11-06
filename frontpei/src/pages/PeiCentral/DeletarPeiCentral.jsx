@@ -1,12 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../peiPeriodoLetivo/pei_periodo_letivo.css";
 
 function DeletarPeiCentral() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
+  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 
   async function handleDelete() {
     try {

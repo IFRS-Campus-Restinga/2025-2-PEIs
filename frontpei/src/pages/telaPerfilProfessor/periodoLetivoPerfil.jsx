@@ -1,17 +1,13 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "./periodoLetivoPerfil.css";
 
 const PeriodoLetivoPerfil = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { peiCentralId, cargoSelecionado: cargoInicial } = location.state || {};
-
-  const API_ALUNO = import.meta.env.VITE_ALUNO_URL;
-  const API_PEICENTRAL = import.meta.env.VITE_PEI_CENTRAL_URL;
-  const API_CURSO = import.meta.env.VITE_CURSOS_URL;
-  const API_PEIPERIODO = import.meta.env.VITE_PEIPERIODOLETIVO_URL;
 
   const [aluno, setAluno] = useState(null);
   const [curso, setCurso] = useState(null);
@@ -25,10 +21,10 @@ const PeriodoLetivoPerfil = () => {
     async function carregarDados() {
       try {
         const [resPeiCentral, resAlunos, resCursos, resPeriodos] = await Promise.all([
-          axios.get(`${API_PEICENTRAL}${peiCentralId}/`),
-          axios.get(API_ALUNO),
-          axios.get(API_CURSO),
-          axios.get(API_PEIPERIODO),
+          axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`),
+          axios.get(API_ROUTES.ALUNO),
+          axios.get(API_ROUTES.CURSOS),
+          axios.get(API_ROUTES.PEIPERIODOLETIVO),
         ]);
 
         const peiCentral = resPeiCentral.data;

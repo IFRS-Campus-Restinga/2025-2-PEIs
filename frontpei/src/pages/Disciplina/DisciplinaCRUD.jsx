@@ -5,6 +5,7 @@ import axios from "axios";
 import "../Disciplina.css";
 import { useAlert, FieldAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 export default function DisciplinasCRUD() {
   const [isSubmitting, setIsSubmitting] = useState(false); // ← Flag para evitar múltiplos submits
@@ -16,7 +17,7 @@ export default function DisciplinasCRUD() {
     nome: ""
   })
 
-  const DB = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
+  const DB = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
   const navigate = useNavigate();
   const { id } = useParams();
 

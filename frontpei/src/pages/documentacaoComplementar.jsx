@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import "./componenteCurricular.css";
 import { validaCampos } from "../utils/validaCampos";
 import { useAlert, FieldAlert } from "../context/AlertContext";
+import { API_ROUTES } from "../configs/apiRoutes";
 
 /**
  * Componente para gerenciar a documentação complementar
@@ -14,8 +15,7 @@ function DocumentacaoComplementar() {
 
   // Cria instância da API
   const DBDOC = axios.create({
-    baseURL: import.meta.env.VITE_DOC_COMPLEMENTAR,
-  });
+    baseURL: API_ROUTES.DOCUMENTACAOCOMPLEMENTAR });
 
   const [form, setForm] = useState({ autor: "", tipo: "", arquivo: null });
   const [arquivo, setArquivo] = useState(null);
