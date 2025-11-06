@@ -44,6 +44,7 @@ function EditarPeiCentral() {
           adaptacoes: dados.adaptacoes || "",
           aluno_id: dados.aluno_id || ""
         });
+        setAluno(dados.aluno);
       } catch (err) {
         console.error("Erro ao carregar PEI Central:", err);
         addAlert("Erro ao carregar PEI Central. Tente novamente.", "error");
@@ -99,7 +100,7 @@ function EditarPeiCentral() {
 
   return (
     <div className="container">
-      <h1 className="text-xl font-bold mb-4">Editar PEI Central do aluno {aluno.nome}</h1>
+      <h1 className="text-xl font-bold mb-4">Editar PEI Central do aluno {aluno?.nome}</h1>
       
       <br/>
       <form onSubmit={handleSubmit} className="space-y-4">  
