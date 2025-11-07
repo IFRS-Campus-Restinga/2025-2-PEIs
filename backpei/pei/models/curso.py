@@ -7,7 +7,7 @@ from ..managers.arquivo import validate_file_size
 from ..validators.validador_texto import no_special_characters
 
 class Curso(BaseModel):
-    name = models.CharField(
+    nome = models.CharField(
         max_length=100,
         validators=[MinLengthValidator(1), no_special_characters]
     )

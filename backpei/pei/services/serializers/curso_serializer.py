@@ -24,7 +24,7 @@ class CursoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Curso
         fields = [
-            "id", "name", "nivel",
+            "id", "nome", "nivel",
             "disciplinas", "disciplinas_ids",
             "coordenador", "coordenador_id",
             "arquivo", "arquivo_upload",

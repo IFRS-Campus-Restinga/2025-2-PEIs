@@ -19,7 +19,7 @@ function CursoCRUD() {
 
   // Estados principais
   const [form, setForm] = useState({
-    name: "",
+    nome: "",
     nivel: "Não informado",
     disciplinas: [],
     coordenador: "",
@@ -64,7 +64,7 @@ function CursoCRUD() {
         const res = await DBCURSOS.get(`/${id}/`);
         const data = res.data;
         setForm({
-          name: data.name || "",
+          nome: data.nome || "",
           nivel: data.nivel || "Não informado",
           disciplinas: data.disciplinas ? data.disciplinas.map((d) => d.id) : [],
           coordenador: data.coordenador?.id || "",
@@ -81,7 +81,7 @@ function CursoCRUD() {
   // Monta o FormData quando necessário
   const montaFormData = (dados) => {
     const fd = new FormData();
-    fd.append("name", dados.name);
+    fd.append("nome", dados.nome);
     fd.append("nivel", dados.nivel);
     fd.append("coordenador_id", dados.coordenador || "");
     dados.disciplinas.forEach((d) => fd.append("disciplinas_ids", d));
@@ -115,17 +115,23 @@ function CursoCRUD() {
       setTimeout(() => navigate("/curso"), 1500);
     } catch (err) {
       if (err.response?.data) {
-        Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: field });
+        // Exibir mensagens inline (por campo)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
 
-        const messages = Object.entries(err.response.data)
-          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+        // Montar mensagem amigável pro toast
+        const msg = Object.entries(err.response.data)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
           .join("\n");
 
-        addAlert(`Erro ao salvar:\n${messages}`, "error");
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
-        addAlert("Erro ao salvar (erro desconhecido).", "error");
+        addAlert("Erro ao cadastrar componente.", "error", { persist: true });
       }
     }
   };
@@ -138,15 +144,15 @@ function CursoCRUD() {
         <label>Nome do curso:</label>
         <input
           type="text"
-          name="name"
-          value={form.name}
+          name="nome"
+          value={form.nome}
           onChange={(e) => {
-            setForm({ ...form, name: e.target.value });
-            if (e.target.value.trim() !== "") clearFieldAlert("name");
+            setForm({ ...form, nome: e.target.value });
+            if (e.target.value.trim() !== "") clearFieldAlert("nome");
           }}
           placeholder="Digite o nome do curso"
         />
-        <FieldAlert fieldName="name" />
+        <FieldAlert fieldName="nome" />
 
         <label>Disciplinas:</label>
         <div className="disciplinas-checkboxes">
