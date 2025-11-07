@@ -37,6 +37,7 @@ function Pedagogos() {
     const mensagens = validaCampos(form, e.target);
     if (mensagens.length > 0) {
       mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
@@ -46,7 +47,25 @@ function Pedagogos() {
       await recuperaPedagogos();
       addAlert("Pedagogo cadastrado com sucesso!", "success");
     } catch (err) {
-      addAlert("Erro ao cadastrar pedagogo.", "error");
+      if (err.response?.data) {
+        // Exibir mensagens inline (por campo)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
+        });
+
+        // Montar mensagem amigável pro toast
+        const msg = Object.entries(err.response.data)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
+          .join("\n");
+
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error");
+      } else {
+        addAlert("Erro ao cadastrar pedagogo.", "error");
+      }
     }
   }
 
@@ -54,7 +73,8 @@ function Pedagogos() {
     e.preventDefault();
     const mensagens = validaCampos(editForm, document.getElementById("editForm"));
     if (mensagens.length > 0) {
-      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}` }));
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
@@ -65,7 +85,25 @@ function Pedagogos() {
       await recuperaPedagogos();
       addAlert("Pedagogo atualizado com sucesso!", "success");
     } catch (err) {
-      addAlert("Erro ao editar pedagogo.", "error");
+      if (err.response?.data) {
+        // Exibir mensagens inline (por campo)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
+        });
+
+        // Montar mensagem amigável pro toast
+        const msg = Object.entries(err.response.data)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
+          .join("\n");
+
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
+      } else {
+        addAlert("Erro ao editar pedagogo.", "error", { persist: true });
+      }
     }
   }
 

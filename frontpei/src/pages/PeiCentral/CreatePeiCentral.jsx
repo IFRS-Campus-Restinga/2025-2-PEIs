@@ -100,15 +100,23 @@ function CreatePeiCentral() {
       setTimeout(() => navigate("/peicentral"), 1500);
     } catch (err) {
       if (err.response?.data) {
+        // Exibir mensagens inline (por campo)
         Object.entries(err.response.data).forEach(([f, m]) => {
           addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
+
+        // Montar mensagem amigável pro toast
         const msg = Object.entries(err.response.data)
-          .map(([f, m]) => `${f}: ${Array.isArray(m) ? m.join(", ") : m}`)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
           .join("\n");
-        addAlert(`Erro ao cadastrar:\n${msg}`, "error");
+
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
-        addAlert("Erro ao cadastrar componente.", "error");
+        addAlert("Erro ao cadastrar PEI.", "error", { persist: true });
       }
     }
   }

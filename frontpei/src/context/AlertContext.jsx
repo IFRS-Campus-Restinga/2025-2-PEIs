@@ -16,27 +16,36 @@ export function AlertProvider({ children }) {
 
   // Adiciona alerta global ou inline
   const addAlert = (message, type = "info", options = {}) => {
-    // Inline (campo específico)
-    if (options.fieldName) {
-      setFieldAlerts(prev => ({
-        ...prev,
-        [options.fieldName]: { message, type }
-      }));
-      return;
-    }
+  // Se for alerta de campo (inline)
+  if (options.fieldName) {
+    setFieldAlerts(prev => ({
+      ...prev,
+      [options.fieldName]: { message, type }
+    }));
+    return;
+  }
 
-    // Toast global
-    const id = Date.now();
-    const newAlert = {
-      id,
-      message,
-      type,
-      isConfirm: type === "confirm",
-      onConfirm: options.onConfirm || null,
-      onCancel: options.onCancel || null
-    };
-    setAlerts(prev => [...prev, newAlert]);
+  // Se for sucesso → limpa todos os toasts e alertas inline antes de exibir
+  if (type === "success") {
+    setAlerts([]);      // limpa toasts
+    setFieldAlerts({}); // limpa alertas inline
+  }
+
+  // Cria novo alerta global (toast)
+  const id = Date.now();
+  const newAlert = {
+    id,
+    message,
+    type,
+    isConfirm: type === "confirm",
+    onConfirm: options.onConfirm || null,
+    onCancel: options.onCancel || null
   };
+
+  // Adiciona o novo alerta
+  setAlerts(prev => [...prev, newAlert]);
+};
+
 
   // Remove toast específico
   const removeAlert = (id) => {

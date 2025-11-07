@@ -8,6 +8,7 @@ import { validaCampos } from "../../utils/validaCampos";
 import { API_ROUTES } from "../../configs/apiRoutes";
 
 export default function DisciplinasCRUD() {
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
@@ -45,10 +46,11 @@ export default function DisciplinasCRUD() {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
-    const erros = validaCampos(form, e.target);
-    if (erros.length > 0) {
-      erros.forEach(m => addAlert(m.message, "error", { fieldName: m.fieldName }));
-      addAlert("Preencha todos os campos obrigatórios.", "warning");
+    const mensagens = validaCampos(form, e.target);
+
+    if (mensagens.length > 0) {
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       setIsSubmitting(false);
       return;
     }
@@ -64,11 +66,23 @@ export default function DisciplinasCRUD() {
       }
     } catch (err) {
       if (err.response?.data) {
-        Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: field });
+        // Exibir mensagens inline (por campo)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
+
+        // Montar mensagem amigável pro toast
+        const msg = Object.entries(err.response.data)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
+          .join("\n");
+
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
-        addAlert("Erro ao salvar disciplina.", "error");
+        addAlert("Erro ao cadastrar disciplina.", "error", { persist: true });
       }
     } finally {
       setIsSubmitting(false);
@@ -84,6 +98,7 @@ export default function DisciplinasCRUD() {
           <label>Nome da disciplina:</label>
           <input
             type="text"
+            name = "nome"
             value={form.nome}
             onChange={(e) => {
               setForm({ nome: e.target.value });

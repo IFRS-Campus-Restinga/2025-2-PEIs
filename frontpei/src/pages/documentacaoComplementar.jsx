@@ -66,15 +66,23 @@ function DocumentacaoComplementar() {
       recuperaDocs();
     } catch (err) {
       if (err.response?.data) {
-        Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: field });
+        // Exibir mensagens inline (por campo)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
-        const messages = Object.entries(err.response.data)
-          .map(([f, m]) => `${f}: ${m.join(", ")}`)
+
+        // Montar mensagem amigável pro toast
+        const msg = Object.entries(err.response.data)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
           .join("\n");
-        addAlert(`Erro ao cadastrar:\n${messages}`, "error");
+
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
-        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+        addAlert("Erro ao cadastrar documentação.", "error", { persist: true });
       }
     }
   };
@@ -99,15 +107,23 @@ function DocumentacaoComplementar() {
       recuperaDocs();
     } catch (err) {
       if (err.response?.data) {
-        Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
+        // Exibir mensagens inline (por campo)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
-        const messages = Object.entries(err.response.data)
-          .map(([f, m]) => `${f}: ${m.join(", ")}`)
+
+        // Montar mensagem amigável pro toast
+        const msg = Object.entries(err.response.data)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
           .join("\n");
-        addAlert(`Erro ao atualizar:\n${messages}`, "error");
+
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
-        addAlert("Erro ao atualizar (erro desconhecido).", "error");
+        addAlert("Erro ao editar documentação.", "error", { persist: true });
       }
     }
   };

@@ -12,10 +12,10 @@ function CursoCRUD() {
   const navigate = useNavigate();
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
-    useEffect(() => {
-      // limpa todos os alertas ao entrar na tela
-      clearAlerts();
-    }, []);
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
 
   // Instâncias da API
   const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS });
@@ -136,7 +136,7 @@ function CursoCRUD() {
 
         addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
-        addAlert("Erro ao cadastrar componente.", "error", { persist: true });
+        addAlert("Erro ao cadastrar curso.", "error", { persist: true });
       }
     }
   };
