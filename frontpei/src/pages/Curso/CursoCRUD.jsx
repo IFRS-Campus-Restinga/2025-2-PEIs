@@ -47,7 +47,6 @@ function CursoCRUD() {
       setDisciplinas(Array.isArray(resDisciplinas.data) ? resDisciplinas.data : resDisciplinas.data.results || []);
       setCoordenadores(Array.isArray(resCoords.data) ? resCoords.data : resCoords.data.results || []);
     } catch (err) {
-      console.error(err);
       addAlert("Erro ao carregar dados iniciais.", "error");
     }
   };
@@ -72,7 +71,6 @@ function CursoCRUD() {
           arquivo: null,
         });
       } catch (err) {
-        console.error(err);
         addAlert("Erro ao carregar o curso.", "error");
       }
     };
@@ -116,7 +114,6 @@ function CursoCRUD() {
 
       setTimeout(() => navigate("/curso"), 1500);
     } catch (err) {
-      console.error(err);
       if (err.response?.data) {
         Object.entries(err.response.data).forEach(([field, msgs]) => {
           addAlert(msgs.join(", "), "error", { fieldName: field });

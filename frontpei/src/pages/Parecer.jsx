@@ -31,7 +31,6 @@ function Pareceres() {
       const data = resp.data;
       setComponentes(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
-      console.error("Erro ao buscar componentes:", err);
       addAlert("Erro ao carregar componentes curriculares!", "error");
     }
   }
@@ -42,7 +41,6 @@ function Pareceres() {
       const data = resp.data;
       setDisciplinas(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
-      console.error("Erro ao buscar disciplinas:", err);
       addAlert("Erro ao carregar disciplinas!", "error");
     }
   }
@@ -53,7 +51,6 @@ function Pareceres() {
       const data = resp.data;
       setProfessores(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
-      console.error("Erro ao buscar professores:", err);
       addAlert("Erro ao carregar professores!", "error");
     }
   }
@@ -112,7 +109,6 @@ function Pareceres() {
       recuperaProfessores();
       addAlert("Parecer cadastrado com sucesso!", "success");
     } catch (err) {
-      console.error("Erro ao criar parecer:", err);
       if (err.response?.data) {
         // Exibe mensagens inline específicas do backend
         Object.entries(err.response.data).forEach(([field, msgs]) => {

@@ -41,7 +41,6 @@ function CreatePeiCentral() {
         const data = resp.data;
         setAlunos(Array.isArray(data) ? data : data.results || []);
       } catch (err) {
-        console.error("Erro ao buscar alunos:", err);
         addAlert("Erro ao carregar alunos!", "error");
       }
     }
@@ -79,7 +78,6 @@ function CreatePeiCentral() {
         status_pei: form.status_pei,
         aluno_id: Number(form.aluno_id)
       });
-      console.log("Criado:", resposta.data);
       addAlert("PEI Central criado com sucesso!", "success");
 
       // limpa campos

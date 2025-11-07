@@ -22,7 +22,6 @@ function Professor() {
       const res = await DBPROFESSORES.get("");
       setProfessores(Array.isArray(res.data) ? res.data : res.data.results || []);
     } catch (err) {
-      console.error(err);
       addAlert("Erro ao carregar lista de professores!", "error");
     }
   }
@@ -43,7 +42,6 @@ function Professor() {
       recuperaProfessores();
       addAlert("Professor cadastrado com sucesso!", "success");
     } catch (err) {
-      console.error(err);
       if (err.response?.data) {
       // Exibe mensagens inline específicas do backend
       Object.entries(err.response.data).forEach(([field, msgs]) => {
@@ -78,7 +76,6 @@ function Professor() {
       recuperaProfessores();
       addAlert("Professor atualizado com sucesso!", "success");
     } catch (err) {
-      console.error(err);
       if (err.response?.data) {
       // Exibe mensagens inline específicas do backend
       Object.entries(err.response.data).forEach(([field, msgs]) => {
@@ -105,7 +102,6 @@ function Professor() {
           recuperaProfessores();
           addAlert("Professor deletado com sucesso!", "success");
         } catch (err) {
-          console.error(err);
           if (err.response?.data) {
               const data = err.response.data;
 

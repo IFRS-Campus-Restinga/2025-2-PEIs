@@ -13,9 +13,6 @@ export default function DisciplinasCRUD() {
   const [form, setForm] = useState({
     nome: ""
   })
-  const [editForm, setEditForm] = useState({
-    nome: ""
-  })
 
   const DB = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
   const navigate = useNavigate();
@@ -30,7 +27,6 @@ export default function DisciplinasCRUD() {
 
           setForm({ nome: resposta.data.nome || "" });
         } catch (err) {
-          console.error(err);
           addAlert("Erro ao carregar disciplina.", "error");
         }
       }
@@ -62,7 +58,6 @@ export default function DisciplinasCRUD() {
         setForm({ nome: "" });
       }
     } catch (err) {
-      console.error(err);
       if (err.response?.data) {
         Object.entries(err.response.data).forEach(([field, msgs]) => {
           addAlert(msgs.join(", "), "error", { fieldName: field });

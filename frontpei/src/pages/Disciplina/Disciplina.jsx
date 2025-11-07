@@ -19,8 +19,7 @@ export default function Disciplinas() {
       setDisciplinas(Array.isArray(resposta.data) ? resposta.data : resposta.data.results || []);
       setErro(false);
     } catch (err) {
-      console.error("Erro ao buscar disciplinas:", err);
-      setErro(true);
+      addAlert("Erro ao recuperar componentes!", "error");
     }
   }
 
