@@ -8,7 +8,12 @@ import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
 
 function PEIPeriodoLetivo() {
-  const { addAlert, clearFieldAlert } = useAlert();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
 
   const DB = axios.create({ baseURL: API_ROUTES.PEIPERIODOLETIVO });
   const DB_CENTRAL = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });

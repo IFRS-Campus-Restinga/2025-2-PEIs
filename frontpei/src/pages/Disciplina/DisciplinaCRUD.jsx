@@ -9,7 +9,12 @@ import { API_ROUTES } from "../../configs/apiRoutes";
 
 export default function DisciplinasCRUD() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { addAlert, clearFieldAlert } = useAlert();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
   const [form, setForm] = useState({
     nome: ""
   })

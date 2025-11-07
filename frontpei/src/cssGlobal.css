@@ -1692,3 +1692,17 @@ input:checked + .slider:before {
   color: #333;
 }
 
+/* Botão de fechar toast */
+.alert-close {
+  background: transparent;
+  border: none;
+  color: #333;
+  font-size: 18px;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: color 0.2s ease;
+}
+
+.alert-close:hover {
+  color: #555;
+}

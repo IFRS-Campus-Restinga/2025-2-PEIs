@@ -27,7 +27,12 @@ function CreatePeiCentral() {
     aluno_id: "",
   });
 
-  const { addAlert, clearFieldAlert } = useAlert();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
   const navigate = useNavigate();
 
   const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });

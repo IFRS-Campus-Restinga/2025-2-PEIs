@@ -8,7 +8,12 @@ import { useAlert, FieldAlert } from "../../context/AlertContext";
 function DeletarPeiCentral() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const {addAlert} = useAlert();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+  
+    useEffect(() => {
+      // limpa todos os alertas ao entrar na tela
+      clearAlerts();
+    }, []);
 
   const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 

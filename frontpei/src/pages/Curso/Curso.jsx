@@ -49,7 +49,7 @@ export default function Cursos() {
       
       <div className="cursos-form"> 
         <Link to="/cursoCadastrar"> 
-          <button className="submit-btn">Adicionar curso</button> 
+          <button className="submit-btn" type="button">Adicionar curso</button> 
         </Link> 
       </div> 
       

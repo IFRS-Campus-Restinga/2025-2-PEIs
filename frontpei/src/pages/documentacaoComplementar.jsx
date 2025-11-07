@@ -9,7 +9,12 @@ import "../cssGlobal.css";
 import { API_ROUTES } from "../configs/apiRoutes";
 
 function DocumentacaoComplementar() {
-  const { addAlert, clearFieldAlert } = useAlert();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
 
   // Cria instância da API
   const DBDOC = axios.create({

@@ -9,7 +9,12 @@ import "../cssGlobal.css";
 import { API_ROUTES } from "../configs/apiRoutes";
 
 function Professor() {
-  const { addAlert, clearFieldAlert } = useAlert();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
   const DBPROFESSORES = axios.create({ baseURL: API_ROUTES.PROFESSOR });
 
   const [professores, setProfessores] = useState([]);

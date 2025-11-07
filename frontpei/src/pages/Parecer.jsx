@@ -8,7 +8,12 @@ import "../cssGlobal.css"
 import { API_ROUTES } from "../configs/apiRoutes";
 
 function Pareceres() {
-  const { addAlert, clearFieldAlert } = useAlert();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
 
   const DBCOMPONENTES = axios.create({ baseURL: API_ROUTES.COMPONENTECURRICULAR });
   const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });

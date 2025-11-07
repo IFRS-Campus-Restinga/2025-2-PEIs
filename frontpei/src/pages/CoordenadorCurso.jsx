@@ -9,7 +9,12 @@ import "../cssGlobal.css";
 import { API_ROUTES } from "../configs/apiRoutes";
 
 function CoordenadoresCurso() {
-  const { addAlert, clearFieldAlert } = useAlert();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
   const DBCOORDENADORES = axios.create({ baseURL: API_ROUTES.COORDENADORCURSO });
 
   const [form, setForm] = useState({ nome: "" });

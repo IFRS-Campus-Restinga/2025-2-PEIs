@@ -9,7 +9,12 @@ import "../cssGlobal.css";
 import { API_ROUTES } from "../configs/apiRoutes";
 
 function AtaDeAcompanhamento() {
-  const { addAlert, clearFieldAlert } = useAlert();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
   const DBATA = axios.create({ baseURL: API_ROUTES.ATADEACOMPANHAMENTO });
   const PERIODO_LETIVO_API = axios.create({ baseURL: API_ROUTES.PEIPERIODOLETIVO });
 

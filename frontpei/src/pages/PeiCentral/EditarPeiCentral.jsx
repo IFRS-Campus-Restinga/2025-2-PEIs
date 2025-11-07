@@ -9,7 +9,12 @@ import { API_ROUTES } from "../../configs/apiRoutes";
 function EditarPeiCentral() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addAlert, clearFieldAlert } = useAlert();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
 
   const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 

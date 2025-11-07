@@ -10,7 +10,12 @@ import { API_ROUTES } from "../../configs/apiRoutes";
 function CursoCRUD() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addAlert, clearFieldAlert } = useAlert();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+    useEffect(() => {
+      // limpa todos os alertas ao entrar na tela
+      clearAlerts();
+    }, []);
 
   // Instâncias da API
   const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS });

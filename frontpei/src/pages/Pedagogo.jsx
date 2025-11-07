@@ -14,7 +14,12 @@ function Pedagogos() {
   const [pedagogosCadastradas, setPedagogosCadastradas] = useState([]);
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({ nome: "" });
-  const { addAlert, clearFieldAlert } = useAlert();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
   const [form, setForm] = useState({ nome: "" });
 
   async function recuperaPedagogos() {
