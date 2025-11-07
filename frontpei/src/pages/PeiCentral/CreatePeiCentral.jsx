@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { validaCampos } from "../../utils/validaCampos";
-import { useAlert } from "../../context/AlertContext";
+import { FieldAlert, useAlert } from "../../context/AlertContext";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
@@ -17,13 +17,23 @@ function CreatePeiCentral() {
   const [alunos, setAlunos] = useState([]);
   const [alunoSelecionado, setAlunoSelecionado] = useState("");
 
-  const { addAlert } = useAlert();
+  const [form, setForm] = useState({
+    historico_do_aluno: "",
+    necessidades_educacionais_especificas: "",
+    habilidades: "",
+    dificuldades_apresentadas: "",
+    adaptacoes: "",
+    status_pei: "",
+    aluno_id: "",
+  });
+
+  const { addAlert, clearFieldAlert } = useAlert();
   const navigate = useNavigate();
 
   const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
   const DBALUNO = axios.create({ baseURL: API_ROUTES.ALUNO });
 
-  // 🔹 Carrega alunos na abertura da tela
+  // Carrega alunos na abertura da tela
   useEffect(() => {
     async function recuperaAlunos() {
       try {
@@ -41,7 +51,15 @@ function CreatePeiCentral() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    const camposParaValidar = {
+    const mensagens = validaCampos(form, e.target);
+    
+    if (mensagens.length > 0) {
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      addAlert("Campos obrigatórios não preenchidos.", "warning");
+      return;
+    }
+
+    /*const camposParaValidar = {
       aluno_id: alunoSelecionado,
       historico_do_aluno,
       necessidades_educacionais_especificas,
@@ -49,39 +67,45 @@ function CreatePeiCentral() {
       dificuldades_apresentadas,
       adaptacoes,
       status_pei,
-    };
-
-    const mensagens = validaCampos(camposParaValidar, e.target);
-    if (mensagens.length > 0) {
-      addAlert(mensagens.join("\n"), "warning");
-      return;
-    }
+    }; */
 
     try {
-      const resposta = await DB.post("/", camposParaValidar);
+      const resposta = await DB.post("/", {
+        historico_do_aluno: form.historico_do_aluno,
+        necessidades_educacionais_especificas: form.necessidades_educacionais_especificas,
+        habilidades: form.habilidades,
+        dificuldades_apresentadas: form.dificuldades_apresentadas,
+        adaptacoes: form.adaptacoes,
+        status_pei: form.status_pei,
+        aluno_id: Number(form.aluno_id)
+      });
       console.log("Criado:", resposta.data);
       addAlert("PEI Central criado com sucesso!", "success");
 
       // limpa campos
-      setAlunoSelecionado("");
-      setHistorico("");
-      setNecessidades("");
-      setHabilidades("");
-      setDificuldadesApresentadas("");
-      setAdaptacoes("");
-      setStatus("");
+      setForm({
+        historico_do_aluno: "",
+        necessidades_educacionais_especificas: "",
+        habilidades: "",
+        dificuldades_apresentadas: "",
+        adaptacoes: "",
+        status_pei: "",
+        aluno_id: "",
+      })
 
       // redireciona após tempo de mensagem
       setTimeout(() => navigate("/peicentral"), 1500);
     } catch (err) {
-      console.error("Erro ao criar PEI Central:", err);
       if (err.response?.data) {
-        const messages = Object.entries(err.response.data)
-          .map(([campo, msgs]) => `${campo}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
+        });
+        const msg = Object.entries(err.response.data)
+          .map(([f, m]) => `${f}: ${Array.isArray(m) ? m.join(", ") : m}`)
           .join("\n");
-        addAlert(`Erro ao criar PEI Central:\n ${messages}`, "error");
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error");
       } else {
-        addAlert("Erro ao criar PEI Central. Tente novamente.", "error");
+        addAlert("Erro ao cadastrar componente.", "error");
       }
     }
   }
@@ -94,8 +118,13 @@ function CreatePeiCentral() {
         <label>Selecione o Aluno</label>
         <br />
         <select
-          value={alunoSelecionado}
-          onChange={(e) => setAlunoSelecionado(e.target.value)}
+          value={form.aluno_id}
+          name="aluno_id"
+          onChange={(e) =>  {
+            setForm({ ...form, aluno_id: e.target.value });
+            if (e.target.value.trim()) clearFieldAlert("aluno_id");
+            }
+            }
         >
           <option value="">-- Selecione --</option>
           {alunos.map((a) => (
@@ -104,6 +133,7 @@ function CreatePeiCentral() {
             </option>
           ))}
         </select>
+        <FieldAlert fieldName="aluno_id" />
         
         {/* Histórico do aluno */}
         <div>
@@ -111,12 +141,19 @@ function CreatePeiCentral() {
           <textarea
             style={{ width: "100%" }}
             rows={6}
-            value={historico_do_aluno}
-            onChange={(e) => setHistorico(e.target.value)}
+            name= "historico_do_aluno"
+            value={form.historico_do_aluno}
+            onChange={(e) => {
+            setForm({ ...form, historico_do_aluno: e.target.value });
+            if (e.target.value.trim()) clearFieldAlert("historico_do_aluno");
+            }
+            }
             className="border px-2 py-1 rounded w-full h-32 resize-y"
             placeholder="Digite o histórico completo do aluno"
             //required
           />
+          <FieldAlert fieldName="historico_do_aluno" />
+          
         </div>
 
         {/* Necessidades */}
@@ -127,12 +164,18 @@ function CreatePeiCentral() {
           <textarea
             style={{ width: "100%" }}
             rows={6}
-            value={necessidades_educacionais_especificas}
-            onChange={(e) => setNecessidades(e.target.value)}
+            name="necessidades_educacionais_especificas"
+            value={form.necessidades_educacionais_especificas}
+            onChange={(e) => {
+            setForm({ ...form, necessidades_educacionais_especificas: e.target.value });
+            if (e.target.value.trim()) clearFieldAlert("necessidades_educacionais_especificas");
+            }
+            }
             className="border px-2 py-1 rounded w-full h-32 resize-y"
             placeholder="Ex: Se o estudante é cego, precisa de Braille, leitor de telas..."
             //required
           />
+          <FieldAlert fieldName="necessidades_educacionais_especificas" />
         </div>
 
         {/* Habilidades */}
@@ -141,12 +184,18 @@ function CreatePeiCentral() {
           <textarea
             style={{ width: "100%" }}
             rows={6}
-            value={habilidades}
-            onChange={(e) => setHabilidades(e.target.value)}
+            name="habilidades"
+            value={form.habilidades}
+            onChange={(e) => {
+            setForm({ ...form, habilidades: e.target.value });
+            if (e.target.value.trim()) clearFieldAlert("habilidades");
+            }
+            }
             className="border px-2 py-1 rounded w-full h-32 resize-y"
             placeholder="Conhecimentos, habilidades, interesses, afinidades..."
             //required
           />
+          <FieldAlert fieldName="habilidades" />
         </div>
 
         {/* Dificuldades apresentadas */}
@@ -155,12 +204,18 @@ function CreatePeiCentral() {
           <textarea
             style={{ width: "100%" }}
             rows={6}
-            value={dificuldades_apresentadas}
-            onChange={(e) => setDificuldadesApresentadas(e.target.value)}
+            name = "dificuldades_apresentadas"
+            value={form.dificuldades_apresentadas}
+            onChange={(e) => {
+            setForm({ ...form, dificuldades_apresentadas: e.target.value });
+            if (e.target.value.trim()) clearFieldAlert("dificuldades_apresentadas");
+            }
+            }
             className="border px-2 py-1 rounded w-full h-32 resize-y"
             placeholder="Dificuldades apresentadas pelo aluno"
             //required
           />
+          <FieldAlert fieldName="dificuldades_apresentadas" />
         </div>
 
         {/* Adaptações */}
@@ -169,20 +224,31 @@ function CreatePeiCentral() {
           <textarea
             style={{ width: "100%" }}
             rows={6}
-            value={adaptacoes}
-            onChange={(e) => setAdaptacoes(e.target.value)}
+            name="adaptacoes"
+            value={form.adaptacoes}
+            onChange={(e) => {
+            setForm({ ...form, adaptacoes: e.target.value });
+            if (e.target.value.trim()) clearFieldAlert("adaptacoes");
+            }
+            }
             className="border px-2 py-1 rounded w-full h-32 resize-y"
             placeholder="Adaptações razoáveis e/ou acessibilidades curriculares"
             //required
           />
+          <FieldAlert fieldName="adaptacoes" />
         </div>
 
         {/* Status ENUM */}
         <div>
           <label className="block mb-1 font-medium">Status:</label>
           <select
-            value={status_pei}
-            onChange={(e) => setStatus(e.target.value)}
+            value={form.status_pei}
+            name="status_pei"
+            onChange={(e) => {
+            setForm({ ...form, status_pei: e.target.value });
+            if (e.target.value.trim()) clearFieldAlert("status_pei");
+            }
+            }
             className="border px-2 py-1 rounded w-full"
             //required
           >
@@ -191,6 +257,7 @@ function CreatePeiCentral() {
             <option value="EM ANDAMENTO">Em Andamento</option>
             <option value="FECHADO">Fechado</option>
           </select>
+          <FieldAlert fieldName="status_pei" />
         </div>
           <br />
           

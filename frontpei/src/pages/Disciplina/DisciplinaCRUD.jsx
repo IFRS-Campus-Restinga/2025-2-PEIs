@@ -27,6 +27,7 @@ export default function DisciplinasCRUD() {
       async function carregarDisciplina() {
         try {
           const resposta = await DB.get(`/${id}/`);
+
           setForm({ nome: resposta.data.nome || "" });
         } catch (err) {
           console.error(err);

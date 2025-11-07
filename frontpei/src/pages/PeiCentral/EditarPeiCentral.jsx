@@ -13,12 +13,15 @@ function EditarPeiCentral() {
 
   const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 
-  const [status_pei, setStatus] = useState("");
+  /*const [status_pei, setStatus] = useState("");
   const [historico_do_aluno, setHistorico] = useState("");
   const [necessidades_educacionais_especificas, setNecessidades] = useState("");
   const [habilidades, setHabilidades] = useState("");
   const [dificuldades_apresentadas, setDificuldadesApresentadas] = useState("");
-  const [adaptacoes, setAdaptacoes] = useState("");
+  const [adaptacoes, setAdaptacoes] = useState(""); */ 
+
+  // refatoração realizada para padronizar código
+  
   const [aluno, setAluno] = useState("");
 
   const [form, setForm] = useState({
@@ -229,6 +232,7 @@ function EditarPeiCentral() {
             Salvar Alterações
           </button>&nbsp;
           <button
+            type="button" // necessário para não enviar form ao clicar em cancelar
             className="btn-cancelar"
             onClick={() => navigate(-1)}
             
