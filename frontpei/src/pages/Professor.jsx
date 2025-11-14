@@ -15,7 +15,7 @@ function Professor() {
     // limpa todos os alertas ao entrar na tela
     clearAlerts();
   }, []);
-  const DBPROFESSORES = axios.create({ baseURL: API_ROUTES.PROFESSOR });
+  const DBPROFESSORES = axios.create({ baseURL: API_ROUTES.USUARIO });
 
   const [professores, setProfessores] = useState([]);
   const [form, setForm] = useState({ nome: "", matricula: "", email: "" });

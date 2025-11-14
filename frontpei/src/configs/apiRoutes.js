@@ -3,17 +3,15 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const endpoints = [
   "PEIPeriodoLetivo",
   "parecer",
-  "professor",
   "aluno",
-  "coordenadorCurso",
   "disciplinas",
   "cursos",
   "pei_central",
-  "pedagogo",
   "componenteCurricular",
   "ataDeAcompanhamento",
   "documentacaoComplementar",
   "mandaEmail",
+  "permissoes",
   "usuario"
 ];
 

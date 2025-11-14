@@ -20,7 +20,7 @@ function CursoCRUD() {
   // Instâncias da API
   const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS });
   const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
-  const DBCOORDENADOR = axios.create({ baseURL: API_ROUTES.COORDENADORCURSO });
+  const DBCOORDENADOR = axios.create({ baseURL: API_ROUTES.USUARIO });
 
   // Estados principais
   const [form, setForm] = useState({

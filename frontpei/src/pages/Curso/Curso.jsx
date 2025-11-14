@@ -69,7 +69,7 @@ export default function Cursos() {
           </thead> 
           <tbody> {cursos.map((curso) => ( 
             <tr key={curso.id}> 
-              <td>{curso.name}</td> 
+              <td>{curso.nome}</td> 
               <td>{curso.nivel || "Não informado"}</td> 
               <td> {curso.disciplinas?.length ? curso.disciplinas.map((d) => d.nome).join(", ") : "Nenhuma"} </td> 
               <td>{curso.coordenador?.nome || "Não informado"}</td> 

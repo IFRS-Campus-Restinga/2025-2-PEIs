@@ -15,7 +15,7 @@ function CoordenadoresCurso() {
     // limpa todos os alertas ao entrar na tela
     clearAlerts();
   }, []);
-  const DBCOORDENADORES = axios.create({ baseURL: API_ROUTES.COORDENADORCURSO });
+  const DBCOORDENADORES = axios.create({ baseURL: API_ROUTES.USUARIO });
 
   const [form, setForm] = useState({ nome: "" });
   const [editId, setEditId] = useState(null);

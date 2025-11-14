@@ -17,7 +17,7 @@ function Pareceres() {
 
   const DBCOMPONENTES = axios.create({ baseURL: API_ROUTES.COMPONENTECURRICULAR });
   const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
-  const DBPROF = axios.create({ baseURL: API_ROUTES.PROFESSOR });
+  const DBPROF = axios.create({ baseURL: API_ROUTES.USUARIO });
   const DBPARECERES = axios.create({ baseURL: API_ROUTES.PARECER });
 
   const [componentes, setComponentes] = useState([]);

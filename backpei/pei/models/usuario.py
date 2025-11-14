@@ -1,13 +1,37 @@
 from .base_model import BaseModel
 from django.db import models
 from ..enums import CategoriaUsuario
-from django.core.validators import MinLengthValidator, MaxLengthValidator
+from django.core.validators import MinLengthValidator, MaxLengthValidator, RegexValidator
 from django.core.exceptions import ValidationError
-# apenas uma validacao a mais no email, ja existe tambem no frontend
+from django.contrib.auth.models import Group  
+
+# validação extra do email institucional
 def validar_email_institucional(value):
-        if not value.endswith('ifrs.edu.br'):
-            raise ValidationError('O email deve ser institucional (ifrs.edu.br)')
-# decidimos por nao usar a classe user do django por adicionar camadas a mais de complexidade
+    if not value.endswith('ifrs.edu.br'):
+        raise ValidationError('O email deve ser institucional (ifrs.edu.br)')
+
 class Usuario(BaseModel):
-    email = models.EmailField( unique=True, validators=[validar_email_institucional, MinLengthValidator(10), MaxLengthValidator(100)] )
-    categoria = models.CharField( max_length=15, choices=CategoriaUsuario.choices )
+    nome = models.CharField(
+        validators=[
+            MinLengthValidator(10),
+            MaxLengthValidator(100)
+        ]
+    )
+    email = models.EmailField(
+        unique=True,
+        validators=[
+            validar_email_institucional,
+            MinLengthValidator(10),
+            MaxLengthValidator(100)
+        ]
+    )
+    categoria = models.CharField(
+        max_length=100,
+        choices=CategoriaUsuario.choices,
+        default=CategoriaUsuario.PROFESSOR
+    )
+
+    grupos = models.ManyToManyField(Group, blank=True) 
+
+    def __str__(self):
+        return f"{self.email} - {self.categoria}"

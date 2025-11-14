@@ -9,7 +9,7 @@ import "../cssGlobal.css";
 import { API_ROUTES } from "../configs/apiRoutes";
 
 function Pedagogos() {
-  const DBPEDAGOGO = axios.create({baseURL: API_ROUTES.PEDAGOGO});
+  const DBPEDAGOGO = axios.create({baseURL: API_ROUTES.USUARIO});
   const [pedagogo, setPedagogo] = useState("");
   const [pedagogosCadastradas, setPedagogosCadastradas] = useState([]);
   const [editId, setEditId] = useState(null);
