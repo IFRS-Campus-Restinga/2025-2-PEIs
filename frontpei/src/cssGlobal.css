@@ -897,6 +897,19 @@ body {
   color: #333;
 }
 
+.componentes-lista {
+  margin: 4px 0;
+  font-size: 0.9em;
+  line-height: 1.4;
+  color: #2c3e50;
+}
+
+.componentes-lista::before {
+  content: "• ";
+  color: #3498db;
+  font-weight: bold;
+}
+
 /*  Caixa "Mostrar" - MENOR */
 div.dt-container div.dt-length select {
   width: 60px !important;
