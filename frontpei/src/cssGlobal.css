@@ -525,205 +525,326 @@ body {
    MODAL DE LOGS
    ======================================== */
 
-/* Fundo escuro */
+/* Overlay do modal */
 .modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 20px;
-  backdrop-filter: blur(4px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 /* Container do modal */
-.logs-modal-content {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  max-width: 1000px;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  animation: modalFadeIn 0.3s ease-out;
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 1000px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease;
+    overflow: hidden;
 }
 
-/* Cabeçalho verde */
-.logs-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 28px;
-  border-bottom: 2px solid #E5E7EB;
-  background: linear-gradient(90deg, #055C0F 70%, #0a7d2c 100%);
-  color: white;
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.logs-modal-header h3 {
-  font-size: 22px;
-  font-weight: 700;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* Header do modal */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px;
+    border-bottom: 2px solid #E5E7EB;
+    background: linear-gradient(90deg, #055C0F 70%, #0a7d2c 100%);
 }
 
-/* Botão fechar */
+.modal-header h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .close-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 28px;
-  font-weight: 300;
-  transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: white;
+    font-size: 28px;
+    font-weight: 300;
+    line-height: 1;
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: rotate(90deg);
+    background: rgba(255, 255, 255, 0.3);
 }
 
 /* Corpo do modal */
 .modal-body {
-  padding: 28px;
-  overflow-y: auto;
-  flex: 1;
-  background: #fafafa;
+    padding: 28px;
+    overflow-y: auto;
+    flex: 1;
 }
 
-/* Grid de informações */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #F3F4F6;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+}
+
+/* Informações gerais do log */
 .log-info-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
-  margin-bottom: 28px;
-  padding: 20px 0;
-  border-bottom: 1px solid #eee;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+    padding: 20px;
+    background: #F9FAFB;
+    border-radius: 12px;
+    border: 1px solid #E5E7EB;
 }
 
 .log-info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .log-info-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  white-space: nowrap;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
 }
 
 .log-info-value {
-  font-size: 15px;
-  font-weight: 500;
-  color: #222;
-  word-break: break-word;
+    font-size: 14px;
+    color: #111827;
+    font-weight: 600;
 }
 
-/* Cores por ação */
-.log-info-value.criação,
-.log-info-value.criacao { color: #055C0F; }
-.log-info-value.alteração,
-.log-info-value.alteracao { color: #d97706; }
-.log-info-value.exclusão,
-.log-info-value.exclusao { color: #dc2626; }
+/* Seção de alterações */
+.log-changes-section {
+    margin-top: 24px;
+}
 
-/* Tabela de alterações - alinhada à esquerda */
+.log-section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 16px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #E5E7EB;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Tabela de comparação */
 .comparison-table-wrapper {
-  overflow-x: auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .comparison-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  font-size: 14px;
-  table-layout: auto;
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.comparison-table th,
-.comparison-table td {
-  padding: 10px 14px;
-  border-bottom: 1px solid #eee;
-  text-align: left; /* ← ALINHADO À ESQUERDA */
-  vertical-align: top;
+.comparison-table thead {
+    background: linear-gradient(90deg, #055C0F 70%, #0a7d2c 100%);
 }
 
 .comparison-table th {
-  background: #f1f8f2;
-  color: #055C0F;
-  font-weight: 600;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+    padding: 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
 }
 
-.comparison-table tr:hover {
-  background: #f9fdf9;
+.comparison-table th:first-child {
+    width: 25%;
 }
 
-/* Campo */
+.comparison-table th:nth-child(2),
+.comparison-table th:nth-child(3) {
+    width: 37.5%;
+}
+
+.comparison-table tbody tr {
+    transition: background 0.15s ease;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.comparison-table tbody tr:hover {
+    background: #F9FAFB;
+}
+
+.comparison-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.comparison-table td {
+    padding: 16px;
+    font-size: 14px;
+    vertical-align: top;
+    word-break: break-word;
+}
+
 .field-name {
-  font-weight: 600;
-  color: #333;
-  font-family: 'Courier New', monospace;
-  min-width: 140px;
+    font-weight: 700;
+    color: #374151;
+    font-size: 13px;
 }
 
-/* Valores */
 .field-value {
-  font-family: 'Courier New', monospace;
-  white-space: pre-wrap;
-  word-break: break-word;
-  max-width: 300px;
-  padding: 6px 0;
-}
-
-.field-value.empty {
-  color: #999;
-  font-style: italic;
+    color: #6B7280;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 8px 12px;
+    background: #F9FAFB;
+    border-radius: 6px;
+    border-left: 3px solid #E5E7EB;
 }
 
 .field-value.changed {
-  background: #fff8e1;
-  color: #b45309;
-  font-weight: 600;
-  border-left: 3px solid #f59e0b;
-  padding-left: 11px;
+    background: #FEF3C7;
+    border-left-color: #F59E0B;
 }
 
-/* Responsivo: mobile = 1 coluna */
-@media (max-width: 768px) {
-  .log-info-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
+.field-value.empty {
+    color: #9CA3AF;
+    font-style: italic;
+}
+
+/* Detalhes simples (quando não há antes/depois) */
+.simple-details {
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.simple-details h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #374151;
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.simple-details pre {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 13px;
+    color: #374151;
+    overflow-x: auto;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.simple-details pre::-webkit-scrollbar {
+    height: 6px;
+}
+
+.simple-details pre::-webkit-scrollbar-track {
+    background: #F3F4F6;
+}
+
+.simple-details pre::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 3px;
+}
+
+/* Estado vazio */
+.no-changes {
     text-align: center;
-  }
-  .log-info-item {
-    border-bottom: 1px solid #eee;
-    padding-bottom: 12px;
-  }
-  .log-info-item:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
+    padding: 40px 20px;
+    color: #9CA3AF;
+    font-style: italic;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .modal-content {
+        max-width: 95%;
+        max-height: 90vh;
+    }
+    
+    .log-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .comparison-table th,
+    .comparison-table td {
+        padding: 12px;
+        font-size: 12px;
+    }
+    
+    .field-value {
+        font-size: 12px;
+    }
 }
 
 /* ========================================

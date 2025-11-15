@@ -118,8 +118,8 @@ function Logs() {
 {/* Modal de Detalhes */}
 {selectedLog && (
   <div className="modal-overlay" onClick={closeModal}>
-    <div className="logs-modal-content" onClick={(e) => e.stopPropagation()}>
-      <div className="logs-modal-header">
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-header">
         <h3>📋 Detalhes do Log</h3>
         <button className="close-btn" onClick={closeModal}>×</button>
       </div>
@@ -232,7 +232,7 @@ function Logs() {
   </div>
 )}
 
-      <BotaoVoltar/>
+      <BotaoVoltar />
     </div>
   );
 }
