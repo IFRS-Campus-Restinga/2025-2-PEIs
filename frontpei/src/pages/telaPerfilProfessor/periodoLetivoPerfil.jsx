@@ -101,7 +101,6 @@ const PeriodoLetivoPerfil = () => {
     carregarDados();
   }, [peiCentralId]);
 
-  // Carregar permissões do usuário (sem token)
   useEffect(() => {
     if (!usuarioSelecionado) {
       console.log("Nenhum usuário disponível para carregar permissões");
@@ -166,7 +165,7 @@ const PeriodoLetivoPerfil = () => {
 
           {/* Documentação complementar */}
           {(permissoes.includes("add_documentocomplementar") || permissoes.includes("change_documentocomplementar")) && (
-            <Link to="/documentacaocomplementar" className="btn-verde">
+            <Link to="/documentacaoComplementar" className="btn-verde">
               Gerenciar Documentações Complementares
             </Link>
           )}
@@ -199,10 +198,17 @@ const PeriodoLetivoPerfil = () => {
             </Link>
           )}
 
-          {/* Disciplinas / Componentes Curriculares */}
-          {(permissoes.includes("add_componentecurricular") || permissoes.includes("change_componentecurricular") || permissoes.includes("add_disciplina")) && (
+          {/* Disciplinas */}
+          {(permissoes.includes("add_disciplina")) && (
             <Link to="/disciplina" className="btn-verde">
               Gerenciar Disciplinas
+            </Link>
+          )}
+
+          {/* Componentes Curriculares */}
+          {(permissoes.includes("add_componentecurricular") || permissoes.includes("change_componentecurricular")) && (
+            <Link to="/componenteCurricular" className="btn-verde">
+              Gerenciar Componentes Curriculares
             </Link>
           )}
 

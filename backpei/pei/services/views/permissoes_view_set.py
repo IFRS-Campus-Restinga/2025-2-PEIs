@@ -6,12 +6,6 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from django.contrib.auth.models import Group
 
 class UsuarioPermissoesView(APIView):
-    """
-    Retorna as permissões de um usuário com base no grupo (tipo).
-    Exemplo: GET /services/permissoes/?tipo=professor&id=1
-    """
-
-    # Desabilita autenticação
     authentication_classes = []  
     permission_classes = [AllowAny]
 

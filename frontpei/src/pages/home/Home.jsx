@@ -14,13 +14,10 @@ const ProfessorView = () => {
   const [tableData, setTableData] = useState([]);
   const navigate = useNavigate();
 
-  // ------------------------------------
-  // 🔹 CARREGAR USUÁRIOS
-  // ------------------------------------
   useEffect(() => {
     async function carregarUsuarios() {
       try {
-        console.log("🔄 Buscando usuários em:", API_ROUTES.USUARIO);
+        console.log("Buscando usuários em:", API_ROUTES.USUARIO);
 
         const res = await axios.get(API_ROUTES.USUARIO);
 
@@ -30,7 +27,7 @@ const ProfessorView = () => {
 
         setUsuarios(lista);
       } catch (err) {
-        console.error("❌ Erro ao carregar usuários:", err);
+        console.error("Erro ao carregar usuários:", err);
         alert("Erro ao carregar usuários. Veja o console.");
       }
     }
@@ -38,9 +35,6 @@ const ProfessorView = () => {
     carregarUsuarios();
   }, []);
 
-  // ------------------------------------
-  // 🔹 CARREGAR DADOS DA TABELA
-  // ------------------------------------
   useEffect(() => {
     async function carregarDados() {
       try {
@@ -107,7 +101,7 @@ const ProfessorView = () => {
 
         setTableData(dadosTabela);
       } catch (err) {
-        console.error("❌ Erro ao carregar dados:", err);
+        console.error("Erro ao carregar dados:", err);
         alert("Erro ao carregar dados. Verifique o console.");
       }
     }
@@ -115,9 +109,6 @@ const ProfessorView = () => {
     carregarDados();
   }, []);
 
-  // ------------------------------------
-  // 🔹 FUNÇÃO DO BOTÃO VISUALIZAR
-  // ------------------------------------
   const handleVisualizarClick = (peiCentralId) => {
     if (!peiCentralId) {
       alert("Nenhum PEI Central vinculado a este aluno.");
@@ -142,9 +133,6 @@ const ProfessorView = () => {
     });
   };
 
-  // ------------------------------------
-  // 🔹 LISTENER DOS BOTÕES DA TABELA
-  // ------------------------------------
   useEffect(() => {
     const handleButtonClick = (e) => {
       if (e.target.classList.contains("visualizar-btn")) {
@@ -157,9 +145,6 @@ const ProfessorView = () => {
     return () => document.removeEventListener("click", handleButtonClick);
   }, [usuarioSelecionado]);
 
-  // ------------------------------------
-  // 🔹 RENDERIZAÇÃO
-  // ------------------------------------
   return (
     <div className="telaPadrao-page">
       <div className="cargo-dropdown-container">
