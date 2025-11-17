@@ -66,6 +66,56 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+<<<<<<< Updated upstream
+=======
+            name='Pedagogo',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('nome', models.CharField(max_length=100, validators=[django.core.validators.MinLengthValidator(7), django.core.validators.MaxLengthValidator(100), django.core.validators.RegexValidator(message='Não use caracteres especiais. Use apenas letras, números e espaços.', regex='^[\\w\\sÀ-ÿ]+$')])),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='Professor',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('nome', models.CharField(max_length=150, validators=[django.core.validators.MinLengthValidator(7)])),
+                ('matricula', models.CharField(max_length=20, unique=True, validators=[django.core.validators.RegexValidator('^\\d+$', 'A matrícula deve conter apenas números')])),
+                ('email', models.EmailField(max_length=254, unique=True, validators=[pei.models.professor.validar_email_institucional])),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='Usuario',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('email', models.EmailField(max_length=254, unique=True, validators=[pei.models.usuario.validar_email_institucional, django.core.validators.MinLengthValidator(10), django.core.validators.MaxLengthValidator(100)])),
+                ('categoria', models.CharField(choices=[('ADMIN', 'Administrador do Sistema'), ('NAPNE', 'NAPNE'), ('PROFESSOR', 'Professor'), ('COORDENADOR', 'Coordenador'), ('PEDAGOGO', 'Pedagogo')], max_length=15)),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='Curso',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('nome', models.CharField(max_length=100, validators=[django.core.validators.MinLengthValidator(1), django.core.validators.RegexValidator(message='Não use caracteres especiais. Use apenas letras, números e espaços.', regex='^[\\w\\sÀ-ÿ]+$')])),
+                ('nivel', models.CharField(choices=[('Superior', 'Superior'), ('Ensino Médio', 'Ensino Medio'), ('Não informado', 'Não informado')], default='Não informado', max_length=100, validators=[django.core.validators.MinLengthValidator(1)])),
+                ('arquivo', models.FileField(blank=True, null=True, upload_to='cursos/', validators=[django.core.validators.FileExtensionValidator(allowed_extensions=['pdf', 'docx', 'png', 'jpg']), pei.managers.arquivo.validate_file_size])),
+                ('coordenador', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, related_name='coordenador', to='pei.coordenadorcurso')),
+                ('disciplinas', models.ManyToManyField(blank=True, related_name='cursos', to='pei.disciplina')),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
+>>>>>>> Stashed changes
             name='PeiCentral',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
