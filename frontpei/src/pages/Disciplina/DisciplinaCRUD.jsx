@@ -6,15 +6,12 @@ import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
 import { useAlert, FieldAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
-import { API_ROUTES } from "../../configs/apiRoutes";
 
 export default function DisciplinasCRUD() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
-<<<<<<< HEAD
-=======
   useEffect(() => {
     // limpa todos os alertas ao entrar na tela
     clearAlerts();
@@ -23,7 +20,6 @@ export default function DisciplinasCRUD() {
     nome: ""
   })
 
->>>>>>> Gabriel
   const DB = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
   const navigate = useNavigate();
   const { id } = useParams();

@@ -7,13 +7,8 @@ import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css";
-import { API_ROUTES } from "../configs/apiRoutes";
 
 function CoordenadoresCurso() {
-<<<<<<< HEAD
-  const { addAlert, clearFieldAlert } = useAlert();
-  const DBCOORDENADORES = axios.create({ baseURL: API_ROUTES.COORDENADORCURSO });
-=======
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
   useEffect(() => {
@@ -21,7 +16,6 @@ function CoordenadoresCurso() {
     clearAlerts();
   }, []);
   const DBCOORDENADORES = axios.create({ baseURL: API_ROUTES.USUARIO });
->>>>>>> Gabriel
 
   const [form, setForm] = useState({ nome: "" });
   const [editId, setEditId] = useState(null);

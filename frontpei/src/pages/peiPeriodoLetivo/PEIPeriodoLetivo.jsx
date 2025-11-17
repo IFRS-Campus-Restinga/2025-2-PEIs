@@ -6,23 +6,10 @@ import { Link } from "react-router-dom";
 import { API_ROUTES, BACKEND_TOKEN } from "../../configs/apiRoutes";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import "../../cssGlobal.css";
-import { API_ROUTES } from "../../configs/apiRoutes";
 
 function PEIPeriodoLetivo() {
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
-<<<<<<< HEAD
-  // Instâncias Axios com base na nova estrutura de rotas e token
-  const DB = axios.create({
-    baseURL: API_ROUTES.PEIPERIODOLETIVO,
-    headers: { Authorization: `Token ${BACKEND_TOKEN}` },
-  });
-
-  const DB_CENTRAL = axios.create({
-    baseURL: API_ROUTES.PEI_CENTRAL,
-    headers: { Authorization: `Token ${BACKEND_TOKEN}` },
-  });
-=======
   useEffect(() => {
     // limpa todos os alertas ao entrar na tela
     clearAlerts();
@@ -30,7 +17,6 @@ function PEIPeriodoLetivo() {
 
   const DB = axios.create({ baseURL: API_ROUTES.PEIPERIODOLETIVO });
   const DB_CENTRAL = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
->>>>>>> Gabriel
 
   const [dataCriacao, setDataCriacao] = useState("");
   const [dataTermino, setDataTermino] = useState("");
@@ -116,26 +102,9 @@ function PEIPeriodoLetivo() {
         addAlert("Período cadastrado com sucesso!", "success");
       }
 
-<<<<<<< HEAD
-      // Limpa os campos e estado
-      setDataCriacao("");
-      setDataTermino("");
-      setPeriodoEscolhido("");
-      setPeiCentralId("");
-=======
->>>>>>> Gabriel
       setEditingId(null);
     } catch (err) {
       if (err.response?.data) {
-<<<<<<< HEAD
-        const messages = Object.entries(err.response.data)
-          .map(
-            ([field, msgs]) =>
-              `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`
-          )
-          .join(" | ");
-        addAlert(`Erro ao salvar período: ${messages}`, "error");
-=======
         // Exibir mensagens inline (por campo)
         Object.entries(err.response.data).forEach(([f, m]) => {
           addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
@@ -151,7 +120,6 @@ function PEIPeriodoLetivo() {
           .join("\n");
 
         addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
->>>>>>> Gabriel
       } else {
         addAlert("Erro ao cadastrar componente.", "error", { persist: true });
       }

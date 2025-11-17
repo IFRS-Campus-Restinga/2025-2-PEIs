@@ -7,13 +7,8 @@ import BotaoEditar from "../components/customButtons/botaoEditar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css";
-import { API_ROUTES } from "../configs/apiRoutes";
 
 function DocumentacaoComplementar() {
-<<<<<<< HEAD
-  const { addAlert, clearFieldAlert } = useAlert();
-  const DBDOC = axios.create({ baseURL: API_ROUTES.DOCUMENTACAOCOMPLEMENTAR });
-=======
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
   useEffect(() => {
@@ -24,7 +19,6 @@ function DocumentacaoComplementar() {
   // Cria instância da API
   const DBDOC = axios.create({
     baseURL: API_ROUTES.DOCUMENTACAOCOMPLEMENTAR });
->>>>>>> Gabriel
 
   const [form, setForm] = useState({ autor: "", tipo: "", arquivo: null });
   const [arquivo, setArquivo] = useState(null);

@@ -6,16 +6,10 @@ import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import { validaCampos } from "../utils/validaCampos";
 import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css"
-import { API_ROUTES } from "../configs/apiRoutes";
 
 function Pareceres() {
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
-<<<<<<< HEAD
-  const DBCOMPONENTES = axios.create({ baseURL: API_ROUTES.COMPONENTECURRICULAR });
-  const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
-  const DBPROF = axios.create({ baseURL: API_ROUTES.PROFESSOR });
-=======
   useEffect(() => {
     // limpa todos os alertas ao entrar na tela
     clearAlerts();
@@ -24,7 +18,6 @@ function Pareceres() {
   const DBCOMPONENTES = axios.create({ baseURL: API_ROUTES.COMPONENTECURRICULAR });
   const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
   const DBPROF = axios.create({ baseURL: API_ROUTES.USUARIO });
->>>>>>> Gabriel
   const DBPARECERES = axios.create({ baseURL: API_ROUTES.PARECER });
 
   const [componentes, setComponentes] = useState([]);

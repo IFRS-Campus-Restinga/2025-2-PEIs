@@ -7,19 +7,14 @@ import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css";
-import { API_ROUTES } from "../configs/apiRoutes";
 
 function Alunos() {
-<<<<<<< HEAD
-  const { addAlert, clearFieldAlert } = useAlert();
-=======
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
   useEffect(() => {
     // limpa todos os alertas ao entrar na tela
     clearAlerts();
   }, []);
->>>>>>> Gabriel
   const DBALUNOS = axios.create({ baseURL: API_ROUTES.ALUNO });
 
   const [alunos, setAlunos] = useState([]);

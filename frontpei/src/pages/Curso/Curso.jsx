@@ -8,16 +8,11 @@ import axios from "axios";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css"
-import { API_ROUTES } from "../../configs/apiRoutes";
 
 export default function Cursos() { 
   const [cursos, setCursos] = useState([]); 
   const [erro, setErro] = useState(""); 
-<<<<<<< HEAD
-  const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS }); 
-=======
   const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS });
->>>>>>> Gabriel
   
   async function carregarCursos() { 
     try {

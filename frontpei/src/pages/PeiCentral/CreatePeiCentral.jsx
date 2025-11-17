@@ -6,7 +6,6 @@ import { FieldAlert, useAlert } from "../../context/AlertContext";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
-import { API_ROUTES } from "../../configs/apiRoutes";
 
 function CreatePeiCentral() {
   const [historico_do_aluno, setHistorico] = useState("");

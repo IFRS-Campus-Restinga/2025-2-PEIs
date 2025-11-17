@@ -4,20 +4,10 @@ import axios from "axios";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
-<<<<<<< HEAD
-import perfil from "../../assets/perfil.png";
-
-const PeriodoLetivoPerfil = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { peiCentralId, cargoSelecionado: cargoInicial } = location.state || {};
-=======
-import { API_ROUTES } from "../../configs/apiRoutes";
 
 const PeriodoLetivoPerfil = () => {
   const location = useLocation();
   const { peiCentralId, usuarioSelecionado } = location.state || {};
->>>>>>> Gabriel
 
   const [aluno, setAluno] = useState(null);
   const [curso, setCurso] = useState(null);

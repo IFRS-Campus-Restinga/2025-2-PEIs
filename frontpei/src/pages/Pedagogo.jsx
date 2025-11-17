@@ -7,19 +7,11 @@ import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css";
-import { API_ROUTES } from "../configs/apiRoutes";
 
 function Pedagogos() {
-<<<<<<< HEAD
-  const { addAlert, clearFieldAlert } = useAlert();
-  const DBPEDAGOGO = axios.create({ baseURL: API_ROUTES.PEDAGOGO });
-
-  const [form, setForm] = useState({ nome: "" });
-=======
   const DBPEDAGOGO = axios.create({baseURL: API_ROUTES.USUARIO});
   const [pedagogo, setPedagogo] = useState("");
   const [pedagogosCadastradas, setPedagogosCadastradas] = useState([]);
->>>>>>> Gabriel
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({ nome: "" });
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();

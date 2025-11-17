@@ -5,21 +5,16 @@ import { useAlert, FieldAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
-import { API_ROUTES } from "../../configs/apiRoutes";
 
 function EditarPeiCentral() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
-<<<<<<< HEAD
-  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
-=======
   useEffect(() => {
     // limpa todos os alertas ao entrar na tela
     clearAlerts();
   }, []);
->>>>>>> Gabriel
 
   const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 

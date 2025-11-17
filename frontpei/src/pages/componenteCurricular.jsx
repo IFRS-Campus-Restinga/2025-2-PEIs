@@ -7,7 +7,6 @@ import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css";
-import { API_ROUTES } from "../configs/apiRoutes";
 
 function ComponenteCurricular() {
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
@@ -17,12 +16,8 @@ function ComponenteCurricular() {
     clearAlerts();
   }, []);
 
-<<<<<<< HEAD
-  const DBCOMPONENTECURRICULAR = axios.create({ baseURL: API_ROUTES.COMPONENTECURRICULAR });
-=======
   const DBCOMPONENTECURRICULAR = axios.create({
     baseURL: API_ROUTES.COMPONENTECURRICULAR });
->>>>>>> Gabriel
   const DISCIPLINAS_API = API_ROUTES.DISCIPLINAS;
   const PERIODO_LETIVO_API = API_ROUTES.PEIPERIODOLETIVO;
 

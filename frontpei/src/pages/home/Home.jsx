@@ -5,20 +5,12 @@ import DT from "datatables.net-dt";
 import DataTable from "datatables.net-react";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
-import { API_ROUTES } from "../../configs/apiRoutes";
 
 DataTable.use(DT);
 
-<<<<<<< HEAD
-const Home = ({ usuario }) => {
-  const navigate = useNavigate();
-
-  const [cargoSelecionado, setCargoSelecionado] = useState("");
-=======
 const ProfessorView = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
->>>>>>> Gabriel
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState(null);
@@ -120,15 +112,8 @@ const ProfessorView = () => {
 
         setTableData(dadosTabela);
       } catch (err) {
-<<<<<<< HEAD
-        console.error("Erro ao carregar dados:", err);
-        setErro("Falha ao carregar os dados.");
-      } finally {
-        setLoading(false);
-=======
         console.error("❌ Erro ao carregar dados:", err);
         alert("Erro ao carregar dados. Verifique o console.");
->>>>>>> Gabriel
       }
     }
 
@@ -182,14 +167,8 @@ const ProfessorView = () => {
   return (
     <div className="telaPadrao-page">
       <div className="cargo-dropdown-container">
-<<<<<<< HEAD
-        <label htmlFor="cargo" className="cargo-label">
-          Selecione o cargo:
-        </label>
-=======
         <label htmlFor="usuario" className="cargo-label">Selecione o usuário:</label>
 
->>>>>>> Gabriel
         <select
           id="usuario"
           className="cargo-dropdown"
@@ -210,48 +189,6 @@ const ProfessorView = () => {
       </div>
 
       <DataTable
-<<<<<<< HEAD
-          data={tableData}
-          columns={[
-            { title: "Nome do aluno", data: "nome" },
-            { title: "Componente Curricular", data: "componente" },
-            { title: "Status", data: "status" },
-            { title: "Coordenador de curso", data: "coordenador" },
-            {
-              title: "Visualizar",
-              data: "peiCentralId",
-              render: (peiCentralId) => `
-                <button class="btn btn-sm btn-success visualizar-btn" data-id="${peiCentralId}">
-                  Visualizar
-                </button>
-              `,
-            },
-          ]}
-          className="display table table-striped table-hover w-100"
-          options={{
-            pageLength: 10,
-            language: {
-              decimal: ",",
-              thousands: ".",
-              processing: "Processando...",
-              search: "Pesquisar:",
-              lengthMenu: "Mostrar _MENU_ PEIs",
-              info: '<span class="custom-info-text">Mostrando de _START_ até _END_ de _TOTAL_ PEIs</span>',
-              infoEmpty: "Mostrando 0 até 0 de 0 PEIs",
-              infoFiltered: "(filtrado de _MAX_ PEIs no total)",
-              loadingRecords: "Carregando...",
-              zeroRecords: "Nenhum PEI encontrado",
-              emptyTable: "Nenhum dado disponível nesta tabela",
-              paginate: {
-                first: "Primeiro",
-                previous: "Anterior",
-                next: "Próximo",
-                last: "Último",
-              },
-            },
-          }}
-        />
-=======
         data={tableData}
         columns={[
           { title: "Nome do aluno", data: "nome" },
@@ -292,13 +229,8 @@ const ProfessorView = () => {
           },
         }}
       />
->>>>>>> Gabriel
     </div>
   );
 };
 
-<<<<<<< HEAD
-export default Home;
-=======
 export default ProfessorView;
->>>>>>> Gabriel

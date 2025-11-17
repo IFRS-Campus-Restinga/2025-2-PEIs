@@ -6,7 +6,6 @@ import axios from "axios";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
-import { API_ROUTES } from "../../configs/apiRoutes";
 
 export default function Disciplinas() {
   const [disciplinas, setDisciplinas] = useState([]);

@@ -6,22 +6,6 @@ import { API_ROUTES, BACKEND_TOKEN } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
 import BotaoEditar from "../../components/customButtons/botaoEditar";
 
-<<<<<<< HEAD
-function PeiCentral() {
-  const [peiCentral, setPeiCentral] = useState([]);
-  const [erro, setErro] = useState(null);
-  const [carregando, setCarregando] = useState(true);
-  const navigate = useNavigate();
-
-  const DB = axios.create({
-    baseURL: API_ROUTES.PEI_CENTRAL,
-    headers: {
-      Authorization: `Token ${BACKEND_TOKEN}`,
-    },
-  });
-=======
-import { API_ROUTES } from "../../configs/apiRoutes";
-
 function PeiCentral() {
   const [pei_central, setPeiCentral] = useState([]);
   const [erro, setErro] = useState(false);
@@ -30,7 +14,6 @@ function PeiCentral() {
   const navigate = useNavigate();
 
   const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
->>>>>>> Gabriel
 
   useEffect(() => {
     async function carregarPeiCentral() {
@@ -87,23 +70,14 @@ function PeiCentral() {
   return (
     <div className="container-padrao">
       <h1 style={{ textAlign: "center" }}>PEI CENTRAL</h1>
-<<<<<<< HEAD
-
-      <button
-=======
       <button
         type="button"
->>>>>>> Gabriel
         className="submit-btn"
         style={{ fontSize: "21px" }}
         onClick={() => navigate("/create_peicentral")}
       >
         Criar novo PEI
       </button>
-<<<<<<< HEAD
-
-=======
->>>>>>> Gabriel
       <br />
       <br />
 
@@ -124,47 +98,6 @@ function PeiCentral() {
                 padding: "10px",
               }}
             >
-<<<<<<< HEAD
-              <BotaoEditar id={pei.id} rotaEdicao="/editar_peicentral/" />
-              <br />
-              <br />
-
-              <div
-                className="periodo-card"
-                style={{
-                  textAlign: "center",
-                  fontSize: "20px",
-                  margin: "10px",
-                  background: "#d3d3d3ff",
-                }}
-              >
-                <br />
-                <b>Aluno:</b> {pei.aluno?.nome} -{" "}
-                <b>Matrícula:</b> {pei.aluno?.matricula}
-                <br />
-                <b>E-mail:</b> {pei.aluno?.email}
-                <br />
-                <br />
-              </div>
-
-              <div style={{ textAlign: "justify" }}>
-                <b>Status:</b> <p>{pei.status_pei}</p>
-
-                <b>Histórico do Aluno:</b>
-                <p>{pei.historico_do_aluno}</p>
-
-                <b>Necessidades:</b>
-                <p>{pei.necessidades_educacionais_especificas}</p>
-
-                <b>Habilidades:</b>
-                <p>{pei.habilidades}</p>
-
-                <b>Dificuldades Apresentadas:</b>
-                <p>{pei.dificuldades_apresentadas}</p>
-
-                <b>Adaptações:</b>
-                <p>{pei.adaptacoes}</p>
-=======
               <div
                 style={{
                   display: "flex",
@@ -213,7 +146,6 @@ function PeiCentral() {
                 <b>Dificuldades Apresentadas:</b>{" "}
                 <p>{pei.dificuldades_apresentadas}</p>
                 <b>Adaptações:</b> <p>{pei.adaptacoes}</p>
->>>>>>> Gabriel
               </div>
 
               <br />
@@ -230,31 +162,13 @@ function PeiCentral() {
                     }}
                   >
                     {pei.periodos.map((periodo) => (
-<<<<<<< HEAD
-                      <div key={periodo.id} className="periodo-card">
-=======
                       <div className="periodo-card" key={periodo.id}>
->>>>>>> Gabriel
                         <p>
                           <b>Data de Criação:</b> {periodo.data_criacao}{" "}
                           <b>Data de Término:</b> {periodo.data_termino}
                         </p>
                         <p>
                           <b>Período Letivo:</b> {periodo.periodo_principal}
-<<<<<<< HEAD
-                        </p>
-
-                        <div style={{ display: "flex", gap: "20px" }}>
-                          <button
-                            className="btn-verde"
-                            onClick={() =>
-                              navigate("/listar_periodos/" + periodo.id)
-                            }
-                          >
-                            Visualizar Período
-                          </button>
-                        </div>
-=======
                           <div style={{ display: "flex", gap: "20px" }}>
                             <button
                               type="button"
@@ -267,7 +181,6 @@ function PeiCentral() {
                             </button>
                           </div>
                         </p>
->>>>>>> Gabriel
                       </div>
                     ))}
                   </div>

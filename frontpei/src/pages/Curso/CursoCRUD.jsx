@@ -6,7 +6,6 @@ import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
 import { useAlert, FieldAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
-import { API_ROUTES } from "../../configs/apiRoutes";
 
 function CursoCRUD() {
   const { id } = useParams();
@@ -37,17 +36,6 @@ function CursoCRUD() {
 
   // Opções fixas de nível
   const niveis = [
-<<<<<<< HEAD
-     { label: "Superior", value: "Superior" }, 
-     { label: "Ensino Médio", value: "Ensino Médio" }, 
-     { label: "Não informado", value: "Não informado" } 
-  ]; 
-  
-  const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS }); 
-  const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS }); 
-  const DBCOORDENADOR = axios.create({ baseURL: API_ROUTES.COORDENADORCURSO }); 
-  
-=======
     { label: "Superior", value: "Superior" },
     { label: "Ensino Médio", value: "Ensino Médio" },
     { label: "Não informado", value: "Não informado" },
@@ -68,7 +56,6 @@ function CursoCRUD() {
     }
   };
 
->>>>>>> Gabriel
   useEffect(() => {
     carregarDadosIniciais();
   }, []);

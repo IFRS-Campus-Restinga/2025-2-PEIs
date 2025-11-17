@@ -7,13 +7,8 @@ import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css";
-import { API_ROUTES } from "../configs/apiRoutes";
 
 function Professor() {
-<<<<<<< HEAD
-  const { addAlert, clearFieldAlert } = useAlert();
-  const DBPROFESSORES = axios.create({ baseURL: API_ROUTES.PROFESSOR });
-=======
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
   useEffect(() => {
@@ -21,7 +16,6 @@ function Professor() {
     clearAlerts();
   }, []);
   const DBPROFESSORES = axios.create({ baseURL: API_ROUTES.USUARIO });
->>>>>>> Gabriel
 
   const [professores, setProfessores] = useState([]);
   const [form, setForm] = useState({ nome: "", matricula: "", email: "" });
