@@ -1713,3 +1713,48 @@ input:checked + .slider:before {
 .alert-close:hover {
   color: #555;
 }
+
+/* Parte para modal */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background: #fff;
+  padding: 20px;
+  width: 400px;
+  border-radius: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.cancel-button {
+  background: #777;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+}
+
+.perfil-check-container {
+  margin-top: 10px;
+}
+
+.perfil-item {
+  display: flex;
+  gap: 8px;
+  margin: 4px 0;
+}

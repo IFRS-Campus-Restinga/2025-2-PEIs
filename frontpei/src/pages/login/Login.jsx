@@ -1,12 +1,101 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
 import ErrorMessage from "../../components/errorMessage/ErrorMessage.jsx";
 import "../../cssGlobal.css";
 
 const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
+
+  // Controle do popup de registro
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+
+  // Campos de login manual
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+
+  // Campos do registro
+  const [regNome, setRegNome] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regSenha, setRegSenha] = useState("");
+  const [regConfirmSenha, setRegConfirmSenha] = useState("");
+  const [regPerfil, setRegPerfil] = useState("");
+  const [regMatricula, setRegMatricula] = useState("");
+
+  // Controle de erros no registro
+  const [registroErro, setRegistroErro] = useState("");
+
+  const abrirRegistro = () => {
+    setRegistroErro("");
+    setShowRegisterModal(true);
+  };
+  const fecharRegistro = () => setShowRegisterModal(false);
+
+  // Login manual (API a ser implementada)
+  const handleLoginManual = async () => {
+    try {
+      const response = await axios.post("http://localhost:8000/api/login/", {
+        email: email,
+        senha: senha
+      });
+
+      console.log("Login manual realizado:", response.data);
+      // Tratar sucesso do login (token, redirecionamento etc)
+    } catch (error) {
+      console.error("Erro no login manual:", error);
+      alert("Erro ao fazer login. Verifique suas credenciais.");
+    }
+  };
+
+  // Registro via backend
+  const handleRegistrar = async () => {
+    setRegistroErro("");
+
+    if (!regNome || !regEmail || !regSenha || !regConfirmSenha || !regPerfil) {
+      setRegistroErro("Preencha todos os campos obrigatórios e selecione um perfil!");
+      return;
+    }
+
+    if (regSenha !== regConfirmSenha) {
+      setRegistroErro("As senhas não coincidem!");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:8000/api/usuarios/registrar/", {
+        nome: regNome,
+        email: regEmail,
+        senha: regSenha,
+        tipo_usuario: regPerfil,
+        matricula: regPerfil === "ALUNO" ? regMatricula : undefined
+      });
+
+      if (response.status === 201 || response.status === 200) {
+        alert("Registro realizado com sucesso!");
+        fecharRegistro();
+
+        // Limpar campos do registro
+        setRegNome("");
+        setRegEmail("");
+        setRegSenha("");
+        setRegConfirmSenha("");
+        setRegPerfil("");
+        setRegMatricula("");
+      }
+
+    } catch (error) {
+      console.error(error);
+      if (error.response) {
+        setRegistroErro("Erro ao registrar: " + (error.response.data.error || JSON.stringify(error.response.data)));
+      } else {
+        setRegistroErro("Erro ao registrar usuário. Verifique sua conexão.");
+      }
+    }
+  };
+
   return (
     <div className="login-container">
-      {/* Lado Esquerdo - Informações */}
+
+      {/* Lado Esquerdo */}
       <div className="login-info-side">
         <div className="login-info-content">
           <div className="login-brand">
@@ -65,12 +154,12 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
         </div>
       </div>
 
-      {/* Lado Direito - Login */}
+      {/* Lado Direito — Login */}
       <div className="login-form-side">
         <div className="login-form-container">
           <div className="login-form-header">
             <h2>Acesse sua conta</h2>
-            <p>Faça login com sua conta institucional do Google</p>
+            <p>Escolha uma das opções para entrar:</p>
           </div>
 
           {mensagemErro && (
@@ -79,6 +168,36 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
             </div>
           )}
 
+          {/* Login Manual */}
+          <div className="login-manual-form">
+            <input 
+              type="email"
+              placeholder="E-mail"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="login-input"
+            />
+
+            <input 
+              type="password"
+              placeholder="Senha"
+              value={senha}
+              onChange={e => setSenha(e.target.value)}
+              className="login-input"
+            />
+
+            <button className="login-button" onClick={handleLoginManual}>
+              Entrar
+            </button>
+
+            <button className="register-button" onClick={abrirRegistro}>
+              Registrar
+            </button>
+          </div>
+
+          <div className="login-divider"></div>
+
+          {/* Login com Google */}
           <div className="login-button-wrapper">
             <GoogleLogin 
               onSuccess={onLoginSuccess} 
@@ -90,19 +209,120 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
 
           <div className="login-help">
             <p className="login-help-text">
-              Utilize seu e-mail institucional (@restinga.ifrs.edu.br) para acessar o sistema.
+              Utilize seu e-mail institucional (@restinga.ifrs.edu.br)
             </p>
           </div>
 
-          <div className="login-divider"></div>
-
-          <div className="login-support">
-            <h4>Precisa de ajuda?</h4>
-            <p>Entre em contato com o suporte técnico:</p>
-            <a href="mailto:suporte@restinga.ifrs.edu.br">suporte@restinga.ifrs.edu.br</a>
-          </div>
         </div>
       </div>
+
+      {/* MODAL DE REGISTRO */}
+      {showRegisterModal && (
+        <div className="modal-backdrop">
+          <div className="modal-container">
+            <h2>Criar Conta</h2>
+
+            {registroErro && (
+              <div style={{ marginBottom: "10px", color: "red" }}>
+                <ErrorMessage message={registroErro} align="center" />
+              </div>
+            )}
+
+            <input 
+              type="text"
+              placeholder="Nome completo"
+              value={regNome}
+              onChange={e => setRegNome(e.target.value)}
+              className="login-input"
+            />
+
+            <input 
+              type="email"
+              placeholder="E-mail"
+              value={regEmail}
+              onChange={e => setRegEmail(e.target.value)}
+              className="login-input"
+            />
+
+            <input 
+              type="password"
+              placeholder="Senha"
+              value={regSenha}
+              onChange={e => setRegSenha(e.target.value)}
+              className="login-input"
+            />
+
+            <input 
+              type="password"
+              placeholder="Confirmar Senha"
+              value={regConfirmSenha}
+              onChange={e => setRegConfirmSenha(e.target.value)}
+              className="login-input"
+            />
+
+            {/* Seleção de perfil */}
+            <div className="perfil-check-container">
+              <p>Selecione seu perfil:</p>
+
+              <label className="perfil-item">
+                <input 
+                  type="radio"
+                  name="perfil"
+                  value="COORDENADOR"
+                  onChange={e => setRegPerfil(e.target.value)}
+                /> Coordenador
+              </label>
+
+              <label className="perfil-item">
+                <input 
+                  type="radio"
+                  name="perfil"
+                  value="NAPNE"
+                  onChange={e => setRegPerfil(e.target.value)}
+                /> NAPNE
+              </label>
+
+              <label className="perfil-item">
+                <input 
+                  type="radio"
+                  name="perfil"
+                  value="PROFESSOR"
+                  onChange={e => setRegPerfil(e.target.value)}
+                /> Professor
+              </label>
+
+              <label className="perfil-item">
+                <input 
+                  type="radio"
+                  name="perfil"
+                  value="PEDAGOGO"
+                  onChange={e => setRegPerfil(e.target.value)}
+                /> Pedagogo
+              </label>
+            </div>
+
+            {/* Matrícula apenas para alunos */}
+            {regPerfil === "ALUNO" && (
+              <input
+                type="text"
+                placeholder="Matrícula"
+                value={regMatricula}
+                onChange={e => setRegMatricula(e.target.value)}
+                className="login-input"
+              />
+            )}
+
+            <button className="login-button" onClick={handleRegistrar}>
+              Criar Conta
+            </button>
+
+            <button className="cancel-button" onClick={fecharRegistro}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

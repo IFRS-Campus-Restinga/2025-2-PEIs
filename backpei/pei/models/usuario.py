@@ -11,7 +11,19 @@ def validar_email_institucional(value):
         raise ValidationError('O email deve ser institucional (ifrs.edu.br)')
 
 class Usuario(BaseModel):
+
+    STATUS_PENDENTE = 'PENDING'
+    STATUS_APROVADO = 'APPROVED'
+    STATUS_REJEITADO = 'REJECTED'
+
+    STATUS_CHOICES = [
+        (STATUS_PENDENTE, 'Pendente'),
+        (STATUS_APROVADO, 'Aprovado'),
+        (STATUS_REJEITADO, 'Rejeitado'),
+    ]
+
     nome = models.CharField(
+        max_length=100,
         validators=[
             MinLengthValidator(10),
             MaxLengthValidator(100)
@@ -25,10 +37,17 @@ class Usuario(BaseModel):
             MaxLengthValidator(100)
         ]
     )
+
     categoria = models.CharField(
-        max_length=100,
+        max_length=20,
         choices=CategoriaUsuario.choices,
         default=CategoriaUsuario.PROFESSOR
+    )
+    
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDENTE
     )
 
     grupos = models.ManyToManyField(Group, blank=True) 
