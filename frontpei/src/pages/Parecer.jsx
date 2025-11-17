@@ -6,13 +6,25 @@ import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import { validaCampos } from "../utils/validaCampos";
 import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css"
+import { API_ROUTES } from "../configs/apiRoutes";
 
 function Pareceres() {
-  const { addAlert, clearFieldAlert } = useAlert();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
+<<<<<<< HEAD
   const DBCOMPONENTES = axios.create({ baseURL: API_ROUTES.COMPONENTECURRICULAR });
   const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
   const DBPROF = axios.create({ baseURL: API_ROUTES.PROFESSOR });
+=======
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
+
+  const DBCOMPONENTES = axios.create({ baseURL: API_ROUTES.COMPONENTECURRICULAR });
+  const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
+  const DBPROF = axios.create({ baseURL: API_ROUTES.USUARIO });
+>>>>>>> Gabriel
   const DBPARECERES = axios.create({ baseURL: API_ROUTES.PARECER });
 
   const [componentes, setComponentes] = useState([]);
@@ -31,7 +43,6 @@ function Pareceres() {
       const data = resp.data;
       setComponentes(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
-      console.error("Erro ao buscar componentes:", err);
       addAlert("Erro ao carregar componentes curriculares!", "error");
     }
   }
@@ -42,7 +53,6 @@ function Pareceres() {
       const data = resp.data;
       setDisciplinas(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
-      console.error("Erro ao buscar disciplinas:", err);
       addAlert("Erro ao carregar disciplinas!", "error");
     }
   }
@@ -53,7 +63,6 @@ function Pareceres() {
       const data = resp.data;
       setProfessores(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
-      console.error("Erro ao buscar professores:", err);
       addAlert("Erro ao carregar professores!", "error");
     }
   }
@@ -112,21 +121,24 @@ function Pareceres() {
       recuperaProfessores();
       addAlert("Parecer cadastrado com sucesso!", "success");
     } catch (err) {
-      console.error("Erro ao criar parecer:", err);
       if (err.response?.data) {
-        // Exibe mensagens inline específicas do backend
-        Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: field });
+        // Exibir mensagens inline (por campo)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
 
-        // Monta o texto completo para o toast
-        const messages = Object.entries(err.response.data)
-          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+        // Montar mensagem amigável pro toast
+        const msg = Object.entries(err.response.data)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
           .join("\n");
 
-        addAlert(`Erro ao cadastrar:\n${messages}`, "error");
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
-        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+        addAlert("Erro ao cadastrar parecer.", "error", { persist: true });
       }
     }
   }

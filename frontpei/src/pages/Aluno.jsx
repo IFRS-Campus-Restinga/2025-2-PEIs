@@ -7,9 +7,19 @@ import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css";
+import { API_ROUTES } from "../configs/apiRoutes";
 
 function Alunos() {
+<<<<<<< HEAD
   const { addAlert, clearFieldAlert } = useAlert();
+=======
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
+>>>>>>> Gabriel
   const DBALUNOS = axios.create({ baseURL: API_ROUTES.ALUNO });
 
   const [alunos, setAlunos] = useState([]);
@@ -43,15 +53,23 @@ function Alunos() {
       addAlert("Aluno cadastrado com sucesso!", "success");
     } catch (err) {
       if (err.response?.data) {
+        // Exibir mensagens inline (por campo)
         Object.entries(err.response.data).forEach(([f, m]) => {
           addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
+
+        // Montar mensagem amigável pro toast
         const msg = Object.entries(err.response.data)
-          .map(([f, m]) => `${f}: ${Array.isArray(m) ? m.join(", ") : m}`)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
           .join("\n");
-        addAlert(`Erro ao cadastrar:\n${msg}`, "error");
+
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
-        addAlert("Erro ao cadastrar aluno.", "error");
+        addAlert("Erro ao cadastrar aluno.", "error", { persist: true });
       }
     }
   }
@@ -74,15 +92,23 @@ function Alunos() {
       addAlert("Aluno atualizado com sucesso!", "success");
     } catch (err) {
       if (err.response?.data) {
+        // Exibir mensagens inline (por campo)
         Object.entries(err.response.data).forEach(([f, m]) => {
-          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: `edit-${f}` });
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
+
+        // Montar mensagem amigável pro toast
         const msg = Object.entries(err.response.data)
-          .map(([f, m]) => `${f}: ${Array.isArray(m) ? m.join(", ") : m}`)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
           .join("\n");
-        addAlert(`Erro ao atualizar:\n${msg}`, "error");
+
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
-        addAlert("Erro ao atualizar aluno.", "error");
+        addAlert("Erro ao editar aluno.", "error", { persist: true });
       }
     }
   }

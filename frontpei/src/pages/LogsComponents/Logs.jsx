@@ -1,4 +1,3 @@
-// src/pages/logs/Logs.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import DataTable from "datatables.net-react";
@@ -50,7 +49,6 @@ function Logs() {
     carregarLogs();
   }, []);
 
-  // 👇 mover o useEffect de listener pra cá
   useEffect(() => {
     const handleClick = (e) => {
       if (e.target.closest(".ver-detalhes")) {
@@ -99,8 +97,8 @@ function Logs() {
             decimal: ",",
             thousands: ".",
             processing: "Processando...",
-            search: "Pesquisar:",
-            lengthMenu: "Mostrar _MENU_ registros",
+            search: "Pesquisar 🔍",
+            lengthMenu: '<span class="custom-lengthMenu-text">Mostrar _MENU_ registros',
             info: "Mostrando de _START_ até _END_ de _TOTAL_ registros",
             infoEmpty: "Mostrando 0 até 0 de 0 registros",
             infoFiltered: "(filtrado de _MAX_ registros no total)",

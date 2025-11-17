@@ -7,10 +7,21 @@ import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css";
+import { API_ROUTES } from "../configs/apiRoutes";
 
 function CoordenadoresCurso() {
+<<<<<<< HEAD
   const { addAlert, clearFieldAlert } = useAlert();
   const DBCOORDENADORES = axios.create({ baseURL: API_ROUTES.COORDENADORCURSO });
+=======
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
+  const DBCOORDENADORES = axios.create({ baseURL: API_ROUTES.USUARIO });
+>>>>>>> Gabriel
 
   const [form, setForm] = useState({ nome: "" });
   const [editId, setEditId] = useState(null);
@@ -42,15 +53,23 @@ function CoordenadoresCurso() {
       addAlert("Coordenador cadastrado com sucesso!", "success");
     } catch (err) {
       if (err.response?.data) {
-        Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: field });
+        // Exibir mensagens inline (por campo)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
+
+        // Montar mensagem amigável pro toast
         const msg = Object.entries(err.response.data)
-          .map(([f, m]) => `${f}: ${m.join(", ")}`)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
           .join("\n");
-        addAlert(`Erro ao cadastrar:\n${msg}`, "error");
+
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
-        addAlert("Erro ao cadastrar coordenador.", "error");
+        addAlert("Erro ao cadastrar coordenador.", "error", { persist: true });
       }
     }
   }
@@ -72,15 +91,23 @@ function CoordenadoresCurso() {
       addAlert("Coordenador atualizado com sucesso!", "success");
     } catch (err) {
       if (err.response?.data) {
-        Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
+        // Exibir mensagens inline (por campo)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
+
+        // Montar mensagem amigável pro toast
         const msg = Object.entries(err.response.data)
-          .map(([f, m]) => `${f}: ${m.join(", ")}`)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
           .join("\n");
-        addAlert(`Erro ao atualizar:\n${msg}`, "error");
+
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
-        addAlert("Erro ao atualizar coordenador.", "error");
+        addAlert("Erro ao editar coordenador.", "error", { persist: true });
       }
     }
   }

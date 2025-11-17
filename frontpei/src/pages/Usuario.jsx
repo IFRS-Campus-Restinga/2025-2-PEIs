@@ -1,17 +1,23 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css"
+import { API_ROUTES } from "../configs/apiRoutes";
 
 
 function Usuarios() {
   // estados necessarios
+<<<<<<< HEAD
   const DBUsuario = axios.create({ baseURL: API_ROUTES.USUARIO });
   const [usuarios, setUsuarios] = useState([]);
   const [erroBanco, setErroBanco] = useState(false);
+=======
+  const DBUsuario = axios.create({baseURL: API_ROUTES.USUARIO});
+  const [usuarios, setUsuarios] = useState([])
+  const [erroBanco, setErroBanco] = useState(false)
+>>>>>>> Gabriel
 
 
   // funcao para buscar no rest/django os usuarios cadastrados

@@ -6,6 +6,7 @@ import axios from "axios";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 export default function Disciplinas() {
   const [disciplinas, setDisciplinas] = useState([]);
@@ -19,8 +20,7 @@ export default function Disciplinas() {
       setDisciplinas(Array.isArray(resposta.data) ? resposta.data : resposta.data.results || []);
       setErro(false);
     } catch (err) {
-      console.error("Erro ao buscar disciplinas:", err);
-      setErro(true);
+      addAlert("Erro ao recuperar componentes!", "error");
     }
   }
 

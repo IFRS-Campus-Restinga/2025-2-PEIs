@@ -1,62 +1,76 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const AlertContext = createContext();
+let globalAlertManager = null;
 
 export function AlertProvider({ children }) {
-  const [alerts, setAlerts] = useState([]);        // toasts globais
-  const [fieldAlerts, setFieldAlerts] = useState({}); // mensagens inline por campo
+  const [alerts, setAlerts] = useState([]);        // Toasts globais
+  const [fieldAlerts, setFieldAlerts] = useState({}); // Mensagens inline
+  const location = useLocation();
 
-  // Adiciona alerta global ou por campo
+  // Fecha todos os toasts automaticamente ao mudar de tela
+  useEffect(() => {
+    setAlerts([]);
+  }, [location]);
+
+  // Adiciona alerta global ou inline
   const addAlert = (message, type = "info", options = {}) => {
-    // alerta por campo (inline)
-    if (options.fieldName) {
-      setFieldAlerts(prev => ({
-        ...prev,
-        [options.fieldName]: { message, type }
-      }));
+  // Se for alerta de campo (inline)
+  if (options.fieldName) {
+    setFieldAlerts(prev => ({
+      ...prev,
+      [options.fieldName]: { message, type }
+    }));
+    return;
+  }
 
-      // Removido o timeout automático — agora só sai com clearFieldAlert()
-      return;
-    }
+  // Se for sucesso → limpa todos os toasts e alertas inline antes de exibir
+  if (type === "success") {
+    setAlerts([]);      // limpa toasts
+    setFieldAlerts({}); // limpa alertas inline
+  }
 
-    // alerta global (toast)
-    const id = Date.now();
-    const newAlert = {
-      id,
-      message,
-      type,
-      isConfirm: type === "confirm",
-      onConfirm: options.onConfirm || null,
-      onCancel: options.onCancel || null
-    };
-    setAlerts(prev => [...prev, newAlert]);
-
-    if (type !== "confirm") {
-      setTimeout(() => {
-        setAlerts(prev => prev.filter(alert => alert.id !== id));
-      }, 4000);
-    }
+  // Cria novo alerta global (toast)
+  const id = Date.now();
+  const newAlert = {
+    id,
+    message,
+    type,
+    isConfirm: type === "confirm",
+    onConfirm: options.onConfirm || null,
+    onCancel: options.onCancel || null
   };
 
-  const removeAlert = id =>
-    setAlerts(prev => prev.filter(alert => alert.id !== id));
+  // Adiciona o novo alerta
+  setAlerts(prev => [...prev, newAlert]);
+};
 
-  // limpa o alerta de um campo específico — chame isso quando o usuário corrigir o campo
-  const clearFieldAlert = fieldName => {
+
+  // Remove toast específico
+  const removeAlert = (id) => {
+    setAlerts(prev => prev.filter(alert => alert.id !== id));
+  };
+
+  // Limpa mensagens inline e erros globais quando o campo for corrigido
+  const clearFieldAlert = (fieldName) => {
     setFieldAlerts(prev => {
       const copy = { ...prev };
       delete copy[fieldName];
       return copy;
     });
+
+    // remove toasts de erro globais (ex: “Erro ao cadastrar”)
+    setAlerts(prev => prev.filter(alert => alert.type !== "error"));
   };
 
+  // Limpa tudo (toasts + inline)
   const clearAlerts = () => {
     setAlerts([]);
     setFieldAlerts({});
   };
 
   globalAlertManager = { addAlert, removeAlert, clearAlerts, clearFieldAlert };
-
 
   return (
     <AlertContext.Provider
@@ -74,16 +88,13 @@ export function AlertProvider({ children }) {
   );
 }
 
-// Hook para usar alertas em qualquer componente
 export function useAlert() {
   return useContext(AlertContext);
 }
 
-// ------------------- Componente FieldAlert -------------------
 export const FieldAlert = ({ fieldName }) => {
   const { fieldAlerts } = useAlert();
   const alert = fieldAlerts[fieldName];
-
   if (!alert) return null;
 
   return (
@@ -92,8 +103,6 @@ export const FieldAlert = ({ fieldName }) => {
     </div>
   );
 };
-// ---------- Permite acessar o contexto sem Hooks (útil fora de componentes React) ----------
-let globalAlertManager = null;
 
 export function getAlertManager() {
   return globalAlertManager;

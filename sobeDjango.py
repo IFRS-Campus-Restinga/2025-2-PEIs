@@ -19,8 +19,19 @@ sys.path.append(os.path.join(baseDir, "backpei"))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backpei.settings")
 django.setup()
 # e com isso ja poderemos fazer coisas no proprio projeto
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group, Permission
 from rest_framework.authtoken.models import Token
+from django.contrib.contenttypes.models import ContentType
+from pei.models.pei_central import PeiCentral
+from pei.models.PEIPeriodoLetivo import PEIPeriodoLetivo
+from pei.models.componenteCurricular import ComponenteCurricular
+from pei.models.aluno import Aluno
+from pei.models.disciplina import Disciplina
+from pei.models.curso import Curso
+from pei.models.ataDeAcompanhamento import AtaDeAcompanhamento
+from pei.models.usuario import Usuario
+from pei.models.parecer import Parecer
+from pei.models.documentacaoComplementar import DocumentacaoComplementar
 
 
 # ------------------------------------------
@@ -57,49 +68,6 @@ def apagar(caminho):
         except FileNotFoundError:
             pass
 
-# ------------------------------------------
-# popular o pei central com dados, POSSIVELMENTE OBSOLETO
-"""
-from pei.models.pei_central import PeiCentral
-def populaPeiCentral():
-    # criando algumas entradas
-    peis = [
-        {
-        "historico_do_aluno": "O aluno apresentou bom desempenho acadêmico ao longo do período letivo, destacando-se em matemática e ciências. Sua dedicação e participação ativa em sala resultaram em notas consistentemente altas. Além disso, demonstrou excelente capacidade de trabalho em equipe e proatividade na busca por conhecimento extra. Seu futuro é promissor.",
-        "necessidades_educacionais_especificas": "O aluno é surdo, necessário acompanhamento de interpretador",
-        "habilidades": "O aluno demonstra afinidade com jogos e gamificação.",
-        "dificuldades_apresentadas": "O aluno demonstrou hiperatividade e dificuldade em manter o foco",
-        "adaptacoes": "Necessário abordagem com uso de jogos",
-        "status_pei": "ABERTO",
-        },
-        {
-        "historico_do_aluno": "A aluna manteve um desempenho acadêmico mediano, com variações entre disciplinas. Demonstrou grande interesse por artes e escrita criativa, mas apresentou notas baixas em física. É muito organizada com prazos e trabalhos, participando ativamente dos clubes de leitura e teatro.",
-        "necessidades_educacionais_especificas": "Dislexia leve, necessitando de materiais com fonte de fácil leitura e mais tempo em avaliações escritas.",
-        "habilidades": "Alta criatividade, excelente expressão escrita e boa comunicação interpessoal. Forte habilidade em análise de textos literários.",
-        "dificuldades_apresentadas": "Dificuldade na decodificação de fórmulas e leitura de gráficos em matérias exatas. Lentidão na escrita manual.",
-        "adaptacoes": "Permitir o uso de computador para a maioria dos trabalhos e avaliações. Usar esquemas visuais e cores para separar informações em textos longos.",
-        "status_pei": "ABERTO",
-        },
-        {
-        "historico_do_aluno": "O aluno apresentou desempenho satisfatório, com progressos notáveis no último trimestre. Inicialmente retraído, demonstrou maior confiança e melhora nas habilidades sociais após participar de um projeto de robótica. Seu maior interesse é por tecnologia e programação.",
-        "necessidades_educacionais_especificas": "Transtorno do Espectro Autista (TEA) - Nível 1. Necessita de ambiente previsível e clareza nas instruções verbais.",
-        "habilidades": "Grande raciocínio lógico, memória detalhada para fatos e dados técnicos. Habilidade excepcional em montagem e resolução de problemas que envolvem sequências.",
-        "dificuldades_apresentadas": "Dificuldade em lidar com mudanças inesperadas de rotina. Pode ter sensibilidade a ruídos e ambientes muito movimentados.",
-        "adaptacoes": "Fornecer um cronograma visual das atividades. Permitir o uso de fone de ouvido em momentos de alta estimulação sensorial. Instruções devem ser diretas e objetivas.",
-        "status_pei": "ABERTO",
-        },
-    ]
-    # agora insere as entradas no banco
-    for item in peis:
-        try:
-            PeiCentral.objects.create(**item)
-            print("PeiCentral inserido com sucesso!")
-        except Exception as e:
-            print(f"Erro ao inserir PeiCentral. Causa: {e}")
-"""
-
-
-print("\n****************************\n")
 
 
 # ------------------------------------------
@@ -144,7 +112,63 @@ if pergunta("Refazer o migrate do Django?"):
         arquivoToken = os.path.join(baseDir, "backpei", "token.txt")
         with open(arquivoToken, "w") as f:
             f.write(token.key)
-        # por fim adicionando entradas necessarias
+
+        # ------------------------------------------
+        # criação de grupos e permissões
+        grupos = {
+            "Professor": [
+                ("add_parecer", Parecer),
+                ("change_documentocomplementar", DocumentacaoComplementar),
+                ("change_peicentral", PeiCentral),
+            ],
+            "Pedagogo": [
+                ("add_atadeacompanhamento", AtaDeAcompanhamento),
+                ("change_peicentral", PeiCentral),
+                ("change_documentocomplementar", DocumentacaoComplementar),
+            ],
+            "NAPNE": [
+                ("add_peiperiodoletivo", PEIPeriodoLetivo),
+                ("view_peicentral", PeiCentral),
+                ("add_componentecurricular", ComponenteCurricular),
+                ("change_peicentral", PeiCentral),
+                ("add_atadeacompanhamento", AtaDeAcompanhamento),
+                ("change_documentocomplementar", DocumentacaoComplementar),
+            ],
+            "Coordenador": [
+                ("add_curso", Curso),
+                ("add_disciplina", Disciplina),
+                ("change_peicentral", PeiCentral),
+                ("add_aluno", Aluno),
+                ("add_atadeacompanhamento", AtaDeAcompanhamento),
+                ("change_documentocomplementar", DocumentacaoComplementar),
+            ],
+            "Admin": [
+                ("add_usuario", Usuario),
+                ("add_curso", Curso),
+                ("add_disciplina", Disciplina),
+                ("change_peiperiodoletivo", PEIPeriodoLetivo),
+                ("change_coordenadorcurso", Usuario),
+                ("add_aluno", Aluno),
+                ("change_peicentral", PeiCentral),
+                ("add_parecer", Parecer),
+                ("change_componentecurricular", ComponenteCurricular),
+                ("add_atadeacompanhamento", AtaDeAcompanhamento),
+                ("change_documentocomplementar", DocumentacaoComplementar),
+            ],
+        }
+
+        for nome_grupo, perms in grupos.items():
+            grupo, created = Group.objects.get_or_create(name=nome_grupo)
+            for codename, model in perms:
+                try:
+                    ct = ContentType.objects.get_for_model(model)
+                    permission = Permission.objects.get(codename=codename, content_type=ct)
+                    grupo.permissions.add(permission)
+                except Permission.DoesNotExist:
+                    print(f"Permissão {codename} não encontrada para o modelo {model.__name__}")
+            print(f"Grupo \"{nome_grupo}\" criado com permissões.")
+
+        # ------------------------------------------
         # chamando o script do jampier que popula o banco
         if pergunta("Deseja popular o banco de dados com cadastros prévios?"):
             roda([rodapy, os.path.join(baseDir, "populaBanco.py")])
@@ -167,6 +191,7 @@ roda([rodapy,'--version'])
 roda([rodapy,'-m','pip','--version'])
 print(f"Django - {django.get_version()}")
 print(f"Django REST Framework - {rest_framework.__version__}")
+
 
 # ------------------------------------------
 # levanta o webserver do django

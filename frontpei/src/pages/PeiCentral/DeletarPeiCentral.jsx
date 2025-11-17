@@ -2,21 +2,47 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
+import { API_ROUTES } from "../../configs/apiRoutes";
+import { validaCampos } from "../../utils/validaCampos";
+import { useAlert, FieldAlert } from "../../context/AlertContext";
 
 function DeletarPeiCentral() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+  
+    useEffect(() => {
+      // limpa todos os alertas ao entrar na tela
+      clearAlerts();
+    }, []);
 
   const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
 
   async function handleDelete() {
     try {
       await DB.delete(`/${id}/`);
-      alert("PEI Central deletado com sucesso!");
+      addAlert("PEI Central deletado com sucesso!", "success");
       navigate("/peicentral"); 
     } catch (error) {
-      console.error("Erro ao deletar PEI Central:", error);
-      alert("Erro ao tentar deletar. Verifique o console.");
+      if (err.response?.data) {
+        // Exibir mensagens inline (por campo)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
+        });
+
+        // Montar mensagem amigável pro toast
+        const msg = Object.entries(err.response.data)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
+          .join("\n");
+
+        addAlert(`Erro ao deletar:\n${msg}`, "error", { persist: true });
+      } else {
+        addAlert("Erro ao deletar PEI.", "error", { persist: true });
+      }
     }
   }
 

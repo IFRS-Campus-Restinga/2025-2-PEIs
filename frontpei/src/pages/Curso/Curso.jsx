@@ -8,11 +8,16 @@ import axios from "axios";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css"
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 export default function Cursos() { 
   const [cursos, setCursos] = useState([]); 
   const [erro, setErro] = useState(""); 
+<<<<<<< HEAD
   const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS }); 
+=======
+  const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS });
+>>>>>>> Gabriel
   
   async function carregarCursos() { 
     try {
@@ -49,7 +54,7 @@ export default function Cursos() {
       
       <div className="cursos-form"> 
         <Link to="/cursoCadastrar"> 
-          <button className="submit-btn">Adicionar curso</button> 
+          <button className="submit-btn" type="button">Adicionar curso</button> 
         </Link> 
       </div> 
       
@@ -69,7 +74,7 @@ export default function Cursos() {
           </thead> 
           <tbody> {cursos.map((curso) => ( 
             <tr key={curso.id}> 
-              <td>{curso.name}</td> 
+              <td>{curso.nome}</td> 
               <td>{curso.nivel || "Não informado"}</td> 
               <td> {curso.disciplinas?.length ? curso.disciplinas.map((d) => d.nome).join(", ") : "Nenhuma"} </td> 
               <td>{curso.coordenador?.nome || "Não informado"}</td> 

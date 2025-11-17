@@ -7,20 +7,34 @@ import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import { API_ROUTES } from "../configs/apiRoutes";
 import "../cssGlobal.css";
+import { API_ROUTES } from "../configs/apiRoutes";
 
 function Pedagogos() {
+<<<<<<< HEAD
   const { addAlert, clearFieldAlert } = useAlert();
   const DBPEDAGOGO = axios.create({ baseURL: API_ROUTES.PEDAGOGO });
 
   const [form, setForm] = useState({ nome: "" });
+=======
+  const DBPEDAGOGO = axios.create({baseURL: API_ROUTES.USUARIO});
+  const [pedagogo, setPedagogo] = useState("");
+  const [pedagogosCadastradas, setPedagogosCadastradas] = useState([]);
+>>>>>>> Gabriel
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({ nome: "" });
-  const [pedagogos, setPedagogos] = useState([]);
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
+  const [form, setForm] = useState({ nome: "" });
 
   async function recuperaPedagogos() {
     try {
       const res = await DBPEDAGOGO.get("/");
-      setPedagogos(Array.isArray(res.data) ? res.data : res.data.results || []);
+      const dados = Array.isArray(res.data) ? res.data : res.data.results || [];
+      setPedagogosCadastradas(dados);
     } catch (err) {
       addAlert("Erro ao carregar pedagogos!", "error");
     }
@@ -31,23 +45,31 @@ function Pedagogos() {
     const mensagens = validaCampos(form, e.target);
     if (mensagens.length > 0) {
       mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
-      addAlert("Campo obrigatório não preenchido.", "warning");
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
     try {
-      await DBPEDAGOGO.post("/", form);
+      await DBPEDAGOGO.post("/", { nome: form.nome });
       setForm({ nome: "" });
-      recuperaPedagogos();
+      await recuperaPedagogos();
       addAlert("Pedagogo cadastrado com sucesso!", "success");
     } catch (err) {
       if (err.response?.data) {
-        Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: field });
+        // Exibir mensagens inline (por campo)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
+
+        // Montar mensagem amigável pro toast
         const msg = Object.entries(err.response.data)
-          .map(([f, m]) => `${f}: ${m.join(", ")}`)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
           .join("\n");
+
         addAlert(`Erro ao cadastrar:\n${msg}`, "error");
       } else {
         addAlert("Erro ao cadastrar pedagogo.", "error");
@@ -59,28 +81,36 @@ function Pedagogos() {
     e.preventDefault();
     const mensagens = validaCampos(editForm, document.getElementById("editForm"));
     if (mensagens.length > 0) {
-      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}` }));
-      addAlert("Nome é obrigatório.", "warning");
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
 
     try {
-      await DBPEDAGOGO.put(`/${id}/`, editForm);
+      await DBPEDAGOGO.put(`/${id}/`, { nome: editForm.nome });
       setEditId(null);
       setEditForm({ nome: "" });
-      recuperaPedagogos();
+      await recuperaPedagogos();
       addAlert("Pedagogo atualizado com sucesso!", "success");
     } catch (err) {
       if (err.response?.data) {
-        Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: `edit-${field}` });
+        // Exibir mensagens inline (por campo)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
+
+        // Montar mensagem amigável pro toast
         const msg = Object.entries(err.response.data)
-          .map(([f, m]) => `${f}: ${m.join(", ")}`)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
           .join("\n");
-        addAlert(`Erro ao atualizar:\n${msg}`, "error");
+
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
-        addAlert("Erro ao atualizar pedagogo.", "error");
+        addAlert("Erro ao editar pedagogo.", "error", { persist: true });
       }
     }
   }
@@ -107,14 +137,16 @@ function Pedagogos() {
           placeholder="Digite o nome do pedagogo"
         />
         <FieldAlert fieldName="nome" />
-        <button className="submit-btn">Adicionar Pedagogo</button>
+        <button type="submit" className="submit-btn">
+          Adicionar Pedagogo
+        </button>
       </form>
 
       <div className="list-padrao">
         <h3>Pedagogos Cadastrados</h3>
         <ul>
-          {pedagogos.length === 0 && <li>Nenhum pedagogo cadastrado.</li>}
-          {pedagogos.map((p) => (
+          {pedagogosCadastradas.length === 0 && <li>Nenhum pedagogo cadastrado.</li>}
+          {pedagogosCadastradas.map((p) => (
             <li key={p.id}>
               {editId === p.id ? (
                 <form id="editForm" onSubmit={(e) => atualizaPedagogo(e, p.id)}>
@@ -127,21 +159,30 @@ function Pedagogos() {
                       setEditForm({ ...editForm, nome: e.target.value });
                       if (e.target.value.trim()) clearFieldAlert("edit-nome");
                     }}
+                    autoFocus
                   />
                   <FieldAlert fieldName="edit-nome" />
+
                   <div className="posicao-buttons esquerda">
                     <button type="submit" className="btn-salvar">Salvar</button>
-                    <button type="button" className="botao-deletar" onClick={() => setEditId(null)}>
+                    <button
+                      type="button"
+                      className="botao-deletar"
+                      onClick={() => {
+                        setEditId(null);
+                        setEditForm({ nome: "" });
+                        clearFieldAlert("edit-nome");
+                      }}
+                    >
                       Cancelar
                     </button>
                   </div>
                 </form>
               ) : (
-                <>
+                <div className="list-padrao">
                   <strong>{p.nome}</strong>
                   <div className="posicao-buttons">
                     <BotaoEditar
-                      id={p.id}
                       onClickInline={() => {
                         setEditId(p.id);
                         setEditForm({ nome: p.nome });
@@ -153,7 +194,7 @@ function Pedagogos() {
                       onDeletarSucesso={recuperaPedagogos}
                     />
                   </div>
-                </>
+                </div>
               )}
             </li>
           ))}

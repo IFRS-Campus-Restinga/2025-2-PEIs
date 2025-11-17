@@ -10,10 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@babel/runtime": "^7.28.4",
     "@react-oauth/google": "^0.12.2",
     "axios": "^1.11.0",
+    "canvg": "^4.0.3",
     "datatables.net-dt": "^2.3.4",
     "datatables.net-react": "^1.0.1",
+    "dompurify": "^3.3.0",
+    "fast-png": "^7.0.1",
+    "fflate": "^0.8.2",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
     "jwt-decode": "^4.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

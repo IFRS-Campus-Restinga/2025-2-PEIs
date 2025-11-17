@@ -10,7 +10,7 @@ class Parecer(BaseModel):
         related_name="pareceres"   
     )
     professor = models.ForeignKey(   
-        "pei.Professor",
+        "pei.usuario",
         on_delete=models.CASCADE,
         related_name="pareceres"
     )

@@ -1,20 +1,29 @@
-// DisciplinaCRUD.jsx
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import ErrorMessage from "../../components/errorMessage/ErrorMessage";
-import { useAlert } from "../../context/AlertContext";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
+import { useAlert, FieldAlert } from "../../context/AlertContext";
+import { validaCampos } from "../../utils/validaCampos";
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 export default function DisciplinasCRUD() {
-  const [disciplina, setDisciplina] = useState("");
-  const [erro, setErro] = useState("");
-  const [sucesso, setSucesso] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false); // ← Flag para evitar múltiplos submits
-  const { addAlert } = useAlert();
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
+<<<<<<< HEAD
+=======
+  useEffect(() => {
+    // limpa todos os alertas ao entrar na tela
+    clearAlerts();
+  }, []);
+  const [form, setForm] = useState({
+    nome: ""
+  })
+
+>>>>>>> Gabriel
   const DB = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
   const navigate = useNavigate();
   const { id } = useParams();
@@ -25,81 +34,91 @@ export default function DisciplinasCRUD() {
       async function carregarDisciplina() {
         try {
           const resposta = await DB.get(`/${id}/`);
-          setDisciplina(resposta.data.nome);
+
+          setForm({ nome: resposta.data.nome || "" });
         } catch (err) {
-          console.error("Erro ao carregar disciplina:", err);
-          setErro("Não foi possível carregar a disciplina para edição.");
+          addAlert("Erro ao carregar disciplina.", "error");
         }
       }
       carregarDisciplina();
     }
   }, [id]);
 
-  // Salvar (criação ou edição)
-  async function salvarDisciplina(event) {
-    event.preventDefault();
-    if (isSubmitting) {
-      console.log("Submit já em andamento, ignorando...");
+  // Salvar
+  const salvarDisciplina = async (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    const mensagens = validaCampos(form, e.target);
+
+    if (mensagens.length > 0) {
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
+      setIsSubmitting(false);
       return;
     }
-    setIsSubmitting(true); // ← Bloqueia novos submits
-    setErro("");
-    setSucesso("");
-
-    const nomeTrim = disciplina.trim();
 
     try {
       if (id) {
-        await DB.put(`/${id}/`, { nome: nomeTrim });
+        await DB.put(`/${id}/`, { nome: form.nome });
         addAlert("Disciplina atualizada com sucesso!", "success");
       } else {
-        await DB.post("/", { nome: nomeTrim });
-        setSucesso("Disciplina cadastrada com sucesso!", "success");
+        await DB.post("/", { nome: form.nome });
+        addAlert("Disciplina cadastrada com sucesso!", "success");
+        setForm({ nome: "" });
       }
-      setTimeout(() => navigate("/disciplina"), 1500);
     } catch (err) {
       if (err.response?.data) {
-        const messages = Object.entries(err.response.data)
-          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-          .join(" | ");
-        addAlert(`Erro ao cadastrar ${messages}`, "error");
+        // Exibir mensagens inline (por campo)
+        Object.entries(err.response.data).forEach(([f, m]) => {
+          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
+        });
+
+        // Montar mensagem amigável pro toast
+        const msg = Object.entries(err.response.data)
+          .map(([f, m]) => {
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const mensagens = Array.isArray(m) ? m.join(", ") : m;
+            return `Campo ${nomeCampo}: ${mensagens}`;
+          })
+          .join("\n");
+
+        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
-        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
+        addAlert("Erro ao cadastrar disciplina.", "error", { persist: true });
       }
     } finally {
-      setIsSubmitting(false); // ← Sempre libera o submit
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="container-padrao">
       <h1>{id ? "Editar Disciplina" : "Cadastrar Disciplina"}</h1>
 
-      <ErrorMessage message={erro} />
-      {sucesso && <p style={{ color: "green", textAlign: "center" }}>{sucesso}</p>}
-
       <form className="form-padrao" onSubmit={salvarDisciplina}>
         <div className="form-group">
-          <label htmlFor="nome">Nome da disciplina:</label>
+          <label>Nome da disciplina:</label>
           <input
-            id="nome"
             type="text"
-            value={disciplina}
-            onChange={(e) => setDisciplina(e.target.value)}
-            placeholder="Digite o nome da disciplina"
+            name = "nome"
+            value={form.nome}
+            onChange={(e) => {
+              setForm({ nome: e.target.value });
+              if (e.target.value.trim()) clearFieldAlert("nome");
+            }}
+            placeholder="Ex: Matemática"
           />
+          <FieldAlert fieldName="nome" />
         </div>
 
-        <button
-          type="submit"
-          className="submit-btn"
-          disabled={isSubmitting} // ← Desabilita o botão durante o submit
-        >
-          {isSubmitting ? "Salvando..." : (id ? "Salvar alterações" : "Adicionar disciplina")}
+        <button type="submit" className="submit-btn" disabled={isSubmitting}>
+          {isSubmitting ? "Salvando..." : (id ? "Salvar alterações" : "Criar disciplina")}
         </button>
       </form>
 
-      <BotaoVoltar/>
+      <BotaoVoltar />
     </div>
   );
 }

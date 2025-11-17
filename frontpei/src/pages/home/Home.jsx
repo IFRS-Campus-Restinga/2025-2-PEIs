@@ -5,17 +5,51 @@ import DT from "datatables.net-dt";
 import DataTable from "datatables.net-react";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 DataTable.use(DT);
 
+<<<<<<< HEAD
 const Home = ({ usuario }) => {
   const navigate = useNavigate();
 
   const [cargoSelecionado, setCargoSelecionado] = useState("");
+=======
+const ProfessorView = () => {
+  const [usuarios, setUsuarios] = useState([]);
+  const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
+>>>>>>> Gabriel
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState(null);
 
+  // ------------------------------------
+  // 🔹 CARREGAR USUÁRIOS
+  // ------------------------------------
+  useEffect(() => {
+    async function carregarUsuarios() {
+      try {
+        console.log("🔄 Buscando usuários em:", API_ROUTES.USUARIO);
+
+        const res = await axios.get(API_ROUTES.USUARIO);
+
+        const lista = res.data?.results || res.data || [];
+
+        console.log("✔ Usuários carregados:", lista);
+
+        setUsuarios(lista);
+      } catch (err) {
+        console.error("❌ Erro ao carregar usuários:", err);
+        alert("Erro ao carregar usuários. Veja o console.");
+      }
+    }
+
+    carregarUsuarios();
+  }, []);
+
+  // ------------------------------------
+  // 🔹 CARREGAR DADOS DA TABELA
+  // ------------------------------------
   useEffect(() => {
     async function carregarDados() {
       setErro(null);
@@ -30,45 +64,48 @@ const Home = ({ usuario }) => {
           axios.get(API_ROUTES.PEIPERIODOLETIVO),
         ]);
 
-        const alunosData = resAlunos.data.results || [];
-        const peiCentralsData = Array.isArray(resPeiCentral.data)
-          ? resPeiCentral.data
-          : resPeiCentral.data?.results || [];
-        const cursosData = Array.isArray(resCursos.data)
-          ? resCursos.data
-          : resCursos.data?.results || [];
-        const periodosData = Array.isArray(resPeriodos.data)
-          ? resPeriodos.data
-          : resPeriodos.data?.results || [];
+        const alunosData = resAlunos.data?.results || resAlunos.data || [];
+        const peiCentralsData = resPeiCentral.data?.results || resPeiCentral.data || [];
+        const cursosData = resCursos.data?.results || resCursos.data || [];
+        const periodosData = resPeriodos.data?.results || resPeriodos.data || [];
 
         const dadosTabela = [];
 
         alunosData.forEach((aluno) => {
           const peiCentral = peiCentralsData.find((p) => p.aluno?.id === aluno.id);
-          const peiCentralStatus = peiCentral?.status_pei || "—";
+          const peiCentralStatus = peiCentral?.status_pei || "Sem PEI";
 
-          const periodos = peiCentral
+          const periodosDoAluno = peiCentral
             ? periodosData.filter((periodo) => periodo.pei_central === peiCentral.id)
             : [];
 
-          if (periodos.length > 0) {
-            periodos.forEach((periodo) => {
-              (periodo.componentes_curriculares || []).forEach((comp) => {
-                const disciplina = comp.disciplina;
-                if (!disciplina) return;
-
-                const cursoRelacionado = cursosData.find((curso) =>
-                  curso.disciplinas.some((d) => d.id === disciplina.id)
-                );
-
+          if (periodosDoAluno.length > 0) {
+            periodosDoAluno.forEach((periodo) => {
+              const componentes = periodo.componentes_curriculares || [];
+              if (componentes.length === 0) {
                 dadosTabela.push({
                   nome: aluno.nome,
-                  componente: disciplina.nome,
+                  componente: "—",
                   status: peiCentralStatus,
-                  coordenador: cursoRelacionado?.coordenador?.nome || "—",
+                  coordenador: "—",
                   peiCentralId: peiCentral?.id || null,
                 });
-              });
+              } else {
+                componentes.forEach((comp) => {
+                  const disciplina = comp.disciplina;
+                  if (!disciplina) return;
+                  const cursoRelacionado = cursosData.find((curso) =>
+                    curso.disciplinas?.some((d) => d.id === disciplina.id)
+                  );
+                  dadosTabela.push({
+                    nome: aluno.nome,
+                    componente: disciplina.nome || "Disciplina sem nome",
+                    status: peiCentralStatus,
+                    coordenador: cursoRelacionado?.coordenador?.nome || "Sem coordenador",
+                    peiCentralId: peiCentral?.id || null,
+                  });
+                });
+              }
             });
           } else {
             dadosTabela.push({
@@ -83,30 +120,51 @@ const Home = ({ usuario }) => {
 
         setTableData(dadosTabela);
       } catch (err) {
+<<<<<<< HEAD
         console.error("Erro ao carregar dados:", err);
         setErro("Falha ao carregar os dados.");
       } finally {
         setLoading(false);
+=======
+        console.error("❌ Erro ao carregar dados:", err);
+        alert("Erro ao carregar dados. Verifique o console.");
+>>>>>>> Gabriel
       }
     }
 
     carregarDados();
   }, []);
 
+  // ------------------------------------
+  // 🔹 FUNÇÃO DO BOTÃO VISUALIZAR
+  // ------------------------------------
   const handleVisualizarClick = (peiCentralId) => {
     if (!peiCentralId) {
       alert("Nenhum PEI Central vinculado a este aluno.");
       return;
     }
-    //mostrar isso pro pessoal pq é interessante
+
+    if (!usuarioSelecionado) {
+      alert("Selecione um usuário antes de visualizar.");
+      return;
+    }
+
+    console.log("➡ Enviando para navigate:");
+    console.log("Usuário:", usuarioSelecionado);
+    console.log("PEI Central:", peiCentralId);
+
     navigate("/periodoLetivoPerfil", {
       state: {
         peiCentralId,
-        cargoSelecionado,
+        usuarioSelecionado,
+        cargoSelecionado: usuarioSelecionado.categoria,
       },
     });
   };
 
+  // ------------------------------------
+  // 🔹 LISTENER DOS BOTÕES DA TABELA
+  // ------------------------------------
   useEffect(() => {
     const handleButtonClick = (e) => {
       if (e.target.classList.contains("visualizar-btn")) {
@@ -116,30 +174,43 @@ const Home = ({ usuario }) => {
     };
     document.addEventListener("click", handleButtonClick);
     return () => document.removeEventListener("click", handleButtonClick);
-  }, [cargoSelecionado]);
+  }, [usuarioSelecionado]);
 
+  // ------------------------------------
+  // 🔹 RENDERIZAÇÃO
+  // ------------------------------------
   return (
     <div className="telaPadrao-page">
       <div className="cargo-dropdown-container">
+<<<<<<< HEAD
         <label htmlFor="cargo" className="cargo-label">
           Selecione o cargo:
         </label>
+=======
+        <label htmlFor="usuario" className="cargo-label">Selecione o usuário:</label>
+
+>>>>>>> Gabriel
         <select
-          id="cargo"
+          id="usuario"
           className="cargo-dropdown"
-          value={cargoSelecionado}
-          onChange={(e) => setCargoSelecionado(e.target.value)}
+          value={usuarioSelecionado?.id || ""}
+          onChange={(e) => {
+            const usuario = usuarios.find(u => u.id === Number(e.target.value));
+            setUsuarioSelecionado(usuario || null);
+          }}
         >
-          <option value="">— Escolher —</option>
-          <option value="Professor">Professor</option>
-          <option value="NAPNE">NAPNE</option>
-          <option value="Coordenador de Curso">Coordenador de Curso</option>
-          <option value="Pedagogo">Pedagogo</option>
-          <option value="Administrador">Administrador</option>
+          <option value="">— Escolher usuário —</option>
+
+          {usuarios.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.nome} — {u.categoria || "Sem categoria"}
+            </option>
+          ))}
         </select>
       </div>
 
       <DataTable
+<<<<<<< HEAD
           data={tableData}
           columns={[
             { title: "Nome do aluno", data: "nome" },
@@ -180,8 +251,54 @@ const Home = ({ usuario }) => {
             },
           }}
         />
+=======
+        data={tableData}
+        columns={[
+          { title: "Nome do aluno", data: "nome" },
+          { title: "Componente Curricular", data: "componente" },
+          { title: "Status", data: "status" },
+          { title: "Coordenador de curso", data: "coordenador" },
+          {
+            title: "Visualizar",
+            data: "peiCentralId",
+            render: (peiCentralId) => `
+              <button class="btn btn-sm btn-primary visualizar-btn" data-id="${peiCentralId}">
+                Visualizar
+              </button>
+            `,
+          },
+        ]}
+        className="display table table-striped table-hover w-100"
+        options={{
+          pageLength: 10,
+          language: {
+            decimal: ",",
+            thousands: ".",
+            processing: "Processando...",
+            search: "Pesquisar:",
+            lengthMenu: "Mostrar _MENU_ PEIs",
+            info: 'Mostrando de _START_ até _END_ de _TOTAL_ PEIs',
+            infoEmpty: "Mostrando 0 até 0 de 0 PEIs",
+            infoFiltered: "(filtrado de _MAX_ PEIs no total)",
+            loadingRecords: "Carregando...",
+            zeroRecords: "Nenhum PEI encontrado",
+            emptyTable: "Nenhum dado disponível nesta tabela",
+            paginate: {
+              first: "Primeiro",
+              previous: "Anterior",
+              next: "Próximo",
+              last: "Último",
+            },
+          },
+        }}
+      />
+>>>>>>> Gabriel
     </div>
   );
 };
 
+<<<<<<< HEAD
 export default Home;
+=======
+export default ProfessorView;
+>>>>>>> Gabriel

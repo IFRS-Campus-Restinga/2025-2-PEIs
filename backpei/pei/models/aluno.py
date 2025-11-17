@@ -7,6 +7,7 @@ from ..validators.unique_validator import UniqueValidator
 from ..validators.messages import MESSAGES
 
 
+
 class Aluno(BaseModel):
     nome = models.CharField(
         max_length=100,
