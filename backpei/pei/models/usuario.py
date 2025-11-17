@@ -3,7 +3,7 @@ from django.db import models
 from ..enums import CategoriaUsuario
 from django.core.validators import MinLengthValidator, MaxLengthValidator, RegexValidator
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import Group  
+from django.contrib.auth.models import Group, User
 
 # validação extra do email institucional
 def validar_email_institucional(value):
@@ -11,6 +11,8 @@ def validar_email_institucional(value):
         raise ValidationError('O email deve ser institucional (ifrs.edu.br)')
 
 class Usuario(BaseModel):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+
     nome = models.CharField(
         validators=[
             MinLengthValidator(10),

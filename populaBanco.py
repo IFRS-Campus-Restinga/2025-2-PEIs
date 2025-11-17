@@ -16,7 +16,7 @@ from pei.models import (
 )
 from pei.enums.nivel import Nivel
 from pei.enums import StatusDoPei, PeriodoLetivoChoice, CategoriaUsuario
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 
 # ============================================================================== 
 # LIMPEZA INICIAL
@@ -33,6 +33,48 @@ def limpar_tudo():
     print("--> Banco limpo\n")
 
 # ============================================================================== 
+# HELPERS PARA CRIAR/ASSOCIAR USERS
+# ============================================================================== 
+def _get_or_create_django_user(email, username=None):
+    """
+    Garante que exista um User (django) com o email.
+    Se criado, seta senha unusable e retorna o objeto.
+    """
+    username = username or email.split("@")[0]
+    # garantir username único simples (pode adicionar mais lógica se necessário)
+    username = username[:150]  # limite do campo username
+    user, created = User.objects.get_or_create(
+        email=email,
+        defaults={"username": username}
+    )
+    if created:
+        user.set_unusable_password()
+        user.save()
+    return user
+
+
+def _get_or_create_usuario_linked(user, nome, email, categoria):
+    """
+    Garante que exista um Usuario vinculado ao User.
+    - Se já existir um Usuario com esse email, vincula ao User caso ainda não esteja vinculado.
+    - Se não existir, cria e vincula.
+    Retorna a instância Usuario.
+    """
+    usuario, created = Usuario.objects.get_or_create(
+        email=email,
+        defaults={
+            "user": user,
+            "nome": nome,
+            "categoria": categoria
+        }
+    )
+    # Se existir mas não estiver vinculado ao user, vincula (situação comum)
+    if usuario.user is None:
+        usuario.user = user
+        usuario.save()
+    return usuario
+
+# ============================================================================== 
 # FUNÇÃO PARA ADICIONAR USUÁRIO AO GRUPO
 # ============================================================================== 
 def adicionar_usuario_ao_grupo(usuario, categoria):
@@ -41,8 +83,14 @@ def adicionar_usuario_ao_grupo(usuario, categoria):
         grupo = Group.objects.get(name=nome_grupo)
         usuario.grupos.add(grupo)
         usuario.save()
+
+        # também garante o grupo no User Django (se existir)
+        if getattr(usuario, "user", None):
+            usuario.user.groups.add(grupo)
+            usuario.user.save()
+
     except Group.DoesNotExist:
-        print(f"Grupo '{nome_grupo}' não encontrado para o usuário {usuario.email}")
+        print(f"Grupo '{nome_grupo}' não encontrado para o usuário {getattr(usuario,'email','<sem email>')}")
 
 # ============================================================================== 
 # CRIAÇÃO DE USUÁRIOS POR CATEGORIA
@@ -55,9 +103,11 @@ def criar_usuarios_admin():
     ]
 
     for emailuser in emails:
-        usuario = Usuario.objects.create(
-            email=emailuser,
+        django_user = _get_or_create_django_user(emailuser, username=emailuser.split("@")[0])
+        usuario = _get_or_create_usuario_linked(
+            user=django_user,
             nome=emailuser.split("@")[0],
+            email=emailuser,
             categoria=CategoriaUsuario.ADMIN
         )
         adicionar_usuario_ao_grupo(usuario, CategoriaUsuario.ADMIN)
@@ -68,9 +118,12 @@ def criar_pedagogos():
     nomes = ["Joãozinho da Silva", "Mariazinha Silveira", "Zézinho Silvano"]
 
     for nome in nomes:
-        usuario = Usuario.objects.create(
+        email = f"{nome.replace(' ', '.').lower()}@ifrs.edu.br"
+        django_user = _get_or_create_django_user(email, username=nome.replace(' ', '.').lower())
+        usuario = _get_or_create_usuario_linked(
+            user=django_user,
             nome=nome,
-            email=f"{nome.replace(' ', '.').lower()}@ifrs.edu.br",
+            email=email,
             categoria=CategoriaUsuario.PEDAGOGO
         )
         adicionar_usuario_ao_grupo(usuario, CategoriaUsuario.PEDAGOGO)
@@ -84,9 +137,12 @@ def criar_professores():
     ]
 
     for nome in nomes:
-        usuario = Usuario.objects.create(
+        email = f"{nome.replace(' ', '.').lower()}@ifrs.edu.br"
+        django_user = _get_or_create_django_user(email, username=nome.replace(' ', '.').lower())
+        usuario = _get_or_create_usuario_linked(
+            user=django_user,
             nome=nome,
-            email=f"{nome.replace(' ', '.').lower()}@ifrs.edu.br",
+            email=email,
             categoria=CategoriaUsuario.PROFESSOR
         )
         adicionar_usuario_ao_grupo(usuario, CategoriaUsuario.PROFESSOR)
@@ -100,9 +156,12 @@ def criar_coordenadores():
     ]
 
     for nome in nomes:
-        usuario = Usuario.objects.create(
+        email = f"{nome.replace(' ', '.').lower()}@ifrs.edu.br"
+        django_user = _get_or_create_django_user(email, username=nome.replace(' ', '.').lower())
+        usuario = _get_or_create_usuario_linked(
+            user=django_user,
             nome=nome,
-            email=f"{nome.replace(' ', '.').lower()}@ifrs.edu.br",
+            email=email,
             categoria=CategoriaUsuario.COORDENADOR
         )
         adicionar_usuario_ao_grupo(usuario, CategoriaUsuario.COORDENADOR)
@@ -249,7 +308,7 @@ def criar_pareceres():
     for i in range(6):
         Parecer.objects.create(
             componente_curricular=componentes[i],   
-            professor=professores[i],               
+            professor=professores[i],                # pressupõe pelo menos 6 professores
             texto=textos[i]
         )
 
