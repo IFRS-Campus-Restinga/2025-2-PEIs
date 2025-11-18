@@ -13,6 +13,7 @@ const endpoints = [
   "mandaEmail",
   "permissoes",
   "usuario",
+  "usuarios/registrar",
   "register",
   "status-cadastro"
 ];

@@ -1,57 +1,92 @@
 import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
 import ErrorMessage from "../../components/errorMessage/ErrorMessage.jsx";
+import api from "../../configs/api";
 import "../../cssGlobal.css";
+
+// IMPORTAÇÃO CORRETA DO LOGO
+import logo from "../../assets/logo-sem-nome.png";
 
 const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
 
-  // Controle do popup de registro
   const [showRegisterModal, setShowRegisterModal] = useState(false);
 
-  // Campos de login manual
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
-  // Campos do registro
   const [regNome, setRegNome] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regSenha, setRegSenha] = useState("");
   const [regConfirmSenha, setRegConfirmSenha] = useState("");
   const [regPerfil, setRegPerfil] = useState("");
-  const [regMatricula, setRegMatricula] = useState("");
 
-  // Controle de erros no registro
   const [registroErro, setRegistroErro] = useState("");
 
   const abrirRegistro = () => {
     setRegistroErro("");
     setShowRegisterModal(true);
   };
+
   const fecharRegistro = () => setShowRegisterModal(false);
 
-  // Login manual (API a ser implementada)
   const handleLoginManual = async () => {
     try {
-      const response = await axios.post("http://localhost:8000/api/login/", {
-        email: email,
-        senha: senha
+      const response = await api.post("/api/login/", {
+        email,
+        senha
       });
 
-      console.log("Login manual realizado:", response.data);
-      // Tratar sucesso do login (token, redirecionamento etc)
+      const { token, usuario, status } = response.data;
+
+      if (status && status !== "aprovado") {
+        alert("Seu cadastro ainda está pendente de aprovação pelo administrador.");
+        return;
+      }
+
+      localStorage.setItem("authToken", token);
+      api.defaults.headers.common["Authorization"] = `Token ${token}`;
+
+      onLoginSuccess && onLoginSuccess(usuario);
+
     } catch (error) {
       console.error("Erro no login manual:", error);
+      onLoginError && onLoginError(error);
       alert("Erro ao fazer login. Verifique suas credenciais.");
     }
   };
 
-  // Registro via backend
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      const google_token = credentialResponse.credential;
+
+      const response = await api.post("/api/login/google/", {
+        token_google: google_token
+      });
+
+      const { token, usuario, status } = response.data;
+
+      if (status !== "aprovado") {
+        alert("Seu cadastro ainda está pendente de aprovação do administrador.");
+        return;
+      }
+
+      localStorage.setItem("authToken", token);
+      api.defaults.headers.common["Authorization"] = `Token ${token}`;
+
+      onLoginSuccess && onLoginSuccess(usuario);
+
+    } catch (error) {
+      console.error("Erro no login Google:", error);
+      onLoginError && onLoginError(error);
+      alert("Falha ao autenticar com Google.");
+    }
+  };
+
   const handleRegistrar = async () => {
     setRegistroErro("");
 
     if (!regNome || !regEmail || !regSenha || !regConfirmSenha || !regPerfil) {
-      setRegistroErro("Preencha todos os campos obrigatórios e selecione um perfil!");
+      setRegistroErro("Preencha todos os campos obrigatórios e selecione um perfil.");
       return;
     }
 
@@ -61,31 +96,33 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
     }
 
     try {
-      const response = await axios.post("http://localhost:8000/api/usuarios/registrar/", {
+      const response = await api.post("/services/usuarios/registrar/", {
         nome: regNome,
         email: regEmail,
         senha: regSenha,
-        tipo_usuario: regPerfil,
-        matricula: regPerfil === "ALUNO" ? regMatricula : undefined
+        tipo_usuario: regPerfil.toLowerCase(),
       });
 
-      if (response.status === 201 || response.status === 200) {
-        alert("Registro realizado com sucesso!");
-        fecharRegistro();
+      if (response.status === 200 || response.status === 201) {
+        alert("Registro enviado! Aguarde aprovação de um administrador.");
 
-        // Limpar campos do registro
         setRegNome("");
         setRegEmail("");
         setRegSenha("");
         setRegConfirmSenha("");
         setRegPerfil("");
-        setRegMatricula("");
+
+        fecharRegistro();
       }
 
     } catch (error) {
-      console.error(error);
+      console.error("Erro no registro:", error);
+
       if (error.response) {
-        setRegistroErro("Erro ao registrar: " + (error.response.data.error || JSON.stringify(error.response.data)));
+        setRegistroErro(
+          error.response.data.error ||
+          JSON.stringify(error.response.data)
+        );
       } else {
         setRegistroErro("Erro ao registrar usuário. Verifique sua conexão.");
       }
@@ -95,11 +132,12 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
   return (
     <div className="login-container">
 
-      {/* Lado Esquerdo */}
+      {/* Área Esquerda */}
       <div className="login-info-side">
         <div className="login-info-content">
           <div className="login-brand">
-            <img src='./src/assets/logo-sem-nome.png' alt="Logo IFRS" className="login-brand-logo" />
+            <img src={logo} alt="Logo IFRS" className="login-brand-logo" />
+
             <div className="login-brand-text">
               <h1>Sistema PEI</h1>
               <p>Plano Educacional Individualizado</p>
@@ -109,43 +147,9 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
           <div className="login-features">
             <h2>Bem-vindo ao Sistema de Gerenciamento de PEI</h2>
             <p className="login-description">
-              Plataforma completa para criação, acompanhamento e gestão de Planos Educacionais 
-              Individualizados, promovendo educação inclusiva e personalizada.
+              Plataforma completa para criação, acompanhamento e gestão de PEIs,
+              promovendo educação inclusiva e personalizada.
             </p>
-
-            <div className="login-feature-list">
-              <div className="login-feature-item">
-                <div className="feature-icon">📋</div>
-                <div className="feature-text">
-                  <h3>Gestão Centralizada</h3>
-                  <p>Gerencie todos os PEIs em um único lugar com interface intuitiva</p>
-                </div>
-              </div>
-
-              <div className="login-feature-item">
-                <div className="feature-icon">👥</div>
-                <div className="feature-text">
-                  <h3>Colaboração em Equipe</h3>
-                  <p>Professores, coordenadores e familiares trabalhando juntos</p>
-                </div>
-              </div>
-
-              <div className="login-feature-item">
-                <div className="feature-icon">📊</div>
-                <div className="feature-text">
-                  <h3>Acompanhamento em Tempo Real</h3>
-                  <p>Monitore o progresso dos estudantes com relatórios detalhados</p>
-                </div>
-              </div>
-
-              <div className="login-feature-item">
-                <div className="feature-icon">🔒</div>
-                <div className="feature-text">
-                  <h3>Segurança e Privacidade</h3>
-                  <p>Dados protegidos com autenticação segura e criptografia</p>
-                </div>
-              </div>
-            </div>
           </div>
 
           <div className="login-footer-info">
@@ -154,7 +158,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
         </div>
       </div>
 
-      {/* Lado Direito — Login */}
+      {/* Área Direita */}
       <div className="login-form-side">
         <div className="login-form-container">
           <div className="login-form-header">
@@ -170,7 +174,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
 
           {/* Login Manual */}
           <div className="login-manual-form">
-            <input 
+            <input
               type="email"
               placeholder="E-mail"
               value={email}
@@ -178,7 +182,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
               className="login-input"
             />
 
-            <input 
+            <input
               type="password"
               placeholder="Senha"
               value={senha}
@@ -197,13 +201,12 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
 
           <div className="login-divider"></div>
 
-          {/* Login com Google */}
+          {/* Google Login */}
           <div className="login-button-wrapper">
-            <GoogleLogin 
-              onSuccess={onLoginSuccess} 
-              onError={onLoginError}
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={() => onLoginError && onLoginError()}
               size="large"
-              width="100%"
             />
           </div>
 
@@ -216,7 +219,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
         </div>
       </div>
 
-      {/* MODAL DE REGISTRO */}
+      {/* Modal de Registro */}
       {showRegisterModal && (
         <div className="modal-backdrop">
           <div className="modal-container">
@@ -228,7 +231,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
               </div>
             )}
 
-            <input 
+            <input
               type="text"
               placeholder="Nome completo"
               value={regNome}
@@ -236,7 +239,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
               className="login-input"
             />
 
-            <input 
+            <input
               type="email"
               placeholder="E-mail"
               value={regEmail}
@@ -244,7 +247,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
               className="login-input"
             />
 
-            <input 
+            <input
               type="password"
               placeholder="Senha"
               value={regSenha}
@@ -252,7 +255,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
               className="login-input"
             />
 
-            <input 
+            <input
               type="password"
               placeholder="Confirmar Senha"
               value={regConfirmSenha}
@@ -260,62 +263,25 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
               className="login-input"
             />
 
-            {/* Seleção de perfil */}
             <div className="perfil-check-container">
               <p>Selecione seu perfil:</p>
 
-              <label className="perfil-item">
-                <input 
-                  type="radio"
-                  name="perfil"
-                  value="COORDENADOR"
-                  onChange={e => setRegPerfil(e.target.value)}
-                /> Coordenador
-              </label>
-
-              <label className="perfil-item">
-                <input 
-                  type="radio"
-                  name="perfil"
-                  value="NAPNE"
-                  onChange={e => setRegPerfil(e.target.value)}
-                /> NAPNE
-              </label>
-
-              <label className="perfil-item">
-                <input 
-                  type="radio"
-                  name="perfil"
-                  value="PROFESSOR"
-                  onChange={e => setRegPerfil(e.target.value)}
-                /> Professor
-              </label>
-
-              <label className="perfil-item">
-                <input 
-                  type="radio"
-                  name="perfil"
-                  value="PEDAGOGO"
-                  onChange={e => setRegPerfil(e.target.value)}
-                /> Pedagogo
-              </label>
+              {["COORDENADOR", "NAPNE", "PROFESSOR", "PEDAGOGO"].map(p => (
+                <label key={p} className="perfil-item">
+                  <input
+                    type="radio"
+                    name="perfil"
+                    value={p}
+                    onChange={e => setRegPerfil(e.target.value)}
+                  />{" "}
+                  {p.charAt(0) + p.slice(1).toLowerCase()}
+                </label>
+              ))}
             </div>
-
-            {/* Matrícula apenas para alunos */}
-            {regPerfil === "ALUNO" && (
-              <input
-                type="text"
-                placeholder="Matrícula"
-                value={regMatricula}
-                onChange={e => setRegMatricula(e.target.value)}
-                className="login-input"
-              />
-            )}
 
             <button className="login-button" onClick={handleRegistrar}>
               Criar Conta
             </button>
-
             <button className="cancel-button" onClick={fecharRegistro}>
               Cancelar
             </button>

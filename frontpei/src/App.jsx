@@ -4,9 +4,13 @@ import { jwtDecode } from 'jwt-decode'
 import { useState, useEffect } from 'react'
 import { Routes, Route } from "react-router-dom";
 
+// 🔥 IMPORTA O AUTH CONTEXT E PROTECTED ROUTES
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
+
 // Importações dos contextos/alerts
 import { AlertProvider } from "./context/AlertContext";
-import Alert from "./components/alert/AlertComponent.jsx";
+import AlertComponent from './components/alert/AlertComponent.jsx';
 
 // Imports das tuas páginas e componentes
 import Home from "./pages/home/Home.jsx"
@@ -37,7 +41,6 @@ import LoginPage from './pages/login/Login.jsx'
 import Professor from "./pages/Professor.jsx";
 import Usuarios from './pages/Usuario.jsx';
 import { mandaEmail } from "./lib/mandaEmail";
-import AlertComponent from './components/alert/AlertComponent.jsx';
 
 
 function App() {
@@ -47,6 +50,7 @@ function App() {
   const [mensagemErro, setMensagemErro] = useState(null);
   const [perfilSelecionado, setPerfilSelecionado] = useState(null);
 
+  // recuperar sessão do google
   useEffect(() => {
     const usuarioSalvo = localStorage.getItem("usuario")
     if (usuarioSalvo) {
@@ -59,34 +63,33 @@ function App() {
     try {
       const dados = jwtDecode(credentialResponse.credential)
       const email = dados.email || ""
-      const partes = email.split("@")
-      if (partes.length !== 2 || !email.endsWith("ifrs.edu.br")) {
-        console.error("Email invalido ou nao autorizado:", email)
+
+      if (!email.endsWith("ifrs.edu.br")) {
         setUsuario(null)
         setLogado(false)
-        localStorage.removeItem("usuario")
-        localStorage.removeItem("token")
-        setMensagemErro("Acesso negado. Use um email institucional do IFRS.")
+        setMensagemErro("Acesso negado. Use um email IFRS.")
         return
       }
+
       const userData = { email: dados.email, nome: dados.name, foto: dados.picture }
+
       setUsuario(userData)
       setLogado(true)
       localStorage.setItem("usuario", JSON.stringify(userData))
-      localStorage.setItem("token", credentialResponse.credential)
-      mandaEmail(email, "Login PEI", "Um novo login acaba de ser realizado com sucesso usando essa conta no sistema PEI!");
+
+      mandaEmail(email, "Login PEI", "Novo login feito no sistema.")
+
     } catch (erro) {
-      console.error('Erro ao decodificar token do Google:', erro)
+      console.error('Erro token Google:', erro)
       setUsuario(null)
       setLogado(false)
     }
   }
 
   const erroLoginGoogle = () => {
-    console.error('Falha no login com o Google')
     setUsuario(null)
     setLogado(false)
-    setMensagemErro("Falha no login com o Google. Tente novamente.")
+    setMensagemErro("Falha no login com o Google.")
   }
 
   const logout = () => {
@@ -94,72 +97,134 @@ function App() {
     setLogado(false)
     setPerfilSelecionado(null)
     localStorage.removeItem("usuario")
-    localStorage.removeItem("token")
   }
 
   return (
     <GoogleOAuthProvider clientId="992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com">
-      <AlertProvider>
-        {/* componente global que exibe alerts */}
-        <AlertComponent />
+      {/* 🔥 ENVOLVE TUDO AQUI */}
+      <AuthProvider>
+        <AlertProvider>
 
-        { logado ? (
-          <div className="app-container">
-            <Header usuario={usuario} logado={logado} logout={logout} />
-            <SubHeader perfilSelecionado={perfilSelecionado} />
-            <hr />
+          <AlertComponent />
 
-            <main className='main-content'>
-              <Routes>
-                <Route 
-                  path="/" 
-                  element={<Home 
-                    usuario={usuario} 
-                    perfilSelecionado={perfilSelecionado} 
-                    setPerfilSelecionado={setPerfilSelecionado} 
-                  />} 
-                />
-                <Route path="/" element={<Home />} />
-                <Route path="/pareceres" element={<Pareceres />} />
-                <Route path="/periodo" element={<PEIPeriodoLetivo />} />
-                <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />
-                <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} /> {/**Teste Mau */}
-                <Route path="/periodoLetivoPerfil" element={<PeriodoLetivoPerfil />} />
-                <Route path="/disciplina" element={<Disciplinas/>}/>
-                <Route path="/disciplinasCadastrar" element={<DisciplinasCRUD/>}/>
-                <Route path="/disciplinaEditar/:id" element={<DisciplinasCRUD/>}/>
-                <Route path="/curso" element={<Cursos/>}/>
-                <Route path="/cursoCadastrar" element={<CursosCRUD/>}/>
-                <Route path="/cursoEditar/:id" element={<CursosCRUD/>}/>
-                <Route path="/aluno" element={<Alunos/>}/>
-                <Route path="/coordenador" element={<CoordenadorCurso/>}/>
-                <Route path="/peicentral" element={<PeiCentral />} />
-                <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
-                <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
-                <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
-                <Route path="/componenteCurricular" element={<ComponenteCurricular/>}/>
-                <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento/>}/>
-                <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
-                <Route path="/pedagogo" element={<Pedagogos/>}/>
-                <Route path="/logs" element={<Logs/>}/>
-                <Route path="/professor" element={<Professor />} />
-                <Route path="/usuario" element={<Usuarios/>}/>
-                <Route path="/perfil" element={<Perfil/>} />
+          { logado ? (
+            <div className="app-container">
+              <Header usuario={usuario} logado={logado} logout={logout} />
+              <SubHeader perfilSelecionado={perfilSelecionado} />
+              <hr />
 
-              </Routes>
-            </main>
-            <Footer/>
-          </div>
-        ) : (
-          <LoginPage 
-            onLoginSuccess={sucessoLoginGoogle}
-            onLoginError={erroLoginGoogle}
-            mensagemErro={mensagemErro}
-          />
-        )}
-      </AlertProvider>
+              <main className='main-content'>
+                <Routes>
+
+                  {/* 🔥 ROTAS PROTEGIDAS POR LOGIN */}
+                  <Route 
+                    path="/" 
+                    element={
+                      <ProtectedRoute>
+                        <Home 
+                          usuario={usuario} 
+                          perfilSelecionado={perfilSelecionado} 
+                          setPerfilSelecionado={setPerfilSelecionado} 
+                        />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route 
+                    path="/pareceres" 
+                    element={<ProtectedRoute><Pareceres /></ProtectedRoute>} 
+                  />
+
+                  <Route 
+                    path="/periodo" 
+                    element={<ProtectedRoute><PEIPeriodoLetivo /></ProtectedRoute>} 
+                  />
+
+                  <Route 
+                    path="/listar_periodos" 
+                    element={<ProtectedRoute><PEIPeriodoLetivoLista /></ProtectedRoute>} 
+                  />
+
+                  <Route 
+                    path="/listar_periodos/:id" 
+                    element={<ProtectedRoute><PEIPeriodoLetivoLista /></ProtectedRoute>} 
+                  />
+
+                  <Route 
+                    path="/periodoLetivoPerfil" 
+                    element={<ProtectedRoute><PeriodoLetivoPerfil /></ProtectedRoute>} 
+                  />
+
+                  <Route 
+                    path="/disciplina" 
+                    element={<ProtectedRoute><Disciplinas/></ProtectedRoute>} 
+                  />
+
+                  <Route 
+                    path="/disciplinasCadastrar" 
+                    element={<ProtectedRoute><DisciplinasCRUD/></ProtectedRoute>}
+                  />
+
+                  <Route 
+                    path="/disciplinaEditar/:id" 
+                    element={<ProtectedRoute><DisciplinasCRUD/></ProtectedRoute>}
+                  />
+
+                  <Route path="/curso" element={<ProtectedRoute><Cursos/></ProtectedRoute>} />
+                  <Route path="/cursoCadastrar" element={<ProtectedRoute><CursosCRUD/></ProtectedRoute>} />
+                  <Route path="/cursoEditar/:id" element={<ProtectedRoute><CursosCRUD/></ProtectedRoute>} />
+                  <Route path="/aluno" element={<ProtectedRoute><Alunos/></ProtectedRoute>} />
+                  <Route path="/coordenador" element={<ProtectedRoute><CoordenadorCurso/></ProtectedRoute>} />
+
+                  <Route path="/peicentral" element={<ProtectedRoute><PeiCentral /></ProtectedRoute>} />
+                  <Route path="/create_peicentral" element={<ProtectedRoute><CreatePeiCentral/></ProtectedRoute>} />
+                  <Route path="/editar_peicentral/:id" element={<ProtectedRoute><EditarPeiCentral/></ProtectedRoute>} />
+                  <Route path="/deletar_peicentral/:id" element={<ProtectedRoute><DeletarPeiCentral/></ProtectedRoute>} />
+
+                  <Route path="/componenteCurricular" element={<ProtectedRoute><ComponenteCurricular/></ProtectedRoute>} />
+                  <Route path="/ataDeAcompanhamento" element={<ProtectedRoute><AtaDeAcompanhamento/></ProtectedRoute>} />
+                  <Route path="/documentacaoComplementar" element={<ProtectedRoute><DocumentacaoComplementar/></ProtectedRoute>} />
+                  <Route path="/pedagogo" element={<ProtectedRoute><Pedagogos/></ProtectedRoute>} />
+                  <Route path="/logs" element={<ProtectedRoute><Logs/></ProtectedRoute>} />
+                  <Route path="/professor" element={<ProtectedRoute><Professor /></ProtectedRoute>} />
+                  <Route path="/usuario" element={<ProtectedRoute><Usuarios/></ProtectedRoute>} />
+                  <Route path="/perfil" element={<ProtectedRoute><Perfil/></ProtectedRoute>} />
+
+                  <Route 
+                    path="/dashboard" 
+                    element={
+                      <PrivateRoute>
+                        <Dashboard />
+                      </PrivateRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/aprovar-usuarios"
+                    element={
+                      <AdminRoute>
+                        <ListaDeUsuariosPendentes />
+                      </AdminRoute>
+                    }
+                  />
+
+                </Routes>
+              </main>
+
+              <Footer/>
+            </div>
+          ) : (
+            <LoginPage 
+              onLoginSuccess={sucessoLoginGoogle}
+              onLoginError={erroLoginGoogle}
+              mensagemErro={mensagemErro}
+            />
+          )}
+
+        </AlertProvider>
+      </AuthProvider>
     </GoogleOAuthProvider>   
   )
 }
 
-export default App
+export default App;
