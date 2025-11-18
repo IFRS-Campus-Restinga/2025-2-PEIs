@@ -158,7 +158,7 @@ const PeriodoLetivoPerfil = () => {
           <div className="botoes-parecer">
           {/* Pareceres */}
           {permissoes.includes("add_parecer") && (
-            <Link to="/pareceres" className="btn-verde">
+            <Link to="/crud/pareceres" className="btn-verde">
               Cadastrar Parecer
             </Link>
           )}
@@ -186,7 +186,7 @@ const PeriodoLetivoPerfil = () => {
 
           {/* Atas de acompanhamento */}
           {permissoes.includes("add_atadeacompanhamento") && (
-            <Link to="/atadeacompanhamento" className="btn-verde">
+            <Link to="/crud/ataDeAcompanhamento" className="btn-verde">
               Gerenciar Atas de Acompanhamento
             </Link>
           )}
@@ -207,14 +207,14 @@ const PeriodoLetivoPerfil = () => {
 
           {/* Componentes Curriculares */}
           {(permissoes.includes("add_componentecurricular") || permissoes.includes("change_componentecurricular")) && (
-            <Link to="/componenteCurricular" className="btn-verde">
+            <Link to="/crud/componenteCurricular" className="btn-verde">
               Gerenciar Componentes Curriculares
             </Link>
           )}
 
           {/* Alunos */}
           {permissoes.includes("add_aluno") && (
-            <Link to="/aluno" className="btn-verde">
+            <Link to="/crud/aluno" className="btn-verde">
               Gerenciar Alunos
             </Link>
           )}

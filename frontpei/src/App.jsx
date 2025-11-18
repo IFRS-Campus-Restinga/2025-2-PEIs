@@ -26,11 +26,9 @@ import PeiCentral from './pages/PeiCentral/PeiCentral.jsx'
 import CreatePeiCentral from './pages/PeiCentral/CreatePeiCentral.jsx'
 import EditarPeiCentral from './pages/PeiCentral/EditarPeiCentral.jsx'
 import DeletarPeiCentral from './pages/PeiCentral/DeletarPeiCentral.jsx'
-import AlunoPage from './pages/alunoPage.jsx'
 import CoordenadorCurso from './pages/CoordenadorCurso.jsx'
 import Logs from './pages/LogsComponents/Logs.jsx'
-import CrudDynamicPage from './pages/componenteCurricularPage.jsx'
-import AtaDeAcompanhamentoPage from './pages/ataDeAcompanhamentoPage.jsx'
+import CrudDynamicPage from './pages/CrudDynamicPage.jsx'
 import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
 import Pedagogos from './pages/Pedagogo.jsx'
 import LoginPage from './pages/login/Login.jsx'
@@ -120,7 +118,7 @@ function App() {
                   />} 
                 />
                 <Route path="/" element={<Home />} />
-                <Route path="/pareceres" element={<Pareceres />} />
+                {/*<Route path="/pareceres" element={<Pareceres />} /> */}
                 <Route path="/periodo" element={<PEIPeriodoLetivo />} />
                 <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />
                 <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} /> {/**Teste Mau */}
