@@ -25,7 +25,7 @@ export default function BotaoDeletar({ id, axiosInstance, onDeletarSucesso }) {
       await axiosInstance.delete(`/${id}/`);
       fecharModal();
       if (onDeletarSucesso) onDeletarSucesso();
-      addAlert("Professor deletado com sucesso!", "success");
+      addAlert("Registro deletado com sucesso!", "success");
     } catch (err) {
       console.error("Erro ao deletar:", err);
       setErro("Falha ao deletar. Tente novamente.");
