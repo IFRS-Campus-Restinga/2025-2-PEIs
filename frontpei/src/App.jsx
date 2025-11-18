@@ -29,7 +29,7 @@ import DeletarPeiCentral from './pages/PeiCentral/DeletarPeiCentral.jsx'
 import AlunoPage from './pages/alunoPage.jsx'
 import CoordenadorCurso from './pages/CoordenadorCurso.jsx'
 import Logs from './pages/LogsComponents/Logs.jsx'
-import ComponenteCurricularPage from './pages/componenteCurricularPage.jsx'
+import CrudDynamicPage from './pages/componenteCurricularPage.jsx'
 import AtaDeAcompanhamentoPage from './pages/ataDeAcompanhamentoPage.jsx'
 import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
 import Pedagogos from './pages/Pedagogo.jsx'
@@ -131,14 +131,15 @@ function App() {
                 <Route path="/curso" element={<Cursos/>}/>
                 <Route path="/cursoCadastrar" element={<CursosCRUD/>}/>
                 <Route path="/cursoEditar/:id" element={<CursosCRUD/>}/>
-                <Route path="/aluno" element={<AlunoPage/>}/>
+                {/*<Route path="/aluno" element={<AlunoPage/>}/>*/}
                 <Route path="/coordenador" element={<CoordenadorCurso/>}/>
                 <Route path="/peicentral" element={<PeiCentral />} />
+                <Route path="/crud/:modelKey" element={<CrudDynamicPage />} />
                 <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
                 <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
                 <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
-                <Route path="/componenteCurricular" element={<ComponenteCurricularPage/>}/>
-                <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamentoPage/>}/>
+                {/*<Route path="/componenteCurricular" element={<ComponenteCurricularPage/>}/>*/}
+                {/*<Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamentoPage/>}/>*/}
                 <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
                 <Route path="/pedagogo" element={<Pedagogos/>}/>
                 <Route path="/logs" element={<Logs/>}/>

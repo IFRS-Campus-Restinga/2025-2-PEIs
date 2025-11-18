@@ -2,8 +2,8 @@
 import { API_ROUTES } from "./apiRoutes"; // ajuste o caminho se necessário
 
 export const modelsSchemas = {
-  componente_curricular: {
-    key: "componente_curricular",
+  componenteCurricular: {
+    key: "componenteCurricular",
     title: "Componentes Curriculares",
     endpoint: API_ROUTES.COMPONENTECURRICULAR, // string base (ex: "/api/componente-curricular")
     listQuery: "/", // se necessário, ou deixe ""
@@ -105,8 +105,8 @@ export const modelsSchemas = {
     }),
   },
 
-  ata_de_acompanhamento: {
-    key: "ata_de_acompanhamento",
+  ataDeAcompanhamento: {
+    key: "ataDeAcompanhamento",
     title: "Atas de Acompanhamento",
     listQuery: "/",
 
