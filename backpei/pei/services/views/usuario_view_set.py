@@ -2,16 +2,16 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ValidationError
+from rest_framework.permissions import IsAdminUser
 
 from ..serializers import UsuarioSerializer
 from pei.models import Usuario
-from ..permissions import BackendTokenPermission
 
 
 class UsuarioViewSet(ModelViewSet):
-    queryset = Usuario.objects.all()
+    queryset = Usuario.objects.filter(aprovado=False)
     serializer_class = UsuarioSerializer
-    permission_classes = [BackendTokenPermission]
+    permission_classes = [IsAdminUser]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

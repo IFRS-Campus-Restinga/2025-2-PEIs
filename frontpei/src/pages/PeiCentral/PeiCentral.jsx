@@ -216,7 +216,7 @@ function PeiCentral() {
               </div>
             </header>
 
-            <button className="btn-verde:hover" onClick={gerarPDF}>
+            <button className="btn-verde" onClick={gerarPDF}>
               Gerar PDF
             </button>
 

@@ -18,10 +18,13 @@ rodapy = os.path.join(baseDir, "python", "python.exe")
 sys.path.append(os.path.join(baseDir, "backpei"))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backpei.settings")
 django.setup()
-# e com isso ja poderemos fazer coisas no proprio projeto
+
+# imports do django
 from django.contrib.auth.models import User, Group, Permission
 from rest_framework.authtoken.models import Token
 from django.contrib.contenttypes.models import ContentType
+
+# imports dos modelos
 from pei.models.pei_central import PeiCentral
 from pei.models.PEIPeriodoLetivo import PEIPeriodoLetivo
 from pei.models.componenteCurricular import ComponenteCurricular
@@ -52,7 +55,7 @@ def pergunta(msg):
         resp = input(f"{msg} (s/n): ").strip().lower()
         if resp in ["s", "n"]:
             return resp == "s"
-        print("Opcao invalida. Digite apenas 's' ou 'n'.")
+        print("Opção inválida. Digite apenas 's' ou 'n'.")
 
 
 # ------------------------------------------
@@ -69,11 +72,11 @@ def apagar(caminho):
             pass
 
 
-
 # ------------------------------------------
 # limpar e refazer todo migrate do django
 if pergunta("Refazer o migrate do Django?"):
     print("Limpando sujeira anterior...")
+
     vaiApagar = [
         os.path.join(baseDir, "backpei", "backpei", "__pycache__"),
         os.path.join(baseDir, "backpei", "logs", "__pycache__"),
@@ -92,29 +95,36 @@ if pergunta("Refazer o migrate do Django?"):
     ]
     for item in vaiApagar:
         apagar(item)
+
     # vamos apagar o banco tambem?
     if pergunta("Deseja zerar o banco de dados?"):
         print("Zerando banco de dados...")
         apagar(os.path.join(baseDir, "backpei", "db.sqlite3"))
+
         roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "makemigrations"])
         roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "migrate"])
         roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "showmigrations"])
-        print(f"\n***********************************************\n")
-        # agora precisamos criar novamente a conta de administrador
-        senhaAdmin = "PEIDev2IFRS"
-        User.objects.create_superuser(username="administrador", password=senhaAdmin, email="")
-        print(f"Conta \"administrador\" criada com senha \"{senhaAdmin}\".")
-        # tambem gerar novamente o token do administrador
-        user = User.objects.get(username="administrador")
-        token, created = Token.objects.get_or_create(user=user)
-        print(f"Token do administrador: {token.key}")
-        # esse token controla nosso acesso ao rest, salvando na pasta do projeto
-        arquivoToken = os.path.join(baseDir, "backpei", "token.txt")
-        with open(arquivoToken, "w") as f:
-            f.write(token.key)
+
+        print("\n***********************************************\n")
 
         # ------------------------------------------
-        # criação de grupos e permissões
+        # Criar superusuário do Django (somente manutenção)
+        senhaAdmin = "PEIDev2IFRS"
+        User.objects.create_superuser(username="administrador", password=senhaAdmin, email="")
+        print(f"Conta 'administrador' criada com senha '{senhaAdmin}'.")
+
+        # Criar token do superuser
+        superuser = User.objects.get(username="administrador")
+        super_token, _ = Token.objects.get_or_create(user=superuser)
+        print(f"Token do superuser Django: {super_token.key}")
+
+        # Salvar token em arquivo
+        arquivoToken = os.path.join(baseDir, "backpei", "token.txt")
+        with open(arquivoToken, "w") as f:
+            f.write(super_token.key)
+
+        # ------------------------------------------
+        # Criar grupos e permissões
         grupos = {
             "Professor": [
                 ("add_parecer", Parecer),
@@ -166,29 +176,59 @@ if pergunta("Refazer o migrate do Django?"):
                     grupo.permissions.add(permission)
                 except Permission.DoesNotExist:
                     print(f"Permissão {codename} não encontrada para o modelo {model.__name__}")
-            print(f"Grupo \"{nome_grupo}\" criado com permissões.")
+            print(f"Grupo '{nome_grupo}' criado com permissões.")
 
         # ------------------------------------------
-        # chamando o script do jampier que popula o banco
+        # CRIAR ADMINISTRADOR REAL DO SISTEMA PEI
+        admin_email = "2022012834@aluno.restinga.ifrs.edu.br"
+
+        admin_user = User.objects.create(
+            username=admin_email,
+            email=admin_email,
+            is_staff=True
+        )
+        admin_user.set_unusable_password()
+        admin_user.save()
+
+        # Criar registro Usuario
+        Usuario.objects.create(
+            user=admin_user,
+            email=admin_email,
+            nome="Administrador do Sistema",
+            categoria_solicitada="Admin",
+            aprovado=True
+        )
+
+        grupo_admin = Group.objects.get(name="Admin")
+        admin_user.groups.add(grupo_admin)
+
+        # Criar token do admin PEI
+        admin_token, _ = Token.objects.get_or_create(user=admin_user)
+        print(f"Token do administrador PEI: {admin_token.key}")
+
+        # ------------------------------------------
+        # popular banco
         if pergunta("Deseja popular o banco de dados com cadastros prévios?"):
             roda([rodapy, os.path.join(baseDir, "populaBanco.py")])
         else:
             print("O banco vai iniciar sem entradas pré cadastradas.")
+
     else:
         print("Banco de dados mantido.")
         roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "makemigrations"])
         roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "migrate"])
         roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "showmigrations"])
+
 else:
     print("Mantendo todos os dados.")
 
 
 # ------------------------------------------
 # printando versoes de tudo e finalizando
-print(f"\n***********************************************\n")
-print(f"Diretorio de trabalho: {baseDir}")
-roda([rodapy,'--version'])
-roda([rodapy,'-m','pip','--version'])
+print("\n***********************************************\n")
+print(f"Diretório de trabalho: {baseDir}")
+roda([rodapy, '--version'])
+roda([rodapy, '-m', 'pip', '--version'])
 print(f"Django - {django.get_version()}")
 print(f"Django REST Framework - {rest_framework.__version__}")
 
