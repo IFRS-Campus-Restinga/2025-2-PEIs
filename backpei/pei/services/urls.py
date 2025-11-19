@@ -14,6 +14,7 @@ from .views.notificacao_view import NotificacaoViewSet
 from .views.notificacao_lista import listar_notificacoes
 from .views.usuario_view_set import UsuarioViewSet
 from .views.permissoes_view_set import UsuarioPermissoesView
+from .views.conteudo_view_set import ConteudoViewSet
 
 router = DefaultRouter()
 router.register(r'PEIPeriodoLetivo', PEIPeriodoLetivoViewSet, basename='PEIPeriodoLetivo')
@@ -27,6 +28,7 @@ router.register(r'ataDeAcompanhamento', AtaDeAcompanhamentoViewSet, basename='at
 router.register(r'documentacaoComplementar', DocumentacaoComplementarViewSet, basename='documentacaoComplementar')
 router.register(r'notificacoes', NotificacaoViewSet, basename='notificacao')
 router.register(r'usuario', UsuarioViewSet, basename='usuarios')
+router.register(r'conteudo', ConteudoViewSet, basename='conteudos')
 
 
 app_name = 'api'
