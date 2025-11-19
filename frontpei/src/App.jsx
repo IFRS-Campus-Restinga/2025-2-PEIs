@@ -36,6 +36,7 @@ import Professor from "./pages/Professor.jsx";
 import Usuarios from './pages/Usuario.jsx';
 import { mandaEmail } from "./lib/mandaEmail";
 import AlertComponent from './components/alert/AlertComponent.jsx';
+import Conteudo from './pages/Conteudo.jsx';
 
 
 function App() {
@@ -144,6 +145,7 @@ function App() {
                 <Route path="/professor" element={<Professor />} />
                 <Route path="/usuario" element={<Usuarios/>}/>
                 <Route path="/perfil" element={<Perfil/>} />
+                <Route path="/conteudo" element={<Conteudo usuario={usuario} />}/>
 
               </Routes>
             </main>
