@@ -185,9 +185,12 @@ export const modelsSchemas = {
       label: "Componente Curricular",
       type: "select",
       source: API_ROUTES.COMPONENTECURRICULAR,
-      mapLabel: (c) => `Componente ${c.disciplina.nome} `,
+
+      mapLabel: (c) => c.disciplina?.nome || `Componente ${c.id}`,
       mapValue: (c) => c.id,
-      required: true,
+
+      displayField: "disciplina.nome", 
+      required: true
     },
     {
       name: "professor",
@@ -215,7 +218,7 @@ export const modelsSchemas = {
 
   // Transformar form → payload enviado pro backend
   mapFormToPayload: (form) => ({
-    componente_curricular: Number(form.componente_curricular),
+    componente_curricular_id: Number(form.componente_curricular),
     professor_id: Number(form.professor),
     texto: form.texto,
     // data é auto_now_add, não incluímos
