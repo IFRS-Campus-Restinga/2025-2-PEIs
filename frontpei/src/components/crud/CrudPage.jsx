@@ -87,25 +87,33 @@ export default function CrudPage({ modelKey }) {
   }
 
   async function handleSubmitCreate(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const mensagens = validaCampos(newForm, e.target);
-    if (mensagens.length > 0) {
-      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
-      addAlert("Campos obrigatórios não preenchidos.", "warning");
-      return;
-    }
-
-    try {
-      const payload = schema.mapFormToPayload ? schema.mapFormToPayload(newForm) : newForm;
-      await API.post("/", payload);
-      setNewForm(Object.fromEntries(schema.fields.map((f) => [f.name, ""])));
-      addAlert(`${schema.title} cadastrado com sucesso!`, "success");
-      await loadItems();
-    } catch (err) {
-      handleApiErrors(err, "");
-    }
+  const mensagens = validaCampos(newForm, e.target);
+  if (mensagens.length > 0) {
+    mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
+    addAlert("Campos obrigatórios não preenchidos.", "warning");
+    return;
   }
+
+  try {
+    const payload = schema.mapFormToPayload ? schema.mapFormToPayload(newForm) : newForm;
+
+    console.log("=== ENVIANDO CREATE ===");
+    console.log("Payload:", payload);
+
+    const response = await API.post("/", payload);
+
+    console.log("Resposta backend:", response.data);
+
+    setNewForm(Object.fromEntries(schema.fields.map((f) => [f.name, ""])));
+    addAlert(`${schema.title} cadastrado com sucesso!`, "success");
+    await loadItems();
+  } catch (err) {
+    console.error("Erro na criação:", err.response?.data || err.message);
+    handleApiErrors(err, "");
+  }
+}
 
   async function handleSubmitEdit(e, id) {
     e.preventDefault();
@@ -164,16 +172,45 @@ export default function CrudPage({ modelKey }) {
   }
 
   const handleNewChange = (e) => {
-    const { name, value, files } = e.target;
-    setNewForm((p) => ({ ...p, [name]: files ? files[0] : value }));
-    if (value) clearFieldAlert(name);
-  };
+  const { name, value, files, type } = e.target;
 
-  const handleEditChange = (e) => {
-    const { name, value, files } = e.target;
-    setEditForm((p) => ({ ...p, [name]: files ? files[0] : value }));
-    if (value) clearFieldAlert(`edit-${name}`);
-  };
+  setNewForm((p) => ({
+    ...p,
+    [name]:
+      type === "file"
+        ? files[0]
+        : schema.fields.find(f => f.name === name)?.type === "select"
+        ? Number(value) || "" // só converte selects em número
+        : value,
+  }));
+
+  if (value) clearFieldAlert(name);
+};
+
+const handleEditChange = (e) => {
+  const { name, value, files, type } = e.target;
+
+  setEditForm((p) => ({
+    ...p,
+    [name]:
+      type === "file"
+        ? files[0]
+        : schema.fields.find(f => f.name === name)?.type === "select"
+        ? Number(value) || ""
+        : value,
+  }));
+
+  if (value) clearFieldAlert(`edit-${name}`);
+};
+
+  // ======================
+  // Função para renderizar objetos e arrays
+  // ======================
+  function renderFieldValue(value) {
+    if (Array.isArray(value)) return value.map(v => v.nome || v.id || JSON.stringify(v)).join(", ");
+    if (value && typeof value === "object") return value.nome || value.id || JSON.stringify(value);
+    return value ?? "-";
+  }
 
   return (
     <div className="container-padrao">
@@ -186,7 +223,6 @@ export default function CrudPage({ modelKey }) {
           <div key={field.name}>
             <label>{field.label}:</label>
 
-            {/* TEXTAREA */}
             {field.type === "textarea" ? (
               <textarea
                 name={field.name}
@@ -194,7 +230,6 @@ export default function CrudPage({ modelKey }) {
                 onChange={handleNewChange}
               />
             ) : field.type === "select" ? (
-              /* SELECT */
               <select
                 name={field.name}
                 value={newForm[field.name] || ""}
@@ -204,14 +239,13 @@ export default function CrudPage({ modelKey }) {
                 {(optionsCache[field.source] || []).map((opt) => (
                   <option
                     key={field.mapValue ? field.mapValue(opt) : opt.id}
-                    value={field.mapValue ? field.mapValue(opt) : opt.id}
+                    value={field.mapValue ? field.mapValue(opt) : opt.id} // envia apenas o ID
                   >
                     {field.mapLabel ? field.mapLabel(opt) : opt.nome ?? opt.id}
                   </option>
                 ))}
               </select>
             ) : field.type === "datetime" ? (
-              /* DATETIME */
               <input
                 type="datetime-local"
                 name={field.name}
@@ -219,7 +253,6 @@ export default function CrudPage({ modelKey }) {
                 onChange={handleNewChange}
               />
             ) : (
-              /* INPUT GENÉRICO */
               <input
                 type={field.type}
                 name={field.name}
@@ -269,7 +302,7 @@ export default function CrudPage({ modelKey }) {
                             {(optionsCache[field.source] || []).map((opt) => (
                               <option
                                 key={field.mapValue ? field.mapValue(opt) : opt.id}
-                                value={field.mapValue ? field.mapValue(opt) : opt.id}
+                                value={field.mapValue ? field.mapValue(opt) : opt.id} // envia apenas o ID
                               >
                                 {field.mapLabel ? field.mapLabel(opt) : opt.nome ?? opt.id}
                               </option>
@@ -306,7 +339,7 @@ export default function CrudPage({ modelKey }) {
                     {schema.fields.map((field) => (
                       <div key={field.name}>
                         <strong>{field.label}: </strong>
-                        {item[field.name] ?? "-"}
+                        {renderFieldValue(item[field.name])}
                       </div>
                     ))}
 

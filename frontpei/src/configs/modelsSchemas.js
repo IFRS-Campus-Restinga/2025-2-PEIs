@@ -174,56 +174,53 @@ export const modelsSchemas = {
   },
 
   pareceres: {
-    key: "pareceres",
-    title: "Parecer",
-    endpoint: API_ROUTES.PARECERES, // crie no apiRoutes
-    fields: [
-      {
-        name: "componente_curricular",
-        label: "Componente Curricular",
-        type: "select",
-        source: API_ROUTES.COMPONENTECURRICULAR,
-        mapLabel: (c) => c.nome,
-        mapValue: (c) => c.id,
-        required: true,
-      },
-      {
-        name: "professor",
-        label: "Professor",
-        type: "select",
-        source: API_ROUTES.USUARIO,
-        mapLabel: (u) => u.nome,
-        mapValue: (u) => u.id,
-        required: true,
-      },
-      {
-        name: "texto",
-        label: "Texto do Parecer",
-        type: "textarea",
-        maxLength: 1000,
-        required: true,
-      },
-      {
-        name: "data",
-        label: "Data",
-        type: "date",
-        readOnly: true,
-      },
-    ],
-    mapResponseToForm: (item) => ({
-      componente_curricular: item.componente_curricular ?? "",
-      professor: item.professor ?? "",
-      texto: item.texto ?? "",
-      data: item.data ?? "",
-    }),
-    mapFormToPayload: (form) => ({
-      componente_curricular: Number(form.componente_curricular),
-      professor: Number(form.professor),
-      texto: form.texto,
-      data: form.data,
-    }),
-    listFields: ["id", "componente_curricular", "professor", "data"],
-  },
+  key: "pareceres",
+  title: "Pareceres",
+  endpoint: API_ROUTES.PARECER,
+  listQuery: "/",
+
+  fields: [
+    {
+      name: "componente_curricular",
+      label: "Componente Curricular",
+      type: "select",
+      source: API_ROUTES.COMPONENTECURRICULAR,
+      mapLabel: (c) => `Componente ${c.disciplina.nome} `,
+      mapValue: (c) => c.id,
+      required: true,
+    },
+    {
+      name: "professor",
+      label: "Professor",
+      type: "select",
+      source: API_ROUTES.USUARIO,
+      mapLabel: (u) => u.nome || u.username || `Usuário ${u.id}`,
+      mapValue: (u) => u.id,
+      required: true,
+    },
+    {
+      name: "texto",
+      label: "Texto do Parecer",
+      type: "textarea",
+      required: true,
+    },
+  ],
+
+  // Transformar objeto da API para form de edição
+  mapResponseToForm: (item) => ({
+    componente_curricular: item.componente_curricular?.id || "", // só ID
+    professor: item.professor?.id || "", // só ID
+    texto: item.texto || "",
+  }),
+
+  // Transformar form → payload enviado pro backend
+  mapFormToPayload: (form) => ({
+    componente_curricular: Number(form.componente_curricular),
+    professor_id: Number(form.professor),
+    texto: form.texto,
+    // data é auto_now_add, não incluímos
+  }),
+},
 
 };
 
