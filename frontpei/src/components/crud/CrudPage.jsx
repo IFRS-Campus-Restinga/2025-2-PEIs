@@ -206,10 +206,33 @@ const handleEditChange = (e) => {
   // ======================
   // Função para renderizar objetos e arrays
   // ======================
-  function renderFieldValue(value) {
-    if (Array.isArray(value)) return value.map(v => v.nome || v.id || JSON.stringify(v)).join(", ");
-    if (value && typeof value === "object") return value.nome || value.id || JSON.stringify(value);
-    return value ?? "-";
+  function renderFieldValue(value, field) {
+  if (value === null || value === undefined) return "-";
+
+    // Caso o schema tenha displayField (ex: "disciplina.nome")
+    if (field.displayField) {
+      const path = field.displayField.split(".");
+      let val = value;
+      for (let p of path) {
+        if (val == null) break;
+        val = val[p];
+      }
+      if (val !== undefined && val !== null) return val;
+    }
+
+    // Se for objeto simples
+    if (typeof value === "object" && !Array.isArray(value)) {
+      return value.nome || value.titulo || value.id || JSON.stringify(value);
+    }
+
+    // Se for array
+    if (Array.isArray(value)) {
+      return value
+        .map(v => v.nome || v.titulo || v.id || JSON.stringify(v))
+        .join(", ");
+    }
+
+    return value;
   }
 
   return (
@@ -339,7 +362,7 @@ const handleEditChange = (e) => {
                     {schema.fields.map((field) => (
                       <div key={field.name}>
                         <strong>{field.label}: </strong>
-                        {renderFieldValue(item[field.name])}
+                        {renderFieldValue(item[field.name], field)}
                       </div>
                     ))}
 
