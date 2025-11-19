@@ -43,6 +43,10 @@ import Pedagogos from './pages/Pedagogo.jsx';
 import Professor from "./pages/Professor.jsx";
 import Usuarios from './pages/Usuario.jsx';
 
+// ADICIONADO DA BRANCH DEVELOPER (válido)
+import { mandaEmail } from "./lib/mandaEmail";
+import Conteudo from './pages/Conteudo.jsx';
+
 // Rotas Admin
 import TelaSolicitacoesPendentes from "./pages/admin/TelaSolicitacoesPendentes";
 
@@ -166,6 +170,8 @@ function App() {
                   </>
                 }
               />
+
+              <Route path="/conteudo" element={<Conteudo usuario={usuario} />} />
 
               {/* internas */}
               <Route path="/pareceres" element={<Pareceres />} />

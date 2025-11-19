@@ -10,3 +10,4 @@ from .ataDeAcompanhamento import *
 from .documentacaoComplementar import *
 from .notificacao import *
 from .usuario import *
+from .conteudo import *

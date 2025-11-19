@@ -94,6 +94,7 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
     "x-backend-token",  # permite o header customizado
+	"x-user-email", # permite receber o email do frontend
 ]
 
 # adiciona nosso token do usuario administrador
