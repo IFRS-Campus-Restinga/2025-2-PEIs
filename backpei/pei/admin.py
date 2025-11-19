@@ -7,6 +7,6 @@ from .models.disciplina import Disciplina
 from .models.aluno import Aluno
 from .models.usuario import Usuario
 from .models.componenteCurricular import ComponenteCurricular
+from .models.conteudo import Conteudo
 
-admin.site.register((PEIPeriodoLetivo, Parecer, Curso, Disciplina, Aluno, PeiCentral, Usuario, ComponenteCurricular))
-
+admin.site.register((PEIPeriodoLetivo, Parecer, Curso, Disciplina, Aluno, PeiCentral, Usuario, ComponenteCurricular, Conteudo))
