@@ -330,7 +330,7 @@ const PeriodoLetivoPerfil = () => {
               <div key={parecer.id} className="parecer-card">
                 <div className="parecer-topo">
                   <span className="parecer-professor">
-                    👤 {parecer.professor?.nome || "Professor não informado"} (
+                    👤 {parecer.professor?.nome || parecer.professor?.username || "Professor não informado"} (
                     {parecer.componenteNome})
                   </span>
                   <span className="parecer-data">{parecer.data || "—"}</span>
