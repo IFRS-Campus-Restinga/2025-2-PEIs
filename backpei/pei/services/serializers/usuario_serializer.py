@@ -1,7 +1,22 @@
 from rest_framework import serializers
-from pei.models.usuario import Usuario
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+
+User = get_user_model()
 
 class UsuarioSerializer(serializers.ModelSerializer):
+    grupos = serializers.SlugRelatedField(
+        many=True,
+        slug_field='name',
+        queryset=Group.objects.all(),
+        required=False
+    )
+    permissoes = serializers.SerializerMethodField()
+
     class Meta:
-        model = Usuario
-        fields = '__all__'
+        model = User
+        fields = ['id', 'username', 'email', 'categoria', 'grupos', 'permissoes']
+        read_only_fields = ['id', 'email']
+
+    def get_permissoes(self, obj):
+        return list(obj.get_all_permissions())

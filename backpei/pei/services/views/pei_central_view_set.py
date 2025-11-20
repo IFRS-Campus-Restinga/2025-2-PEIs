@@ -3,7 +3,7 @@ from rest_framework import status
 from django.db.models import ProtectedError
 from rest_framework.viewsets import ModelViewSet
 from ..serializers import *
-from pei.models import *
+from pei.models.pei_central import PeiCentral
 from ..permissions import BackendTokenPermission
 from django.core.exceptions import ValidationError
 

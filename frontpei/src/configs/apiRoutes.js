@@ -12,7 +12,8 @@ const endpoints = [
   "documentacaoComplementar",
   "mandaEmail",
   "permissoes",
-  "usuario"
+  "usuario",
+  "conteudo"
 ];
 
 export const API_ROUTES = Object.fromEntries(

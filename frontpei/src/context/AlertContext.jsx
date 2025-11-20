@@ -32,7 +32,7 @@ export function AlertProvider({ children }) {
   }
 
   // Cria novo alerta global (toast)
-  const id = Date.now();
+  const id = Math.random().toString(36).substring(2) + Date.now().toString(36);
   const newAlert = {
     id,
     message,

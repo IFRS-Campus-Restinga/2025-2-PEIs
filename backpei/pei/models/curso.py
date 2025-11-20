@@ -2,7 +2,7 @@ from django.db import models
 from .base_model import BaseModel
 from ..enums.nivel import Nivel
 from django.core.validators import MinLengthValidator, FileExtensionValidator
-from .usuario import Usuario
+from .CustomUser import CustomUser
 from ..managers.arquivo import validate_file_size
 from ..validators.validador_texto import no_special_characters
 
@@ -18,7 +18,7 @@ class Curso(BaseModel):
         validators=[MinLengthValidator(1)]
     )
     disciplinas = models.ManyToManyField("Disciplina", related_name="cursos", blank=True)
-    coordenador = models.ForeignKey(Usuario, on_delete=models.RESTRICT, related_name="coordenador")
+    coordenador = models.ForeignKey(CustomUser, on_delete=models.RESTRICT, related_name="coordenador")
     arquivo = models.FileField(
         upload_to='cursos/',  # pasta dentro de MEDIA_ROOT
         validators=[

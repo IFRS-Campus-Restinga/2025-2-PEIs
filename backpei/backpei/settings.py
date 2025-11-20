@@ -43,8 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework', 'rest_framework.authtoken', "corsheaders",
-    'pei', 'logs',
+    'pei', 'logs', 'auth_app',
 ]
+
+GOOGLE_OAUTH2_CLIENT_ID = "992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com"
+
+AUTH_USER_MODEL = "pei.CustomUser"
+
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -91,6 +96,7 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
     "x-backend-token",  # permite o header customizado
+	"x-user-email", # permite receber o email do frontend
 ]
 
 # adiciona nosso token do usuario administrador

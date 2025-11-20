@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
 from ..serializers.disciplina_serializer import *
-from pei.models import *
+from pei.models.disciplina import Disciplina
 from ..permissions import BackendTokenPermission
 from django.core.exceptions import ValidationError
 
