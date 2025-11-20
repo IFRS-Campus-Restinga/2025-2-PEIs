@@ -141,7 +141,7 @@ function CrudUniversal({ modelName }) {
     try {
       const payload = modelName === "Parecer" ? {
         componente_curricular: Number(form.componente_curricular),
-        professor_id: Number(form.professor),
+        professor: Number(form.professor),
         texto: form.texto,
         data: form.data
       } : form;
@@ -170,7 +170,7 @@ function CrudUniversal({ modelName }) {
     try {
       const payload = modelName === "Parecer" ? {
         componente_curricular: Number(editForm.componente_curricular),
-        professor_id: Number(editForm.professor),
+        professor: Number(editForm.professor),
         texto: editForm.texto,
         data: editForm.data
       } : editForm;
@@ -217,12 +217,14 @@ function CrudUniversal({ modelName }) {
       <h1>Gerenciar {metadata?.model}</h1>
 
       <form className="form-padrao" onSubmit={handleSubmit}>
-        {metadata?.fields?.map(f => (
-          <div key={f.name}>
-            <label>{f.label || f.name}:</label>
-            {renderInput(f, form[f.name], val => { setForm({ ...form, [f.name]: val }); console.log(`Form atualizado ${f.name}:`, val); })}
-            <FieldAlert fieldName={f.name} />
-          </div>
+        {metadata?.fields
+          ?.filter(f => f.name !== "id") // <--- não exibe o ID
+          .map(f => (
+            <div key={f.name}>
+              <label>{f.label || f.name}:</label>
+              {renderInput(f, form[f.name], val => { setForm({ ...form, [f.name]: val }); console.log(`Form atualizado ${f.name}:`, val); })}
+              <FieldAlert fieldName={f.name} />
+            </div>
         ))}
         <button type="submit" className="submit-btn">Adicionar</button>
       </form>
@@ -235,12 +237,14 @@ function CrudUniversal({ modelName }) {
             <li key={r.id}>
               {editId === r.id ? (
                 <form onSubmit={e => handleEditSubmit(e, r.id)}>
-                  {metadata?.fields?.map(f => (
-                    <div key={f.name}>
-                      <label>{f.label || f.name}:</label>
-                      {renderInput(f, editForm[f.name], val => { setEditForm({ ...editForm, [f.name]: val }); console.log(`EditForm atualizado ${f.name}:`, val); })}
-                      <FieldAlert fieldName={`edit-${f.name}`} />
-                    </div>
+                  {metadata?.fields
+                    ?.filter(f => f.name !== "id") // <--- não exibe o ID
+                    .map(f => (
+                      <div key={f.name}>
+                        <label>{f.label || f.name}:</label>
+                        {renderInput(f, editForm[f.name], val => { setEditForm({ ...editForm, [f.name]: val }); console.log(`EditForm atualizado ${f.name}:`, val); })}
+                        <FieldAlert fieldName={`edit-${f.name}`} />
+                      </div>
                   ))}
                   <div className="posicao-buttons esquerda">
                     <button type="submit" className="btn-salvar">Salvar</button>
@@ -249,16 +253,18 @@ function CrudUniversal({ modelName }) {
                 </form>
               ) : (
                 <div>
-                  {metadata?.fields?.map(f => (
-                    <div key={f.name}>
-                      <strong>{f.label || f.name}:</strong>{" "}
-                      {(f.type === "foreignkey" || f.type === "select")
-                        ? selectOptions[f.name]?.find(opt => opt.id === Number(r[f.name]))?.nome
-                          || selectOptions[f.name]?.find(opt => opt.id === Number(r[f.name]))?.periodo_principal
-                          || selectOptions[f.name]?.find(opt => opt.id === Number(r[f.name]))?.username
-                          || "-"
-                        : r[f.name] || "-"}
-                    </div>
+                  {metadata?.fields
+                    ?.filter(f => f.name !== "id") // <--- não exibe o ID
+                    .map(f => (
+                      <div key={f.name}>
+                        <strong>{f.label || f.name}:</strong>{" "}
+                        {(f.type === "foreignkey" || f.type === "select")
+                          ? selectOptions[f.name]?.find(opt => opt.id === Number(r[f.name]))?.nome
+                            || selectOptions[f.name]?.find(opt => opt.id === Number(r[f.name]))?.periodo_principal
+                            || selectOptions[f.name]?.find(opt => opt.id === Number(r[f.name]))?.username
+                            || "-"
+                          : r[f.name] || "-"}
+                      </div>
                   ))}
                   <div className="posicao-buttons">
                     <BotaoEditar id={r.id} onClickInline={() => { setEditId(r.id); setEditForm(r); console.log("Editando registro:", r); }} />
