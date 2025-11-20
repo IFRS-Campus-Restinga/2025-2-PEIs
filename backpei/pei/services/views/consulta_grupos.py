@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework import status
 from ..permissions import BackendTokenPermission
+from pei.models.CustomUser import CustomUser
 
 class ConsultaGrupos(APIView):
     # nosso mecanismo de injetar token do administrador
@@ -16,8 +17,11 @@ class ConsultaGrupos(APIView):
                 status=status.HTTP_400_BAD_REQUEST )
         # realiza a busca na base de usuarios
         try:
-            usuario = User.objects.get(email=user_email)
-        except User.DoesNotExist:
+            usuario = CustomUser.objects.get(email=user_email)
+        except CustomUser.DoesNotExist:
+        # linha para usuarios comuns de django
+        #    usuario = User.objects.get(email=user_email)
+        #except User.DoesNotExist:
             return Response(
                 {"erro": "Usuário não encontrado"},
                 status=status.HTTP_404_NOT_FOUND )
