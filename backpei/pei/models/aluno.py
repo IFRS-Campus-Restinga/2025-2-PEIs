@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from ..validators.validador_texto import no_special_characters
 from ..validators.unique_validator import UniqueValidator
 from ..validators.messages import MESSAGES
+from .curso import Curso
 
 
 
@@ -25,6 +26,13 @@ class Aluno(BaseModel):
         unique=True,
         validators=[UniqueValidator("pei.Aluno", "email", message=MESSAGES["duplicated_field"])])
 
+    curso = models.ForeignKey(
+        Curso,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="aluno"
+    )
     def __str__(self):
         return f"{self.nome} ({self.matricula})"
     

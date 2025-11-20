@@ -212,6 +212,7 @@ function PeiCentral() {
               position: "relative",
             }}
           >
+            
             <button
               onClick={() => setModalOpen(false)}
               style={{
@@ -245,9 +246,46 @@ function PeiCentral() {
               </div>
             </header>
 
-            <button className="btn-verde" onClick={gerarPDF}>
-              Gerar PDF
-            </button>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                width: "100%",
+                marginTop: "10px",
+                marginBottom: "20px"
+              }}
+            >
+              <div
+                onClick={gerarPDF}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  cursor: "pointer",
+                  gap: "10px",
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  transition: "0.2s ease",
+                  width: "fit-content",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "scale(1.03)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "scale(1)";
+                }}
+              >
+                <img
+                  src="https://static.vecteezy.com/system/resources/previews/023/234/824/non_2x/pdf-icon-red-and-white-color-for-free-png.png"
+                  style={{ width: "50px", height: "50px" }}
+                  alt="PDF icon"
+                />
+
+                <span style={{ fontSize: "20px", fontWeight: "600" }}>
+                  Download da Documentação
+                </span>
+              </div>
+            </div>
+
 
             <div
               id="conteudo-pei-pdf"
@@ -274,12 +312,13 @@ function PeiCentral() {
                   <p><b>Status:</b> {selectPei.status_pei}</p>
                 </div>
               </div>
-
-              <p><b>Histórico:</b> {selectPei.historico_do_aluno}</p>
-              <p><b>Necessidades:</b> {selectPei.necessidades_educacionais_especificas}</p>
-              <p><b>Habilidades:</b> {selectPei.habilidades}</p>
-              <p><b>Dificuldades:</b> {selectPei.dificuldades_apresentadas}</p>
-              <p><b>Adaptações:</b> {selectPei.adaptacoes}</p>
+              <br />
+              <br />
+              <p><b>Histórico:</b><br /> &emsp;&emsp;{selectPei.historico_do_aluno}</p>
+              <p><b>Necessidades:</b><br /> &emsp;&emsp;{selectPei.necessidades_educacionais_especificas}</p>
+              <p><b>Habilidades:</b><br /> &emsp;&emsp;{selectPei.habilidades}</p>
+              <p><b>Dificuldades:</b><br /> &emsp;&emsp;{selectPei.dificuldades_apresentadas}</p>
+              <p><b>Adaptações:</b><br /> &emsp;&emsp;{selectPei.adaptacoes}</p>
 
               <br /><br />
 

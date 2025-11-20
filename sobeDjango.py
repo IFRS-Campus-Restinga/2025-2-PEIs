@@ -196,7 +196,7 @@ if pergunta("Refazer migrations?"):
                 grupo.permissions.add(perm)
             except Permission.DoesNotExist:
                 print(f"⚠ Permissão não encontrada: {codename} ({model.__name__})")
-        print(f"✓ Grupo configurado: {nome_grupo}")
+        print(f"Grupo configurado: {nome_grupo}")
 
     # ------------------------------------------
     # Popular o banco?
