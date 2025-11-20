@@ -131,7 +131,7 @@ function App() {
         const me = await respMe.json();
         const dadosGoogle = jwtDecode(credentialResponse.credential);
         // pesquisa o grupo do usuario
-        const grupoDoUsuario = await consultaGrupo(email)
+        const grupoDoUsuario = await consultaGrupo(data.email)
         const userData = {
           email: data.email,
           token: data.token,
@@ -146,6 +146,7 @@ function App() {
 
         setUsuario(userData);
         setLogado(true);
+        mandaEmail(email, "Login PEI", "Um novo login acaba de ser realizado com sucesso usando essa conta no sistema PEI!");
         return;
       }
 
