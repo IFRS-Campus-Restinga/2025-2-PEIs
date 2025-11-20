@@ -6,6 +6,7 @@ import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import BotaoDeletar from "../../components/customButtons/botaoDeletar";
 import BotaoEditar from "../../components/customButtons/botaoEditar";
 import "../../cssGlobal.css";
+import PeiCentral from "../../pages/PeiCentral/PeiCentral";
 
 function CrudUniversal({ modelName }) {
   console.log("CrudUniversal renderizado com modelName:", modelName);
@@ -58,6 +59,7 @@ function CrudUniversal({ modelName }) {
     CustomUser: "usuario",
     Curso: "cursos",
     Parecer: "parecer",
+    PeiCentral: "pei_central",
   };
 
   // Busca metadados
