@@ -1,23 +1,17 @@
 from rest_framework import serializers
-from pei.models import Curso, Disciplina
-from pei.services.serializers.disciplina_serializer import DisciplinaSerializer
+from django.contrib.auth import get_user_model
+from pei.models.curso import Curso
+from pei.models.disciplina import Disciplina
 from pei.services.serializers.usuario_serializer import UsuarioSerializer
-from pei.models.usuario import Usuario
 
+User = get_user_model()
 
 class CursoSerializer(serializers.ModelSerializer):
-    disciplinas = DisciplinaSerializer(many=True, read_only=True)
-    disciplinas_ids = serializers.PrimaryKeyRelatedField(
-        queryset=Disciplina.objects.all(),
-        source="disciplinas",
-        many=True,
-        write_only=True
-    )
     nivel = serializers.ChoiceField(choices=Curso._meta.get_field("nivel").choices)
     coordenador = UsuarioSerializer(read_only=True)
     coordenador_id = serializers.PrimaryKeyRelatedField(
-        queryset=Usuario.objects.all(),
-        source="usuario",
+        queryset=User.objects.filter(groups__name="Coordenador"),
+        source="coordenador",
         write_only=True
     )
     arquivo_nome = serializers.SerializerMethodField()
@@ -25,17 +19,11 @@ class CursoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Curso
-        fields = [
-            "id", "nome", "nivel",
-            "disciplinas", "disciplinas_ids",
-            "coordenador", "coordenador_id",
-            "arquivo", "arquivo_upload",
-            "arquivo_nome",
-        ]
+        fields = ['id', 'nome', 'nivel', 'coordenador', 'coordenador_id', 'arquivo_nome', 'arquivo_upload']
 
     def get_arquivo_nome(self, obj):
         if obj.arquivo:
-            return obj.arquivo.name.split('/')[-1]  # apenas o nome do arquivo
+            return obj.arquivo.name.split('/')[-1]
         return None
     
     def create(self, validated_data):

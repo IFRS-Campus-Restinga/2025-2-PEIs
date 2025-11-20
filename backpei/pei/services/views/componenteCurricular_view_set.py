@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
 from ..serializers.componenteCurricular_serializer import ComponenteCurricularSerializer
-from pei.models import ComponenteCurricular
+from pei.models.componenteCurricular import ComponenteCurricular
 from ..permissions import BackendTokenPermission
 from rest_framework.response import Response
 from rest_framework import status

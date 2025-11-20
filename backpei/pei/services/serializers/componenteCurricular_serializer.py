@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from pei.models import ComponenteCurricular
+from pei.models.componenteCurricular import ComponenteCurricular
 from pei.services.serializers.parecer_serializer import ParecerSerializer
 from pei.services.serializers.disciplina_serializer import DisciplinaSerializer
 

@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from pei.models import Notificacao
+from pei.models.notificacao import Notificacao
 from pei.services.serializers.notificacao_serializer import NotificacaoSerializer
 
 class NotificacaoViewSet(viewsets.ModelViewSet):

@@ -8,179 +8,199 @@ import { API_ROUTES } from "../../configs/apiRoutes";
 
 DataTable.use(DT);
 
-const ProfessorView = () => {
+const HomeView = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
   const [tableData, setTableData] = useState([]);
   const navigate = useNavigate();
 
+  // ================================
+  // 1) Carregar todos usuários
+  // ================================
   useEffect(() => {
     async function carregarUsuarios() {
       try {
-        console.log("Buscando usuários em:", API_ROUTES.USUARIO);
-
         const res = await axios.get(API_ROUTES.USUARIO);
 
-        const lista = res.data?.results || res.data || [];
+        const lista =
+          Array.isArray(res.data?.results) ? res.data.results :
+          Array.isArray(res.data) ? res.data : [];
 
-        console.log("✔ Usuários carregados:", lista);
+        console.log("Usuários carregados:", lista);
 
         setUsuarios(lista);
       } catch (err) {
         console.error("Erro ao carregar usuários:", err);
-        alert("Erro ao carregar usuários. Veja o console.");
       }
     }
 
     carregarUsuarios();
   }, []);
 
+  // ================================
+  // 2) Carregar alunos + PEI + coordenador de curso
+  // ================================
   useEffect(() => {
     async function carregarDados() {
       try {
-        const [resAlunos, resPeiCentral, resCursos, resPeriodos] = await Promise.all([
+        const [resAlunos, resPeiCentral] = await Promise.all([
           axios.get(API_ROUTES.ALUNO),
           axios.get(API_ROUTES.PEI_CENTRAL),
-          axios.get(API_ROUTES.CURSOS),
-          axios.get(API_ROUTES.PEIPERIODOLETIVO),
         ]);
 
-        const alunosData = resAlunos.data?.results || resAlunos.data || [];
-        const peiCentralsData = resPeiCentral.data?.results || resPeiCentral.data || [];
-        const cursosData = resCursos.data?.results || resCursos.data || [];
-        const periodosData = resPeriodos.data?.results || resPeriodos.data || [];
+        const alunosData = [].concat(resAlunos.data?.results || resAlunos.data || []);
+        const peiCentralsData = [].concat(resPeiCentral.data?.results || resPeiCentral.data || []);
+
+        console.log("Alunos:", alunosData);
+        console.log("PEI Centrals:", peiCentralsData);
 
         const dadosTabela = [];
 
-        alunosData.forEach((aluno) => {
-          const peiCentral = peiCentralsData.find((p) => p.aluno?.id === aluno.id);
-          const peiCentralStatus = peiCentral?.status_pei || "Sem PEI";
+        for (const aluno of alunosData) {
+          console.log("\n======================");
+          console.log("Processando aluno:", aluno.nome);
 
-          const periodosDoAluno = peiCentral
-            ? periodosData.filter((periodo) => periodo.pei_central === peiCentral.id)
-            : [];
+          const pei = peiCentralsData.find((p) => p.aluno?.id === aluno.id);
+          const status = pei?.status_pei || "Sem PEI";
 
-          if (periodosDoAluno.length > 0) {
-            periodosDoAluno.forEach((periodo) => {
-              const componentes = periodo.componentes_curriculares || [];
-              if (componentes.length === 0) {
-                dadosTabela.push({
-                  nome: aluno.nome,
-                  componente: "—",
-                  status: peiCentralStatus,
-                  coordenador: "—",
-                  peiCentralId: peiCentral?.id || null,
-                });
-              } else {
-                componentes.forEach((comp) => {
-                  const disciplina = comp.disciplina;
-                  if (!disciplina) return;
-                  const cursoRelacionado = cursosData.find((curso) =>
-                    curso.disciplinas?.some((d) => d.id === disciplina.id)
-                  );
-                  dadosTabela.push({
-                    nome: aluno.nome,
-                    componente: disciplina.nome || "Disciplina sem nome",
-                    status: peiCentralStatus,
-                    coordenador: cursoRelacionado?.coordenador?.nome || "Sem coordenador",
-                    peiCentralId: peiCentral?.id || null,
-                  });
-                });
-              }
-            });
-          } else {
+          if (!pei) {
             dadosTabela.push({
               nome: aluno.nome,
               componente: "—",
-              status: peiCentralStatus,
+              status,
               coordenador: "—",
-              peiCentralId: peiCentral?.id || null,
+              peiCentralId: null,
             });
+            continue;
           }
-        });
 
+          const periodos = pei.periodos || pei.periodos_set || [];
+          if (!periodos.length) {
+            dadosTabela.push({
+              nome: aluno.nome,
+              componente: "—",
+              status,
+              coordenador: "—",
+              peiCentralId: pei.id,
+            });
+            continue;
+          }
+
+          for (const periodo of periodos) {
+            const componentes = periodo.componentes_curriculares || [];
+
+            for (const comp of componentes) {
+              const disciplina = comp.disciplina || comp.disciplinas;
+              const nomeDisciplina = disciplina?.nome || "—";
+
+              const cursos = disciplina?.cursos || [];
+              const primeiroCurso = cursos[0];
+
+              const coordenador =
+                primeiroCurso?.coordenador?.username ||
+                "—";
+
+              console.log(`Disciplina: ${nomeDisciplina}`);
+              console.log("Cursos:", cursos);
+              console.log("Coordenador:", coordenador);
+
+              dadosTabela.push({
+                nome: aluno.nome,
+                componente: nomeDisciplina,
+                status,
+                coordenador,
+                peiCentralId: pei.id,
+              });
+            }
+          }
+        }
+
+        console.log("Dados finais para tabela:", dadosTabela);
         setTableData(dadosTabela);
+
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
-        alert("Erro ao carregar dados. Verifique o console.");
       }
     }
 
     carregarDados();
   }, []);
 
+  // ================================
+  // Abrir página do PEI
+  // ================================
   const handleVisualizarClick = (peiCentralId) => {
     if (!peiCentralId) {
-      alert("Nenhum PEI Central vinculado a este aluno.");
+      alert("Este aluno não possui PEI Central.");
       return;
     }
-
     if (!usuarioSelecionado) {
       alert("Selecione um usuário antes de visualizar.");
       return;
     }
 
-    console.log("➡ Enviando para navigate:");
-    console.log("Usuário:", usuarioSelecionado);
-    console.log("PEI Central:", peiCentralId);
-
     navigate("/periodoLetivoPerfil", {
       state: {
         peiCentralId,
         usuarioSelecionado,
-        cargoSelecionado: usuarioSelecionado.categoria,
       },
     });
   };
 
+  // Botão "Visualizar" da tabela
   useEffect(() => {
-    const handleButtonClick = (e) => {
+    const clickHandler = (e) => {
       if (e.target.classList.contains("visualizar-btn")) {
-        const peiCentralId = e.target.getAttribute("data-id");
-        handleVisualizarClick(peiCentralId);
+        const id = e.target.getAttribute("data-id");
+        handleVisualizarClick(id);
       }
     };
 
-    document.addEventListener("click", handleButtonClick);
-    return () => document.removeEventListener("click", handleButtonClick);
+    document.addEventListener("click", clickHandler);
+    return () => document.removeEventListener("click", clickHandler);
   }, [usuarioSelecionado]);
 
   return (
     <div className="telaPadrao-page">
+
+      {/* Seleção de usuário */}
       <div className="cargo-dropdown-container">
-        <label htmlFor="usuario" className="cargo-label">Selecione o usuário:</label>
+        <label htmlFor="usuario" className="cargo-label">
+          Selecione o usuário:
+        </label>
 
         <select
           id="usuario"
           className="cargo-dropdown"
           value={usuarioSelecionado?.id || ""}
-          onChange={(e) => {
-            const usuario = usuarios.find(u => u.id === Number(e.target.value));
-            setUsuarioSelecionado(usuario || null);
-          }}
+          onChange={(e) =>
+            setUsuarioSelecionado(
+              usuarios.find((u) => u.id === Number(e.target.value)) || null
+            )
+          }
         >
           <option value="">— Escolher usuário —</option>
-
           {usuarios.map((u) => (
             <option key={u.id} value={u.id}>
-              {u.nome} — {u.categoria || "Sem categoria"}
+              {u.username} — {u.categoria || "Sem categoria"}
             </option>
           ))}
         </select>
       </div>
 
+      {/* Tabela */}
       <DataTable
         data={tableData}
         columns={[
-          { title: "Nome do aluno", data: "nome" },
+          { title: "Aluno", data: "nome" },
           { title: "Componente Curricular", data: "componente" },
           { title: "Status", data: "status" },
-          { title: "Coordenador de curso", data: "coordenador" },
+          { title: "Coordenador de Curso", data: "coordenador" },
           {
             title: "Visualizar",
             data: "peiCentralId",
-            render: (peiCentralId) => `
-              <button class="btn btn-sm btn-primary visualizar-btn" data-id="${peiCentralId}">
+            render: (id) => `
+              <button class="btn btn-sm btn-primary visualizar-btn" data-id="${id}">
                 Visualizar
               </button>
             `,
@@ -190,22 +210,12 @@ const ProfessorView = () => {
         options={{
           pageLength: 10,
           language: {
-            decimal: ",",
-            thousands: ".",
-            processing: "Processando...",
             search: "Pesquisar:",
-            lengthMenu: "Mostrar _MENU_ PEIs",
-            info: 'Mostrando de _START_ até _END_ de _TOTAL_ PEIs',
-            infoEmpty: "Mostrando 0 até 0 de 0 PEIs",
-            infoFiltered: "(filtrado de _MAX_ PEIs no total)",
-            loadingRecords: "Carregando...",
-            zeroRecords: "Nenhum PEI encontrado",
-            emptyTable: "Nenhum dado disponível nesta tabela",
+            lengthMenu: "Mostrar _MENU_ registros",
+            info: "Mostrando _START_ até _END_ de _TOTAL_",
             paginate: {
-              first: "Primeiro",
-              previous: "Anterior",
               next: "Próximo",
-              last: "Último",
+              previous: "Anterior",
             },
           },
         }}
@@ -214,4 +224,4 @@ const ProfessorView = () => {
   );
 };
 
-export default ProfessorView;
+export default HomeView;

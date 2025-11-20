@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
 from ..serializers import ConteudoSerializer
-from pei.models import Conteudo
+from pei.models.conteudo import Conteudo
 from ..permissions import BackendTokenPermission
 
 class ConteudoViewSet(ModelViewSet):

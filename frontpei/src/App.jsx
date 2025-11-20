@@ -41,7 +41,7 @@ import AtaDeAcompanhamento from './pages/ataDeAcompanhamento.jsx';
 import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx';
 import Pedagogos from './pages/Pedagogo.jsx';
 import Professor from "./pages/Professor.jsx";
-import Usuarios from './pages/Usuario.jsx';
+//import Usuarios from './pages/Usuario.jsx';
 
 // ADICIONADO DA BRANCH DEVELOPER (válido)
 import { mandaEmail } from "./lib/mandaEmail";
@@ -148,83 +148,72 @@ function App() {
   return (
     <GoogleOAuthProvider clientId="992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com">
       <AlertProvider>
-
+        {/* componente global que exibe alerts */}
         <AlertComponent />
 
-        <Routes>
+        { logado ? (
+          <div className="app-container">
+            <Header usuario={usuario} logado={logado} logout={logout} />
+            <SubHeader perfilSelecionado={perfilSelecionado} />
+            <hr />
 
-          {/* PUBLIC */}
-          <Route path="/pre-cadastro" element={<TelaPreCadastro />} />
-          <Route path="/aguardando-aprovacao" element={<AguardandoAprovacao />} />
-
-          {/* PRIVATE */}
-          {logado ? (
-            <>
-              <Route
-                path="/"
-                element={
-                  <>
-                    <Header usuario={usuario} logado={logado} logout={logout} />
-                    <SubHeader perfilSelecionado={perfilSelecionado} />
-                    <Home usuario={usuario} perfilSelecionado={perfilSelecionado} setPerfilSelecionado={setPerfilSelecionado} />
-                  </>
-                }
-              />
-
-              <Route path="/conteudo" element={<Conteudo usuario={usuario} />} />
-
-              {/* internas */}
-              <Route path="/pareceres" element={<Pareceres />} />
-              <Route path="/periodo" element={<PEIPeriodoLetivo />} />
-              <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />
-              <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} />
-              <Route path="/periodoLetivoPerfil" element={<PeriodoLetivoPerfil />} />
-              <Route path="/disciplina" element={<Disciplinas />} />
-              <Route path="/disciplinasCadastrar" element={<DisciplinasCRUD />} />
-              <Route path="/disciplinaEditar/:id" element={<DisciplinasCRUD />} />
-              <Route path="/curso" element={<Cursos />} />
-              <Route path="/cursoCadastrar" element={<CursosCRUD />} />
-              <Route path="/cursoEditar/:id" element={<CursosCRUD />} />
-              <Route path="/aluno" element={<Alunos />} />
-              <Route path="/coordenador" element={<CoordenadorCurso />} />
-              <Route path="/peicentral" element={<PeiCentral />} />
-              <Route path="/create_peicentral" element={<CreatePeiCentral />} />
-              <Route path="/editar_peicentral/:id" element={<EditarPeiCentral />} />
-              <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral />} />
-              <Route path="/componenteCurricular" element={<ComponenteCurricular />} />
-              <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento />} />
-              <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar />} />
-              <Route path="/pedagogo" element={<Pedagogos />} />
-              <Route path="/logs" element={<Logs />} />
-              <Route path="/professor" element={<Professor />} />
-              <Route path="/usuario" element={<Usuarios />} />
-              <Route path="/perfil" element={<Perfil />} />
-
-              {/* ADMIN */}
-              {usuario?.grupos?.includes("Admin") && (
-                <Route path="/admin/solicitacoes" element={<TelaSolicitacoesPendentes />} />
-              )}
-
-            </>
-          ) : (
-            <Route
-              path="*"
-              element={
-                <LoginPage
-                  onLoginSuccess={sucessoLoginGoogle}
-                  onLoginError={erroLoginGoogle}
-                  mensagemErro={mensagemErro}
+            <main className='main-content'>
+              <Routes>
+                   {/* PUBLIC */}
+                <Route path="/pre-cadastro" element={<TelaPreCadastro />} />
+                <Route path="/aguardando-aprovacao" element={<AguardandoAprovacao />} />
+                <Route 
+                  path="/" 
+                  element={<Home 
+                    usuario={usuario} 
+                    perfilSelecionado={perfilSelecionado} 
+                    setPerfilSelecionado={setPerfilSelecionado} 
+                  />} 
                 />
-              }
-            />
-          )}
+                <Route path="/" element={<Home />} />
+                <Route path="/pareceres" element={<Pareceres />} />
+                <Route path="/periodo" element={<PEIPeriodoLetivo />} />
+                <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />
+                <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} /> {/**Teste Mau */}
+                <Route path="/periodoLetivoPerfil" element={<PeriodoLetivoPerfil />} />
+                <Route path="/disciplina" element={<Disciplinas/>}/>
+                <Route path="/disciplinasCadastrar" element={<DisciplinasCRUD/>}/>
+                <Route path="/disciplinaEditar/:id" element={<DisciplinasCRUD/>}/>
+                <Route path="/curso" element={<Cursos/>}/>
+                <Route path="/cursoCadastrar" element={<CursosCRUD/>}/>
+                <Route path="/cursoEditar/:id" element={<CursosCRUD/>}/>
+                <Route path="/aluno" element={<Alunos/>}/>
+                <Route path="/coordenador" element={<CoordenadorCurso/>}/>
+                <Route path="/peicentral" element={<PeiCentral />} />
+                <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
+                <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
+                <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
+                <Route path="/componenteCurricular" element={<ComponenteCurricular/>}/>
+                <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento/>}/>
+                <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
+                <Route path="/pedagogo" element={<Pedagogos/>}/>
+                <Route path="/logs" element={<Logs/>}/>
+                <Route path="/professor" element={<Professor />} />
+                <Route path="/perfil" element={<Perfil/>} />
+                 {/* ADMIN */}
+                {usuario?.grupos?.includes("Admin") && (
+                  <Route path="/admin/solicitacoes" element={<TelaSolicitacoesPendentes />} />
+                )}
 
-        </Routes>
-
+              </Routes>
+            </main>
+            <Footer/>
+          </div>
+        ) : (
+          <LoginPage 
+            onLoginSuccess={sucessoLoginGoogle}
+            onLoginError={erroLoginGoogle}
+            mensagemErro={mensagemErro}
+          />
+        )}
       </AlertProvider>
-      <Footer usuario={usuario} />
-    </GoogleOAuthProvider>
-  );
+    </GoogleOAuthProvider>   
+  )
 }
 
-export default App;
+export default App

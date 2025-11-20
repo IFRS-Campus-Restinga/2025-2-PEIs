@@ -16,84 +16,91 @@ const PeriodoLetivoPerfil = () => {
   const [periodoAtual, setPeriodoAtual] = useState(null);
   const [pareceres, setPareceres] = useState([]);
   const [permissoes, setPermissoes] = useState([]);
+  const [gruposUsuario, setGruposUsuario] = useState([]);
   const [erro, setErro] = useState(false);
 
   // -------------------------------
-  // Logs de debug
-  useEffect(() => {
-    console.log("location:", location);
-    if (!usuarioSelecionado) {
-      console.log("Nenhum usuário enviado via navigate");
-    } else {
-      console.log("Usuário enviado via navigate:", usuarioSelecionado);
-    }
-  }, [location, usuarioSelecionado]);
-
+  // Carregar dados do PEI Central
   // -------------------------------
-  // Carregar dados do PEI, aluno, curso e período
   useEffect(() => {
     if (!peiCentralId) return;
 
     async function carregarDados() {
+      console.log("🔍 Buscando dados do PEI Central ID:", peiCentralId);
+
       try {
-        const [resPeiCentral, resAlunos, resCursos, resPeriodos] = await Promise.all([
+        const [resPeiCentral, resAlunos] = await Promise.all([
           axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`),
           axios.get(API_ROUTES.ALUNO),
-          axios.get(API_ROUTES.CURSOS),
-          axios.get(API_ROUTES.PEIPERIODOLETIVO),
         ]);
 
         const peiCentral = resPeiCentral.data;
-        const alunosData = resAlunos.data.results || [];
-        const cursosData = Array.isArray(resCursos.data) ? resCursos.data : resCursos.data?.results || [];
-        const periodosData = Array.isArray(resPeriodos.data) ? resPeriodos.data : resPeriodos.data?.results || [];
 
         // Aluno vinculado
-        const alunoVinculado = alunosData.find((a) => a.id === peiCentral.aluno?.id);
-        setAluno(alunoVinculado || peiCentral.aluno || null);
+        const alunosData = resAlunos.data?.results || [];
+        const alunoVinculado =
+          alunosData.find((a) => a.id === peiCentral.aluno?.id) ||
+          peiCentral.aluno;
 
-        // Período principal e atual
-        const periodosDoPei = periodosData.filter((p) => p.pei_central === peiCentral.id);
-        if (periodosDoPei.length > 0) {
-          setPeriodoPrincipal(periodosDoPei[0].periodo_principal || "—");
-          setPeriodoAtual(periodosDoPei[0]);
+        console.log("Aluno vinculado:", alunoVinculado);
+        setAluno(alunoVinculado);
+
+        // Períodos vinculados
+        const periodos = peiCentral.periodos || [];
+        console.log("Períodos vinculados:", periodos);
+
+        if (periodos.length > 0) {
+          setPeriodoPrincipal(periodos[0].periodo_principal || "—");
+          setPeriodoAtual(periodos[0]);
         }
 
-        // Curso e coordenador
+        // Todos componentes
+        const todosComponentes = periodos.flatMap(
+          (p) => p.componentes_curriculares || []
+        );
+
+        // Mapear pareceres
+        const todosPareceres = todosComponentes.flatMap((comp) =>
+          (comp.pareceres || []).map((parecer) => ({
+            ...parecer,
+            componenteNome: comp.disciplina?.nome || "Sem disciplina",
+          }))
+        );
+
+        console.log("📄 Pareceres encontrados:", todosPareceres);
+        setPareceres(todosPareceres);
+
+        // -------------------------------
+        // LOGICA DA DISCIPLINA → CURSO
+        // -------------------------------
+        console.log("📘 Iniciando busca do curso via disciplinas...");
+
         let cursoEncontrado = null;
-        for (const periodo of periodosDoPei) {
-          for (const componente of periodo.componentes_curriculares || []) {
-            const disciplinaId = componente.disciplina?.id;
-            if (!disciplinaId) continue;
 
-            cursoEncontrado = cursosData.find((curso) =>
-              (curso.disciplinas || []).some((disc) => disc.id === disciplinaId)
-            );
-            if (cursoEncontrado) break;
+        for (const comp of todosComponentes) {
+          const disciplina = comp.disciplina;
+          if (!disciplina) continue;
+
+          console.log("🔍 Verificando disciplina:", disciplina.nome);
+          console.log("   Cursos vinculados:", disciplina.cursos);
+
+          const cursos = disciplina.cursos || [];
+
+          if (cursos.length > 0) {
+            cursoEncontrado = cursos[0]; // pega só o primeiro curso vinculado
+            break;
           }
-          if (cursoEncontrado) break;
         }
+
         if (cursoEncontrado) {
+          console.log("✅ Curso encontrado:", cursoEncontrado);
           setCurso(cursoEncontrado);
           setCoordenador(cursoEncontrado.coordenador || null);
+        } else {
+          console.log("⚠️ Nenhum curso encontrado para as disciplinas!");
         }
-
-        // Pareceres filtrados por período atual
-        const pareceresFiltrados = [];
-        periodosDoPei.forEach((periodo) => {
-          (periodo.componentes_curriculares || []).forEach((comp) => {
-            (comp.pareceres || []).forEach((parecer) => {
-              pareceresFiltrados.push({
-                ...parecer,
-                componenteNome: comp.disciplina?.nome || "Sem disciplina",
-              });
-            });
-          });
-        });
-        console.log("Pareceres carregados:", pareceresFiltrados);
-        setPareceres(pareceresFiltrados);
       } catch (err) {
-        console.error("Erro ao carregar dados:", err);
+        console.error("Erro ao carregar dados do PEI:", err);
         setErro(true);
       }
     }
@@ -101,159 +108,237 @@ const PeriodoLetivoPerfil = () => {
     carregarDados();
   }, [peiCentralId]);
 
+  // -------------------------------
+  // Carregar permissões do usuário
+  // -------------------------------
   useEffect(() => {
-    if (!usuarioSelecionado) {
-      console.log("Nenhum usuário disponível para carregar permissões");
-      setPermissoes([]);
-      return;
-    }
+    if (!usuarioSelecionado) return;
 
     async function carregarPermissoes() {
       try {
-        const tipo = usuarioSelecionado.categoria.toLowerCase();
-        const id = usuarioSelecionado.id;
+        const res = await axios.get(
+          `${API_ROUTES.PERMISSOES}?id=${usuarioSelecionado.id}`
+        );
 
-        const res = await axios.get(API_ROUTES.PERMISSOES, {
-          params: { tipo, id },
-        });
+        const permissoesUsuario = res.data.permissoes || [];
+        const grupos = res.data.grupos || [];
 
-        console.log("🔹 Permissões carregadas:", res.data.permissoes);
-        setPermissoes(res.data.permissoes || []);
+        console.log("Grupos recebidos da API:", grupos);
+
+        setPermissoes(permissoesUsuario);
+        setGruposUsuario(grupos.map((g) => g.toLowerCase()));
       } catch (err) {
-        console.error("Erro ao carregar permissões:", err);
-        setPermissoes([]);
+        console.error("Erro ao buscar permissões do usuário:", err);
       }
     }
 
     carregarPermissoes();
   }, [usuarioSelecionado]);
 
-  if (erro) return <p style={{ textAlign: "center", color: "red" }}>Erro ao carregar informações.</p>;
-  if (!aluno) return <p style={{ textAlign: "center" }}>Carregando informações do aluno...</p>;
+  // -------------------------------
+  // RENDER
+  // -------------------------------
+  if (erro)
+    return (
+      <p style={{ textAlign: "center", color: "red" }}>
+        Erro ao carregar informações.
+      </p>
+    );
+
+  if (!aluno)
+    return (
+      <p style={{ textAlign: "center" }}>
+        Carregando informações do aluno...
+      </p>
+    );
 
   return (
     <div className="pei-detalhe-container">
       <div className="pei-header">
         <div className="aluno-info">
           <img
-            src={aluno.foto || "https://randomuser.me/api/portraits/men/11.jpg"}
+            src={aluno.foto || "https://img.icons8.com/win10/1200/guest-male--v2.jpg"}
             alt={aluno.nome}
             className="aluno-fotoPerfil"
           />
           <div>
-            <p><b>Nome:</b> {aluno.nome}</p>
-            <p><b>E-mail:</b> {aluno.email}</p>
-            <p><b>Período Principal:</b> {periodoPrincipal || "—"}</p>
+            <p>
+              <b>Nome:</b> {aluno.nome}
+            </p>
+            <p>
+              <b>E-mail:</b> {aluno.email}
+            </p>
+            <p>
+              <b>Período Principal:</b> {periodoPrincipal || "—"}
+            </p>
           </div>
         </div>
+
         <div className="curso-info">
-          <p><b>Curso:</b> {curso?.name || "Não encontrado"}</p>
-          <p><b>Coordenador do Curso:</b> {coordenador?.nome || "—"}</p>
+          <p>
+            <b>Curso:</b> {curso?.nome || "—"}
+          </p>
+          <p>
+            <b>Coordenador do Curso:</b>{" "}
+            {coordenador?.username || "—"}
+          </p>
         </div>
       </div>
 
       <div className="pei-corpo">
         <div className="pei-documentos">
           <h3>Ações Disponíveis</h3>
+
           <div className="botoes-parecer">
-          {/* Pareceres */}
-          {permissoes.includes("add_parecer") && (
-            <Link to="/crud/pareceres" className="btn-verde">
-              Cadastrar Parecer
-            </Link>
-          )}
+            {gruposUsuario.map((grupo) => {
+              switch (grupo) {
+                case "professor":
+                  return (
+                    <>
+                      <Link to="/pareceres" className="btn-verde">
+                        Cadastrar Parecer
+                      </Link>
+                      <Link
+                        to="/documentacaoComplementar"
+                        className="btn-verde"
+                      >
+                        Gerenciar Documentações Complementares
+                      </Link>
+                      <Link to="/peicentral" className="btn-verde">
+                        Visualizar PEI Central
+                      </Link>
+                    </>
+                  );
+                case "pedagogo":
+                  return (
+                    <>
+                      <Link to="/ataDeAcompanhamento" className="btn-verde">
+                        Gerenciar Atas de Acompanhamento
+                      </Link>
+                      <Link to="/peicentral" className="btn-verde">
+                        Visualizar PEI Central
+                      </Link>
+                      <Link
+                        to="/documentacaoComplementar"
+                        className="btn-verde"
+                      >
+                        Gerenciar Documentações Complementares
+                      </Link>
+                    </>
+                  );
+                case "napne":
+                  return (
+                    <>
+                      <Link to="/periodo" className="btn-verde">
+                        Gerenciar Períodos Letivos
+                      </Link>
+                      <Link to="/peicentral" className="btn-verde">
+                        Visualizar PEI Central
+                      </Link>
+                      <Link to="/componenteCurricular" className="btn-verde">
+                        Gerenciar Componentes Curriculares
+                      </Link>
+                      <Link to="/ataDeAcompanhamento" className="btn-verde">
+                        Gerenciar Atas de Acompanhamento
+                      </Link>
+                      <Link
+                        to="/documentacaoComplementar"
+                        className="btn-verde"
+                      >
+                        Gerenciar Documentações Complementares
+                      </Link>
+                    </>
+                  );
+                case "coordenador":
+                  return (
+                    <>
+                      <Link to="/curso" className="btn-verde">
+                        Gerenciar Cursos
+                      </Link>
+                      <Link to="/disciplina" className="btn-verde">
+                        Gerenciar Disciplinas
+                      </Link>
+                      <Link to="/peicentral" className="btn-verde">
+                        Visualizar PEI Central
+                      </Link>
+                      <Link to="/aluno" className="btn-verde">
+                        Gerenciar Alunos
+                      </Link>
+                      <Link to="/ataDeAcompanhamento" className="btn-verde">
+                        Gerenciar Atas de Acompanhamento
+                      </Link>
+                      <Link
+                        to="/documentacaoComplementar"
+                        className="btn-verde"
+                      >
+                        Gerenciar Documentações Complementares
+                      </Link>
+                    </>
+                  );
+                case "admin":
+                  return (
+                    <>
+                      <Link to="/usuario" className="btn-verde">
+                        Gerenciar Usuários
+                      </Link>
+                      <Link to="/curso" className="btn-verde">
+                        Gerenciar Cursos
+                      </Link>
+                      <Link to="/disciplina" className="btn-verde">
+                        Gerenciar Disciplinas
+                      </Link>
+                      <Link to="/periodo" className="btn-verde">
+                        Gerenciar Períodos Letivos
+                      </Link>
+                      <Link to="/aluno" className="btn-verde">
+                        Gerenciar Alunos
+                      </Link>
+                      <Link to="/peicentral" className="btn-verde">
+                        Visualizar PEI Central
+                      </Link>
+                      <Link to="/pareceres" className="btn-verde">
+                        Cadastrar Parecer
+                      </Link>
+                      <Link to="/componenteCurricular" className="btn-verde">
+                        Gerenciar Componentes Curriculares
+                      </Link>
+                      <Link to="/ataDeAcompanhamento" className="btn-verde">
+                        Gerenciar Atas de Acompanhamento
+                      </Link>
+                      <Link
+                        to="/documentacaoComplementar"
+                        className="btn-verde"
+                      >
+                        Gerenciar Documentações Complementares
+                      </Link>
+                    </>
+                  );
+                default:
+                  return null;
+              }
+            })}
 
-          {/* Documentação complementar */}
-          {(permissoes.includes("add_documentocomplementar") || permissoes.includes("change_documentocomplementar")) && (
-            <Link to="/documentacaoComplementar" className="btn-verde">
-              Gerenciar Documentações Complementares
-            </Link>
-          )}
-
-          {/* PEI Central */}
-          {(permissoes.includes("change_peicentral") || permissoes.includes("view_peicentral")) && (
-            <Link to="/peicentral" className="btn-verde">
-              Visualizar PEI Central
-            </Link>
-          )}
-
-          {/* PEI Período Letivo */}
-          {permissoes.includes("change_peiperiodoletivo") && (
-            <Link to="/periodo" className="btn-verde">
-              Gerenciar Períodos Letivos
-            </Link>
-          )}
-
-          {/* Atas de acompanhamento */}
-          {permissoes.includes("add_atadeacompanhamento") && (
-            <Link to="/crud/ataDeAcompanhamento" className="btn-verde">
-              Gerenciar Atas de Acompanhamento
-            </Link>
-          )}
-
-          {/* Cursos */}
-          {permissoes.includes("add_curso") && (
-            <Link to="/curso" className="btn-verde">
-              Gerenciar Cursos
-            </Link>
-          )}
-
-          {/* Disciplinas */}
-          {(permissoes.includes("add_disciplina")) && (
-            <Link to="/disciplina" className="btn-verde">
-              Gerenciar Disciplinas
-            </Link>
-          )}
-
-          {/* Componentes Curriculares */}
-          {(permissoes.includes("add_componentecurricular") || permissoes.includes("change_componentecurricular")) && (
-            <Link to="/crud/componenteCurricular" className="btn-verde">
-              Gerenciar Componentes Curriculares
-            </Link>
-          )}
-
-          {/* Alunos */}
-          {permissoes.includes("add_aluno") && (
-            <Link to="/crud/aluno" className="btn-verde">
-              Gerenciar Alunos
-            </Link>
-          )}
-
-          {/* Professores */}
-          {permissoes.includes("add_usuario") && (
-            <Link to="/professor" className="btn-verde">
-              Gerenciar Professores
-            </Link>
-          )}
-
-          {/* Pedagogos */}
-          {permissoes.includes("add_usuario") && (
-            <Link to="/pedagogo" className="btn-verde">
-              Gerenciar Pedagogos
-            </Link>
-          )}
-
-          {/* Coordenadores (se houver permissão específica) */}
-          {permissoes.includes("change_coordenadorcurso") && (
-            <Link to="/coordenador" className="btn-verde">
-              Gerenciar Coordenadores
-            </Link>
-          )}
-           <BotaoVoltar />
+            <BotaoVoltar />
           </div>
         </div>
+
         <div className="pei-pareceres">
           <h3>Últimos Pareceres</h3>
+
           {pareceres.length > 0 ? (
             pareceres.map((parecer) => (
               <div key={parecer.id} className="parecer-card">
                 <div className="parecer-topo">
                   <span className="parecer-professor">
-                    👤 {parecer.professor?.nome || "Professor não informado"} ({parecer.componenteNome})
+                    👤 {parecer.professor?.nome || "Professor não informado"} (
+                    {parecer.componenteNome})
                   </span>
                   <span className="parecer-data">{parecer.data || "—"}</span>
                 </div>
-                <div className="parecer-texto">{parecer.texto || "Sem texto disponível."}</div>
+
+                <div className="parecer-texto">
+                  {parecer.texto || "Sem texto disponível."}
+                </div>
               </div>
             ))
           ) : (

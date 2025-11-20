@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from pei.models import Conteudo
+from pei.models.conteudo import Conteudo
 class ConteudoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conteudo

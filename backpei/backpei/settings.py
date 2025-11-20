@@ -48,6 +48,8 @@ INSTALLED_APPS = [
 
 GOOGLE_OAUTH2_CLIENT_ID = "992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com"
 
+AUTH_USER_MODEL = "pei.CustomUser"
+
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",

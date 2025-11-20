@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
 from ..serializers.parecer_serializer import *
-from pei.models.parecer import *
+from pei.models.parecer import Parecer
 from ..permissions import BackendTokenPermission
 from django.core.exceptions import ValidationError
 

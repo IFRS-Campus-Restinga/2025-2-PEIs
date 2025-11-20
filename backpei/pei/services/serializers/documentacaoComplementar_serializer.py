@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from pei.models import DocumentacaoComplementar
+from pei.models.documentacaoComplementar import DocumentacaoComplementar
 
 class DocumentacaoComplementarSerializer(serializers.ModelSerializer):
     class Meta:

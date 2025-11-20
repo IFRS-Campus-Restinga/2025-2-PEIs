@@ -4,6 +4,7 @@ import subprocess
 import sys
 import django
 import rest_framework
+from django.contrib.auth import get_user_model
 
 
 # ------------------------------------------
@@ -34,7 +35,7 @@ from pei.models.aluno import Aluno
 from pei.models.disciplina import Disciplina
 from pei.models.curso import Curso
 from pei.models.ataDeAcompanhamento import AtaDeAcompanhamento
-from pei.models.usuario import Usuario
+from pei.models.CustomUser import CustomUser
 from pei.models.parecer import Parecer
 from pei.models.documentacaoComplementar import DocumentacaoComplementar
 
@@ -115,7 +116,7 @@ if pergunta("Refazer migrations?"):
     # Criar superusuário administrador
     print("\nCriando superusuário administrador...")
 
-    senhaAdmin = "PEIDev2IFRS"
+    senhaAdmin = "12345678"
     if not User.objects.filter(username="administrador").exists():
         admin = User.objects.create_superuser(
             username="administrador",
@@ -218,6 +219,11 @@ else:
 print("\n***********************************************")
 print(f"DIR: {baseDir}")
 roda([rodapy, "--version"])
+print(f"instalando as dependências google")
+#roda([rodapy, "-m", "pip", "install", "google-auth"])
+#roda([rodapy, "-m", "pip", "install", "google-oauthlib"])
+#roda([rodapy, "-m", "pip", "install", "google-auth-httplib2"])
+
 roda([rodapy, "-m", "pip", "--version"])
 print(f"Django - {django.get_version()}")
 print(f"Django REST Framework - {rest_framework.__version__}")
