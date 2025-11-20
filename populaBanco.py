@@ -18,7 +18,6 @@ django.setup()
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from pei.models.aluno import Aluno
-from pei.models.ataDeAcompanhamento import AtaDeAcompanhamento
 from pei.models.disciplina import Disciplina
 from pei.models.curso import Curso
 from pei.models.pei_central import PeiCentral
@@ -30,12 +29,12 @@ from pei.enums import StatusDoPei, PeriodoLetivoChoice, CategoriaUsuario
 
 User = get_user_model()
 
-# ------------------------------------------------------------------------------
-# UTILS
-# ------------------------------------------------------------------------------
+# ==============================================================================
+# UTILITÁRIOS
+# ==============================================================================
 
 def limpar_tudo():
-    print("Apagando dados antigos...")
+    print("🧹 Apagando dados antigos...")
 
     Parecer.objects.all().delete()
     ComponenteCurricular.objects.all().delete()
@@ -45,29 +44,30 @@ def limpar_tudo():
     Disciplina.objects.all().delete()
     Aluno.objects.all().delete()
     User.objects.exclude(username="administrador").delete()
-
     Group.objects.all().delete()
 
-    print("--> Banco limpo\n")
+    print("✔ Banco limpo!\n")
 
 
-# ------------------------------------------------------------------------------
+# ==============================================================================
 # GRUPOS E USUÁRIOS
-# ------------------------------------------------------------------------------
+# ==============================================================================
 
-GRUPOS = ["Admin", "Pedagogo", "Professor", "Coordenador"]
+GRUPO_MAP = {
+    "PROFESSOR": "Professor",
+    "PEDAGOGO": "Pedagogo",
+    "COORDENADOR": "Coordenador",
+    "NAPNE": "NAPNE",
+    "ADMIN": "Admin",
+}
 
 def criar_grupos():
-    for g in GRUPOS:
-        Group.objects.get_or_create(name=g)
-    print("--> Grupos criados")
+    for nome in GRUPO_MAP.values():
+        Group.objects.get_or_create(name=nome)
+    print("✔ Grupos criados")
 
 
 def criar_usuario(nome, email, categoria):
-    """
-    Cria um CustomUser com grupo, categoria e aprovado=True.
-    """
-
     username = email.split("@")[0].replace(".", "_").lower()
 
     user = User.objects.create_user(
@@ -79,10 +79,11 @@ def criar_usuario(nome, email, categoria):
     user.set_unusable_password()
     user.save()
 
-    grupo = Group.objects.get(name=categoria.title())
+    grupo_nome = GRUPO_MAP[categoria]
+    grupo = Group.objects.get(name=grupo_nome)
     user.groups.add(grupo)
 
-    # admin é especial
+    # Regras especiais para ADMIN
     if categoria == CategoriaUsuario.ADMIN:
         user.is_staff = True
         user.is_superuser = True
@@ -91,10 +92,25 @@ def criar_usuario(nome, email, categoria):
     return user
 
 
-def criar_usuarios():
-    print("--> Criando usuários...")
+def criar_admin_master():
+    """
+    Admin principal: ALTERE AQUI CASO QUEIRA SER CADASTRADO COMO ADMIN → 2023017316@aluno.restinga.ifrs.edu.br
+    """
+    email = "2023017316@aluno.restinga.ifrs.edu.br"
+    nome = "Admin Master"
 
-    criar_usuario("Administrador", "admin@ifrs.edu.br", CategoriaUsuario.ADMIN)
+    existente = User.objects.filter(email=email).first()
+    if existente:
+        print(f"⚠ Admin Master já existe: {email}")
+        return existente
+
+    user = criar_usuario(nome, email, CategoriaUsuario.ADMIN)
+    print(f"✔ Admin Master criado: {email}")
+    return user
+
+
+def criar_usuarios_comuns():
+    print("➡ Criando usuários comuns...")
 
     professores = [
         ("Carlos Andrade", "carlos.andrade@ifrs.edu.br"),
@@ -122,17 +138,17 @@ def criar_usuarios():
     for nome, email in pedagogos:
         criar_usuario(nome, email, CategoriaUsuario.PEDAGOGO)
 
-    print("--> Usuários criados!")
+    print("✔ Usuários comuns criados!")
 
 
-# ------------------------------------------------------------------------------
+# ==============================================================================
 # ALUNOS / DISCIPLINAS / CURSOS
-# ------------------------------------------------------------------------------
+# ==============================================================================
 
 def criar_alunos():
     nomes = [
         "Lucas Silva", "Mariana Costa", "João Pereira",
-        "Bruna Oliveira", "Felipe Santos", "Aline Rocha"
+        "Bruna Oliveira", "Felipe Santos", "Aline Rocha",
     ]
 
     for i, nome in enumerate(nomes):
@@ -141,7 +157,7 @@ def criar_alunos():
             matricula=f"202300{i+1}",
             email=f"{nome.replace(' ', '.').lower()}@restinga.ifrs.edu.br"
         )
-    print("--> Alunos criados")
+    print("✔ Alunos criados")
 
 
 def criar_disciplinas():
@@ -154,27 +170,19 @@ def criar_disciplinas():
     for nome in nomes:
         Disciplina.objects.create(nome=nome)
 
-    print("--> Disciplinas criadas")
+    print("✔ Disciplinas criadas")
 
 
 def criar_cursos():
     coordenadores = list(User.objects.filter(groups__name="Coordenador"))
     disciplinas = list(Disciplina.objects.all())
 
-    nomes = [
-        "Engenharia de Software",
-        "Técnico em Informática",
-    ]
-
+    nomes = ["Engenharia de Software", "Técnico em Informática"]
     niveis = [Nivel.SUPERIOR, Nivel.MEDIO]
 
-    # dividir disciplinas entre os cursos
     metade = len(disciplinas) // 2
-    disciplinas_eng = disciplinas[:metade]       # primeiras N disciplinas
-    disciplinas_tec = disciplinas[metade:]       # últimas N disciplinas
-
-    print(f"Disciplinas para Engenharia: {[d.nome for d in disciplinas_eng]}")
-    print(f"Disciplinas para Técnico: {[d.nome for d in disciplinas_tec]}")
+    disciplinas_eng = disciplinas[:metade]
+    disciplinas_tec = disciplinas[metade:]
 
     cursos = []
 
@@ -185,22 +193,16 @@ def criar_cursos():
             coordenador=coordenadores[i % len(coordenadores)]
         )
 
-        if i == 0:
-            curso.disciplinas.set(disciplinas_eng)
-        else:
-            curso.disciplinas.set(disciplinas_tec)
-
+        curso.disciplinas.set(disciplinas_eng if i == 0 else disciplinas_tec)
         cursos.append(curso)
 
-    print("--> Cursos criados com disciplinas distintas")
+    print("✔ Cursos criados com disciplinas distintas")
     return cursos
 
 
-
-
-# ------------------------------------------------------------------------------
+# ==============================================================================
 # PEI / PERÍODO / COMPONENTES / PARECERES
-# ------------------------------------------------------------------------------
+# ==============================================================================
 
 def criar_pei_central():
     alunos = list(Aluno.objects.all())
@@ -209,20 +211,20 @@ def criar_pei_central():
         PeiCentral.objects.create(
             aluno=aluno,
             historico_do_aluno="Aluno com bom desempenho acadêmico.",
-            necessidades_educacionais_especificas="Requer apoio em atividades extensas.",
+            necessidades_educacionais_especificas="Requer apoio pedagógico.",
             habilidades="Boa capacidade de resolução de problemas.",
             dificuldades_apresentadas="Distração ocasional.",
             adaptacoes="Apoio pedagógico semanal.",
             status_pei=StatusDoPei.OPEN
         )
 
-    print("--> PEI Central criado")
+    print("✔ PEI Central criado")
 
 
 def criar_pei_periodo_letivo():
     peis = list(PeiCentral.objects.all())
 
-    for i, pei in enumerate(peis):
+    for pei in peis:
         data_inicio = date.today() - timedelta(days=90)
         data_fim = data_inicio + timedelta(days=60)
 
@@ -233,27 +235,25 @@ def criar_pei_periodo_letivo():
             pei_central=pei
         )
 
-    print("--> Períodos letivos criados")
+    print("✔ Períodos letivos criados")
 
 
 def criar_componentes_curriculares():
     disciplinas = list(Disciplina.objects.all())
     periodos = list(PEIPeriodoLetivo.objects.all())
 
-    print("--> Criando componentes curriculares...")
-
     for i, disc in enumerate(disciplinas):
         periodo = periodos[i % len(periodos)]
 
         ComponenteCurricular.objects.create(
-            objetivos="Desenvolver competências básicas.",
+            objetivos="Objetivos do componente.",
             conteudo_prog="1",
-            metodologia="Aulas expositivas e práticas.",
+            metodologia="Metodologia padrão.",
             disciplinas=disc,
             periodo_letivo=periodo
         )
 
-    print("--> Componentes curriculares criados")
+    print("✔ Componentes curriculares criados")
 
 
 def criar_pareceres():
@@ -265,7 +265,7 @@ def criar_pareceres():
         "Evolução constante.",
         "Participativo.",
         "Pode melhorar entregas.",
-        "Demonstra interesse.",
+        "Demonstra interesse."
     ]
 
     for comp in componentes:
@@ -275,17 +275,18 @@ def criar_pareceres():
             texto=random.choice(textos)
         )
 
-    print("--> Pareceres criados")
+    print("✔ Pareceres criados")
 
 
-# ------------------------------------------------------------------------------
+# ==============================================================================
 # EXECUÇÃO GERAL
-# ------------------------------------------------------------------------------
+# ==============================================================================
 
 def rodar():
     limpar_tudo()
     criar_grupos()
-    criar_usuarios()
+    criar_admin_master()      # VOCÊ como admin
+    criar_usuarios_comuns()
     criar_alunos()
     criar_disciplinas()
     criar_cursos()
@@ -294,7 +295,7 @@ def rodar():
     criar_componentes_curriculares()
     criar_pareceres()
 
-    print("\n--> Todos os dados foram criados com sucesso!")
+    print("\n🎉 Todos os dados foram criados com sucesso!")
 
 
 if __name__ == '__main__':
