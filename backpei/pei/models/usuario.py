@@ -1,8 +1,9 @@
 from .base_model import BaseModel
 from django.db import models
 from ..enums import CategoriaUsuario
-from django.core.validators import MinLengthValidator, MaxLengthValidator, RegexValidator
+from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group  
 
 # validação extra do email institucional
@@ -10,8 +11,9 @@ def validar_email_institucional(value):
     if not value.endswith('ifrs.edu.br'):
         raise ValidationError('O email deve ser institucional (ifrs.edu.br)')
 
-class Usuario(BaseModel):
+UserModel = get_user_model()
 
+class Usuario(BaseModel):
     STATUS_PENDENTE = 'PENDING'
     STATUS_APROVADO = 'APPROVED'
     STATUS_REJEITADO = 'REJECTED'
@@ -21,6 +23,9 @@ class Usuario(BaseModel):
         (STATUS_APROVADO, 'Aprovado'),
         (STATUS_REJEITADO, 'Rejeitado'),
     ]
+
+    # link opcional ao User padrão do Django
+    user = models.OneToOneField(UserModel, null=True, blank=True, on_delete=models.CASCADE, related_name="perfil_usuario")
 
     nome = models.CharField(
         max_length=100,

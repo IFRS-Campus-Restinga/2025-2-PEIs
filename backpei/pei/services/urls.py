@@ -18,6 +18,7 @@ from .views.permissoes_view_set import UsuarioPermissoesView
 from .views.aprovar_solicitacao_view import AprovarSolicitacaoRegistroView
 from .views.registro_view import RegistrarUsuarioView
 from .views.login_view import LoginView
+from .views.auth_login import login_usuario
 
 router = DefaultRouter()
 router.register(r'PEIPeriodoLetivo', PEIPeriodoLetivoViewSet, basename='PEIPeriodoLetivo')
@@ -46,4 +47,5 @@ urlpatterns = [
     ),
     path('usuarios/registrar/', RegistrarUsuarioView.as_view(), name='registrar-usuario'),
     path("api/login/", LoginView.as_view(), name="api-login"),
+    path("login/", login_usuario, name="login"),
 ]

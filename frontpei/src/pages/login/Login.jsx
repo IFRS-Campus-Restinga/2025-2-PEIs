@@ -3,12 +3,9 @@ import { GoogleLogin } from '@react-oauth/google';
 import ErrorMessage from "../../components/errorMessage/ErrorMessage.jsx";
 import api from "../../configs/api";
 import "../../cssGlobal.css";
-
-// IMPORTAÇÃO CORRETA DO LOGO
 import logo from "../../assets/logo-sem-nome.png";
 
 const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
-
   const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   const [email, setEmail] = useState("");
@@ -29,32 +26,45 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
 
   const fecharRegistro = () => setShowRegisterModal(false);
 
-  const handleLoginManual = async () => {
+  // =============================
+  // LOGIN MANUAL (DJANGO SESSÃO)
+  // =============================
+  const handleLoginManual = async (e) => {
+    e?.preventDefault && e.preventDefault();
+
     try {
-      const response = await api.post("/api/login/", {
-        email,
-        senha
+      const response = await api.post(API_ROUTES.LOGIN, {
+        email: formData.email,
+        senha: formData.password,
       });
 
-      const { token, usuario, status } = response.data;
-
-      if (status && status !== "aprovado") {
-        alert("Seu cadastro ainda está pendente de aprovação pelo administrador.");
+      if (!response.data || !response.data.success) {
+        const msg = response.data?.error || "Credenciais inválidas.";
+        alert(msg);
         return;
       }
 
-      localStorage.setItem("authToken", token);
-      api.defaults.headers.common["Authorization"] = `Token ${token}`;
+      const usuario = response.data.usuario;
+
+      if (usuario.status && usuario.status !== "APPROVED") {
+        alert("Seu cadastro ainda está pendente de aprovação.");
+        return;
+      }
 
       onLoginSuccess && onLoginSuccess(usuario);
 
     } catch (error) {
       console.error("Erro no login manual:", error);
       onLoginError && onLoginError(error);
-      alert("Erro ao fazer login. Verifique suas credenciais.");
+
+      const msg = error?.response?.data?.error || "Erro ao fazer login.";
+      alert(msg);
     }
   };
 
+  // =============================
+  // LOGIN COM GOOGLE
+  // =============================
   const handleGoogleLogin = async (credentialResponse) => {
     try {
       const google_token = credentialResponse.credential;
@@ -65,13 +75,20 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
 
       const { token, usuario, status } = response.data;
 
-      if (status !== "aprovado") {
-        alert("Seu cadastro ainda está pendente de aprovação do administrador.");
+      if (!token) {
+        alert("Falha ao autenticar com Google.");
+        return;
+      }
+
+      if (status !== "aprovado" && status !== "APPROVED") {
+        alert("Seu cadastro ainda está pendente de aprovação.");
         return;
       }
 
       localStorage.setItem("authToken", token);
       api.defaults.headers.common["Authorization"] = `Token ${token}`;
+
+      localStorage.setItem("usuario", JSON.stringify(usuario));
 
       onLoginSuccess && onLoginSuccess(usuario);
 
@@ -82,6 +99,9 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
     }
   };
 
+  // =============================
+  // REGISTRO
+  // =============================
   const handleRegistrar = async () => {
     setRegistroErro("");
 
@@ -96,7 +116,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
     }
 
     try {
-      const response = await api.post("http://localhost:8000/services/usuarios/registrar/", {
+      const response = await api.post("/usuarios/registrar/", {
         nome: regNome,
         email: regEmail,
         senha: regSenha,
@@ -104,15 +124,14 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
       });
 
       if (response.status === 200 || response.status === 201) {
-        alert("Registro enviado! Aguarde aprovação de um administrador.");
+        alert("Registro enviado! Aguarde aprovação do administrador.");
+        fecharRegistro();
 
         setRegNome("");
         setRegEmail("");
         setRegSenha("");
         setRegConfirmSenha("");
         setRegPerfil("");
-
-        fecharRegistro();
       }
 
     } catch (error) {
@@ -124,20 +143,18 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
           JSON.stringify(error.response.data)
         );
       } else {
-        setRegistroErro("Erro ao registrar usuário. Verifique sua conexão.");
+        setRegistroErro("Erro ao registrar usuário. Verifique a conexão.");
       }
     }
   };
 
   return (
     <div className="login-container">
-
-      {/* Área Esquerda */}
+      {/* LADO ESQUERDO */}
       <div className="login-info-side">
         <div className="login-info-content">
           <div className="login-brand">
             <img src={logo} alt="Logo IFRS" className="login-brand-logo" />
-
             <div className="login-brand-text">
               <h1>Sistema PEI</h1>
               <p>Plano Educacional Individualizado</p>
@@ -147,8 +164,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
           <div className="login-features">
             <h2>Bem-vindo ao Sistema de Gerenciamento de PEI</h2>
             <p className="login-description">
-              Plataforma completa para criação, acompanhamento e gestão de PEIs,
-              promovendo educação inclusiva e personalizada.
+              Plataforma completa para criação, acompanhamento e gestão de PEIs.
             </p>
           </div>
 
@@ -158,7 +174,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
         </div>
       </div>
 
-      {/* Área Direita */}
+      {/* LADO DIREITO */}
       <div className="login-form-side">
         <div className="login-form-container">
           <div className="login-form-header">
@@ -172,8 +188,8 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
             </div>
           )}
 
-          {/* Login Manual */}
-          <div className="login-manual-form">
+          {/* LOGIN MANUAL */}
+          <form className="login-manual-form" onSubmit={handleLoginManual}>
             <input
               type="email"
               placeholder="E-mail"
@@ -190,18 +206,18 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
               className="login-input"
             />
 
-            <button className="login-button" onClick={handleLoginManual}>
+            <button type="submit" className="login-button">
               Entrar
             </button>
 
-            <button className="register-button" onClick={abrirRegistro}>
+            <button type="button" className="register-button" onClick={abrirRegistro}>
               Registrar
             </button>
-          </div>
+          </form>
 
           <div className="login-divider"></div>
 
-          {/* Google Login */}
+          {/* GOOGLE LOGIN */}
           <div className="login-button-wrapper">
             <GoogleLogin
               onSuccess={handleGoogleLogin}
@@ -215,11 +231,10 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
               Utilize seu e-mail institucional (@restinga.ifrs.edu.br)
             </p>
           </div>
-
         </div>
       </div>
 
-      {/* Modal de Registro */}
+      {/* MODAL REGISTRO */}
       {showRegisterModal && (
         <div className="modal-backdrop">
           <div className="modal-container">

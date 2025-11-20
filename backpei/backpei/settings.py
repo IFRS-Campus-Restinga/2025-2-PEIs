@@ -61,6 +61,7 @@ MIDDLEWARE = [
 # configuracao para uso de token para autenticacao
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
@@ -192,3 +193,11 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "ifrspei@gmail.com"
 EMAIL_HOST_PASSWORD = "sfer mxfq ouoz hkkq"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SECURE = False
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+]

@@ -1,4 +1,11 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.utils import timezone
+from django.utils.crypto import get_random_string
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from django.core.mail import send_mail
+from django.db import transaction
 
 from .models.PEIPeriodoLetivo import PEIPeriodoLetivo
 from .models.parecer import Parecer
@@ -8,7 +15,11 @@ from .models.disciplina import Disciplina
 from .models.aluno import Aluno
 from .models.usuario import Usuario
 from .models.componenteCurricular import ComponenteCurricular
-from .models.registration_request import RegistrationRequest   # ← já estava
+from .models.registration_request import RegistrationRequest
+
+
+UserModel = get_user_model()
+
 
 # Admin personalizado para Usuario
 @admin.register(Usuario)
@@ -38,31 +49,24 @@ class RegistrationRequestAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'reviewed_at', 'message', 'created_user')
     ordering = ('-created_at',)
 
-    # Apenas ações em lote – funciona 100% sem JS, sem reverse, sem dor de cabeça
+    # Apenas ações em lote
     actions = ['aprovar_selecionados', 'rejeitar_selecionados']
 
     def aprovar_selecionados(self, request, queryset):
-        # IMPORTANTE: usamos o User padrão do Django para make_random_password e create_user
-        from django.contrib.auth.models import User as DjangoUser
-        from django.contrib.auth.models import Group
-        from django.core.mail import send_mail
-        from django.utils import timezone
-        from django.db import transaction
-
         aprovados = 0
         for req in queryset.filter(status="pending"):
             try:
                 with transaction.atomic():
-                    # Gera senha com o gerenciador padrão do Django
-                    senha = DjangoUser.objects.make_random_password(length=12)
+                    # Gera senha temporária com get_random_string (não depende de managers)
+                    senha = get_random_string(length=12)
 
-                    # Cria o usuário de autenticação (o que faz login)
-                    user = DjangoUser.objects.create_user(
+                    # Cria o usuário de autenticação usando get_user_model (compatível com AUTH_USER_MODEL)
+                    user = UserModel.objects.create_user(
                         username=req.email,
                         email=req.email,
                         password=senha,
-                        first_name=req.name.split()[0],
-                        last_name=" ".join(req.name.split()[1:]) if len(req.name.split()) > 1 else "",
+                        first_name=req.name.split()[0] if req.name else "",
+                        last_name=" ".join(req.name.split()[1:]) if req.name and len(req.name.split()) > 1 else "",
                         is_active=True,
                     )
 
@@ -74,6 +78,7 @@ class RegistrationRequestAdmin(admin.ModelAdmin):
                         pass
 
                     # Cria o seu perfil personalizado (modelo Usuario do PEI)
+                    # Se Usuario tiver relação OneToOne com UserModel, ajuste para associar o user aqui.
                     Usuario.objects.create(
                         nome=req.name,
                         email=req.email,
@@ -88,9 +93,10 @@ class RegistrationRequestAdmin(admin.ModelAdmin):
                     req.save()
 
                     # ENVIA E-MAIL com a senha temporária
-                    send_mail(
-                        subject="Cadastro APROVADO - Sistema PEI",
-                        message=f"""Olá {req.name},
+                    try:
+                        send_mail(
+                            subject="Cadastro APROVADO - Sistema PEI",
+                            message=f"""Olá {req.name},
 
 Seu cadastro foi APROVADO com sucesso!
 
@@ -103,17 +109,22 @@ Link: http://localhost:5173
 ⚠️ Altere sua senha no primeiro acesso.
 
 Equipe PEI - IFRS""",
-                        from_email="ifrspei@gmail.com",
-                        recipient_list=[req.email],
-                        fail_silently=False,
-                    )
+                            from_email="ifrspei@gmail.com",
+                            recipient_list=[req.email],
+                            fail_silently=False,
+                        )
+                    except Exception as mail_err:
+                        # não estoura a transação por conta de erro de e-mail; opcional: registrar/logar
+                        self.message_user(request, f"Usuário criado, mas falha ao enviar e-mail para {req.email}: {mail_err}", level=messages.WARNING)
+
                     aprovados += 1
 
             except Exception as e:
-                self.message_user(request, f"Erro ao aprovar {req.email}: {str(e)}", level="error")
+                # Usar messages.ERROR (inteiro) em vez de string
+                self.message_user(request, f"Erro ao aprovar {req.email}: {str(e)}", level=messages.ERROR)
 
         if aprovados > 0:
-            self.message_user(request, f"{aprovados} usuário(s) criado(s) e e-mail(s) enviado(s) com sucesso!", level="success")
+            self.message_user(request, f"{aprovados} usuário(s) criado(s) e e-mail(s) enviado(s) com sucesso!", level=messages.SUCCESS)
 
     aprovar_selecionados.short_description = "Aprovar selecionados → criar usuário + enviar senha"
 
@@ -122,6 +133,6 @@ Equipe PEI - IFRS""",
             status="REJECTED",
             reviewed_at=timezone.now()
         )
-        self.message_user(request, f"{rejeitados} solicitação(ões) rejeitada(s).", level="success")
+        self.message_user(request, f"{rejeitados} solicitação(ões) rejeitada(s).", level=messages.SUCCESS)
 
     rejeitar_selecionados.short_description = "Rejeitar selecionados"

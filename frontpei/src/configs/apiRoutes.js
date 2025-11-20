@@ -1,8 +1,8 @@
-// frontpei/src/configs/apiRoutes.js
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/services";
+const API_BASE_URL = "http://localhost:8000/services";
 
 export const API_ROUTES = {
+  LOGIN: `${API_BASE_URL}/api/login/`,
+
   PEIPERIPERIODOLETIVO: `${API_BASE_URL}/PEIPeriodoLetivo/`,
   PARECER: `${API_BASE_URL}/parecer/`,
   ALUNO: `${API_BASE_URL}/aluno/`,
@@ -17,9 +17,5 @@ export const API_ROUTES = {
   USUARIO: `${API_BASE_URL}/usuario/`,
   REGISTER: `${API_BASE_URL}/register/`,
   STATUS_CADASTRO: `${API_BASE_URL}/status-cadastro/`,
-
-  // ROTA CORRETA DO REGISTRO (essa é a que tem que funcionar)
-  USUARIOS_REGISTRAR: "http://localhost:8000/services/usuarios/registrar/",
+  USUARIOS_REGISTRAR: `${API_BASE_URL}/usuarios/registrar/`,
 };
-
-export const BACKEND_TOKEN = import.meta.env.VITE_BACKEND_TOKEN;

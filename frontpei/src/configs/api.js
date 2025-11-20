@@ -1,12 +1,17 @@
 import axios from "axios";
-//import { BACKEND_TOKEN } from "./apiRoutes";
+
+const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/services";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL,
+  withCredentials: true, // enviar cookies (essencial para sessão Django)
   headers: {
-    //Authorization: `Token ${BACKEND_TOKEN}`,
     "Content-Type": "application/json"
-  }
+  },
+  // axios usa por padrão xsrfCookieName/XsrfHeaderName que combinam com Django:
+  // mas deixamos explícito só para garantir consistência
+  xsrfCookieName: "csrftoken",
+  xsrfHeaderName: "X-CSRFToken",
 });
 
 // Interceptor para erros padrão

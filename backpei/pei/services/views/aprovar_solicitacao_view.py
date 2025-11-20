@@ -54,7 +54,7 @@ class AprovarSolicitacaoRegistroView(APIView):
                 if acao == "APROVAR":
 
                     # Gera uma senha automática
-                    senha_gerada = Usuario.objects.make_random_password()
+                    senha_gerada = User.objects.make_random_password()
 
                     # Criar usuário com base nos dados da solicitação
                     """usuario = Usuario.objects.create_user(
@@ -89,7 +89,7 @@ class AprovarSolicitacaoRegistroView(APIView):
                     except Group.DoesNotExist:
                         pass"""
                     try:
-                        grupo = Group.obkects.get(name__iexact=solicitacao.profile)
+                        grupo = Group.objects.get(name__iexact=solicitacao.profile)
                         user.groups.add(grupo)
                     except Group.DoesNotExist:
                         pass
