@@ -10,3 +10,4 @@ from .manda_email import manda_email
 from .notificacao_view import NotificacaoViewSet
 from .usuario_view_set import UsuarioViewSet
 from .conteudo_view_set import ConteudoViewSet
+from .consulta_grupos import ConsultaGrupos
