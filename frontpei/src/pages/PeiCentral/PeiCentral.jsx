@@ -212,6 +212,7 @@ function PeiCentral() {
               position: "relative",
             }}
           >
+            
             <button
               onClick={() => setModalOpen(false)}
               style={{
@@ -311,12 +312,13 @@ function PeiCentral() {
                   <p><b>Status:</b> {selectPei.status_pei}</p>
                 </div>
               </div>
-
-              <p><b>Histórico:</b> {selectPei.historico_do_aluno}</p>
-              <p><b>Necessidades:</b> {selectPei.necessidades_educacionais_especificas}</p>
-              <p><b>Habilidades:</b> {selectPei.habilidades}</p>
-              <p><b>Dificuldades:</b> {selectPei.dificuldades_apresentadas}</p>
-              <p><b>Adaptações:</b> {selectPei.adaptacoes}</p>
+              <br />
+              <br />
+              <p><b>Histórico:</b><br /> &emsp;&emsp;{selectPei.historico_do_aluno}</p>
+              <p><b>Necessidades:</b><br /> &emsp;&emsp;{selectPei.necessidades_educacionais_especificas}</p>
+              <p><b>Habilidades:</b><br /> &emsp;&emsp;{selectPei.habilidades}</p>
+              <p><b>Dificuldades:</b><br /> &emsp;&emsp;{selectPei.dificuldades_apresentadas}</p>
+              <p><b>Adaptações:</b><br /> &emsp;&emsp;{selectPei.adaptacoes}</p>
 
               <br /><br />
 
