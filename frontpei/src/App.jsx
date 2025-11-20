@@ -41,11 +41,12 @@ import AtaDeAcompanhamento from './pages/ataDeAcompanhamento.jsx';
 import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx';
 import Pedagogos from './pages/Pedagogo.jsx';
 import Professor from "./pages/Professor.jsx";
+import Conteudo from './pages/Conteudo.jsx';
 //import Usuarios from './pages/Usuario.jsx';
 
-// ADICIONADO DA BRANCH DEVELOPER (válido)
+// FUNCOES DE USO GLOBAL
 import { mandaEmail } from "./lib/mandaEmail";
-import Conteudo from './pages/Conteudo.jsx';
+import { consultaGrupo } from "./lib/consultaGrupo";
 
 // Rotas Admin
 import TelaSolicitacoesPendentes from "./pages/admin/TelaSolicitacoesPendentes";
@@ -58,14 +59,35 @@ function App() {
   const [perfilSelecionado, setPerfilSelecionado] = useState(null);
   const navigate = useNavigate();
 
-  // Carregar login salvo
+  // rotinas de inicializacao
   useEffect(() => {
-    const usuarioSalvo = localStorage.getItem("usuario");
-    if (usuarioSalvo) {
-      setUsuario(JSON.parse(usuarioSalvo));
-      setLogado(true);
-    }
+    // precisou ficar async pra carregar o grupo
+    async function carregarUsuario() {
+      const usuarioSalvo = localStorage.getItem("usuario");
+      if (usuarioSalvo) {
+        const usuarioObj = JSON.parse(usuarioSalvo);
+        // consulta o grupo com a funcao externa
+        const grupoAtual = await consultaGrupo(usuarioObj.email);
+        // atualiza o usuario no objeto
+        usuarioObj.grupo = grupoAtual;
+        // salva novamente no localStorage
+        localStorage.setItem("usuario", JSON.stringify(usuarioObj));
+        // atualiza o estado
+        setUsuario(usuarioObj);
+        setLogado(true);
+      } } carregarUsuario();
   }, []);
+
+// se um dia nao precisar mais trocar o grupo imediatamente (tipo na vida real)
+// dai podemos voltar a usar o useEffect apenas assim
+// rotina de inicializacao que carrega o login salvo
+//  useEffect(() => {
+//    const usuarioSalvo = localStorage.getItem("usuario")
+//    if (usuarioSalvo) {
+//      setUsuario(JSON.parse(usuarioSalvo))
+//      setLogado(true)
+//    }
+//  }, [])
 
   // Login Google
   const sucessoLoginGoogle = async (credentialResponse) => {
@@ -108,12 +130,14 @@ function App() {
         });
         const me = await respMe.json();
         const dadosGoogle = jwtDecode(credentialResponse.credential);
-
+        // pesquisa o grupo do usuario
+        const grupoDoUsuario = await consultaGrupo(email)
         const userData = {
           email: data.email,
           token: data.token,
           nome: dadosGoogle.name,
           foto: dadosGoogle.picture,
+          grupo: grupoDoUsuario,
           grupos: me.grupos
         };
 
@@ -195,6 +219,7 @@ function App() {
                 <Route path="/logs" element={<Logs/>}/>
                 <Route path="/professor" element={<Professor />} />
                 <Route path="/perfil" element={<Perfil/>} />
+                <Route path="/conteudo" element={<Conteudo usuario={usuario} />}/>
                  {/* ADMIN */}
                 {usuario?.grupos?.includes("Admin") && (
                   <Route path="/admin/solicitacoes" element={<TelaSolicitacoesPendentes />} />
