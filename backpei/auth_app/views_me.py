@@ -7,10 +7,10 @@ class MeView(APIView):
 
     def get(self, request):
         user = request.user
-        grupos = list(user.groups.values_list("name", flat=True))
-
         return Response({
             "email": user.email,
             "username": user.username,
-            "grupos": grupos
+            "grupos": list(user.groups.values_list("name", flat=True)),
+            "categoria": user.categoria,
+            "foto": user.foto,
         })

@@ -41,10 +41,52 @@ def criar_usuarios_fake():
     sem criar Users do Django — apenas para alimentar FK de coordenadores e professores.
     """
 
-    # cria administradores
-    admins = [
-        ("Admin 1", "admin1@ifrs.edu.br", CategoriaUsuario.ADMIN),
-        ("Admin 2", "admin2@ifrs.edu.br", CategoriaUsuario.ADMIN)
+for g in GRUPOS:
+    Group.objects.get_or_create(name=g)
+
+# -----------------------------
+# Criar usuário e associar grupo
+# -----------------------------
+def criar_usuario(nome, email, grupo_nome):
+    grupo_nome = grupo_nome.title()  # Admin, Professor, ...
+    categoria = grupo_nome.upper()   # ADMIN, PROFESSOR...
+
+    # username deve ser único → usa o email como base
+    username = email.split("@")[0].replace(".", "_").lower()
+
+    # cria o usuário
+    user = User.objects.create_user(
+        username=username,
+        email=email,
+        categoria=categoria,             # <-- importantíssimo
+        aprovado=True                    # populabanco marca todos como aprovados
+    )
+    user.set_unusable_password()
+
+    # flags administrativas
+    if grupo_nome == "Admin":
+        user.is_staff = True
+        user.is_superuser = True
+    else:
+        user.is_staff = False
+        user.is_superuser = False
+
+    user.save()
+
+    # associa ao grupo
+    grupo = Group.objects.get(name=grupo_nome)
+    user.groups.add(grupo)
+
+    return user
+
+# -----------------------------
+# Criar usuários por categoria
+# -----------------------------
+def criar_usuarios_admin():
+    emails = [
+        "2022012656@aluno.restinga.ifrs.edu.br",
+        "2022012487@aluno.restinga.ifrs.edu.br",
+        "2023017316@aluno.restinga.ifrs.edu.br",
     ]
 
     pedagogos = [
@@ -166,17 +208,28 @@ def criar_componentes_curriculares():
     disciplinas = list(Disciplina.objects.all())
     periodos = list(PEIPeriodoLetivo.objects.all())
 
-    for period in periodos:
-        for disc in disciplinas[:3]:
-            ComponenteCurricular.objects.create(
-                objetivos="Desenvolver competências básicas.",
-                conteudo_prog="1",
-                metodologia="Aulas expositivas e práticas.",
-                disciplinas=disc,
-                periodo_letivo=period
-            )
+    # Cada disciplina só pode ter UM componente curricular (unique constraint)
+    # Então vamos limitar 1 componente por disciplina e distribuir pelos períodos.
 
-    print("--> Componentes curriculares criados")
+    if not periodos:
+        print("Nenhum período letivo encontrado!")
+        return
+
+    print("--> Criando componentes curriculares...")
+
+    for i, disc in enumerate(disciplinas):
+        periodo = periodos[i % len(periodos)]  # distribui entre os períodos
+
+        ComponenteCurricular.objects.create(
+            objetivos="Desenvolver competências básicas.",
+            conteudo_prog="1",
+            metodologia="Aulas expositivas e práticas.",
+            disciplinas=disc,              # ForeignKey UNIQUE
+            periodo_letivo=periodo
+        )
+
+    print("--> Componentes curriculares criados sem duplicações (OK)")
+
 
 def criar_pareceres():
     professores = list(Usuario.objects.filter(categoria_solicitada=CategoriaUsuario.PROFESSOR))
@@ -199,9 +252,24 @@ def criar_pareceres():
 
     print("--> Pareceres criados")
 
-# ============================================================================== 
-# EXECUÇÃO GERAL
-# ============================================================================== 
+# -----------------------------
+# Remover permissões individuais
+# -----------------------------
+def limpar_permissoes_individuais():
+    for u in User.objects.all():
+        u.user_permissions.clear()
+
+        if not u.groups.filter(name="Admin").exists():
+            u.is_staff = False
+            u.is_superuser = False
+
+        u.save()
+
+    print("--> Permissões individuais limpas")
+
+# -----------------------------
+# Execução geral
+# -----------------------------
 def rodar():
     limpar_tudo()
 
