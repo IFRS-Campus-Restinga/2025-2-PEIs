@@ -130,22 +130,25 @@ def criar_usuarios():
 # ------------------------------------------------------------------------------
 
 def criar_alunos():
+    print("--> Criando alunos...")
+    
     nomes = [
-        "Lucas Silva", "Mariana Costa", "João Pereira", "Bruna Oliveira", "Felipe Santos", "Aline Rocha",
-        "Gustavo Mendes", "Heloísa Lima", "Igor Almeida", "Júlia Fernandes", "Kevin Ribeiro", "Laura Martins",
-        "Miguel Nunes", "Natália Pires", "Otávio Guedes", "Paula Xavier", "Quirino Barbosa", "Raquel Dantas"
-    ]
+        "Lucas Silva", "Mariana Costa", "João Pereira", "Bruna Oliveira", "Felipe Santos", "Aline Rocha"]
 
-    alunos_criados = []
-    i = 0
+    for i, nome in enumerate(nomes):
+        email = f"{nome.replace(' ', '.').lower()}@restinga.ifrs.edu.br"
+        matricula = f"2024{random.randint(1000, 9999)}{i+1:02d}"  # ← MATRÍCULA ÚNICA PRA SEMPRE!
 
-    for nome in nomes:
-        aluno = Aluno.objects.create(
-            nome=nome,
-            matricula=f"202300{i+1}",
-            email=f"{nome.replace(' ', '.').lower()}@restinga.ifrs.edu.br"
-        )
-    print("--> Alunos criados")
+        try:
+            Aluno.objects.create(
+                nome=nome,
+                email=email,
+                matricula=matricula
+            )
+        except Exception as e:
+            print(f"Erro ao criar aluno {nome}: {e}")
+
+    print(f"--> {len(nomes)} alunos criados com sucesso!\n")
 
 
 def criar_disciplinas():

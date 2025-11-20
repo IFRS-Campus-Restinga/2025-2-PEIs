@@ -15,6 +15,7 @@ from .views.notificacao_lista import listar_notificacoes
 from .views.usuario_view_set import UsuarioViewSet
 from .views.permissoes_view_set import UsuarioPermissoesView
 from .views.conteudo_view_set import ConteudoViewSet
+from .views.consulta_grupos import ConsultaGrupos
 
 router = DefaultRouter()
 router.register(r'PEIPeriodoLetivo', PEIPeriodoLetivoViewSet, basename='PEIPeriodoLetivo')
@@ -37,4 +38,5 @@ urlpatterns = [
     path('mandaEmail/', manda_email, name='mandaEmail'),
     path('notificacoes-lista/', listar_notificacoes, name='notificacoes-lista'),
     path("permissoes/", UsuarioPermissoesView.as_view(), name="usuario-permissoes"),
+    path('consultaGrupos/', ConsultaGrupos.as_view(), name='consultaGrupos'),
 ]

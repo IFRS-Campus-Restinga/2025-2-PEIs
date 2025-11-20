@@ -13,7 +13,8 @@ const endpoints = [
   "mandaEmail",
   "permissoes",
   "usuario",
-  "conteudo"
+  "conteudo",
+  "consultaGrupos"
 ];
 
 export const API_ROUTES = Object.fromEntries(

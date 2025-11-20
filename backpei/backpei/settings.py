@@ -97,6 +97,7 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
     "x-backend-token",  # permite o header customizado
 	"x-user-email", # permite receber o email do frontend
+	"x-user-group", # permite receber o grupo do frontend
 ]
 
 # adiciona nosso token do usuario administrador

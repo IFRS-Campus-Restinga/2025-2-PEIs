@@ -11,7 +11,7 @@ import logo_nome from '../../assets/logo-sem-nome.png';
 
 DataTable.use(DT);
 
-// 🔥 Função para pegar o período mais recente
+// Função para pegar o período mais recente
 function getUltimoPeriodo(pei) {
   if (!pei.periodos || pei.periodos.length === 0) return null;
 
@@ -46,18 +46,31 @@ function PeiCentral() {
     carregarPeis();
   }, []);
 
+  // Listener para botões "Visualizar" e "Listar Períodos"
   useEffect(() => {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
 
     const handleClick = (e) => {
-      const btn = e.target.closest(".visualizar-btn");
-      if (!btn) return;
-      const id = btn.getAttribute("data-id");
-      const pei = peiCentral.find((p) => Number(p.id) === Number(id));
-      if (pei) {
-        setSelectPei(pei);
-        setModalOpen(true);
+      const visualizarBtn = e.target.closest(".visualizar-btn");
+      const listarBtn = e.target.closest(".listar-periodos-btn");
+
+      // --- VISUALIZAR ---
+      if (visualizarBtn) {
+        const id = visualizarBtn.getAttribute("data-id");
+        const pei = peiCentral.find((p) => Number(p.id) === Number(id));
+        if (pei) {
+          setSelectPei(pei);
+          setModalOpen(true);
+        }
+        return;
+      }
+
+      // --- LISTAR PERÍODOS ---
+      if (listarBtn) {
+        const id = listarBtn.getAttribute("data-id");
+        navigate("/listar_periodos/" + id);
+        return;
       }
     };
 
@@ -82,7 +95,7 @@ function PeiCentral() {
     pdf.save(`PEI_${selectPei.aluno?.nome || "aluno"}.pdf`);
   };
 
-  // 🔥 Aqui incluímos o PERÍODO principal direto no objeto da tabela
+  
   const dadosTabela = peiCentral.map((pei) => {
     const ultimo = getUltimoPeriodo(pei);
 
@@ -96,7 +109,7 @@ function PeiCentral() {
   });
 
   return (
-    <div className="container-padrao">
+    <div className="telaPadrao-page">
       <h1 style={{ textAlign: "center" }}>PEI CENTRAL</h1>
 
       <button
@@ -121,7 +134,22 @@ function PeiCentral() {
               { title: "Nome do aluno", data: "nome" },
               { title: "Curso", data: "curso" },
               { title: "Status", data: "status" },
-              { title: "Período Atual", data: "periodo" }, // 🔥 Nova coluna
+              { title: "Período Atual", data: "periodo" },
+
+              
+              {
+                title: "Visualizar todos os Períodos",
+                data: "id",
+                render: (id) => `
+                  <button 
+                    class="btn btn btn-sm btn-primary listar-periodos-btn" 
+                    data-id="${id}"
+                  >
+                    Listar
+                  </button>
+                `,
+              },
+
               {
                 title: "Visualizar",
                 data: "id",
@@ -157,6 +185,7 @@ function PeiCentral() {
 
       <BotaoVoltar />
 
+      {/* --- MODAL COMPLETO DO VISUALIZAR --- */}
       {modalOpen && selectPei && (
         <div
           style={{

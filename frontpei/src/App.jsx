@@ -201,12 +201,7 @@ function App() {
         <Routes>
           <Route path="/pre-cadastro" element={<TelaPreCadastro />} />
           <Route path="/aguardando-aprovacao" element={<AguardandoAprovacao />} />
-          <Route path="/" 
-            element={!logado && <LoginPage 
-            onLoginSuccess={sucessoLoginGoogle} 
-            onLoginError={erroLoginGoogle} 
-            mensagemErro={mensagemErro} />} 
-          />
+          <Route path="/" element={!logado && <LoginPage onLoginSuccess={sucessoLoginGoogle} onLoginError={erroLoginGoogle} mensagemErro={mensagemErro} />} />
         </Routes>
 
       </AlertProvider>
