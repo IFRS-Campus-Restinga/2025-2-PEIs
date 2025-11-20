@@ -141,7 +141,7 @@ function CrudUniversal({ modelName }) {
     try {
       const payload = modelName === "Parecer" ? {
         componente_curricular: Number(form.componente_curricular),
-        professor: Number(form.professor),
+        professor_id: Number(form.professor),
         texto: form.texto,
         data: form.data
       } : form;
@@ -170,7 +170,7 @@ function CrudUniversal({ modelName }) {
     try {
       const payload = modelName === "Parecer" ? {
         componente_curricular: Number(editForm.componente_curricular),
-        professor: Number(editForm.professor),
+        professor_id: Number(editForm.professor),
         texto: editForm.texto,
         data: editForm.data
       } : editForm;
