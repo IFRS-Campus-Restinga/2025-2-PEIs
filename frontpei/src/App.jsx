@@ -146,7 +146,7 @@ function App() {
 
         setUsuario(userData);
         setLogado(true);
-        mandaEmail(email, "Login PEI", "Um novo login acaba de ser realizado com sucesso usando essa conta no sistema PEI!");
+        mandaEmail(data.email, "Login PEI", "Um novo login acaba de ser realizado com sucesso usando essa conta no sistema PEI!");
         return;
       }
 
