@@ -18,11 +18,17 @@ export default function Registro() {
         setMessage("");
 
         try {
-            const response = await api.post(API_ROUTES.REGISTER, {
-                name,
-                email,
-                profile,
-                message: ""
+            /*const response = await api.post(API_ROUTES.USUARIOS_REGISTRAR, {
+                nome: name,
+                email: email,
+                tipo_usuario: profile,
+                senha: ""
+            });*/
+            const response = await api.post("http://localhost:8000/services/usuarios/registrar/", {
+                nome: name,
+                email: email,
+                senha: "",
+                tipo_usuario: profile,
             });
 
             if (response.status === 201) {

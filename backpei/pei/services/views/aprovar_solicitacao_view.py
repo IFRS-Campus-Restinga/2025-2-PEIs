@@ -4,11 +4,14 @@ from rest_framework.views import APIView
 from django.utils import timezone
 from django.db import transaction
 from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
 from pei.models.registration_request import RegistrationRequest
 from pei.models.usuario import Usuario
 from pei.services.serializers.usuario_serializer import UsuarioSerializer
+
+User = get_user_model()
 
 
 class AprovarSolicitacaoRegistroView(APIView):
@@ -54,33 +57,56 @@ class AprovarSolicitacaoRegistroView(APIView):
                     senha_gerada = Usuario.objects.make_random_password()
 
                     # Criar usuário com base nos dados da solicitação
-                    usuario = Usuario.objects.create_user(
+                    """usuario = Usuario.objects.create_user(
                         username=solicitacao.email,
                         email=solicitacao.email,
                         nome=solicitacao.name,
                         categoria=solicitacao.profile,
                         password=senha_gerada,
                         is_active=True
+                    )"""
+                    user = User.objects.create_user(
+                        username=solicitacao.email,
+                        email=solicitacao.email,
+                        password=senha_gerada,
+                        is_active=True,
+                        first_name=solicitacao.name.split()[0],
+                        last_name=' '.join(solicitacao.name.split()[1:]) if len(solicitacao.name.split()) > 1 else ""
+                    )
+
+                    # Criar o perfil personalizado
+                    perfil = Usuario.objects.create(
+                        nome=solicitacao.name,
+                        email=solicitacao.email,
+                        categoria=solicitacao.profile,
+                        status=Usuario.STATUS_APROVADO
                     )
 
                     # Adicionar ao grupo correto
-                    try:
+                    """try:
                         grupo = Group.objects.get(name=usuario.categoria)
                         usuario.groups.add(grupo)
+                    except Group.DoesNotExist:
+                        pass"""
+                    try:
+                        grupo = Group.obkects.get(name__iexact=solicitacao.profile)
+                        user.groups.add(grupo)
                     except Group.DoesNotExist:
                         pass
 
                     # Atualizar a solicitação
                     solicitacao.status = "APPROVED"
                     solicitacao.reviewed_at = timezone.now()
-                    solicitacao.created_user = usuario
+                    solicitacao.created_user = user
                     solicitacao.save()
 
                     return Response(
                         {
                             "message": "Solicitação aprovada e usuário criado com sucesso.",
-                            "senha_gerada": senha_gerada,
-                            "usuario": UsuarioSerializer(usuario).data
+                            "email": user.email,
+                            "senha_temporaria": senha_gerada,
+                            "perfil_id": perfil.id
+                            # "usuario": UsuarioSerializer(usuario).data
                         },
                         status=status.HTTP_200_OK
                     )

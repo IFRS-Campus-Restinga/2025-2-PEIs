@@ -96,7 +96,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
     }
 
     try {
-      const response = await api.post("/services/usuarios/registrar/", {
+      const response = await api.post("http://localhost:8000/services/usuarios/registrar/", {
         nome: regNome,
         email: regEmail,
         senha: regSenha,
