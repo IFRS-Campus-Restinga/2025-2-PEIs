@@ -229,7 +229,7 @@ const PeriodoLetivoPerfil = () => {
                 case "napne":
                   return (
                     <>
-                      <Link to="/crud/Periodo" className="btn-verde">
+                      <Link to="/crud/PEIPeriodoLetivo" className="btn-verde">
                         Gerenciar Períodos Letivos
                       </Link>
                       <Link to="/peicentral" className="btn-verde">
@@ -287,7 +287,7 @@ const PeriodoLetivoPerfil = () => {
                       <Link to="/crud/Disciplina" className="btn-verde">
                         Gerenciar Disciplinas
                       </Link>
-                      <Link to="/crud/Periodo" className="btn-verde">
+                      <Link to="/crud/PEIPeriodoLetivo" className="btn-verde">
                         Gerenciar Períodos Letivos
                       </Link>
                       <Link to="/crud/Aluno" className="btn-verde">

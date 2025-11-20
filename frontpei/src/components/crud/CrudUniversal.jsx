@@ -20,6 +20,15 @@ function CrudUniversal({ modelName }) {
   const [selectOptions, setSelectOptions] = useState({});
   const [servicesMap, setServicesMap] = useState({});
 
+  // Função para formatar labels legíveis
+  const formatLabel = (label) => {
+    if (!label) return "";
+    // Substitui underscores por espaço e capitaliza cada palavra
+    let l = label.replace(/_/g, " ");
+    l = l.replace(/\b\w/g, char => char.toUpperCase());
+    return l;
+  };
+
   useEffect(() => {
     console.log("useEffect clearAlerts rodou");
     clearAlerts();
@@ -218,10 +227,10 @@ function CrudUniversal({ modelName }) {
 
       <form className="form-padrao" onSubmit={handleSubmit}>
         {metadata?.fields
-          ?.filter(f => f.name !== "id") // <--- não exibe o ID
+          ?.filter(f => f.name !== "id")
           .map(f => (
             <div key={f.name}>
-              <label>{f.label || f.name}:</label>
+              <label>{f.label ? f.label : formatLabel(f.name)}:</label>
               {renderInput(f, form[f.name], val => { setForm({ ...form, [f.name]: val }); console.log(`Form atualizado ${f.name}:`, val); })}
               <FieldAlert fieldName={f.name} />
             </div>
@@ -238,10 +247,10 @@ function CrudUniversal({ modelName }) {
               {editId === r.id ? (
                 <form onSubmit={e => handleEditSubmit(e, r.id)}>
                   {metadata?.fields
-                    ?.filter(f => f.name !== "id") // <--- não exibe o ID
+                    ?.filter(f => f.name !== "id")
                     .map(f => (
                       <div key={f.name}>
-                        <label>{f.label || f.name}:</label>
+                        <label>{f.label ? f.label : formatLabel(f.name)}:</label>
                         {renderInput(f, editForm[f.name], val => { setEditForm({ ...editForm, [f.name]: val }); console.log(`EditForm atualizado ${f.name}:`, val); })}
                         <FieldAlert fieldName={`edit-${f.name}`} />
                       </div>
@@ -254,10 +263,10 @@ function CrudUniversal({ modelName }) {
               ) : (
                 <div>
                   {metadata?.fields
-                    ?.filter(f => f.name !== "id") // <--- não exibe o ID
+                    ?.filter(f => f.name !== "id")
                     .map(f => (
                       <div key={f.name}>
-                        <strong>{f.label || f.name}:</strong>{" "}
+                        <strong>{f.label ? f.label : formatLabel(f.name)}:</strong>{" "}
                         {(f.type === "foreignkey" || f.type === "select")
                           ? selectOptions[f.name]?.find(opt => opt.id === Number(r[f.name]))?.nome
                             || selectOptions[f.name]?.find(opt => opt.id === Number(r[f.name]))?.periodo_principal
