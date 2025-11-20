@@ -5,15 +5,14 @@ import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import "../cssGlobal.css"
 import { API_ROUTES } from "../configs/apiRoutes";
 
-
 function Conteudo({usuario}) {
-  // estados necessarios
+  // cria a instancia do axios
   const DBConteudo = axios.create({baseURL: API_ROUTES.CONTEUDO});
   // adiciona o usuario de email nas requisicoes desse axios
   DBConteudo.defaults.headers.common["X-User-Email"] = usuario.email;
+  // estados necessarios
   const [conteudos, setConteudos] = useState([])
   const [erroBanco, setErroBanco] = useState(false)
-
 
   // funcao para buscar no rest/django os conteudos cadastrados
   async function recuperaConteudos() {
@@ -50,14 +49,14 @@ function Conteudo({usuario}) {
       event.target.reset();
     } catch (erro) {
       console.error("Erro ao cadastrar conteudo:", erro);
-      alert("Erro ao cadastrar o conteúdo. Revise o conteúdo dos campos e confirme que o backend está funcional."); } }
-
+      alert("Erro ao cadastrar o conteúdo. Revise o conteúdo dos campos e confirme que o backend está funcional."); } }  
 
   // executando na inicializacao
   useEffect(() => {
-    recuperaConteudos();
+      recuperaConteudos();
   }, []);
 
+  // ============================================================
   return ( <>
     <div className="container-padrao">
       <h1>Cadastro de Conteúdos</h1>
@@ -71,11 +70,12 @@ function Conteudo({usuario}) {
 
       <div className="list-padrao">
         <h3>Conteúdos Cadastrados</h3>
+        <p>Seu email é <b>{usuario.email}</b><br />Seu grupo é: <b>{usuario.grupo}</b></p>
         <ul>
         { erroBanco ? ( <p>Não foi possível acessar o backend do django...</p> ) : (
         conteudos.map(u => (
           <li key={u.id}>
-            <p><b>Autor:</b> {u.autor} <br /> <b>Texto:</b> { u.texto }</p>
+            <p><b>Autor:</b> {u.autor} <br /> <b>Data:</b> {u.timestamp} <br /> <b>Texto:</b> { u.texto }</p>
             <div className="posicao-buttons">
               <BotaoDeletar id={u.id} axiosInstance={DBConteudo} onDeletarSucesso={recuperaConteudos}/>
             </div>
@@ -83,8 +83,8 @@ function Conteudo({usuario}) {
         ) ) ) }
         </ul>
 
-        { erroBanco ? ( <p>Não foi possível acessar o backend do django...</p> ) : (
-        <pre>{JSON.stringify(conteudos, null, 2)}</pre> ) } 
+        {/* { erroBanco ? ( <p>Não foi possível acessar o backend do django...</p> ) : (
+        <pre>{JSON.stringify(conteudos, null, 2)}</pre> ) } */}
 
       </div>
       <BotaoVoltar/>
