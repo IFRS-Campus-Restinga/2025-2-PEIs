@@ -42,52 +42,34 @@ import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx';
 import Pedagogos from './pages/Pedagogo.jsx';
 import Professor from "./pages/Professor.jsx";
 import Conteudo from './pages/Conteudo.jsx';
-//import Usuarios from './pages/Usuario.jsx';
+import TelaSolicitacoesPendentes from "./pages/admin/TelaSolicitacoesPendentes";
 
 // FUNCOES DE USO GLOBAL
 import { mandaEmail } from "./lib/mandaEmail";
 import { consultaGrupo } from "./lib/consultaGrupo";
 
-// Rotas Admin
-import TelaSolicitacoesPendentes from "./pages/admin/TelaSolicitacoesPendentes";
-
 function App() {
-
   const [usuario, setUsuario] = useState(null);
   const [logado, setLogado] = useState(false);
   const [mensagemErro, setMensagemErro] = useState(null);
   const [perfilSelecionado, setPerfilSelecionado] = useState(null);
   const navigate = useNavigate();
 
-  // rotinas de inicializacao
+  // rotina de inicializacao
   useEffect(() => {
-    // precisou ficar async pra carregar o grupo
     async function carregarUsuario() {
       const usuarioSalvo = localStorage.getItem("usuario");
       if (usuarioSalvo) {
         const usuarioObj = JSON.parse(usuarioSalvo);
-        // consulta o grupo com a funcao externa
         const grupoAtual = await consultaGrupo(usuarioObj.email);
-        // atualiza o usuario no objeto
         usuarioObj.grupo = grupoAtual;
-        // salva novamente no localStorage
         localStorage.setItem("usuario", JSON.stringify(usuarioObj));
-        // atualiza o estado
         setUsuario(usuarioObj);
         setLogado(true);
-      } } carregarUsuario();
+      }
+    }
+    carregarUsuario();
   }, []);
-
-// se um dia nao precisar mais trocar o grupo imediatamente (tipo na vida real)
-// dai podemos voltar a usar o useEffect apenas assim
-// rotina de inicializacao que carrega o login salvo
-//  useEffect(() => {
-//    const usuarioSalvo = localStorage.getItem("usuario")
-//    if (usuarioSalvo) {
-//      setUsuario(JSON.parse(usuarioSalvo))
-//      setLogado(true)
-//    }
-//  }, [])
 
   // Login Google
   const sucessoLoginGoogle = async (credentialResponse) => {
@@ -124,14 +106,12 @@ function App() {
       }
 
       if (data.status === "ok") {
-
         const respMe = await fetch("http://localhost:8000/api/auth/me/", {
           headers: { "Authorization": `Token ${data.token}` }
         });
         const me = await respMe.json();
         const dadosGoogle = jwtDecode(credentialResponse.credential);
-        // pesquisa o grupo do usuario
-        const grupoDoUsuario = await consultaGrupo(data.email)
+        const grupoDoUsuario = await consultaGrupo(data.email);
         const userData = {
           email: data.email,
           token: data.token,
@@ -146,12 +126,11 @@ function App() {
 
         setUsuario(userData);
         setLogado(true);
-        mandaEmail(data.email, "Login PEI", "Um novo login acaba de ser realizado com sucesso usando essa conta no sistema PEI!");
+        mandaEmail(data.email, "Login PEI", "Um novo login acabou de ser realizado!");
         return;
       }
 
       setMensagemErro(data.detail || "Erro inesperado.");
-
     } catch (e) {
       console.error("Erro login Google:", e);
       setMensagemErro("Falha ao conectar com o servidor.");
@@ -173,33 +152,21 @@ function App() {
   return (
     <GoogleOAuthProvider clientId="992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com">
       <AlertProvider>
-        {/* componente global que exibe alerts */}
         <AlertComponent />
 
-        { logado ? (
+        { logado && (
           <div className="app-container">
             <Header usuario={usuario} logado={logado} logout={logout} />
             <SubHeader perfilSelecionado={perfilSelecionado} />
             <hr />
-
             <main className='main-content'>
               <Routes>
-                   {/* PUBLIC */}
-                <Route path="/pre-cadastro" element={<TelaPreCadastro />} />
-                <Route path="/aguardando-aprovacao" element={<AguardandoAprovacao />} />
-                <Route 
-                  path="/" 
-                  element={<Home 
-                    usuario={usuario} 
-                    perfilSelecionado={perfilSelecionado} 
-                    setPerfilSelecionado={setPerfilSelecionado} 
-                  />} 
-                />
-                <Route path="/" element={<Home />} />
+                {/* Rotas internas (logado) */}
+                <Route path="/" element={<Home usuario={usuario} perfilSelecionado={perfilSelecionado} setPerfilSelecionado={setPerfilSelecionado} />} />
                 <Route path="/pareceres" element={<Pareceres />} />
                 <Route path="/periodo" element={<PEIPeriodoLetivo />} />
                 <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />
-                <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} /> {/**Teste Mau */}
+                <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} />
                 <Route path="/periodoLetivoPerfil" element={<PeriodoLetivoPerfil />} />
                 <Route path="/disciplina" element={<Disciplinas/>}/>
                 <Route path="/disciplinasCadastrar" element={<DisciplinasCRUD/>}/>
@@ -221,25 +188,25 @@ function App() {
                 <Route path="/professor" element={<Professor />} />
                 <Route path="/perfil" element={<Perfil/>} />
                 <Route path="/conteudo" element={<Conteudo usuario={usuario} />}/>
-                 {/* ADMIN */}
                 {usuario?.grupos?.includes("Admin") && (
                   <Route path="/admin/solicitacoes" element={<TelaSolicitacoesPendentes />} />
                 )}
-
               </Routes>
             </main>
             <Footer/>
           </div>
-        ) : (
-          <LoginPage 
-            onLoginSuccess={sucessoLoginGoogle}
-            onLoginError={erroLoginGoogle}
-            mensagemErro={mensagemErro}
-          />
         )}
+
+        {/* Rotas públicas */}
+        <Routes>
+          <Route path="/pre-cadastro" element={<TelaPreCadastro />} />
+          <Route path="/aguardando-aprovacao" element={<AguardandoAprovacao />} />
+          <Route path="/" element={!logado && <LoginPage onLoginSuccess={sucessoLoginGoogle} onLoginError={erroLoginGoogle} mensagemErro={mensagemErro} />} />
+        </Routes>
+
       </AlertProvider>
     </GoogleOAuthProvider>   
   )
 }
 
-export default App
+export default App;
