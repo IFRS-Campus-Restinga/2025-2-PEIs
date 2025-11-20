@@ -14,7 +14,8 @@ const endpoints = [
   "permissoes",
   "usuario",
   "conteudo",
-  "consultaGrupos"
+  "consultaGrupos",
+  "schema"
 ];
 
 export const API_ROUTES = Object.fromEntries(

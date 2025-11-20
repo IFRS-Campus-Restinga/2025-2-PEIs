@@ -44,9 +44,11 @@ import Professor from "./pages/Professor.jsx";
 import Conteudo from './pages/Conteudo.jsx';
 import TelaSolicitacoesPendentes from "./pages/admin/TelaSolicitacoesPendentes";
 
+
 // FUNCOES DE USO GLOBAL
 import { mandaEmail } from "./lib/mandaEmail";
 import { consultaGrupo } from "./lib/consultaGrupo";
+import CrudWrapper from "./components/crud/crudWrapper.jsx"
 
 function App() {
   const [usuario, setUsuario] = useState(null);
@@ -188,6 +190,7 @@ function App() {
                 <Route path="/professor" element={<Professor />} />
                 <Route path="/perfil" element={<Perfil/>} />
                 <Route path="/conteudo" element={<Conteudo usuario={usuario} />}/>
+                <Route path="/crud/:modelKey" element={<CrudWrapper />} />
                 {usuario?.grupos?.includes("Admin") && (
                   <Route path="/admin/solicitacoes" element={<TelaSolicitacoesPendentes />} />
                 )}

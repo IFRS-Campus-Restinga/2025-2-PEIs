@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError
 class ComponenteCurricularViewSet(ModelViewSet):
     queryset = ComponenteCurricular.objects.all()
     serializer_class = ComponenteCurricularSerializer
-    permission_classes = [BackendTokenPermission]
+    #permission_classes = [BackendTokenPermission]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

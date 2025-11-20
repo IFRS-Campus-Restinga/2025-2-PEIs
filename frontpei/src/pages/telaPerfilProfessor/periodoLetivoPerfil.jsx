@@ -195,11 +195,11 @@ const PeriodoLetivoPerfil = () => {
                 case "professor":
                   return (
                     <>
-                      <Link to="/pareceres" className="btn-verde">
+                      <Link to="/crud/Parecer" className="btn-verde">
                         Cadastrar Parecer
                       </Link>
                       <Link
-                        to="/documentacaoComplementar"
+                        to="/crud/DocumentacaoComplementar"
                         className="btn-verde"
                       >
                         Gerenciar Documentações Complementares
@@ -212,14 +212,14 @@ const PeriodoLetivoPerfil = () => {
                 case "pedagogo":
                   return (
                     <>
-                      <Link to="/ataDeAcompanhamento" className="btn-verde">
+                      <Link to="/crud/AtaDeAcompanhamento" className="btn-verde">
                         Gerenciar Atas de Acompanhamento
                       </Link>
                       <Link to="/peicentral" className="btn-verde">
                         Visualizar PEI Central
                       </Link>
                       <Link
-                        to="/documentacaoComplementar"
+                        to="/crud/DocumentacaoComplementar"
                         className="btn-verde"
                       >
                         Gerenciar Documentações Complementares
@@ -229,20 +229,20 @@ const PeriodoLetivoPerfil = () => {
                 case "napne":
                   return (
                     <>
-                      <Link to="/periodo" className="btn-verde">
+                      <Link to="/crud/Periodo" className="btn-verde">
                         Gerenciar Períodos Letivos
                       </Link>
                       <Link to="/peicentral" className="btn-verde">
                         Visualizar PEI Central
                       </Link>
-                      <Link to="/componenteCurricular" className="btn-verde">
+                      <Link to="/crud/ComponenteCurricular" className="btn-verde">
                         Gerenciar Componentes Curriculares
                       </Link>
-                      <Link to="/ataDeAcompanhamento" className="btn-verde">
+                      <Link to="/crud/AtaDeAcompanhamento" className="btn-verde">
                         Gerenciar Atas de Acompanhamento
                       </Link>
                       <Link
-                        to="/documentacaoComplementar"
+                        to="/crud/DocumentacaoComplementar"
                         className="btn-verde"
                       >
                         Gerenciar Documentações Complementares
@@ -252,23 +252,23 @@ const PeriodoLetivoPerfil = () => {
                 case "coordenador":
                   return (
                     <>
-                      <Link to="/curso" className="btn-verde">
+                      <Link to="/crud/Curso" className="btn-verde">
                         Gerenciar Cursos
                       </Link>
-                      <Link to="/disciplina" className="btn-verde">
+                      <Link to="/crud/Disciplina" className="btn-verde">
                         Gerenciar Disciplinas
                       </Link>
                       <Link to="/peicentral" className="btn-verde">
                         Visualizar PEI Central
                       </Link>
-                      <Link to="/aluno" className="btn-verde">
+                      <Link to="/crud/Aluno" className="btn-verde">
                         Gerenciar Alunos
                       </Link>
-                      <Link to="/ataDeAcompanhamento" className="btn-verde">
+                      <Link to="/crud/AtaDeAcompanhamento" className="btn-verde">
                         Gerenciar Atas de Acompanhamento
                       </Link>
                       <Link
-                        to="/documentacaoComplementar"
+                        to="/crud/DocumentacaoComplementar"
                         className="btn-verde"
                       >
                         Gerenciar Documentações Complementares
@@ -281,32 +281,32 @@ const PeriodoLetivoPerfil = () => {
                       <Link to="/usuario" className="btn-verde">
                         Gerenciar Usuários
                       </Link>
-                      <Link to="/curso" className="btn-verde">
+                      <Link to="/crud/Curso" className="btn-verde">
                         Gerenciar Cursos
                       </Link>
-                      <Link to="/disciplina" className="btn-verde">
+                      <Link to="/crud/Disciplina" className="btn-verde">
                         Gerenciar Disciplinas
                       </Link>
-                      <Link to="/periodo" className="btn-verde">
+                      <Link to="/crud/Periodo" className="btn-verde">
                         Gerenciar Períodos Letivos
                       </Link>
-                      <Link to="/aluno" className="btn-verde">
+                      <Link to="/crud/Aluno" className="btn-verde">
                         Gerenciar Alunos
                       </Link>
                       <Link to="/peicentral" className="btn-verde">
                         Visualizar PEI Central
                       </Link>
-                      <Link to="/pareceres" className="btn-verde">
+                      <Link to="/crud/Parecer" className="btn-verde">
                         Cadastrar Parecer
                       </Link>
-                      <Link to="/componenteCurricular" className="btn-verde">
+                      <Link to="/crud/ComponenteCurricular" className="btn-verde">
                         Gerenciar Componentes Curriculares
                       </Link>
-                      <Link to="/ataDeAcompanhamento" className="btn-verde">
+                      <Link to="/crud/AtaDeAcompanhamento" className="btn-verde">
                         Gerenciar Atas de Acompanhamento
                       </Link>
                       <Link
-                        to="/documentacaoComplementar"
+                        to="/crud/DocumentacaoComplementar"
                         className="btn-verde"
                       >
                         Gerenciar Documentações Complementares
