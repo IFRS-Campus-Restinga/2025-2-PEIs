@@ -134,6 +134,7 @@ function CrudUniversal({ modelName }) {
     } else {
       addAlert("Erro na requisição.", "error", { persist: true });
     }
+    console.log("ERRO BRUTO:", err.response);
     console.log("Erro da API:", err.response?.data || err.message);
   }
 
@@ -150,14 +151,15 @@ function CrudUniversal({ modelName }) {
     }
 
     try {
-      const payload = modelName === "Parecer" ? {
+      const payload = modelName === "parecer" ? {
         componente_curricular: Number(form.componente_curricular),
         professor_id: Number(form.professor),
         texto: form.texto,
         data: form.data
       } : form;
 
-      console.log("Payload formatado para criar:", payload);
+      console.log("Payload REAL:", JSON.parse(JSON.stringify(payload)));
+      console.log("Form no momento do submit:", JSON.parse(JSON.stringify(form)));
 
       await axios.post(getEndpoint(modelName), payload);
       setForm(Object.fromEntries(Object.keys(form).map(k => [k, ""])));
@@ -179,14 +181,15 @@ function CrudUniversal({ modelName }) {
     }
 
     try {
-      const payload = modelName === "Parecer" ? {
+      const payload = modelName === "parecer" ? {
         componente_curricular: Number(editForm.componente_curricular),
         professor_id: Number(editForm.professor),
         texto: editForm.texto,
         data: editForm.data
       } : editForm;
 
-      console.log("Payload formatado para edição:", payload);
+      console.log("Payload REAL:", JSON.parse(JSON.stringify(payload)));
+      console.log("Form no momento do submit:", JSON.parse(JSON.stringify(form)));
 
       await axios.put(`${getEndpoint(modelName)}${id}/`, payload);
       setEditId(null);

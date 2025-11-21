@@ -149,15 +149,15 @@ const PeriodoLetivoPerfil = () => {
               return (
                 <>
                   <Link to="/usuario" className="btn-verde">Gerenciar Usuários</Link>
-                  <Link to="/curso" className="btn-verde">Gerenciar Cursos</Link>
-                  <Link to="/disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
-                  <Link to="/periodo" className="btn-verde">Gerenciar Períodos Letivos</Link>
-                  <Link to="/aluno" className="btn-verde">Gerenciar Alunos</Link>
+                  <Link to="/crud/curso" className="btn-verde">Gerenciar Cursos</Link>
+                  <Link to="/crud/disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
+                  <Link to="/crud/periodo" className="btn-verde">Gerenciar Períodos Letivos</Link>
+                  <Link to="/crud/aluno" className="btn-verde">Gerenciar Alunos</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/pareceres" className="btn-verde">Cadastrar Parecer</Link>
-                  <Link to="/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
-                  <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/parecer" className="btn-verde">Cadastrar Parecer</Link>
+                  <Link to="/crud/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
+                  <Link to="/crud/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
 
