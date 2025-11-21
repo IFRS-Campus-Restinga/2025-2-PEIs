@@ -16,6 +16,8 @@ from .views.usuario_view_set import UsuarioViewSet
 from .views.permissoes_view_set import UsuarioPermissoesView
 from .views.conteudo_view_set import ConteudoViewSet
 from .views.consulta_grupos import ConsultaGrupos
+from .views.model_schema_view import ModelSchemaView
+
 
 router = DefaultRouter()
 router.register(r'PEIPeriodoLetivo', PEIPeriodoLetivoViewSet, basename='PEIPeriodoLetivo')
@@ -30,6 +32,7 @@ router.register(r'documentacaoComplementar', DocumentacaoComplementarViewSet, ba
 router.register(r'notificacoes', NotificacaoViewSet, basename='notificacao')
 router.register(r'usuario', UsuarioViewSet, basename='usuarios')
 router.register(r'conteudo', ConteudoViewSet, basename='conteudos')
+router.register(r'schema', ModelSchemaView, basename="model-schema")
 
 
 app_name = 'api'
@@ -39,4 +42,6 @@ urlpatterns = [
     path('notificacoes-lista/', listar_notificacoes, name='notificacoes-lista'),
     path("permissoes/", UsuarioPermissoesView.as_view(), name="usuario-permissoes"),
     path('consultaGrupos/', ConsultaGrupos.as_view(), name='consultaGrupos'),
+    
+
 ]

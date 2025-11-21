@@ -11,7 +11,7 @@ User = get_user_model()
 class UsuarioViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsuarioSerializer
-    permission_classes = [BackendTokenPermission]
+    #permission_classes = [BackendTokenPermission]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
