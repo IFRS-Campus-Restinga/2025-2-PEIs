@@ -21,32 +21,26 @@ function CrudUniversal({ modelName }) {
   const [selectOptions, setSelectOptions] = useState({});
   const [servicesMap, setServicesMap] = useState({});
 
-  // Função para formatar labels legíveis
   const formatLabel = (label) => {
     if (!label) return "";
-    // Substitui underscores por espaço e capitaliza cada palavra
     let l = label.replace(/_/g, " ");
     l = l.replace(/\b\w/g, char => char.toUpperCase());
     return l;
   };
 
   useEffect(() => {
-    console.log("useEffect clearAlerts rodou");
     clearAlerts();
   }, []);
 
-  // Lista de endpoints disponíveis
+  // Carrega lista de serviços
   useEffect(() => {
-    console.log("useEffect fetchServices rodou");
     async function fetchServices() {
       try {
         const res = await axios.get("http://localhost:8000/services/");
         setServicesMap(res.data);
-        console.log("Serviços carregados:", res.data);
       } catch (err) {
         addAlert("Erro ao carregar lista de serviços", "error");
         setServicesMap({});
-        console.log("Erro ao carregar serviços:", err.message);
       }
     }
     fetchServices();
@@ -62,17 +56,43 @@ function CrudUniversal({ modelName }) {
     PeiCentral: "pei_central",
   };
 
-  // Busca metadados
+  // -----------------------------
+  //  Buscar registros
+  // -----------------------------
+  async function fetchRecords() {
+    const mappedModel = exceptions[modelName] || modelName;
+
+    if (!servicesMap[mappedModel]) {
+      console.warn("Serviço não encontrado para:", mappedModel);
+      return;
+    }
+
+    try {
+      const res = await axios.get(servicesMap[mappedModel]);
+      const data = Array.isArray(res.data) ? res.data : res.data?.results || [];
+      setRecords(data);
+    } catch (err) {
+      addAlert("Erro ao recuperar registros!", "error");
+    }
+  }
+
+  // ------------------------------------------------------------------------------
+  // 
+  // ------------------------------------------------------------------------------
   useEffect(() => {
-    console.log("useEffect fetchMetadata rodou");
+    if (!servicesMap || Object.keys(servicesMap).length === 0) return;
+    fetchRecords();
+  }, [servicesMap, modelName]);
+  // ------------------------------------------------------------------------------
+
+  // Busca metadata
+  useEffect(() => {
     async function fetchMetadata() {
-      console.log("servicesMap:", servicesMap);
       if (!servicesMap.schema) return;
 
       try {
         const res = await axios.get(`${servicesMap.schema}${modelName}`);
         const data = res.data;
-        console.log("Metadata carregado:", data);
         setMetadata(data);
 
         const initialForm = {};
@@ -80,51 +100,33 @@ function CrudUniversal({ modelName }) {
         setForm(initialForm);
         setEditForm(initialForm);
 
-        // Busca opções de select/foreignkey
+        // Carregar opções de foreign keys
         data.fields?.forEach(async f => {
           if (f.type === "foreignkey" || f.type === "select") {
             try {
               const modelKey = f.related_model;
               const mappedKey = exceptions[modelKey] || modelKey;
-              const endpoint = f.related_endpoint || servicesMap[mappedKey] || `http://localhost:8000/services/${mappedKey}/`;
+
+              const endpoint =
+                f.related_endpoint ||
+                servicesMap[mappedKey] ||
+                `http://localhost:8000/services/${mappedKey}/`;
 
               const r = await axios.get(endpoint);
               const options = Array.isArray(r.data) ? r.data : r.data?.results || [];
+
               setSelectOptions(prev => ({ ...prev, [f.name]: options }));
-              console.log(`Opções carregadas para ${f.name}:`, options);
             } catch (err) {
               addAlert(`Erro ao carregar opções de ${f.name}`, "error");
-              console.log(`Erro ao carregar opções de ${f.name}:`, err.message);
             }
           }
         });
       } catch (err) {
         addAlert("Erro ao carregar metadados do modelo.", "error");
-        console.log("Erro ao carregar metadata:", err.message);
       }
     }
     fetchMetadata();
   }, [modelName, servicesMap]);
-
-  // Busca registros
-  useEffect(() => {
-    console.log("useEffect fetchRecords rodou");
-    const mappedModel = exceptions[modelName] || modelName;
-    if (!metadata?.fields?.length || !servicesMap[mappedModel]) return;
-
-    async function recuperaRegistros() {
-      try {
-        const res = await axios.get(servicesMap[mappedModel]);
-        const data = Array.isArray(res.data) ? res.data : res.data?.results || [];
-        setRecords(data);
-        console.log("Registros carregados:", data);
-      } catch (err) {
-        addAlert("Erro ao recuperar registros!", "error");
-        console.log("Erro ao carregar registros:", err.message);
-      }
-    }
-    recuperaRegistros();
-  }, [metadata, servicesMap, modelName]);
 
   function handleApiErrors(err) {
     if (err.response?.data) {
@@ -134,15 +136,15 @@ function CrudUniversal({ modelName }) {
     } else {
       addAlert("Erro na requisição.", "error", { persist: true });
     }
-    console.log("ERRO BRUTO:", err.response);
-    console.log("Erro da API:", err.response?.data || err.message);
   }
 
   const getEndpoint = (model) => servicesMap[exceptions[model] || model];
 
+  // -----------------------------
+  // CREATE
+  // -----------------------------
   async function handleSubmit(e) {
     e.preventDefault();
-    console.log("handleSubmit chamado com form:", form);
 
     const mensagens = validaCampos(form, e.target);
     if (mensagens.length > 0) {
@@ -151,28 +153,31 @@ function CrudUniversal({ modelName }) {
     }
 
     try {
-      const payload = modelName === "parecer" ? {
-        componente_curricular: Number(form.componente_curricular),
-        professor_id: Number(form.professor),
-        texto: form.texto,
-        data: form.data
-      } : form;
-
-      console.log("Payload REAL:", JSON.parse(JSON.stringify(payload)));
-      console.log("Form no momento do submit:", JSON.parse(JSON.stringify(form)));
+      const payload = modelName === "parecer"
+        ? {
+            componente_curricular: Number(form.componente_curricular),
+            professor_id: Number(form.professor),
+            texto: form.texto,
+            data: form.data
+          }
+        : form;
 
       await axios.post(getEndpoint(modelName), payload);
+
+      await fetchRecords(); // Agora sempre funciona
+
       setForm(Object.fromEntries(Object.keys(form).map(k => [k, ""])));
-      setRecords(prev => [...prev]);
       addAlert("Registro cadastrado com sucesso!", "success");
     } catch (err) {
       handleApiErrors(err);
     }
   }
 
+  // -----------------------------
+  // UPDATE
+  // -----------------------------
   async function handleEditSubmit(e, id) {
     e.preventDefault();
-    console.log(`handleEditSubmit chamado para ID ${id} com editForm:`, editForm);
 
     const mensagens = validaCampos(editForm, e.target);
     if (mensagens.length > 0) {
@@ -181,20 +186,22 @@ function CrudUniversal({ modelName }) {
     }
 
     try {
-      const payload = modelName === "parecer" ? {
-        componente_curricular: Number(editForm.componente_curricular),
-        professor_id: Number(editForm.professor),
-        texto: editForm.texto,
-        data: editForm.data
-      } : editForm;
-
-      console.log("Payload REAL:", JSON.parse(JSON.stringify(payload)));
-      console.log("Form no momento do submit:", JSON.parse(JSON.stringify(form)));
+      const payload = modelName === "parecer"
+        ? {
+            componente_curricular: Number(editForm.componente_curricular),
+            professor_id: Number(editForm.professor),
+            texto: editForm.texto,
+            data: editForm.data
+          }
+        : editForm;
 
       await axios.put(`${getEndpoint(modelName)}${id}/`, payload);
+
       setEditId(null);
       setEditForm(Object.fromEntries(Object.keys(editForm).map(k => [k, ""])));
-      setRecords(prev => [...prev]);
+
+      await fetchRecords(); // Atualiza automático
+
       addAlert("Registro atualizado com sucesso!", "success");
     } catch (err) {
       handleApiErrors(err);
@@ -204,25 +211,35 @@ function CrudUniversal({ modelName }) {
   if (!metadata) return <div>Carregando...</div>;
 
   const renderInput = (f, value, onChange) => {
-    if (f.type === "textarea") return <textarea value={value || ""} onChange={e => onChange(e.target.value)} />;
-    if (f.type === "DateField") return <input type="date" value={value || ""} onChange={e => onChange(e.target.value)} />;
-    if (f.type === "DateTimeField") return <input type="datetime-local" value={value || ""} onChange={e => onChange(e.target.value)} />;
+    if (f.type === "textarea")
+      return <textarea value={value || ""} onChange={e => onChange(e.target.value)} />;
+
+    if (f.type === "DateField")
+      return <input type="date" value={value || ""} onChange={e => onChange(e.target.value)} />;
+
+    if (f.type === "DateTimeField")
+      return <input type="datetime-local" value={value || ""} onChange={e => onChange(e.target.value)} />;
 
     if (f.type === "foreignkey" || f.type === "select") {
       return (
         <select value={value || ""} onChange={e => onChange(e.target.value)}>
           <option value="">Selecione...</option>
           {(selectOptions[f.name] || []).map(opt => {
-            if (f.related_model === "ComponenteCurricular") return <option key={opt.id} value={opt.id}>{opt.disciplina?.nome || "-"}</option>;
-            if (f.related_model === "PEIPeriodoLetivo") return <option key={opt.id} value={opt.id}>{opt.periodo_principal || "-"}</option>;
-            if (f.related_model === "CustomUser") return <option key={opt.id} value={opt.id}>{opt.username || "-"}</option>;
+            if (f.related_model === "ComponenteCurricular")
+              return <option key={opt.id} value={opt.id}>{opt.disciplina?.nome || "-"}</option>;
+            if (f.related_model === "PEIPeriodoLetivo")
+              return <option key={opt.id} value={opt.id}>{opt.periodo_principal || "-"}</option>;
+            if (f.related_model === "CustomUser")
+              return <option key={opt.id} value={opt.id}>{opt.username || "-"}</option>;
             return <option key={opt.id} value={opt.id}>{opt.nome || opt.label || opt.id}</option>;
           })}
         </select>
       );
     }
 
-    if (f.type === "integer" || f.type === "float") return <input type="number" value={value || ""} onChange={e => onChange(e.target.value)} />;
+    if (f.type === "integer" || f.type === "float")
+      return <input type="number" value={value || ""} onChange={e => onChange(e.target.value)} />;
+
     return <input type="text" value={value || ""} onChange={e => onChange(e.target.value)} />;
   };
 
@@ -236,7 +253,7 @@ function CrudUniversal({ modelName }) {
           .map(f => (
             <div key={f.name}>
               <label>{f.label ? f.label : formatLabel(f.name)}:</label>
-              {renderInput(f, form[f.name], val => { setForm({ ...form, [f.name]: val }); console.log(`Form atualizado ${f.name}:`, val); })}
+              {renderInput(f, form[f.name], val => setForm({ ...form, [f.name]: val }))}
               <FieldAlert fieldName={f.name} />
             </div>
         ))}
@@ -256,7 +273,7 @@ function CrudUniversal({ modelName }) {
                     .map(f => (
                       <div key={f.name}>
                         <label>{f.label ? f.label : formatLabel(f.name)}:</label>
-                        {renderInput(f, editForm[f.name], val => { setEditForm({ ...editForm, [f.name]: val }); console.log(`EditForm atualizado ${f.name}:`, val); })}
+                        {renderInput(f, editForm[f.name], val => setEditForm({ ...editForm, [f.name]: val }))}
                         <FieldAlert fieldName={`edit-${f.name}`} />
                       </div>
                   ))}
@@ -281,8 +298,20 @@ function CrudUniversal({ modelName }) {
                       </div>
                   ))}
                   <div className="posicao-buttons">
-                    <BotaoEditar id={r.id} onClickInline={() => { setEditId(r.id); setEditForm(r); console.log("Editando registro:", r); }} />
-                    <BotaoDeletar id={r.id} axiosInstance={getEndpoint(modelName)} onDeletarSucesso={() => { setRecords(prev => prev.filter(x => x.id !== r.id)); console.log("Registro deletado:", r.id); }} />
+                    <BotaoEditar
+                      id={r.id}
+                      onClickInline={() => { setEditId(r.id); setEditForm(r); }}
+                    />
+
+                    {/* DELETE COM REFRESH AUTOMÁTICO */}
+                    <BotaoDeletar
+                      id={r.id}
+                      axiosInstance={getEndpoint(modelName)}
+                      onDeletarSucesso={async () => {
+                        await fetchRecords(); //  Atualiza após deletar
+                        addAlert("Registro deletado!", "success");
+                      }}
+                    />
                   </div>
                 </div>
               )}

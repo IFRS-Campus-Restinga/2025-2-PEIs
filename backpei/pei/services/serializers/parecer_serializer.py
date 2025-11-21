@@ -3,6 +3,7 @@ from pei.models.parecer import Parecer
 from pei.services.serializers.usuario_serializer import UsuarioSerializer
 from django.contrib.auth import get_user_model
 
+
 User = get_user_model()
 
 
