@@ -114,7 +114,7 @@ def criar_professores():
 
 def criar_coordenadores():
     nomes = [
-        "Jbrunetto", "Eduardo Ramos", "Sofia Martins",
+        "Ana Beatriz", "Eduardo Ramos", "Sofia Martins",
         "Tiago Almeida", "Camila Ferreira", "Rodrigo Lopes"
     ]
     for nome in nomes:
