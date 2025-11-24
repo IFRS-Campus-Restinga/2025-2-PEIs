@@ -6,11 +6,8 @@ import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import BotaoDeletar from "../../components/customButtons/botaoDeletar";
 import BotaoEditar from "../../components/customButtons/botaoEditar";
 import "../../cssGlobal.css";
-import PeiCentral from "../../pages/PeiCentral/PeiCentral";
 
 function CrudUniversal({ modelName }) {
-  console.log("CrudUniversal renderizado com modelName:", modelName);
-
   const { addAlert, clearAlerts } = useAlert();
 
   const [metadata, setMetadata] = useState(null);
@@ -20,31 +17,6 @@ function CrudUniversal({ modelName }) {
   const [editForm, setEditForm] = useState({});
   const [selectOptions, setSelectOptions] = useState({});
   const [servicesMap, setServicesMap] = useState({});
-
-  const formatLabel = (label) => {
-    if (!label) return "";
-    let l = label.replace(/_/g, " ");
-    l = l.replace(/\b\w/g, char => char.toUpperCase());
-    return l;
-  };
-
-  useEffect(() => {
-    clearAlerts();
-  }, []);
-
-  // Carrega lista de serviços
-  useEffect(() => {
-    async function fetchServices() {
-      try {
-        const res = await axios.get("http://localhost:8000/services/");
-        setServicesMap(res.data);
-      } catch (err) {
-        addAlert("Erro ao carregar lista de serviços", "error");
-        setServicesMap({});
-      }
-    }
-    fetchServices();
-  }, []);
 
   const exceptions = {
     Disciplina: "disciplinas",
@@ -56,17 +28,32 @@ function CrudUniversal({ modelName }) {
     PeiCentral: "pei_central",
   };
 
-  // -----------------------------
-  //  Buscar registros
-  // -----------------------------
+  const formatLabel = (label) => {
+    if (!label) return "";
+    let l = label.replace(/_/g, " ");
+    l = l.replace(/\b\w/g, char => char.toUpperCase());
+    return l;
+  };
+
+  useEffect(() => { clearAlerts(); }, []);
+
+  // Carrega lista de serviços
+  useEffect(() => {
+    async function fetchServices() {
+      try {
+        const res = await axios.get("http://localhost:8080/services/");
+        setServicesMap(res.data);
+      } catch (err) {
+        addAlert("Erro ao carregar lista de serviços", "error");
+        setServicesMap({});
+      }
+    }
+    fetchServices();
+  }, []);
+
   async function fetchRecords() {
     const mappedModel = exceptions[modelName] || modelName;
-
-    if (!servicesMap[mappedModel]) {
-      console.warn("Serviço não encontrado para:", mappedModel);
-      return;
-    }
-
+    if (!servicesMap[mappedModel]) return;
     try {
       const res = await axios.get(servicesMap[mappedModel]);
       const data = Array.isArray(res.data) ? res.data : res.data?.results || [];
@@ -76,16 +63,12 @@ function CrudUniversal({ modelName }) {
     }
   }
 
-  // ------------------------------------------------------------------------------
-  // 
-  // ------------------------------------------------------------------------------
   useEffect(() => {
     if (!servicesMap || Object.keys(servicesMap).length === 0) return;
     fetchRecords();
   }, [servicesMap, modelName]);
-  // ------------------------------------------------------------------------------
 
-  // Busca metadata
+  // Fetch metadata e opções de select
   useEffect(() => {
     async function fetchMetadata() {
       if (!servicesMap.schema) return;
@@ -100,9 +83,12 @@ function CrudUniversal({ modelName }) {
         setForm(initialForm);
         setEditForm(initialForm);
 
-        // Carregar opções de foreign keys
         data.fields?.forEach(async f => {
-          if (f.type === "foreignkey" || f.type === "select") {
+          const isFK = f.type === "foreignkey";
+          const isMulti = f.type === "multiselect";
+          const isSelectWithModel = f.type === "select" && f.related_model;
+
+          if (isFK || isMulti || isSelectWithModel) {
             try {
               const modelKey = f.related_model;
               const mappedKey = exceptions[modelKey] || modelKey;
@@ -110,7 +96,7 @@ function CrudUniversal({ modelName }) {
               const endpoint =
                 f.related_endpoint ||
                 servicesMap[mappedKey] ||
-                `http://localhost:8000/services/${mappedKey}/`;
+                `http://localhost:8080/services/${mappedKey}/`;
 
               const r = await axios.get(endpoint);
               const options = Array.isArray(r.data) ? r.data : r.data?.results || [];
@@ -140,32 +126,27 @@ function CrudUniversal({ modelName }) {
 
   const getEndpoint = (model) => servicesMap[exceptions[model] || model];
 
-  // -----------------------------
+  function normalizePayload(data, metadata) {
+    const payload = { ...data };
+    metadata.fields.forEach(f => {
+      if (f.type === "foreignkey") payload[f.name] = payload[f.name] ? Number(payload[f.name]) : null;
+      if (f.type === "multiselect") payload[f.name] = payload[f.name] || [];
+    });
+    return payload;
+  }
+
   // CREATE
-  // -----------------------------
   async function handleSubmit(e) {
     e.preventDefault();
-
     const mensagens = validaCampos(form, e.target);
     if (mensagens.length > 0) {
       mensagens.forEach(m => addAlert(m.message, "error", { fieldName: m.fieldName }));
       return;
     }
-
     try {
-      const payload = modelName === "parecer"
-        ? {
-            componente_curricular: Number(form.componente_curricular),
-            professor_id: Number(form.professor),
-            texto: form.texto,
-            data: form.data
-          }
-        : form;
-
+      const payload = normalizePayload(form, metadata);
       await axios.post(getEndpoint(modelName), payload);
-
-      await fetchRecords(); // Agora sempre funciona
-
+      await fetchRecords();
       setForm(Object.fromEntries(Object.keys(form).map(k => [k, ""])));
       addAlert("Registro cadastrado com sucesso!", "success");
     } catch (err) {
@@ -173,152 +154,203 @@ function CrudUniversal({ modelName }) {
     }
   }
 
-  // -----------------------------
   // UPDATE
-  // -----------------------------
   async function handleEditSubmit(e, id) {
     e.preventDefault();
-
     const mensagens = validaCampos(editForm, e.target);
     if (mensagens.length > 0) {
       mensagens.forEach(m => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}` }));
       return;
     }
-
     try {
-      const payload = modelName === "parecer"
-        ? {
-            componente_curricular: Number(editForm.componente_curricular),
-            professor_id: Number(editForm.professor),
-            texto: editForm.texto,
-            data: editForm.data
-          }
-        : editForm;
-
+      const payload = normalizePayload(editForm, metadata);
       await axios.put(`${getEndpoint(modelName)}${id}/`, payload);
-
       setEditId(null);
       setEditForm(Object.fromEntries(Object.keys(editForm).map(k => [k, ""])));
-
-      await fetchRecords(); // Atualiza automático
-
+      await fetchRecords();
       addAlert("Registro atualizado com sucesso!", "success");
     } catch (err) {
       handleApiErrors(err);
     }
   }
 
-  if (!metadata) return <div>Carregando...</div>;
-
+  // RENDER INPUT
   const renderInput = (f, value, onChange) => {
-    if (f.type === "textarea")
-      return <textarea value={value || ""} onChange={e => onChange(e.target.value)} />;
-
-    if (f.type === "DateField")
-      return <input type="date" value={value || ""} onChange={e => onChange(e.target.value)} />;
-
-    if (f.type === "DateTimeField")
-      return <input type="datetime-local" value={value || ""} onChange={e => onChange(e.target.value)} />;
-
-    if (f.type === "foreignkey" || f.type === "select") {
+    if (f.type === "textarea") return <textarea value={value || ""} onChange={e => onChange(e.target.value)} />;
+    if (f.type === "DateField") return <input type="date" value={value || ""} onChange={e => onChange(e.target.value)} />;
+    if (f.type === "DateTimeField") return <input type="datetime-local" value={value || ""} onChange={e => onChange(e.target.value)} />;
+    if (f.choices) {
       return (
         <select value={value || ""} onChange={e => onChange(e.target.value)}>
           <option value="">Selecione...</option>
-          {(selectOptions[f.name] || []).map(opt => {
-            if (f.related_model === "ComponenteCurricular")
-              return <option key={opt.id} value={opt.id}>{opt.disciplina?.nome || "-"}</option>;
-            if (f.related_model === "PEIPeriodoLetivo")
-              return <option key={opt.id} value={opt.id}>{opt.periodo_principal || "-"}</option>;
-            if (f.related_model === "CustomUser")
-              return <option key={opt.id} value={opt.id}>{opt.username || "-"}</option>;
-            return <option key={opt.id} value={opt.id}>{opt.nome || opt.label || opt.id}</option>;
+          {f.choices.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+        </select>
+      );
+    }
+    if (f.type === "foreignkey" || (f.type === "select" && f.related_model)) {
+      const options = selectOptions[f.name] || [];
+      return (
+        <select value={value || ""} onChange={e => onChange(e.target.value ? Number(e.target.value) : null)}>
+          <option value="">Selecione...</option>
+          {options.map(opt => {
+            const label = (opt.first_name || opt.last_name) 
+              ? `${opt.first_name || ""} ${opt.last_name || ""}`.trim() 
+              : opt.username || opt.id;
+            return <option key={opt.id} value={opt.id}>{label}</option>;
           })}
         </select>
       );
     }
-
-    if (f.type === "integer" || f.type === "float")
-      return <input type="number" value={value || ""} onChange={e => onChange(e.target.value)} />;
-
+    if (f.type === "multiselect") {
+      const options = selectOptions[f.name] || [];
+      return (
+        <div className="checkbox-group">
+          {options.map(opt => (
+            <label key={opt.id} style={{ display: "block" }}>
+              <input
+                type="checkbox"
+                checked={(value || []).includes(opt.id)}
+                onChange={e => {
+                  const selected = new Set(value || []);
+                  e.target.checked ? selected.add(opt.id) : selected.delete(opt.id);
+                  onChange([...selected]);
+                }}
+              />
+              {opt.nome || opt.label || (opt.first_name || opt.last_name ? `${opt.first_name || ""} ${opt.last_name || ""}`.trim() : opt.username) || opt.id}
+            </label>
+          ))}
+        </div>
+      );
+    }
+    if (f.type === "file") return <input type="file" onChange={e => onChange(e.target.files[0])} />;
     return <input type="text" value={value || ""} onChange={e => onChange(e.target.value)} />;
   };
+
+  // RENDER FIELD VALUE
+  // RENDER FIELD VALUE (ajustada para objetos no registro)
+const renderFieldValue = (f, record) => {
+  let value = record[f.name];
+
+  // Ajuste: se é foreignkey e não encontrou valor, tentar pegar pelo nome do objeto
+  if ((f.type === "foreignkey" || (f.type === "select" && f.related_model)) && !value) {
+    const possibleObj = record[f.name.replace(/_id$/, "")]; // remove _id e tenta achar o objeto
+    if (possibleObj && typeof possibleObj === "object") value = possibleObj;
+  }
+
+  if (f.type === "foreignkey" || (f.type === "select" && f.related_model)) {
+    if (value && typeof value === "object") {
+      return (
+        value.nome ||
+        (value.first_name || value.last_name ? `${value.first_name || ""} ${value.last_name || ""}`.trim() : null) ||
+        value.username ||
+        "-"
+      );
+    }
+    const options = selectOptions[f.name] || [];
+    const found = options.find(opt => String(opt.id) === String(value));
+    if (found) {
+      return (
+        found.nome ||
+        (found.first_name || found.last_name ? `${found.first_name || ""} ${found.last_name || ""}`.trim() : null) ||
+        found.username ||
+        "-"
+      );
+    }
+    return "-";
+  }
+
+  if (f.type === "multiselect") {
+  let values = record[f.name];
+
+  // Ajuste: se values não for array de IDs, mas for array de objetos
+  if (Array.isArray(values) && values.length > 0 && typeof values[0] === "object") {
+    return values.map(v => v.nome || v.id || "-").join(", ");
+  }
+
+  const options = selectOptions[f.name] || [];
+  if (Array.isArray(values)) {
+    return values
+      .map(v => {
+        const found = options.find(opt => String(opt.id) === String(v));
+        return found
+          ? found.nome ||
+              (found.first_name || found.last_name ? `${found.first_name || ""} ${found.last_name || ""}`.trim() : found.username) ||
+              v
+          : v;
+      })
+      .join(", ");
+  }
+  return "-";
+}
+
+  return value ?? "-";
+};
+
 
   return (
     <div className="container-padrao">
       <h1>Gerenciar {metadata?.model}</h1>
 
       <form className="form-padrao" onSubmit={handleSubmit}>
-        {metadata?.fields
-          ?.filter(f => f.name !== "id")
-          .map(f => (
-            <div key={f.name}>
-              <label>{f.label ? f.label : formatLabel(f.name)}:</label>
-              {renderInput(f, form[f.name], val => setForm({ ...form, [f.name]: val }))}
-              <FieldAlert fieldName={f.name} />
-            </div>
+        {metadata?.fields?.filter(f => f.name !== "id").map(f => (
+          <div key={f.name}>
+            <label>{f.label ? f.label : formatLabel(f.name)}:</label>
+            {renderInput(f, form[f.name], val => setForm({ ...form, [f.name]: val }))}
+            <FieldAlert fieldName={f.name} />
+          </div>
         ))}
         <button type="submit" className="submit-btn">Adicionar</button>
       </form>
 
       <div className="list-padrao">
-        <h3>Registros</h3>
-        <ul>
-          {records.length === 0 && <li>Nenhum registro.</li>}
-          {records.map(r => (
-            <li key={r.id}>
-              {editId === r.id ? (
-                <form onSubmit={e => handleEditSubmit(e, r.id)}>
-                  {metadata?.fields
-                    ?.filter(f => f.name !== "id")
-                    .map(f => (
-                      <div key={f.name}>
-                        <label>{f.label ? f.label : formatLabel(f.name)}:</label>
-                        {renderInput(f, editForm[f.name], val => setEditForm({ ...editForm, [f.name]: val }))}
-                        <FieldAlert fieldName={`edit-${f.name}`} />
-                      </div>
-                  ))}
-                  <div className="posicao-buttons esquerda">
-                    <button type="submit" className="btn-salvar">Salvar</button>
-                    <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
-                  </div>
-                </form>
-              ) : (
-                <div>
-                  {metadata?.fields
-                    ?.filter(f => f.name !== "id")
-                    .map(f => (
-                      <div key={f.name}>
-                        <strong>{f.label ? f.label : formatLabel(f.name)}:</strong>{" "}
-                        {(f.type === "foreignkey" || f.type === "select")
-                          ? selectOptions[f.name]?.find(opt => opt.id === Number(r[f.name]))?.nome
-                            || selectOptions[f.name]?.find(opt => opt.id === Number(r[f.name]))?.periodo_principal
-                            || selectOptions[f.name]?.find(opt => opt.id === Number(r[f.name]))?.username
-                            || "-"
-                          : r[f.name] || "-"}
-                      </div>
-                  ))}
-                  <div className="posicao-buttons">
-                    <BotaoEditar
-                      id={r.id}
-                      onClickInline={() => { setEditId(r.id); setEditForm(r); }}
-                    />
-
-                    {/* DELETE COM REFRESH AUTOMÁTICO */}
-                    <BotaoDeletar
-                      id={r.id}
-                      axiosInstance={getEndpoint(modelName)}
-                      onDeletarSucesso={async () => {
-                        await fetchRecords(); //  Atualiza após deletar
-                        addAlert("Registro deletado!", "success");
-                      }}
-                    />
-                  </div>
+  <h3>Registros</h3>
+  <ul>
+    {records.length === 0 && <li>Nenhum registro.</li>}
+    {records.map(r => {
+      console.log("Registro:", r); // Log do registro completo
+      return (
+        <li key={r.id}>
+          {editId === r.id ? (
+            <form onSubmit={e => handleEditSubmit(e, r.id)}>
+              {metadata?.fields?.filter(f => f.name !== "id").map(f => (
+                <div key={f.name}>
+                  <label>{f.label ? f.label : formatLabel(f.name)}:</label>
+                  {renderInput(f, editForm[f.name], val => setEditForm({ ...editForm, [f.name]: val }))}
+                  <FieldAlert fieldName={`edit-${f.name}`} />
                 </div>
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
+              ))}
+              <div className="posicao-buttons esquerda">
+                <button type="submit" className="btn-salvar">Salvar</button>
+                <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
+              </div>
+            </form>
+          ) : (
+            <div>
+              {metadata?.fields?.filter(f => f.name !== "id").map(f => {
+                const valor = renderFieldValue(f, r);
+                console.log("Campo:", f.name, "Valor renderizado:", valor); // Log do valor renderizado
+                return (
+                  <div key={f.name}>
+                    <strong>{f.label ? f.label : formatLabel(f.name)}:</strong>{" "}
+                    {valor}
+                  </div>
+                );
+              })}
+              <div className="posicao-buttons">
+                <BotaoEditar id={r.id} onClickInline={() => { setEditId(r.id); setEditForm(r); }} />
+                <BotaoDeletar
+                  id={r.id}
+                  axiosInstance={getEndpoint(modelName)}
+                  onDeletarSucesso={async () => { await fetchRecords(); addAlert("Registro deletado!", "success"); }}
+                />
+              </div>
+            </div>
+          )}
+        </li>
+      );
+    })}
+  </ul>
+</div>
 
       <BotaoVoltar />
     </div>

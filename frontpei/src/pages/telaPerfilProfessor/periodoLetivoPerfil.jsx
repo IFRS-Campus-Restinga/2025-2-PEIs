@@ -149,7 +149,7 @@ const PeriodoLetivoPerfil = () => {
               return (
                 <>
                   <Link to="/usuario" className="btn-verde">Gerenciar Usuários</Link>
-                  <Link to="/crud/curso" className="btn-verde">Gerenciar Cursos</Link>
+                  <Link to="/crud/Curso" className="btn-verde">Gerenciar Cursos</Link>
                   <Link to="/crud/Disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
                   <Link to="/crud/periodo" className="btn-verde">Gerenciar Períodos Letivos</Link>
                   <Link to="/crud/aluno" className="btn-verde">Gerenciar Alunos</Link>

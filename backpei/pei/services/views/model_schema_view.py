@@ -2,24 +2,46 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from django.apps import apps
 from django.db.models.fields.related import ForeignKey, ManyToManyField
+from django.db.models import FileField
+
+
+# MAPEAMENTO ENTRE MODELS E ENDPOINTS REAIS
+ENDPOINT_MAP = {
+    "CustomUser": "usuario",
+    "Conteudo": "conteudo",
+    "Parecer": "parecer",
+    "Curso": "cursos",
+    "Aluno": "aluno",
+    "PeiCentral": "pei_central",
+    "PEIPeriodoLetivo": "PEIPeriodoLetivo",
+    "Disciplina": "disciplinas",
+    "ComponenteCurricular": "componenteCurricular",
+    "AtaDeAcompanhamento": "ataDeAcompanhamento",
+    "DocumentacaoComplementar": "documentacaoComplementar",
+    "Notificacao": "notificacoes",
+}
+
 
 class ModelSchemaView(ViewSet):
 
     def list(self, request):
+        base_url = "http://localhost:8080/services/"
         models = apps.get_app_config("pei").get_models()
-        names = [m._meta.object_name for m in models]
 
-        return Response({
-            "available_models": names,
-            "detail_url_example": "/services/schema/Aluno/"
-        })
+        output = {}
+
+        for model in models:
+            model_name = model._meta.object_name
+            if model_name in ENDPOINT_MAP:
+                endpoint = ENDPOINT_MAP[model_name]
+                output[endpoint] = f"{base_url}{endpoint}/"
+
+        output["schema"] = f"{base_url}schema/"
+        return Response(output)
 
     def retrieve(self, request, pk=None):
-        model_name = pk
-
-        # Tenta pegar o model exatamente como foi passado
         try:
-            model = apps.get_model("pei", model_name)
+            model = apps.get_model("pei", pk)
         except LookupError:
             return Response({"error": "Modelo não encontrado"}, status=404)
 
@@ -27,29 +49,56 @@ class ModelSchemaView(ViewSet):
 
         for field in model._meta.get_fields():
 
-            # Ignora Reverse relations (ex: aluno.parecer_set)
+            # ignora reverse relations
             if field.auto_created and not field.concrete:
                 continue
 
-            field_info = {
+            info = {
                 "name": field.name,
-                "type": field.get_internal_type(),
                 "required": not getattr(field, "null", False),
             }
 
-            # --- FOREIGN KEY ---
-            if isinstance(field, ForeignKey):
-                field_info["type"] = "select"
-                field_info["related_model"] = field.related_model._meta.object_name
+            # ------------------------
+            # FILE FIELD
+            # ------------------------
+            if isinstance(field, FileField):
+                info["type"] = "file"
 
-            # --- MANY TO MANY ---
-            if isinstance(field, ManyToManyField):
-                field_info["type"] = "multiselect"
-                field_info["related_model"] = field.related_model._meta.object_name
+            # ------------------------
+            # CHOICES
+            # ------------------------
+            elif getattr(field, "choices", None):
+                info["type"] = "select"
+                info["choices"] = [
+                    {"value": c[0], "label": c[1]} for c in field.choices
+                ]
 
-            fields.append(field_info)
+            # ------------------------
+            # FOREIGN KEY
+            # ------------------------
+            elif isinstance(field, ForeignKey):
+                info["type"] = "select"
+                info["related_model"] = field.related_model._meta.object_name
+
+                # 🔥 Ajuste: serializer usa <campo>_id
+                info["name"] = f"{field.name}_id"
+
+            # ------------------------
+            # MANY TO MANY
+            # ------------------------
+            elif isinstance(field, ManyToManyField):
+                info["type"] = "multiselect"
+                info["related_model"] = field.related_model._meta.object_name
+
+            # ------------------------
+            # CAMPOS SIMPLES
+            # ------------------------
+            else:
+                info["type"] = field.get_internal_type()
+
+            fields.append(info)
 
         return Response({
-            "model": model_name,
+            "model": pk,
             "fields": fields
         })

@@ -6,7 +6,7 @@ export default function TelaSolicitacoesPendentes() {
   const token = localStorage.getItem("token");
 
   async function carregar() {
-    const resp = await fetch("http://localhost:8000/api/auth/solicitacoes/pendentes/", {
+    const resp = await fetch("http://localhost:8080/api/auth/solicitacoes/pendentes/", {
       headers: { "Authorization": `Token ${token}` }
     });
     const data = await resp.json();
@@ -18,7 +18,7 @@ export default function TelaSolicitacoesPendentes() {
   }, []);
 
   async function aprovar(id) {
-    await fetch("http://localhost:8000/api/auth/solicitacoes/aprovar/", {
+    await fetch("http://localhost:8080/api/auth/solicitacoes/aprovar/", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -30,7 +30,7 @@ export default function TelaSolicitacoesPendentes() {
   }
 
   async function rejeitar(id) {
-    await fetch("http://localhost:8000/api/auth/solicitacoes/rejeitar/", {
+    await fetch("http://localhost:8080/api/auth/solicitacoes/rejeitar/", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",

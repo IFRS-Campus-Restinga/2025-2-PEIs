@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from pei.models.curso import Curso
-from pei.models.disciplina import Disciplina
+
 from pei.services.serializers.usuario_serializer import UsuarioSerializer
 
 User = get_user_model()
@@ -16,10 +16,12 @@ class CursoSerializer(serializers.ModelSerializer):
     )
     arquivo_nome = serializers.SerializerMethodField()
     arquivo_upload = serializers.FileField(write_only=True, required=False)
+    disciplinas = serializers.StringRelatedField(many=True, read_only=True)
+
 
     class Meta:
         model = Curso
-        fields = ['id', 'nome', 'nivel', 'coordenador', 'coordenador_id', 'arquivo_nome', 'arquivo_upload']
+        fields = ['id', 'nome', 'nivel', 'coordenador', 'coordenador_id', 'arquivo_nome', 'arquivo_upload', 'disciplinas']
 
     def get_arquivo_nome(self, obj):
         if obj.arquivo:
