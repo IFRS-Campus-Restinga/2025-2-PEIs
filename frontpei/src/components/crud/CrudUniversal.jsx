@@ -228,17 +228,27 @@ function CrudUniversal({ modelName }) {
 
   // RENDER FIELD VALUE
   // RENDER FIELD VALUE (ajustada para objetos no registro)
+// Mapeamento de campos _id para o nome real do objeto no registro
+const idFieldMap = {
+  disciplinas_id: "disciplina",
+  periodo_letivo_id: "periodo_letivo",
+  // adicione outros se houver
+};
+
 const renderFieldValue = (f, record) => {
   let value = record[f.name];
 
-  // Ajuste: se é foreignkey e não encontrou valor, tentar pegar pelo nome do objeto
-  if ((f.type === "foreignkey" || (f.type === "select" && f.related_model)) && !value) {
-    const possibleObj = record[f.name.replace(/_id$/, "")]; // remove _id e tenta achar o objeto
-    if (possibleObj && typeof possibleObj === "object") value = possibleObj;
+  // Se for campo *_id, tenta pegar o objeto correspondente
+  if (f.name.endsWith("_id")) {
+    const objField = idFieldMap[f.name] || f.name.replace(/_id$/, "");
+    if (record[objField] && typeof record[objField] === "object") {
+      value = record[objField];
+    }
   }
 
-  if (f.type === "foreignkey" || (f.type === "select" && f.related_model)) {
-    if (value && typeof value === "object") {
+  // Para foreign keys ou selects com related_model
+  if ((f.type === "foreignkey" || (f.type === "select" && f.related_model)) && value) {
+    if (typeof value === "object") {
       return (
         value.nome ||
         (value.first_name || value.last_name ? `${value.first_name || ""} ${value.last_name || ""}`.trim() : null) ||
@@ -259,32 +269,28 @@ const renderFieldValue = (f, record) => {
     return "-";
   }
 
+  // Multiselect
   if (f.type === "multiselect") {
-  let values = record[f.name];
-
-  // Ajuste: se values não for array de IDs, mas for array de objetos
-  if (Array.isArray(values) && values.length > 0 && typeof values[0] === "object") {
-    return values.map(v => v.nome || v.id || "-").join(", ");
+    let values = record[f.name];
+    const options = selectOptions[f.name] || [];
+    if (Array.isArray(values)) {
+      return values
+        .map(v => {
+          const found = options.find(opt => String(opt.id) === String(v));
+          return found
+            ? found.nome ||
+                (found.first_name || found.last_name ? `${found.first_name || ""} ${found.last_name || ""}`.trim() : found.username) ||
+                v
+            : v;
+        })
+        .join(", ");
+    }
+    return "-";
   }
-
-  const options = selectOptions[f.name] || [];
-  if (Array.isArray(values)) {
-    return values
-      .map(v => {
-        const found = options.find(opt => String(opt.id) === String(v));
-        return found
-          ? found.nome ||
-              (found.first_name || found.last_name ? `${found.first_name || ""} ${found.last_name || ""}`.trim() : found.username) ||
-              v
-          : v;
-      })
-      .join(", ");
-  }
-  return "-";
-}
 
   return value ?? "-";
 };
+
 
 
   return (

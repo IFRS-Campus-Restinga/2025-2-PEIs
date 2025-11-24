@@ -8,4 +8,8 @@ class ComponenteCurricularSerializer(serializers.ModelSerializer):
     disciplina = DisciplinaSerializer(read_only=True, source="disciplinas")
     class Meta:
         model = ComponenteCurricular
-        fields = '__all__'
+        fields = [
+            'id', 'pareceres', 'disciplina', 
+            'objetivos', 'conteudo_prog', 'metodologia', 
+            'periodo_letivo_id'  # se quiser manter o periodo_letivo
+        ]
