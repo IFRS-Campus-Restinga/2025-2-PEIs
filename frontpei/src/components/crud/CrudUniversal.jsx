@@ -115,14 +115,34 @@ function CrudUniversal({ modelName }) {
   }, [modelName, servicesMap]);
 
   function handleApiErrors(err) {
-    if (err.response?.data) {
-      Object.entries(err.response.data).forEach(([f, m]) =>
-        addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f })
-      );
+  console.error("Erro da requisição:", err.response?.data || err.message);
+
+  if (err.response?.data) {
+    const data = err.response.data;
+
+    // Se for objeto, percorre cada campo
+    if (typeof data === "object" && !Array.isArray(data)) {
+      Object.entries(data).forEach(([field, messages]) => {
+        if (Array.isArray(messages)) {
+          messages.forEach(msg => addAlert(`${field}: ${msg}`, "error", { fieldName: field }));
+        } else if (typeof messages === "object") {
+          // Caso seja objeto aninhado
+          Object.entries(messages).forEach(([subField, subMsg]) => {
+            addAlert(`${field}.${subField}: ${Array.isArray(subMsg) ? subMsg.join(", ") : subMsg}`, "error", { fieldName: field });
+          });
+        } else {
+          addAlert(`${field}: ${messages}`, "error", { fieldName: field });
+        }
+      });
+    } else if (Array.isArray(data)) {
+      data.forEach(msg => addAlert(msg, "error"));
     } else {
-      addAlert("Erro na requisição.", "error", { persist: true });
+      addAlert(data, "error");
     }
+  } else {
+    addAlert("Erro na requisição: " + (err.message || "desconhecido"), "error", { persist: true });
   }
+}
 
   const getEndpoint = (model) => servicesMap[exceptions[model] || model];
 
@@ -145,6 +165,7 @@ function CrudUniversal({ modelName }) {
     }
     try {
       const payload = normalizePayload(form, metadata);
+      console.log("Payload enviado:", payload);
       await axios.post(getEndpoint(modelName), payload);
       await fetchRecords();
       setForm(Object.fromEntries(Object.keys(form).map(k => [k, ""])));
