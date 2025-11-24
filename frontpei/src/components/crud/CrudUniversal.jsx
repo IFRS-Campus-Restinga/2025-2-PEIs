@@ -176,36 +176,62 @@ function CrudUniversal({ modelName }) {
 
   // RENDER INPUT
   const renderInput = (f, value, onChange) => {
-    if (f.type === "textarea") return <textarea value={value || ""} onChange={e => onChange(e.target.value)} />;
-    if (f.type === "DateField") return <input type="date" value={value || ""} onChange={e => onChange(e.target.value)} />;
-    if (f.type === "DateTimeField") return <input type="datetime-local" value={value || ""} onChange={e => onChange(e.target.value)} />;
-    if (f.choices) {
-      return (
-        <select value={value || ""} onChange={e => onChange(e.target.value)}>
-          <option value="">Selecione...</option>
-          {f.choices.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-        </select>
-      );
-    }
-    if (f.type === "foreignkey" || (f.type === "select" && f.related_model)) {
-      const options = selectOptions[f.name] || [];
-      return (
-        <select value={value || ""} onChange={e => onChange(e.target.value ? Number(e.target.value) : null)}>
-          <option value="">Selecione...</option>
-          {options.map(opt => {
-            const label = (opt.first_name || opt.last_name) 
-              ? `${opt.first_name || ""} ${opt.last_name || ""}`.trim() 
-              : opt.username || opt.id;
-            return <option key={opt.id} value={opt.id}>{label}</option>;
-          })}
-        </select>
-      );
-    }
-    if (f.type === "multiselect") {
-      const options = selectOptions[f.name] || [];
-      return (
-        <div className="checkbox-group">
-          {options.map(opt => (
+  console.log("Renderizando input:", f.name, "Tipo:", f.type, "Valor atual:", value);
+
+  if (f.type === "textarea") 
+    return <textarea value={value || ""} onChange={e => onChange(e.target.value)} />;
+
+  if (f.type === "DateField") 
+    return <input type="date" value={value || ""} onChange={e => onChange(e.target.value)} />;
+
+  if (f.type === "DateTimeField") 
+    return <input type="datetime-local" value={value || ""} onChange={e => onChange(e.target.value)} />;
+
+  if (f.choices) {
+    return (
+      <select value={value || ""} onChange={e => onChange(e.target.value)}>
+        <option value="">Selecione...</option>
+        {f.choices.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+      </select>
+    );
+  }
+
+  if (f.type === "foreignkey" || (f.type === "select" && f.related_model)) {
+    const options = selectOptions[f.name] || [];
+    console.log("Options para", f.name, ":", options);
+
+    return (
+      <select
+        value={value || ""}
+        onChange={e => onChange(e.target.value ? Number(e.target.value) : null)}
+      >
+        <option value="">Selecione...</option>
+        {options.map(opt => {
+          // Escolhe o melhor label disponível
+          const label =
+            opt.nome ||
+            opt.label ||
+            (opt.first_name || opt.last_name ? `${opt.first_name || ""} ${opt.last_name || ""}`.trim() : opt.username) ||
+            opt.id;
+          return <option key={opt.id} value={opt.id}>{label}</option>;
+        })}
+      </select>
+    );
+  }
+
+  if (f.type === "multiselect") {
+    const options = selectOptions[f.name] || [];
+    console.log("Multiselect options para", f.name, ":", options);
+
+    return (
+      <div className="checkbox-group">
+        {options.map(opt => {
+          const label =
+            opt.nome ||
+            opt.label ||
+            (opt.first_name || opt.last_name ? `${opt.first_name || ""} ${opt.last_name || ""}`.trim() : opt.username) ||
+            opt.id;
+          return (
             <label key={opt.id} style={{ display: "block" }}>
               <input
                 type="checkbox"
@@ -216,15 +242,20 @@ function CrudUniversal({ modelName }) {
                   onChange([...selected]);
                 }}
               />
-              {opt.nome || opt.label || (opt.first_name || opt.last_name ? `${opt.first_name || ""} ${opt.last_name || ""}`.trim() : opt.username) || opt.id}
+              {label}
             </label>
-          ))}
-        </div>
-      );
-    }
-    if (f.type === "file") return <input type="file" onChange={e => onChange(e.target.files[0])} />;
-    return <input type="text" value={value || ""} onChange={e => onChange(e.target.value)} />;
-  };
+          );
+        })}
+      </div>
+    );
+  }
+
+  if (f.type === "file") 
+    return <input type="file" onChange={e => onChange(e.target.files[0])} />;
+
+  return <input type="text" value={value || ""} onChange={e => onChange(e.target.value)} />;
+};
+
 
   // RENDER FIELD VALUE
   // RENDER FIELD VALUE (ajustada para objetos no registro)
