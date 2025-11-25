@@ -135,7 +135,7 @@ class Migration(migrations.Migration):
                 ('objetivos', models.CharField(max_length=100, validators=[django.core.validators.MinLengthValidator(7), django.core.validators.MaxLengthValidator(100), django.core.validators.RegexValidator(message='Não use caracteres especiais. Use apenas letras, números e espaços.', regex='^[\\w\\sÀ-ÿ]+$')])),
                 ('conteudo_prog', models.CharField(max_length=100, validators=[django.core.validators.MinLengthValidator(1), django.core.validators.MaxLengthValidator(3)])),
                 ('metodologia', models.CharField(max_length=100, validators=[django.core.validators.MinLengthValidator(7), django.core.validators.MaxLengthValidator(255)])),
-                ('disciplinas', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='componentes_curriculares', to='pei.disciplina')),
+                ('disciplinas', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='componentes_curriculares', to='pei.disciplina')),
             ],
             options={
                 'abstract': False,

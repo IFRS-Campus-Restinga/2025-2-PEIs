@@ -1,16 +1,31 @@
 import { useEffect, useState } from "react";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
 
 export default function TelaSolicitacoesPendentes() {
   const [solicitacoes, setSolicitacoes] = useState([]);
 
+  // Endpoint base para as ações do Admin (Aprovar/Rejeitar)
+  const ADMIN_API_BASE = "http://localhost:8000/api/auth/solicitacoes/"; 
   const token = localStorage.getItem("token");
 
   async function carregar() {
-    const resp = await fetch("http://localhost:8000/api/auth/solicitacoes/pendentes/", {
-      headers: { "Authorization": `Token ${token}` }
-    });
-    const data = await resp.json();
-    setSolicitacoes(data);
+    try {
+      // Endpoint para listar pendentes
+      const resp = await fetch(ADMIN_API_BASE + "pendentes/", {
+        headers: { "Authorization": `Token ${token}` }
+      });
+      // Adicionando uma pequena checagem para evitar problemas de autenticação
+      if (resp.status === 401 || resp.status === 403) {
+        throw new Error("Não autorizado. Verifique se você está logado como Admin.");
+      }
+      const data = await resp.json();
+      setSolicitacoes(data);
+    } catch (err) {
+      console.error("Erro ao carregar solicitações:", err);
+      // Em uma aplicação real, você usaria o useAlert() aqui
+      // mas mantemos simples para não introduzir o hook aqui
+    }
   }
 
   useEffect(() => {
@@ -18,7 +33,7 @@ export default function TelaSolicitacoesPendentes() {
   }, []);
 
   async function aprovar(id) {
-    await fetch("http://localhost:8000/api/auth/solicitacoes/aprovar/", {
+    await fetch(ADMIN_API_BASE + "aprovar/", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -30,7 +45,7 @@ export default function TelaSolicitacoesPendentes() {
   }
 
   async function rejeitar(id) {
-    await fetch("http://localhost:8000/api/auth/solicitacoes/rejeitar/", {
+    await fetch(ADMIN_API_BASE + "rejeitar/", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -42,30 +57,46 @@ export default function TelaSolicitacoesPendentes() {
   }
 
   return (
-    <div style={{ padding: "2rem" }}>
+    // Utiliza 'container-padrao' para o layout base de tela (fundo branco, centralizado)
+    <div className="container-padrao"> 
       <h1>Solicitações Pendentes</h1>
 
-      {solicitacoes.length === 0 && <p>Nenhuma solicitação pendente.</p>}
+      {solicitacoes.length === 0 && <p className="list-padrao">Nenhuma solicitação pendente.</p>}
 
-      {solicitacoes.map((s) => (
-        <div key={s.id} style={{ 
-          border: "1px solid #ccc",
-          padding: "10px",
-          marginTop: "10px",
-          borderRadius: "6px"
-        }}>
-          <p><strong>Nome:</strong> {s.nome}</p>
-          <p><strong>Email:</strong> {s.email}</p>
-          <p><strong>Categoria solicitada:</strong> {s.categoria_solicitada}</p>
+      {/* Utiliza 'list-padrao' e 'componente-item' para a estrutura de lista e card */}
+      <div className="list-padrao">
+        <ul>
+          {solicitacoes.map((s) => (
+            <li key={s.id} className="componente-item">
+              <div className="componente-detalhe">
+                <p><strong>Nome:</strong> {s.nome}</p>
+                <p><strong>Email:</strong> {s.email}</p>
+                <p><strong>Categoria solicitada:</strong> {s.categoria_solicitada}</p>
+              </div>
 
-          <button onClick={() => aprovar(s.id)} style={{ marginRight: "10px" }}>
-            Aprovar
-          </button>
-          <button onClick={() => rejeitar(s.id)} style={{ color: "red" }}>
-            Rejeitar
-          </button>
-        </div>
-      ))}
+              {/* Alinha os botões à esquerda com classes do cssGlobal */}
+              <div className="posicao-buttons esquerda"> 
+                <button 
+                  className="btn-salvar" // Botão verde para aprovação
+                  onClick={() => aprovar(s.id)} 
+                  style={{ marginTop: "0" }} // Ajuste de margem
+                >
+                  Aprovar
+                </button>
+                <button 
+                  className="botao-deletar" // Botão vermelho para rejeição
+                  onClick={() => rejeitar(s.id)} 
+                  style={{ marginTop: "0" }} // Ajuste de margem
+                >
+                  Rejeitar
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <BotaoVoltar />
     </div>
   );
 }

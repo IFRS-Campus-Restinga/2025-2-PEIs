@@ -8,7 +8,7 @@ from rest_framework import status
 
 class PEIPeriodoLetivoViewSet(ModelViewSet):
     serializer_class = PEIPeriodoLetivoSerializer
-    permission_classes = [BackendTokenPermission]
+    #permission_classes = [BackendTokenPermission]
 
     # Pré-carregando componentes e disciplinas com cursos
     queryset = PEIPeriodoLetivo.objects.prefetch_related(

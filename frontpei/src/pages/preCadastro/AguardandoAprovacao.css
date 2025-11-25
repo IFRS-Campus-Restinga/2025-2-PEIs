@@ -1,0 +1,63 @@
+/* Centraliza o card vertical e horizontalmente na tela */
+.waiting-container-full {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    padding: 20px;
+}
+
+/* O estilo do cartão branco */
+.waiting-card-styled {
+    background-color: #fff;
+    padding: 50px 40px; 
+    border-radius: 16px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+    text-align: center; 
+    max-width: 480px;
+    width: 100%;
+}
+
+/* Área do spinner para dar destaque */
+.spinner-container {
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+/* Aumentando um pouco o spinner padrão para destaque */
+.spinner-container .loader {
+    width: 60px;
+    height: 60px;
+    border-width: 6px;
+}
+
+/* Título principal */
+.waiting-title {
+    color: #055C0F; /* Verde IFRS */
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+/* Texto principal */
+.waiting-text-main {
+    font-size: 1.15rem;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+/* Subtexto (cinza claro) */
+.waiting-text-sub {
+    font-size: 0.95rem;
+    color: #777;
+    margin-bottom: 40px;
+}
+
+/* Container para garantir que o BotaoVoltar fique centralizado */
+.waiting-button-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}

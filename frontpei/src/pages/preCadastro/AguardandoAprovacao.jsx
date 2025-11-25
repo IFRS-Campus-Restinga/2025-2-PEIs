@@ -1,21 +1,32 @@
 import React from "react";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
+import "./AguardandoAprovacao.css";
 
 const AguardandoAprovacao = () => {
   return (
-    <div className="pre-cadastro-container">
-      <div className="pre-cadastro-card">
-        <h2 style={{ color: "#333" }}>Aguardando Aprovação</h2>
-
-        <p style={{ marginTop: "15px", fontSize: "16px" }}>
-          Seu cadastro foi enviado e está aguardando aprovação do administrador.
-        </p>
-
-        <p style={{ marginTop: "10px", fontSize: "14px", color: "#666" }}>
-          Assim que for aprovado, você poderá acessar o sistema normalmente.
-        </p>
-
-        <div style={{ marginTop: "20px" }}>
+    <div className="waiting-container-full waiting-bg">
+      <div className="waiting-card-styled">
+        
+        {/* Área do Spinner */}
+        <div className="spinner-container">
           <span className="loader"></span>
+        </div>
+
+        {/* Título e Textos com hierarquia visual */}
+        <h2 className="waiting-title">Solicitação Enviada!</h2>
+
+        <p className="waiting-text-main">
+          Seu cadastro está em análise e aguardando aprovação do administrador.
+        </p>
+
+        <p className="waiting-text-sub">
+          Você poderá acessar o sistema assim que sua conta for liberada.
+        </p>
+        
+        {/* Wrapper para centralizar o botão */}
+        <div className="waiting-button-wrapper">
+          <BotaoVoltar texto="Voltar ao Início" style={{ margin: 0 }} />
         </div>
       </div>
     </div>

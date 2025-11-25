@@ -41,7 +41,7 @@ const Header = ({ usuario, logado, logout }) => {
     const buscarNotificacoes = async () => {
         try {
             const token = localStorage.getItem("access");
-            const response = await axios.get("http://localhost:8000/services/notificacoes-lista/", {
+            const response = await axios.get("http://localhost:8080/services/notificacoes-lista/", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

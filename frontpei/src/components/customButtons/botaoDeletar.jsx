@@ -1,13 +1,13 @@
-// src/components/customButtons/BotaoDeletar.jsx
 import { useState } from "react";
 import { useAlert } from "../../context/AlertContext";
+import axios from "axios";
 import "../../cssGlobal.css";
 
 export default function BotaoDeletar({ id, axiosInstance, onDeletarSucesso }) {
   const { addAlert } = useAlert();
   const [modalAberto, setModalAberto] = useState(false);
   const [erro, setErro] = useState("");
-  const [carregando, setCarregando] = useState(false); // PROTEÇÃO
+  const [carregando, setCarregando] = useState(false);
 
   const abrirModal = () => setModalAberto(true);
   const fecharModal = () => {
@@ -17,40 +17,21 @@ export default function BotaoDeletar({ id, axiosInstance, onDeletarSucesso }) {
   };
 
   const handleDeletar = async () => {
-    if (carregando) return; // EVITA CLIQUE DUPLO
+    if (carregando) return;
     setCarregando(true);
     setErro("");
 
     try {
-      await axiosInstance.delete(`/${id}/`);
+      await axios.delete(`${axiosInstance}${id}/`);
       fecharModal();
       if (onDeletarSucesso) onDeletarSucesso();
       addAlert("Registro deletado com sucesso!", "success");
     } catch (err) {
       console.error("Erro ao deletar:", err);
       setErro("Falha ao deletar. Tente novamente.");
-
-      if (err.response?.data) {
-        const data = err.response.data;
-
-        if (data.erro) {
-          addAlert(data.erro, "error");
-        } else {
-          Object.entries(data).forEach(([field, msgs]) => {
-            const msg = Array.isArray(msgs) ? msgs.join(", ") : String(msgs);
-            addAlert(`${field}: ${msg}`, "error");
-          });
-
-          const summary = Object.entries(data)
-            .map(([f, m]) => `${f}: ${Array.isArray(m) ? m.join(", ") : m}`)
-            .join("\n");
-          addAlert(`Erro ao deletar:\n${summary}`, "error");
-        }
-      } else {
-        addAlert("Erro ao deletar (servidor indisponível).", "error");
-      }
+      addAlert("Erro ao deletar (servidor indisponível).", "error");
     } finally {
-      setCarregando(false); // LIBERA BOTÃO
+      setCarregando(false);
     }
   };
 

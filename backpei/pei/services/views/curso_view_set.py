@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 class CursoViewSet(ModelViewSet):
     queryset = Curso.objects.all().order_by('nome')
     serializer_class = CursoSerializer
-    permission_classes = [BackendTokenPermission]
+    #permission_classes = [BackendTokenPermission]
 
     # Create padrão (DRF já trata o arquivo automaticamente)
     def create(self, request, *args, **kwargs):

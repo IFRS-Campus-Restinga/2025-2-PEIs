@@ -3,6 +3,8 @@ from ..serializers.disciplina_serializer import *
 from pei.models.disciplina import Disciplina
 from ..permissions import BackendTokenPermission
 from django.core.exceptions import ValidationError
+from rest_framework.response import Response
+from rest_framework import status
 
 class DisciplinaViewSet(ModelViewSet):
     queryset = Disciplina.objects.all()
