@@ -1,8 +1,9 @@
 import "../src/cssGlobal.css";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { API_ROUTES } from "./configs/apiRoutes"
 
 // contextos e alertas
 import { AlertProvider } from "./context/AlertContext";
@@ -56,18 +57,47 @@ function App() {
   const [mensagemErro, setMensagemErro] = useState(null);
   const [perfilSelecionado, setPerfilSelecionado] = useState(null);
   const navigate = useNavigate();
-
+  const isAdmin = usuario?.grupos?.some(g => g.toLowerCase() === "admin");
   // rotina de inicializacao
-  useEffect(() => {
+useEffect(() => {
     async function carregarUsuario() {
       const usuarioSalvo = localStorage.getItem("usuario");
-      if (usuarioSalvo) {
+      const tokenSalvo = localStorage.getItem("token");
+
+      if (usuarioSalvo && tokenSalvo) {
         const usuarioObj = JSON.parse(usuarioSalvo);
-        const grupoAtual = await consultaGrupo(usuarioObj.email);
-        usuarioObj.grupo = grupoAtual;
-        localStorage.setItem("usuario", JSON.stringify(usuarioObj));
+        
+        // Define o estado inicial com o que tem no cache (pra ser rápido)
         setUsuario(usuarioObj);
         setLogado(true);
+
+        // AGORA: Vamos buscar os dados frescos no backend para garantir permissões
+        try {
+          // usaremos API_ROUTES.USUARIO quando entender direito
+          const respMe = await fetch("http://localhost:8000/api/auth/me/", {
+            headers: { "Authorization": `Token ${tokenSalvo}` }
+          });
+
+          if (respMe.ok) {
+            const dadosAtualizados = await respMe.json();
+            
+            // Atualiza o objeto do usuário com os grupos reais do banco
+            const usuarioAtualizado = {
+              ...usuarioObj,
+              grupos: dadosAtualizados.grupos, // Aqui vem a lista ["Admin", "Professor", etc]
+              categoria: dadosAtualizados.categoria // Atualiza categoria também por garantia
+            };
+
+            console.log("Grupos atualizados do Django:", usuarioAtualizado.grupos);
+
+            // Salva e atualiza o estado
+            localStorage.setItem("usuario", JSON.stringify(usuarioAtualizado));
+            setUsuario(usuarioAtualizado);
+          }
+        } catch (error) {
+          console.error("Erro ao validar token/grupos em segundo plano:", error);
+          // Se o token for inválido, poderíamos deslogar, mas vamos manter simples por enquanto
+        }
       }
     }
     carregarUsuario();
@@ -186,17 +216,20 @@ function App() {
                 <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento/>}/>
                 <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
                 <Route path="/pedagogo" element={<Pedagogos/>}/>
-                <Route path="/logs" element={<Logs/>}/>
+                <Route 
+                  path="/logs"
+                  element={isAdmin ? <Logs/> : <Navigate to="/" replace />}
+                  />
                 <Route path="/professor" element={<Professor />} />
                 <Route path="/perfil" element={<Perfil/>} />
                 <Route path="/conteudo" element={<Conteudo usuario={usuario} />}/>
                 <Route path="/crud/:modelKey" element={<CrudWrapper />} />
-                {usuario?.grupos?.includes("Admin") && (
+                {isAdmin && (
                   <Route path="/admin/solicitacoes" element={<TelaSolicitacoesPendentes />} />
                 )}
               </Routes>
             </main>
-            <Footer/>
+            <Footer usuario={usuario}/>
           </div>
         )}
 

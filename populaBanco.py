@@ -59,6 +59,7 @@ def criar_usuario(nome, email, grupo_nome):
     user.nome = nome 
     user.categoria = grupo_nome.upper()
     user.save()
+    user.aprovado = True
 
     # Associa ao grupo correto
     grupo, _ = Group.objects.get_or_create(name=grupo_nome.title())
@@ -82,8 +83,8 @@ def criar_admin_master():
     """
     Admin principal: ALTERE AQUI CASO QUEIRA SER CADASTRADO COMO ADMIN → 2023017316@aluno.restinga.ifrs.edu.br
     """
-    email = "2022012487@.restinga.ifrs.edu.br"
-    nome = "Admin Master"
+    email = "2023017316@aluno.restinga.ifrs.edu.br"
+    nome = "Admin_Master"
 
     existente = User.objects.filter(email=email).first()
     if existente:

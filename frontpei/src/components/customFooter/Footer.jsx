@@ -4,14 +4,12 @@ import { Link } from "react-router-dom";
 import "../../cssGlobal.css";
 
 const Footer = ({ usuario }) => {
-    const isAdmin = usuario?.grupos?.includes("Admin");
+    //
+    const isAdmin = usuario?.grupos?.some(g => g.toLowerCase() === "admin");
 
     return (
         <footer className="footer">
             <div className="footer-left">
-                <Link to="/" className="footer-logo-link">
-                    <img src={logo} alt="Logo IFRS" className="footer-logo" />
-                </Link>
                 <div className='footer-text'>
                     <strong>INSTITUTO FEDERAL</strong>
                     <span>Rio Grande do Sul</span>
@@ -25,15 +23,17 @@ const Footer = ({ usuario }) => {
             </div>
 
             <div className="footer-right">
-                <Link to="/logs" className="footer-logs-btn" title="Ver logs do sistema">
-                    LOGS
-                </Link>
+                {/* OS LOGS E APROVAÇÃO SÓ APARECEM SE FOR ADMIN */}
+                {isAdmin && (
+                    <Link to="/logs" className="footer-logs-btn" title="Ver logs do sistema">
+                        LOGS
+                    </Link>
+                )}
 
-                {/* BOTÃO ADMIN SOMENTE SE FOR ADMIN */}
                 {isAdmin && (
                     <Link to="/admin/solicitacoes"
                         className="footer-logs-btn"
-                        style={{ marginLeft: "10px", backgroundColor: "#007f3f" }}
+                        style={{ marginLeft: "10px", backgroundColor: "#007f3f", color: "white", border: "1px solid #006400" }}
                     >
                         ADMIN
                     </Link>
