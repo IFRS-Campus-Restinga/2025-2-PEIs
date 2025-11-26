@@ -1,76 +1,77 @@
-# backpei/pei/services/views/auth_login.py
-
-from django.contrib.auth import authenticate, login
+# -*- coding: utf-8 -*-
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate, login
+from django.contrib.auth import get_user_model
 import json
 
-# modelo Perfil
 from pei.models.usuario import Usuario
+
+User = get_user_model()
 
 
 @csrf_exempt
 def login_usuario(request):
     if request.method != "POST":
-        return JsonResponse({"error": "Método não permitido"}, status=405)
+        return JsonResponse({"success": False, "error": "Método não permitido"}, status=405)
 
     try:
-        data = json.loads(request.body)
-    except Exception:
-        return JsonResponse({"error": "Requisição inválida"}, status=400)
+        payload = json.loads(request.body.decode('utf-8'))
+    except:
+        return JsonResponse({"success": False, "error": "JSON inválido"}, status=400)
 
-    email = data.get("email")
-    senha = data.get("senha")
+    email = payload.get("email", "").strip().lower()
+    senha = payload.get("senha", "")
 
     if not email or not senha:
-        return JsonResponse(
-            {"success": False, "error": "Email e senha são obrigatórios."},
-            status=400
-        )
+        return JsonResponse({"success": False, "error": "E-mail e senha obrigatórios"}, status=400)
 
-    # autentica usando username=email
-    user = authenticate(request, username=email, password=senha)
+    # ======================================================
+    # 1 — GARANTE QUE O USUÁRIO EXISTE PELO EMAIL
+    # ======================================================
+    try:
+        user_obj = User.objects.get(email__iexact=email)
+    except User.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Credenciais inválidas"}, status=200)
 
-    if user is None:
-        return JsonResponse(
-            {"success": False, "error": "Credenciais inválidas."},
-            status=401
-        )
+    # ======================================================
+    # 2 — AUTENTICA USANDO username REAL DO DJANGO
+    # ======================================================
+    user = authenticate(request, username=user_obj.username, password=senha)
+
+    if not user:
+        return JsonResponse({"success": False, "error": "Credenciais inválidas"}, status=200)
 
     if not user.is_active:
-        return JsonResponse(
-            {"success": False, "error": "Usuário inativo."},
-            status=403
-        )
+        return JsonResponse({"success": False, "error": "Usuário inativo"}, status=200)
 
-    # cria sessão Django
+    # ======================================================
+    # 3 — VERIFICA PERFIL DO PEI
+    # ======================================================
+    try:
+        perfil = Usuario.objects.get(email__iexact=email)
+    except Usuario.DoesNotExist:
+        perfil = None
+
+    if perfil and perfil.status != "APPROVED":
+        return JsonResponse({
+            "success": False,
+            "error": "Cadastro pendente de aprovação",
+            "status": perfil.status
+        }, status=200)
+
+    # ======================================================
+    # 4 — LOGIN EFETUADO
+    # ======================================================
     login(request, user)
 
-    # dados base
-    usuario_data = {
-        "id_user": user.id,
-        "email": user.email,
-        "nome": user.first_name or "",
-        "status": "APPROVED" if user.is_active else "PENDING",
-        "categoria": None
-    }
-
-    # Tenta localizar o perfil (tabela Usuario)
-    perfil = Usuario.objects.filter(email=user.email).first()
-
-    if perfil:
-        usuario_data.update({
-            "id": perfil.id,
-            "nome": perfil.nome or usuario_data["nome"],
-            "categoria": perfil.categoria,
-            "status": perfil.status,
-        })
-    else:
-        # importante: não bloquear login
-        usuario_data.update({
-            "id": None,
-            "categoria": "SEM_PERFIL",
-            "status": "APPROVED",  # user.is_active manda!
-        })
-
-    return JsonResponse({"success": True, "usuario": usuario_data}, status=200)
+    return JsonResponse({
+        "success": True,
+        "usuario": {
+            "id": perfil.id if perfil else None,
+            "email": user.email,
+            "nome": perfil.nome if perfil else user.get_full_name() or user.username,
+            "categoria": getattr(perfil, "categoria", "PROFESSOR"),
+            "status": "APPROVED"
+        }
+    }, status=200)

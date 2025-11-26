@@ -15,6 +15,12 @@ const Header = ({ usuario, logado, logout }) => {
     const menuRef = useRef(null);
     const notifRef = useRef(null);
 
+    // Fallback seguro para foto de usuário
+    const fotoUsuario =
+        usuario?.foto && usuario.foto.trim() !== "" 
+            ? usuario.foto 
+            : userIcon;
+
     // Fecha dropdowns ao clicar fora
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -65,11 +71,11 @@ const Header = ({ usuario, logado, logout }) => {
         if (diffMins < 60) return `Há ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
         if (diffHoras < 24) return `Há ${diffHoras} hora${diffHoras > 1 ? 's' : ''}`;
         if (diffDias < 7) return `Há ${diffDias} dia${diffDias > 1 ? 's' : ''}`;
-        
-        return data.toLocaleDateString('pt-BR', { 
-            day: '2-digit', 
-            month: '2-digit', 
-            year: 'numeric' 
+
+        return data.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
         });
     };
 
@@ -110,10 +116,11 @@ const Header = ({ usuario, logado, logout }) => {
                                 <div className="notif-header">
                                     <p className="notif-title">Notificações</p>
                                     {notificacoes.length > 0 && (
-                                        <span className="notif-count">{notificacoes.length} nova{notificacoes.length > 1 ? 's' : ''}</span>
+                                        <span className="notif-count">
+                                            {notificacoes.length} nova{notificacoes.length > 1 ? 's' : ''}</span>
                                     )}
                                 </div>
-                                
+
                                 <div className="notif-list-container">
                                     {notificacoes.length > 0 ? (
                                         <ul className="notif-list">
@@ -143,7 +150,7 @@ const Header = ({ usuario, logado, logout }) => {
                                 className="user-avatar"
                                 onClick={() => setMenuAberto(!menuAberto)}
                             >
-                                <img src={usuario.foto ? usuario.foto : userIcon} alt="Usuário" />
+                                <img src={fotoUsuario} alt="Usuário" />
                                 <span className="user-avatar-name">{usuario.nome}</span>
                                 <img
                                     src={chevronDown}
@@ -151,7 +158,7 @@ const Header = ({ usuario, logado, logout }) => {
                                     className="user-arrow"
                                     style={{
                                         transform: menuAberto ? 'rotate(180deg)' : 'rotate(0deg)',
-                                        transition: 'transform 0.3s ease'
+                                        transition: 'transform 0.3s ease',
                                     }}
                                 />
                             </div>

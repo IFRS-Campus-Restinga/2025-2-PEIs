@@ -1,23 +1,26 @@
-import React, { useState } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
+import React, { useState, useEffect } from 'react';
+// import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import ErrorMessage from "../../components/errorMessage/ErrorMessage.jsx";
 import api from "../../configs/api";
+import { API_ROUTES } from "../../configs/apiRoutes.js";
 import "../../cssGlobal.css";
 import logo from "../../assets/logo-sem-nome.png";
 
+// const GOOGLE_CLIENT_ID = "992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com";
+
 const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-
   const [regNome, setRegNome] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regSenha, setRegSenha] = useState("");
   const [regConfirmSenha, setRegConfirmSenha] = useState("");
   const [regPerfil, setRegPerfil] = useState("");
-
   const [registroErro, setRegistroErro] = useState("");
+
+  // Estado que antes controlava o Google Login
+  const [logadoComSucesso, setLogadoComSucesso] = useState(false);
 
   const abrirRegistro = () => {
     setRegistroErro("");
@@ -27,20 +30,23 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
   const fecharRegistro = () => setShowRegisterModal(false);
 
   // =============================
-  // LOGIN MANUAL (DJANGO SESSÃO)
+  // LOGIN MANUAL
   // =============================
   const handleLoginManual = async (e) => {
-    e?.preventDefault && e.preventDefault();
+    e.preventDefault();
+    if (!email.trim() || !senha) {
+      alert("Preencha e-mail e senha.");
+      return;
+    }
 
     try {
       const response = await api.post(API_ROUTES.LOGIN, {
-        email: formData.email,
-        senha: formData.password,
+        email: email.trim(),
+        senha: senha,
       });
 
-      if (!response.data || !response.data.success) {
-        const msg = response.data?.error || "Credenciais inválidas.";
-        alert(msg);
+      if (!response.data?.success) {
+        alert(response.data?.error || "Credenciais inválidas.");
         return;
       }
 
@@ -51,24 +57,24 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
         return;
       }
 
-      onLoginSuccess && onLoginSuccess(usuario);
+      setLogadoComSucesso(true); 
+      onLoginSuccess?.(usuario);
 
     } catch (error) {
       console.error("Erro no login manual:", error);
-      onLoginError && onLoginError(error);
-
-      const msg = error?.response?.data?.error || "Erro ao fazer login.";
+      const msg = error?.response?.data?.error || "Erro ao conectar ao servidor.";
       alert(msg);
+      onLoginError?.(error);
     }
   };
 
   // =============================
-  // LOGIN COM GOOGLE
+  // LOGIN COM GOOGLE (DESATIVADO)
   // =============================
+  /*
   const handleGoogleLogin = async (credentialResponse) => {
     try {
       const google_token = credentialResponse.credential;
-
       const response = await api.post("/api/login/google/", {
         token_google: google_token
       });
@@ -87,29 +93,28 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
 
       localStorage.setItem("authToken", token);
       api.defaults.headers.common["Authorization"] = `Token ${token}`;
-
       localStorage.setItem("usuario", JSON.stringify(usuario));
 
-      onLoginSuccess && onLoginSuccess(usuario);
+      setLogadoComSucesso(true);
+      onLoginSuccess?.(usuario);
 
     } catch (error) {
       console.error("Erro no login Google:", error);
-      onLoginError && onLoginError(error);
       alert("Falha ao autenticar com Google.");
+      onLoginError?.(error);
     }
   };
+  */
 
   // =============================
   // REGISTRO
   // =============================
   const handleRegistrar = async () => {
     setRegistroErro("");
-
     if (!regNome || !regEmail || !regSenha || !regConfirmSenha || !regPerfil) {
       setRegistroErro("Preencha todos os campos obrigatórios e selecione um perfil.");
       return;
     }
-
     if (regSenha !== regConfirmSenha) {
       setRegistroErro("As senhas não coincidem!");
       return;
@@ -126,22 +131,16 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
       if (response.status === 200 || response.status === 201) {
         alert("Registro enviado! Aguarde aprovação do administrador.");
         fecharRegistro();
-
         setRegNome("");
         setRegEmail("");
         setRegSenha("");
         setRegConfirmSenha("");
         setRegPerfil("");
       }
-
     } catch (error) {
       console.error("Erro no registro:", error);
-
       if (error.response) {
-        setRegistroErro(
-          error.response.data.error ||
-          JSON.stringify(error.response.data)
-        );
+        setRegistroErro(error.response.data.error || JSON.stringify(error.response.data));
       } else {
         setRegistroErro("Erro ao registrar usuário. Verifique a conexão.");
       }
@@ -160,14 +159,12 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
               <p>Plano Educacional Individualizado</p>
             </div>
           </div>
-
           <div className="login-features">
             <h2>Bem-vindo ao Sistema de Gerenciamento de PEI</h2>
             <p className="login-description">
               Plataforma completa para criação, acompanhamento e gestão de PEIs.
             </p>
           </div>
-
           <div className="login-footer-info">
             <p>Instituto Federal do Rio Grande do Sul - Campus Restinga</p>
           </div>
@@ -194,22 +191,21 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
               type="email"
               placeholder="E-mail"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               className="login-input"
+              required
             />
-
             <input
               type="password"
               placeholder="Senha"
               value={senha}
-              onChange={e => setSenha(e.target.value)}
+              onChange={(e) => setSenha(e.target.value)}
               className="login-input"
+              required
             />
-
             <button type="submit" className="login-button">
               Entrar
             </button>
-
             <button type="button" className="register-button" onClick={abrirRegistro}>
               Registrar
             </button>
@@ -217,14 +213,24 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
 
           <div className="login-divider"></div>
 
-          {/* GOOGLE LOGIN */}
-          <div className="login-button-wrapper">
-            <GoogleLogin
-              onSuccess={handleGoogleLogin}
-              onError={() => onLoginError && onLoginError()}
-              size="large"
-            />
+          {/* GOOGLE LOGIN DESATIVADO */}
+          {/*
+          <div 
+            className="login-button-wrapper" 
+            style={{ opacity: logadoComSucesso ? 0.5 : 1, pointerEvents: logadoComSucesso ? 'none' : 'auto' }}
+          >
+            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+              <GoogleLogin
+                onSuccess={handleGoogleLogin}
+                onError={() => console.log("Erro no login com Google")}
+                size="large"
+                width="350"
+                theme="outline"
+                logo_alignment="left"
+              />
+            </GoogleOAuthProvider>
           </div>
+          */}
 
           <div className="login-help">
             <p className="login-help-text">
@@ -234,60 +240,55 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
         </div>
       </div>
 
-      {/* MODAL REGISTRO */}
+      {/* MODAL DE REGISTRO */}
       {showRegisterModal && (
         <div className="modal-backdrop">
           <div className="modal-container">
             <h2>Criar Conta</h2>
-
             {registroErro && (
               <div style={{ marginBottom: "10px", color: "red" }}>
                 <ErrorMessage message={registroErro} align="center" />
               </div>
             )}
-
             <input
               type="text"
               placeholder="Nome completo"
               value={regNome}
-              onChange={e => setRegNome(e.target.value)}
+              onChange={(e) => setRegNome(e.target.value)}
               className="login-input"
             />
-
             <input
               type="email"
               placeholder="E-mail"
               value={regEmail}
-              onChange={e => setRegEmail(e.target.value)}
+              onChange={(e) => setRegEmail(e.target.value)}
               className="login-input"
             />
-
             <input
               type="password"
               placeholder="Senha"
               value={regSenha}
-              onChange={e => setRegSenha(e.target.value)}
+              onChange={(e) => setRegSenha(e.target.value)}
               className="login-input"
             />
-
             <input
               type="password"
               placeholder="Confirmar Senha"
               value={regConfirmSenha}
-              onChange={e => setRegConfirmSenha(e.target.value)}
+              onChange={(e) => setRegConfirmSenha(e.target.value)}
               className="login-input"
             />
 
             <div className="perfil-check-container">
               <p>Selecione seu perfil:</p>
-
               {["COORDENADOR", "NAPNE", "PROFESSOR", "PEDAGOGO"].map(p => (
                 <label key={p} className="perfil-item">
                   <input
                     type="radio"
                     name="perfil"
                     value={p}
-                    onChange={e => setRegPerfil(e.target.value)}
+                    checked={regPerfil === p}
+                    onChange={(e) => setRegPerfil(e.target.value)}
                   />{" "}
                   {p.charAt(0) + p.slice(1).toLowerCase()}
                 </label>
@@ -303,7 +304,6 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

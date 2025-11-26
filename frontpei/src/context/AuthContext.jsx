@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("authToken"));
   const [loading, setLoading] = useState(true);
 
-  // Carrega automaticamente o usuário se o token existir
+  // Carrega usuário automaticamente se tiver token
   useEffect(() => {
     const carregarUsuario = async () => {
       if (!token) {
@@ -17,27 +17,41 @@ export const AuthProvider = ({ children }) => {
       }
 
       try {
-        api.defaults.headers.common["Authorization"] = `Token ${token}`;
-        const response = await api.get("/api/usuario/me/");
+        // Força requisição limpa: sem cookies, sem CSRF → nunca dá 403
+        const response = await fetch("http://localhost:8000/api/usuario/me/", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Token ${token}`,
+          },
+          credentials: "omit", // ← ESSA LINHA É A CHAVE: ignora cookies/CSRF
+        });
 
-        // só permite usuário aprovado
-        if (response.data.status !== "aprovado") {
-          logout();
-        } else {
-          setUsuario(response.data);
+        if (!response.ok) {
+          throw new Error("Erro na resposta");
         }
 
-      } catch {
-        logout();
-      }
+        const data = await response.json();
 
-      setLoading(false);
+        // Verifica se o usuário está aprovado
+        if (data.status === "aprovado" || data.status === "APPROVED") {
+          setUsuario(data);
+        } else {
+          console.warn("Usuário não aprovado:", data.status);
+          logout();
+        }
+      } catch (error) {
+        console.warn("Falha ao validar token. Deslogando...", error);
+        logout();
+      } finally {
+        setLoading(false);
+      }
     };
 
     carregarUsuario();
   }, [token]);
 
-  // Login manual
+  // Login (manual ou Google)
   const login = ({ token, usuario }) => {
     localStorage.setItem("authToken", token);
     api.defaults.headers.common["Authorization"] = `Token ${token}`;
@@ -45,11 +59,12 @@ export const AuthProvider = ({ children }) => {
     setUsuario(usuario);
   };
 
+  // Logout
   const logout = () => {
     localStorage.removeItem("authToken");
+    delete api.defaults.headers.common["Authorization"];
     setToken(null);
     setUsuario(null);
-    delete api.defaults.headers.common["Authorization"];
   };
 
   return (

@@ -1,21 +1,42 @@
-const API_BASE_URL = "http://localhost:8000/services";
+// frontpei/src/configs/apiRoutes.js
 
+let API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+if (!API_BASE_URL.endsWith("/")) {
+  API_BASE_URL += "/";
+}
+
+const endpoints = [
+  "PEIPeriodoLetivo",
+  "parecer",
+  "aluno",
+  "disciplinas",
+  "cursos",
+  "pei_central",
+  "componenteCurricular",
+  "ataDeAcompanhamento",
+  "documentacaoComplementar",
+  "mandaEmail",
+  "permissoes",
+  "usuario",
+  "register",
+  "status-cadastro",
+  "login",
+];
+
+// Constrói automaticamente as rotas padronizadas
 export const API_ROUTES = {
-  LOGIN: `${API_BASE_URL}/api/login/`,
+  ...Object.fromEntries(
+    endpoints.map((name) => [
+      name.toUpperCase(),
+      `${API_BASE_URL}${name}/`
+    ])
+  ),
 
-  PEIPERIPERIODOLETIVO: `${API_BASE_URL}/PEIPeriodoLetivo/`,
-  PARECER: `${API_BASE_URL}/parecer/`,
-  ALUNO: `${API_BASE_URL}/aluno/`,
-  DISCIPLINAS: `${API_BASE_URL}/disciplinas/`,
-  CURSOS: `${API_BASE_URL}/cursos/`,
-  PEI_CENTRAL: `${API_BASE_URL}/pei_central/`,
-  COMPONENTECURRICULAR: `${API_BASE_URL}/componenteCurricular/`,
-  ATADEACOMPANHAMENTO: `${API_BASE_URL}/ataDeAcompanhamento/`,
-  DOCUMENTACAOCOMPLEMENTAR: `${API_BASE_URL}/documentacaoComplementar/`,
-  MANDAEMAIL: `${API_BASE_URL}/mandaEmail/`,
-  PERMISSOES: `${API_BASE_URL}/permissoes/`,
-  USUARIO: `${API_BASE_URL}/usuario/`,
-  REGISTER: `${API_BASE_URL}/register/`,
-  STATUS_CADASTRO: `${API_BASE_URL}/status-cadastro/`,
-  USUARIOS_REGISTRAR: `${API_BASE_URL}/usuarios/registrar/`,
+  // 🔥 ROTA DE LOGIN (não entra na lista automática!)
+  //LOGIN: `${API_BASE_URL}services/login/`,
+
+  // Rota especial de registro
+  USUARIOS_REGISTRAR: `${API_BASE_URL}usuarios/registrar/`,
 };
+
+export const BACKEND_TOKEN = import.meta.env.VITE_BACKEND_TOKEN;
