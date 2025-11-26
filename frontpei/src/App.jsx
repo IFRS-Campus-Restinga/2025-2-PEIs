@@ -3,7 +3,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { API_ROUTES } from "./configs/apiRoutes"
+import { API_ROUTES } from "./configs/apiRoutes";
 
 // contextos e alertas
 import { AlertProvider } from "./context/AlertContext";
@@ -19,7 +19,7 @@ import Header from './components/customHeader/Header.jsx';
 import SubHeader from './components/customSubHeader/Subheader.jsx';
 import Footer from './components/customFooter/Footer.jsx';
 
-// PÁGINAS INTERNAS
+// Páginas internas
 import Home from "./pages/home/Home.jsx";
 import Pareceres from "./pages/Parecer.jsx";
 import PEIPeriodoLetivo from "./pages/peiPeriodoLetivo/PEIPeriodoLetivo.jsx";
@@ -45,11 +45,9 @@ import Professor from "./pages/Professor.jsx";
 import Conteudo from './pages/Conteudo.jsx';
 import TelaSolicitacoesPendentes from "./pages/admin/TelaSolicitacoesPendentes";
 
-
-// FUNCOES DE USO GLOBAL
 import { mandaEmail } from "./lib/mandaEmail";
 import { consultaGrupo } from "./lib/consultaGrupo";
-import CrudWrapper from "./components/crud/crudWrapper.jsx"
+import CrudWrapper from "./components/crud/crudWrapper.jsx";
 
 function App() {
   const [usuario, setUsuario] = useState(null);
@@ -57,65 +55,57 @@ function App() {
   const [mensagemErro, setMensagemErro] = useState(null);
   const [perfilSelecionado, setPerfilSelecionado] = useState(null);
   const navigate = useNavigate();
+
   const isAdmin = usuario?.grupos?.some(g => g.toLowerCase() === "admin");
-  // rotina de inicializacao
-useEffect(() => {
+
+  // carregar usuário do localStorage
+  useEffect(() => {
     async function carregarUsuario() {
       const usuarioSalvo = localStorage.getItem("usuario");
       const tokenSalvo = localStorage.getItem("token");
 
       if (usuarioSalvo && tokenSalvo) {
         const usuarioObj = JSON.parse(usuarioSalvo);
-        
-        // Define o estado inicial com o que tem no cache (pra ser rápido)
         setUsuario(usuarioObj);
         setLogado(true);
 
-        // AGORA: Vamos buscar os dados frescos no backend para garantir permissões
         try {
-          // usaremos API_ROUTES.USUARIO quando entender direito
           const respMe = await fetch("http://localhost:8000/api/auth/me/", {
             headers: { "Authorization": `Token ${tokenSalvo}` }
           });
 
           if (respMe.ok) {
             const dadosAtualizados = await respMe.json();
-            
-            // Atualiza o objeto do usuário com os grupos reais do banco
+
             const usuarioAtualizado = {
               ...usuarioObj,
-              grupos: dadosAtualizados.grupos, // Aqui vem a lista ["Admin", "Professor", etc]
-              categoria: dadosAtualizados.categoria // Atualiza categoria também por garantia
+              grupos: dadosAtualizados.grupos,
+              categoria: dadosAtualizados.categoria
             };
 
-            console.log("Grupos atualizados do Django:", usuarioAtualizado.grupos);
-
-            // Salva e atualiza o estado
             localStorage.setItem("usuario", JSON.stringify(usuarioAtualizado));
             setUsuario(usuarioAtualizado);
           }
         } catch (error) {
-          console.error("Erro ao validar token/grupos em segundo plano:", error);
-          // Se o token for inválido, poderíamos deslogar, mas vamos manter simples por enquanto
+          console.error("Erro ao validar token:", error);
         }
       }
     }
     carregarUsuario();
   }, []);
 
-  // Login Google
+  // login google
   const sucessoLoginGoogle = async (credentialResponse) => {
     try {
       const idToken = credentialResponse.credential;
 
-      const resposta = await fetch("http://localhost:8080/api/auth/login/google/", {
+      const resposta = await fetch("http://localhost:8000/api/auth/login/google/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id_token: idToken })
       });
 
       const data = await resposta.json();
-      console.log("RESPOSTA DO BACKEND:", data);
 
       if (data.status === "pending") {
         localStorage.setItem("google_prelogin", JSON.stringify({
@@ -133,17 +123,19 @@ useEffect(() => {
       }
 
       if (data.status === "no_group") {
-        setMensagemErro("Usuário sem grupo. Contate o administrador.");
+        setMensagemErro("Usuário sem grupo.");
         return;
       }
 
       if (data.status === "ok") {
-        const respMe = await fetch("http://localhost:8080/api/auth/me/", {
+        const respMe = await fetch("http://localhost:8000/api/auth/me/", {
           headers: { "Authorization": `Token ${data.token}` }
         });
+
         const me = await respMe.json();
         const dadosGoogle = jwtDecode(credentialResponse.credential);
         const grupoDoUsuario = await consultaGrupo(data.email);
+
         const userData = {
           email: data.email,
           token: data.token,
@@ -158,14 +150,13 @@ useEffect(() => {
 
         setUsuario(userData);
         setLogado(true);
-        mandaEmail(data.email, "Login PEI", "Um novo login acabou de ser realizado!");
+        mandaEmail(data.email, "Login PEI", "Novo login realizado!");
         return;
       }
 
       setMensagemErro(data.detail || "Erro inesperado.");
     } catch (e) {
-      console.error("Erro login Google:", e);
-      setMensagemErro("Falha ao conectar com o servidor.");
+      setMensagemErro("Falha no login com o Google.");
     }
   };
 
@@ -186,63 +177,100 @@ useEffect(() => {
       <AlertProvider>
         <AlertComponent />
 
-        { logado && (
-          <div className="app-container">
+        {/* Layout interno (aparece apenas logado) */}
+        {logado && (
+          <>
             <Header usuario={usuario} logado={logado} logout={logout} />
             <SubHeader perfilSelecionado={perfilSelecionado} />
             <hr />
-            <main className='main-content'>
-              <Routes>
-                {/* Rotas internas (logado) */}
-                <Route path="/" element={<Home usuario={usuario} perfilSelecionado={perfilSelecionado} setPerfilSelecionado={setPerfilSelecionado} />} />
+          </>
+        )}
+
+        <main className="main-content">
+          <Routes>
+
+            {/* ================== ROTAS PÚBLICAS ================== */}
+            {!logado && (
+              <>
+                <Route path="/" element={
+                  <LoginPage 
+                    onLoginSuccess={sucessoLoginGoogle} 
+                    onLoginError={erroLoginGoogle}
+                    mensagemErro={mensagemErro}
+                  />
+                } />
+
+                <Route path="/pre-cadastro" element={<TelaPreCadastro />} />
+                <Route path="/aguardando-aprovacao" element={<AguardandoAprovacao />} />
+
+                {/* Se tentar acessar rota interna sem login → volta pro login */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </>
+            )}
+
+            {/* ================== ROTAS INTERNAS (LOGADO) ================== */}
+            {logado && (
+              <>
+                <Route path="/" element={
+                  <Home 
+                    usuario={usuario} 
+                    perfilSelecionado={perfilSelecionado} 
+                    setPerfilSelecionado={setPerfilSelecionado} 
+                  />
+                } />
+
                 <Route path="/pareceres" element={<Pareceres />} />
                 <Route path="/periodo" element={<PEIPeriodoLetivo />} />
                 <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />
                 <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} />
                 <Route path="/periodoLetivoPerfil" element={<PeriodoLetivoPerfil />} />
-                <Route path="/disciplina" element={<Disciplinas/>}/>
-                <Route path="/disciplinasCadastrar" element={<DisciplinasCRUD/>}/>
-                <Route path="/disciplinaEditar/:id" element={<DisciplinasCRUD/>}/>
-                <Route path="/curso" element={<Cursos/>}/>
-                <Route path="/cursoCadastrar" element={<CursosCRUD/>}/>
-                <Route path="/cursoEditar/:id" element={<CursosCRUD/>}/>
-                <Route path="/aluno" element={<Alunos/>}/>
-                <Route path="/coordenador" element={<CoordenadorCurso/>}/>
+
+                <Route path="/disciplina" element={<Disciplinas />} />
+                <Route path="/disciplinasCadastrar" element={<DisciplinasCRUD />} />
+                <Route path="/disciplinaEditar/:id" element={<DisciplinasCRUD />} />
+
+                <Route path="/curso" element={<Cursos />} />
+                <Route path="/cursoCadastrar" element={<CursosCRUD />} />
+                <Route path="/cursoEditar/:id" element={<CursosCRUD />} />
+
+                <Route path="/aluno" element={<Alunos />} />
+                <Route path="/coordenador" element={<CoordenadorCurso />} />
+
                 <Route path="/peicentral" element={<PeiCentral />} />
-                <Route path="/create_peicentral" element={<CreatePeiCentral/>}/>
-                <Route path="/editar_peicentral/:id" element={<EditarPeiCentral/>}/>
-                <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral/>}/>
-                <Route path="/componenteCurricular" element={<ComponenteCurricular/>}/>
-                <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento/>}/>
-                <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
-                <Route path="/pedagogo" element={<Pedagogos/>}/>
-                <Route 
-                  path="/logs"
-                  element={isAdmin ? <Logs/> : <Navigate to="/" replace />}
-                  />
+                <Route path="/create_peicentral" element={<CreatePeiCentral />} />
+                <Route path="/editar_peicentral/:id" element={<EditarPeiCentral />} />
+                <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral />} />
+
+                <Route path="/componenteCurricular" element={<ComponenteCurricular />} />
+                <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento />} />
+                <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar />} />
+
+                <Route path="/pedagogo" element={<Pedagogos />} />
                 <Route path="/professor" element={<Professor />} />
-                <Route path="/perfil" element={<Perfil/>} />
-                <Route path="/conteudo" element={<Conteudo usuario={usuario} />}/>
+                <Route path="/perfil" element={<Perfil />} />
+                <Route path="/conteudo" element={<Conteudo usuario={usuario} />} />
+
                 <Route path="/crud/:modelKey" element={<CrudWrapper />} />
+
                 {isAdmin && (
                   <Route path="/admin/solicitacoes" element={<TelaSolicitacoesPendentes />} />
                 )}
-              </Routes>
-            </main>
-            <Footer usuario={usuario}/>
-          </div>
-        )}
 
-        {/* Rotas públicas */}
-        <Routes>
-          <Route path="/pre-cadastro" element={<TelaPreCadastro />} />
-          <Route path="/aguardando-aprovacao" element={<AguardandoAprovacao />} />
-          <Route path="/" element={!logado && <LoginPage onLoginSuccess={sucessoLoginGoogle} onLoginError={erroLoginGoogle} mensagemErro={mensagemErro} />} />
-        </Routes>
+                <Route path="/logs" element={
+                  isAdmin ? <Logs /> : <Navigate to="/" replace />
+                } />
 
+                {/* Fallback interno: qualquer rota inválida → home */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </>
+            )}
+          </Routes>
+        </main>
+
+        {logado && <Footer usuario={usuario} />}
       </AlertProvider>
-    </GoogleOAuthProvider>   
-  )
+    </GoogleOAuthProvider>
+  );
 }
 
 export default App;

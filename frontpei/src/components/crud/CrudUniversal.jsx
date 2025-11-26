@@ -41,7 +41,7 @@ function CrudUniversal({ modelName }) {
   useEffect(() => {
     async function fetchServices() {
       try {
-        const res = await axios.get("http://localhost:8080/services/");
+        const res = await axios.get("http://localhost:8000/services/");
         setServicesMap(res.data);
       } catch (err) {
         addAlert("Erro ao carregar lista de serviços", "error");
@@ -96,7 +96,7 @@ function CrudUniversal({ modelName }) {
               const endpoint =
                 f.related_endpoint ||
                 servicesMap[mappedKey] ||
-                `http://localhost:8080/services/${mappedKey}/`;
+                `http://localhost:8000/services/${mappedKey}/`;
 
               const r = await axios.get(endpoint);
               const options = Array.isArray(r.data) ? r.data : r.data?.results || [];
@@ -165,7 +165,7 @@ function CrudUniversal({ modelName }) {
     }
     try {
       const payload = normalizePayload(form, metadata);
-      console.log("Payload enviado:", payload);
+      
       await axios.post(getEndpoint(modelName), payload);
       await fetchRecords();
       setForm(Object.fromEntries(Object.keys(form).map(k => [k, ""])));
@@ -197,7 +197,7 @@ function CrudUniversal({ modelName }) {
 
   // RENDER INPUT
   const renderInput = (f, value, onChange) => {
-  console.log("Renderizando input:", f.name, "Tipo:", f.type, "Valor atual:", value);
+  
 
   if (f.type === "textarea") 
     return <textarea value={value || ""} onChange={e => onChange(e.target.value)} />;
@@ -219,7 +219,7 @@ function CrudUniversal({ modelName }) {
 
   if (f.type === "foreignkey" || (f.type === "select" && f.related_model)) {
     const options = selectOptions[f.name] || [];
-    console.log("Options para", f.name, ":", options);
+    
 
     return (
       <select
@@ -242,7 +242,7 @@ function CrudUniversal({ modelName }) {
 
   if (f.type === "multiselect") {
     const options = selectOptions[f.name] || [];
-    console.log("Multiselect options para", f.name, ":", options);
+    
 
     return (
       <div className="checkbox-group">
@@ -365,7 +365,7 @@ const renderFieldValue = (f, record) => {
   <ul>
     {records.length === 0 && <li>Nenhum registro.</li>}
     {records.map(r => {
-      console.log("Registro:", r); // Log do registro completo
+      
       return (
         <li key={r.id}>
           {editId === r.id ? (
@@ -386,7 +386,7 @@ const renderFieldValue = (f, record) => {
             <div>
               {metadata?.fields?.filter(f => f.name !== "id").map(f => {
                 const valor = renderFieldValue(f, r);
-                console.log("Campo:", f.name, "Valor renderizado:", valor); // Log do valor renderizado
+                
                 return (
                   <div key={f.name}>
                     <strong>{f.label ? f.label : formatLabel(f.name)}:</strong>{" "}
