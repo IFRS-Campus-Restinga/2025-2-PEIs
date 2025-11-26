@@ -2,7 +2,7 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from pei.models import Notificacao
+from pei.models.notificacao import Notificacao
 from pei.services.serializers import NotificacaoSerializer
 from ..permissions import BackendTokenPermission
 

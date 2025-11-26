@@ -43,8 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework', 'rest_framework.authtoken', "corsheaders",
-    'pei', 'logs',
+    'pei', 'logs', 'auth_app',
 ]
+
+GOOGLE_OAUTH2_CLIENT_ID = "992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com"
+
+AUTH_USER_MODEL = "pei.CustomUser"
+
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -64,8 +69,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-        #'rest_framework.permissions.AllowAny',
+        #'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
@@ -91,6 +96,8 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
     "x-backend-token",  # permite o header customizado
+	"x-user-email", # permite receber o email do frontend
+	"x-user-group", # permite receber o grupo do frontend
 ]
 
 # adiciona nosso token do usuario administrador
@@ -169,6 +176,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_URL = '/exportProDrive/'
+MEDIA_ROOT = BASE_DIR / 'exportProDrive'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -189,8 +198,3 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "ifrspei@gmail.com"
 EMAIL_HOST_PASSWORD = "sfer mxfq ouoz hkkq"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-# settings.py
-GOOGLE_REDIRECT_URI = "http://localhost:8000/services/auth/google/callback/"
-SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SECURE = True  # True em produção

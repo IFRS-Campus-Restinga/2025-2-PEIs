@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
 from ..serializers.componenteCurricular_serializer import ComponenteCurricularSerializer
-from pei.models import ComponenteCurricular
+from pei.models.componenteCurricular import ComponenteCurricular
 from ..permissions import BackendTokenPermission
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError
 class ComponenteCurricularViewSet(ModelViewSet):
     queryset = ComponenteCurricular.objects.all()
     serializer_class = ComponenteCurricularSerializer
-    permission_classes = [BackendTokenPermission]
+    #permission_classes = [BackendTokenPermission]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

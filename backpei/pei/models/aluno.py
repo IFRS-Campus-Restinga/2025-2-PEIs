@@ -5,25 +5,32 @@ from django.core.exceptions import ValidationError
 from ..validators.validador_texto import no_special_characters
 from ..validators.unique_validator import UniqueValidator
 from ..validators.messages import MESSAGES
+from .curso import Curso
+
 
 
 class Aluno(BaseModel):
     nome = models.CharField(
         max_length=100,
+        unique=True,
         validators=[MinLengthValidator(7), MaxLengthValidator(60), 
-                    no_special_characters,
-                    UniqueValidator("pei.Aluno", "nome", message=MESSAGES["duplicated_field"])])
+                    no_special_characters,])
     
     matricula = models.CharField(
         max_length=20,
         unique=True,
-        validators=[RegexValidator(r'^\d+$', 'A matrícula deve conter apenas números'),
-                    UniqueValidator("pei.Aluno", "matricula", message=MESSAGES["duplicated_field"])])
+        validators=[RegexValidator(r'^\d+$', 'A matrícula deve conter apenas números')])
     
     email = models.EmailField(
-        unique=True,
-        validators=[UniqueValidator("pei.Aluno", "email", message=MESSAGES["duplicated_field"])])
+        unique=True)
 
+    curso = models.ForeignKey(
+        Curso,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="aluno"
+    )
     def __str__(self):
         return f"{self.nome} ({self.matricula})"
     

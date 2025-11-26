@@ -3,15 +3,16 @@ import downloadIcon from "../../assets/download.svg";
 import { Link } from "react-router-dom"; 
 import BotaoEditar from "../../components/customButtons/botaoEditar"; 
 import BotaoDeletar from "../../components/customButtons/botaoDeletar"; 
-import ErrorMessage from "../../components/errorMessage/errorMessage.jsx";
+import ErrorMessage from "../../components/errorMessage/ErrorMessage"; 
 import axios from "axios"; 
-import "../Curso.css"; 
-import BotaoExportar from "../../components/customButtons/botaoExportar";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css"
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 export default function Cursos() { 
   const [cursos, setCursos] = useState([]); 
   const [erro, setErro] = useState(""); 
-  const DBCURSOS = axios.create({ baseURL: import.meta.env.VITE_CURSOS_URL }); 
+  const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS });
   
   async function carregarCursos() { 
     try {
@@ -48,9 +49,8 @@ export default function Cursos() {
       
       <div className="cursos-form"> 
         <Link to="/cursoCadastrar"> 
-          <button className="submit-btn">Adicionar curso</button> 
-        </Link>
-        <BotaoExportar className="submit-btn" DBDATA={cursos} nomeArquivo={"cursos_exportacao.pdf"} />
+          <button className="submit-btn" type="button">Adicionar curso</button> 
+        </Link> 
       </div> 
       
       <ErrorMessage message={erro} align="center" /> 
@@ -69,7 +69,7 @@ export default function Cursos() {
           </thead> 
           <tbody> {cursos.map((curso) => ( 
             <tr key={curso.id}> 
-              <td>{curso.name}</td> 
+              <td>{curso.nome}</td> 
               <td>{curso.nivel || "Não informado"}</td> 
               <td> {curso.disciplinas?.length ? curso.disciplinas.map((d) => d.nome).join(", ") : "Nenhuma"} </td> 
               <td>{curso.coordenador?.nome || "Não informado"}</td> 
@@ -89,16 +89,16 @@ export default function Cursos() {
                   "Nenhum"
                 )}
               </td>
-              <td className="acoes-cell"> 
+              <td className="posicao-buttons"> 
                 <BotaoEditar id={curso.id} rotaEdicao="/cursoEditar" />
                 <BotaoDeletar id={curso.id} axiosInstance={DBCURSOS} onDeletarSucesso={carregarCursos} /> 
-              </td>
+              </td> 
             </tr> ))} 
           </tbody> 
         </table> 
       </div> 
 
-      <Link to="/" className="voltar-btn"> Voltar </Link> 
+      <BotaoVoltar/>
     </div>
   ); 
 }

@@ -1,7 +1,7 @@
 from django.utils import timezone
 from datetime import timedelta
-from pei.models import PEIPeriodoLetivo
-from pei.models import Notificacao
+from pei.models.PEIPeriodoLetivo import PEIPeriodoLetivo
+from pei.models.notificacao import Notificacao
 
 def verificar_periodos_e_gerar_notificacoes():
     hoje = timezone.now().date()

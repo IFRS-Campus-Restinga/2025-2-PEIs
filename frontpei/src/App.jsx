@@ -1,119 +1,200 @@
-import './App.css'
-import { GoogleOAuthProvider } from '@react-oauth/google'
-import { useState, useEffect } from 'react'
-import { Routes, Route } from "react-router-dom";
+import "../src/cssGlobal.css";
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { API_ROUTES } from "./configs/apiRoutes"
 
-// Importações dos contextos/alerts
+// contextos e alertas
 import { AlertProvider } from "./context/AlertContext";
-import AlertComponent from "./components/alert/AlertComponent.jsx";
+import AlertComponent from './components/alert/AlertComponent.jsx';
 
-// Imports das páginas e componentes
-import Home from "./pages/home/Home.jsx"
+// Páginas públicas
+import LoginPage from './pages/login/Login.jsx';
+import TelaPreCadastro from "./pages/preCadastro/TelaPreCadastro.jsx";
+import AguardandoAprovacao from "./pages/preCadastro/AguardandoAprovacao.jsx";
+
+// Layout
+import Header from './components/customHeader/Header.jsx';
+import SubHeader from './components/customSubHeader/Subheader.jsx';
+import Footer from './components/customFooter/Footer.jsx';
+
+// PÁGINAS INTERNAS
+import Home from "./pages/home/Home.jsx";
 import Pareceres from "./pages/Parecer.jsx";
 import PEIPeriodoLetivo from "./pages/peiPeriodoLetivo/PEIPeriodoLetivo.jsx";
 import PEIPeriodoLetivoLista from "./pages/peiPeriodoLetivo/listar_pei_periodo_letivo.jsx";
 import PeriodoLetivoPerfil from "./pages/telaPerfilProfessor/periodoLetivoPerfil.jsx";
+import Perfil from "./pages/perfil/Perfil.jsx";
 import Cursos from "./pages/Curso/Curso.jsx";
 import CursosCRUD from "./pages/Curso/CursoCRUD.jsx";
 import Disciplinas from "./pages/Disciplina/Disciplina.jsx";
 import DisciplinasCRUD from "./pages/Disciplina/DisciplinaCRUD.jsx";
-import Header from './components/customHeader/Header.jsx'
-import Footer from './components/customFooter/Footer.jsx'
-import SubHeader from './components/customSubHeader/Subheader.jsx'
-import PeiCentral from './pages/PeiCentral/PeiCentral.jsx'
-import CreatePeiCentral from './pages/PeiCentral/CreatePeiCentral.jsx'
-import EditarPeiCentral from './pages/peiCentral/EditarPeiCentral.jsx'
-import DeletarPeiCentral from './pages/peiCentral/DeletarPeiCentral.jsx'
-import Alunos from './pages/Aluno.jsx'
-import CoordenadorCurso from './pages/CoordenadorCurso.jsx'
-import Logs from './pages/LogsComponents/Logs.jsx'
-import ComponenteCurricular from './pages/componenteCurricular.jsx'
-import AtaDeAcompanhamento from './pages/ataDeAcompanhamento.jsx'
-import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx'
-import Pedagogos from './pages/Pedagogo.jsx'
-import LoginPage from './pages/login/Login.jsx';
+import PeiCentral from './pages/PeiCentral/PeiCentral.jsx';
+import CreatePeiCentral from './pages/PeiCentral/CreatePeiCentral.jsx';
+import EditarPeiCentral from './pages/PeiCentral/EditarPeiCentral.jsx';
+import DeletarPeiCentral from './pages/PeiCentral/DeletarPeiCentral.jsx';
+import Alunos from './pages/Aluno.jsx';
+import CoordenadorCurso from './pages/CoordenadorCurso.jsx';
+import Logs from './pages/LogsComponents/Logs.jsx';
+import ComponenteCurricular from './pages/componenteCurricular.jsx';
+import AtaDeAcompanhamento from './pages/ataDeAcompanhamento.jsx';
+import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx';
+import Pedagogos from './pages/Pedagogo.jsx';
 import Professor from "./pages/Professor.jsx";
-import Perfil from './components/Perfis/Perfil.jsx';
-import VisualizarPEI from './components/Perfis/VisualizarPEI.jsx';
-import Usuarios from './pages/Usuario.jsx';
+import Conteudo from './pages/Conteudo.jsx';
+import TelaSolicitacoesPendentes from "./pages/admin/TelaSolicitacoesPendentes";
+
+
+// FUNCOES DE USO GLOBAL
 import { mandaEmail } from "./lib/mandaEmail";
+import { consultaGrupo } from "./lib/consultaGrupo";
+import CrudWrapper from "./components/crud/crudWrapper.jsx"
 
 function App() {
-  // Estados do login
-  //console.log("CLIENT_ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
-
-  const [usuario, setUsuario] = useState(null)
-  const [logado, setLogado] = useState(false)
+  const [usuario, setUsuario] = useState(null);
+  const [logado, setLogado] = useState(false);
   const [mensagemErro, setMensagemErro] = useState(null);
   const [perfilSelecionado, setPerfilSelecionado] = useState(null);
+  const navigate = useNavigate();
+  const isAdmin = usuario?.grupos?.some(g => g.toLowerCase() === "admin");
+  // rotina de inicializacao
+useEffect(() => {
+    async function carregarUsuario() {
+      const usuarioSalvo = localStorage.getItem("usuario");
+      const tokenSalvo = localStorage.getItem("token");
 
-  // Carrega usuário do localStorage ao iniciar
-  useEffect(() => {
-    const usuarioSalvo = localStorage.getItem("usuario");
-    const tokenSalvo = localStorage.getItem("django_token");
-    if (usuarioSalvo && tokenSalvo) {
-      setUsuario(JSON.parse(usuarioSalvo));
-      setLogado(true);
+      if (usuarioSalvo && tokenSalvo) {
+        const usuarioObj = JSON.parse(usuarioSalvo);
+        
+        // Define o estado inicial com o que tem no cache (pra ser rápido)
+        setUsuario(usuarioObj);
+        setLogado(true);
+
+        // AGORA: Vamos buscar os dados frescos no backend para garantir permissões
+        try {
+          // usaremos API_ROUTES.USUARIO quando entender direito
+          const respMe = await fetch("http://localhost:8000/api/auth/me/", {
+            headers: { "Authorization": `Token ${tokenSalvo}` }
+          });
+
+          if (respMe.ok) {
+            const dadosAtualizados = await respMe.json();
+            
+            // Atualiza o objeto do usuário com os grupos reais do banco
+            const usuarioAtualizado = {
+              ...usuarioObj,
+              grupos: dadosAtualizados.grupos, // Aqui vem a lista ["Admin", "Professor", etc]
+              categoria: dadosAtualizados.categoria // Atualiza categoria também por garantia
+            };
+
+            console.log("Grupos atualizados do Django:", usuarioAtualizado.grupos);
+
+            // Salva e atualiza o estado
+            localStorage.setItem("usuario", JSON.stringify(usuarioAtualizado));
+            setUsuario(usuarioAtualizado);
+          }
+        } catch (error) {
+          console.error("Erro ao validar token/grupos em segundo plano:", error);
+          // Se o token for inválido, poderíamos deslogar, mas vamos manter simples por enquanto
+        }
+      }
     }
+    carregarUsuario();
   }, []);
 
-  // Função chamada após login bem-sucedido (pelo LoginPage)
-  const sucessoLoginGoogle = () => {
-    const usuarioSalvo = localStorage.getItem("usuario");
-    const tokenSalvo = localStorage.getItem("django_token");
-    if (usuarioSalvo && tokenSalvo) {
-      const user = JSON.parse(usuarioSalvo);
-      setUsuario(user);
-      setLogado(true);
-      setMensagemErro(null);
+  // Login Google
+  const sucessoLoginGoogle = async (credentialResponse) => {
+    try {
+      const idToken = credentialResponse.credential;
 
-      // Envia e-mail de notificação
-      mandaEmail(user.email, "Login PEI", "Um novo login foi realizado com sucesso no sistema PEI!");
+      const resposta = await fetch("http://localhost:8000/api/auth/login/google/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_token: idToken })
+      });
+
+      const data = await resposta.json();
+      console.log("RESPOSTA DO BACKEND:", data);
+
+      if (data.status === "pending") {
+        localStorage.setItem("google_prelogin", JSON.stringify({
+          email: data.email,
+          nome: data.name,
+          foto: data.picture
+        }));
+        navigate("/pre-cadastro");
+        return;
+      }
+
+      if (data.status === "not_approved") {
+        navigate("/aguardando-aprovacao");
+        return;
+      }
+
+      if (data.status === "no_group") {
+        setMensagemErro("Usuário sem grupo. Contate o administrador.");
+        return;
+      }
+
+      if (data.status === "ok") {
+        const respMe = await fetch("http://localhost:8000/api/auth/me/", {
+          headers: { "Authorization": `Token ${data.token}` }
+        });
+        const me = await respMe.json();
+        const dadosGoogle = jwtDecode(credentialResponse.credential);
+        const grupoDoUsuario = await consultaGrupo(data.email);
+        const userData = {
+          email: data.email,
+          token: data.token,
+          nome: dadosGoogle.name,
+          foto: dadosGoogle.picture,
+          grupo: grupoDoUsuario,
+          grupos: me.grupos
+        };
+
+        localStorage.setItem("usuario", JSON.stringify(userData));
+        localStorage.setItem("token", data.token);
+
+        setUsuario(userData);
+        setLogado(true);
+        mandaEmail(data.email, "Login PEI", "Um novo login acabou de ser realizado!");
+        return;
+      }
+
+      setMensagemErro(data.detail || "Erro inesperado.");
+    } catch (e) {
+      console.error("Erro login Google:", e);
+      setMensagemErro("Falha ao conectar com o servidor.");
     }
   };
 
-  // Função chamada em caso de erro
-  const erroLoginGoogle = (msg = "Falha no login com o Google. Tente novamente.") => {
-    setMensagemErro(msg);
-    setUsuario(null);
-    setLogado(false);
-    localStorage.removeItem("usuario");
-    localStorage.removeItem("django_token");
+  const erroLoginGoogle = () => {
+    setMensagemErro("Falha no login com o Google.");
   };
 
-  // Função de logout
   const logout = () => {
     setUsuario(null);
     setLogado(false);
     setPerfilSelecionado(null);
     localStorage.removeItem("usuario");
-    localStorage.removeItem("django_token");
-    setMensagemErro(null);
+    localStorage.removeItem("token");
   };
 
   return (
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId="992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com">
       <AlertProvider>
         <AlertComponent />
 
-        {logado ? (
+        { logado && (
           <div className="app-container">
             <Header usuario={usuario} logado={logado} logout={logout} />
             <SubHeader perfilSelecionado={perfilSelecionado} />
             <hr />
-
             <main className='main-content'>
               <Routes>
-                <Route 
-                  path="/" 
-                  element={
-                    <Home 
-                      usuario={usuario} 
-                      perfilSelecionado={perfilSelecionado} 
-                      setPerfilSelecionado={setPerfilSelecionado} 
-                    />
-                  } 
-                />
+                {/* Rotas internas (logado) */}
+                <Route path="/" element={<Home usuario={usuario} perfilSelecionado={perfilSelecionado} setPerfilSelecionado={setPerfilSelecionado} />} />
                 <Route path="/pareceres" element={<Pareceres />} />
                 <Route path="/periodo" element={<PEIPeriodoLetivo />} />
                 <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />
@@ -135,25 +216,33 @@ function App() {
                 <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento/>}/>
                 <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar/>}/>
                 <Route path="/pedagogo" element={<Pedagogos/>}/>
-                <Route path="/logs" element={<Logs/>}/>
+                <Route 
+                  path="/logs"
+                  element={isAdmin ? <Logs/> : <Navigate to="/" replace />}
+                  />
                 <Route path="/professor" element={<Professor />} />
-                <Route path="/usuario" element={<Usuarios/>}/>
-                <Route path="/perfil/:perfil" element={<Perfil usuario={usuario} />} />
-                <Route path="/pei/:alunoId" element={<VisualizarPEI />} />
+                <Route path="/perfil" element={<Perfil/>} />
+                <Route path="/conteudo" element={<Conteudo usuario={usuario} />}/>
+                <Route path="/crud/:modelKey" element={<CrudWrapper />} />
+                {isAdmin && (
+                  <Route path="/admin/solicitacoes" element={<TelaSolicitacoesPendentes />} />
+                )}
               </Routes>
             </main>
-            <Footer/>
+            <Footer usuario={usuario}/>
           </div>
-        ) : (
-          <LoginPage 
-            onLoginSuccess={sucessoLoginGoogle}
-            onLoginError={erroLoginGoogle}
-            mensagemErro={mensagemErro}
-          />
         )}
+
+        {/* Rotas públicas */}
+        <Routes>
+          <Route path="/pre-cadastro" element={<TelaPreCadastro />} />
+          <Route path="/aguardando-aprovacao" element={<AguardandoAprovacao />} />
+          <Route path="/" element={!logado && <LoginPage onLoginSuccess={sucessoLoginGoogle} onLoginError={erroLoginGoogle} mensagemErro={mensagemErro} />} />
+        </Routes>
+
       </AlertProvider>
     </GoogleOAuthProvider>   
   )
 }
 
-export default App
+export default App;

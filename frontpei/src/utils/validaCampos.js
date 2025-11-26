@@ -1,6 +1,6 @@
 import { getAlertManager } from "../context/AlertContext";
 
-// 🔹 Mantém um gerenciador global para exibir alertas inline sem hooks
+// Mantém um gerenciador global para exibir alertas inline sem hooks
 const alertManager = getAlertManager();
 
 /**
@@ -19,7 +19,7 @@ export function validaCampos(form, formElement, backendErrors = null) {
 
   const inputs = formElement.querySelectorAll("[name]");
 
-  // 1️⃣ Verifica campos obrigatórios
+  // Verifica campos obrigatórios
   inputs.forEach((input) => {
     const nome = input.getAttribute("name");
     const label =
@@ -38,7 +38,7 @@ export function validaCampos(form, formElement, backendErrors = null) {
     }
   });
 
-  // 2️⃣ Integração com erros do backend
+  //  Integração com erros do backend
   if (backendErrors && typeof backendErrors === "object") {
     Object.entries(backendErrors).forEach(([field, msgs]) => {
       if (Array.isArray(msgs) && msgs.length > 0) {

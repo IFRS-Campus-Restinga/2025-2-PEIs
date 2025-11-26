@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
 from ..serializers.aluno_serializer import *
-from pei.models.aluno import *
+from pei.models.aluno import Aluno
 from ..permissions import BackendTokenPermission
 from rest_framework.response import Response
 from rest_framework import status

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from pei.models import *
+from pei.models.pei_central import PeiCentral
 from pei.services.serializers.PEIPeriodoLetivo_serializer import PEIPeriodoLetivoSerializer
 from pei.models.aluno import Aluno
 from .aluno_serializer import AlunoSerializer

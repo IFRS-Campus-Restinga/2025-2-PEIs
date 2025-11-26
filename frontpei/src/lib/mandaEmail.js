@@ -1,5 +1,6 @@
+import { API_ROUTES } from "../configs/apiRoutes";
 export async function mandaEmail(destino, assunto, texto) {
-    const url = import.meta.env.VITE_EMAIL_URL;
+    const url = API_ROUTES.MANDAEMAIL;
     try {
       const resposta = await fetch(url, {
         method: "POST",
@@ -23,4 +24,5 @@ export async function mandaEmail(destino, assunto, texto) {
     } catch (erro) {
       console.error("Erro no envio de email:", erro);
       throw erro; }
+
 }

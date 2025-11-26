@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from pei.models import Notificacao
+from pei.models.notificacao import Notificacao
 
 class NotificacaoSerializer(serializers.ModelSerializer):
     class Meta:

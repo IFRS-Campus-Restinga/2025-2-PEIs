@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import "./Header.css";
 import logo from "../../assets/logo-sem-nome.png";
 import userIcon from "../../assets/user.svg";
 import chevronDown from "../../assets/chevron-down.svg";
 import bellIcon from "../../assets/bell.svg";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import "../../cssGlobal.css";
+import LeitorTela from '../leitorTela/LeitorTela';
 
 const Header = ({ usuario, logado, logout }) => {
     const [menuAberto, setMenuAberto] = useState(false);
@@ -135,7 +136,7 @@ const Header = ({ usuario, logado, logout }) => {
                                 </div>
                             </div>
                         </div>
-
+                        <LeitorTela />
                         {/* 👤 Usuário */}
                         <div className="user-wrapper" ref={menuRef}>
                             <div

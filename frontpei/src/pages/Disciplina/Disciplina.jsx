@@ -3,13 +3,15 @@ import { Link } from "react-router-dom";
 import BotaoEditar from "../../components/customButtons/botaoEditar";
 import BotaoDeletar from "../../components/customButtons/botaoDeletar";
 import axios from "axios";
-import "../Disciplina.css";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 export default function Disciplinas() {
   const [disciplinas, setDisciplinas] = useState([]);
   const [erro, setErro] = useState(false);
 
-  const DBDISCIPLINAS = axios.create({ baseURL: import.meta.env.VITE_DISCIPLINAS_URL });
+  const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
 
   async function carregarDisciplinas() {
     try {
@@ -17,8 +19,7 @@ export default function Disciplinas() {
       setDisciplinas(Array.isArray(resposta.data) ? resposta.data : resposta.data.results || []);
       setErro(false);
     } catch (err) {
-      console.error("Erro ao buscar disciplinas:", err);
-      setErro(true);
+      addAlert("Erro ao recuperar componentes!", "error");
     }
   }
 
@@ -27,11 +28,11 @@ export default function Disciplinas() {
   }, []);
 
   return (
-    <div className="disciplinas-container">
+    <div className="container-padrao">
       <h1>Disciplinas</h1>
 
       {/* Botão criar nova disciplina */}
-      <div className="disciplinas-form">
+      <div className="form-padrao">
         <Link to="/disciplinasCadastrar">
           <button className="submit-btn">Criar nova disciplina</button>
         </Link>
@@ -43,12 +44,12 @@ export default function Disciplinas() {
           Não foi possível carregar as disciplinas.
         </p>
       ) : (
-        <div className="disciplinas-list">
+        <div className="list-padrao">
           <ul>
             {disciplinas.map((d) => (
               <li key={d.id}>
                 <span><b>{d.nome}</b></span>
-                <div className="curso-buttons">
+                <div className="posicao-buttons">
                   <BotaoEditar id={d.id} rotaEdicao="/disciplinaEditar" />
                   <BotaoDeletar 
                     id={d.id} 
@@ -63,7 +64,7 @@ export default function Disciplinas() {
       )}
 
       {/* Botão voltar */}
-      <Link to="/" className="voltar-btn">Voltar</Link>
+      <BotaoVoltar/>
     </div>
   );
 }

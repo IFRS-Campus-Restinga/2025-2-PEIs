@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./listar_pei_periodo_letivo.css";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 function PEIPeriodoLetivoLista() {
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEIPERIODOLETIVO_URL });
+  const DB = axios.create({ baseURL: API_ROUTES.PEIPERIODOLETIVO });
   const [periodos, setPeriodos] = useState([]);
   const [erro, setErro] = useState(false);
   const [periodoUnico, setPeriodoUnico] = useState(null);
@@ -12,35 +14,55 @@ function PEIPeriodoLetivoLista() {
   const navigate = useNavigate();
 
   async function carregarPeriodos() {
+    console.log("Iniciando requisição para listar períodos");
     try {
       const resposta = await DB.get("/");
-      if (Array.isArray(resposta.data)) setPeriodos(resposta.data);
-      else if (Array.isArray(resposta.data.results)) setPeriodos(resposta.data.results);
-      else setPeriodos([]);
+      console.log("Resposta recebida:", resposta);
+      console.log("Resposta.data:", resposta.data);
+
+      if (Array.isArray(resposta.data)) {
+        console.log("A resposta é um array direto");
+        setPeriodos(resposta.data);
+      } else if (Array.isArray(resposta.data.results)) {
+        console.log("A resposta possui 'results'");
+        setPeriodos(resposta.data.results);
+      } else {
+        console.log("Estrutura desconhecida, setando array vazio");
+        setPeriodos([]);
+      }
+      console.log("State 'periodos' atualizado:", periodos);
       setErro(false);
     } catch (err) {
+      console.error("Erro ao carregar períodos:", err);
       setErro(true);
     }
   }
 
   async function carregarPeriodoUnico(id) {
+    console.log(`Iniciando requisição para período único (id=${id})`);
     try {
       const resposta = await DB.get(`/${id}/`);
+      console.log("Resposta recebida:", resposta);
+      console.log("Resposta.data:", resposta.data);
+
       setPeriodoUnico(resposta.data);
+      console.log("State 'periodoUnico' atualizado:", resposta.data);
       setErro(false);
     } catch (err) {
+      console.error(`Erro ao carregar período id=${id}:`, err);
       setErro(true);
     }
   }
 
   useEffect(() => {
+    console.log("🔹 useEffect disparado, id:", id);
     if (id) carregarPeriodoUnico(id);
     else carregarPeriodos();
   }, [id]);
 
   if (id && periodoUnico) {
     return (
-      <div className="container">
+      <div className="container-padrao">
         <h1>Período Letivo #{periodoUnico.id}</h1>
         <div className="periodo-card">
           <b>Data Criação:</b> {periodoUnico.data_criacao} <br />
@@ -50,10 +72,9 @@ function PEIPeriodoLetivoLista() {
           <b>Pareceres:</b>
           {periodoUnico.componentes_curriculares?.length > 0 ? (
             periodoUnico.componentes_curriculares.map((comp) => (
-              <div key={comp.id} className="componente-container">
+              <div key={comp.id}>
                 <i>
-                  Componente Curricular:{" "}
-                  {comp.disciplina?.nome || "Sem disciplina vinculada"}
+                  Componente Curricular: {comp.disciplina?.nome || "Sem disciplina vinculada"}
                 </i>
                 {comp.pareceres?.length > 0 ? (
                   comp.pareceres.map((parecer) => (
@@ -79,12 +100,10 @@ function PEIPeriodoLetivoLista() {
           )}
         </div>
         <div className="botoes-navegacao">
-          <button type="button" onClick={() => navigate("/listar_periodos/")}>
+          <button type="button" className="btn-visualizar" onClick={() => navigate("/listar_periodos/")}>
             Visualizar Lista de Períodos
           </button>
-          <button type="button" onClick={() => navigate("/")}>
-            Voltar para Home
-          </button>
+          <BotaoVoltar/>
         </div>
       </div>
     );
@@ -109,8 +128,7 @@ function PEIPeriodoLetivoLista() {
               p.componentes_curriculares.map((comp) => (
                 <div key={comp.id} className="componente-container">
                   <i>
-                    Componente Curricular:{" "}
-                    {comp.disciplina?.nome || "Sem disciplina vinculada"}
+                    Componente Curricular: {comp.disciplina?.nome || "Sem disciplina vinculada"}
                   </i>
                   {comp.pareceres?.length > 0 ? (
                     comp.pareceres.map((parecer) => (
@@ -137,9 +155,7 @@ function PEIPeriodoLetivoLista() {
           </div>
         ))
       )}
-      <button style={{ marginTop: "20px" }}>
-        <Link to="/">Voltar</Link>
-      </button>
+      <BotaoVoltar/>
     </div>
   );
 }

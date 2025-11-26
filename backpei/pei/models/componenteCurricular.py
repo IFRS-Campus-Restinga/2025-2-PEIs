@@ -16,7 +16,7 @@ class ComponenteCurricular(BaseModel):
         max_length=100,
         validators=[MinLengthValidator(7), MaxLengthValidator(255)], blank=False, null=False )
     
-    disciplinas = models.OneToOneField(
+    disciplinas = models.ForeignKey(
         "Disciplina", 
         related_name="componentes_curriculares", 
         on_delete=models.CASCADE, 

@@ -1,111 +1,185 @@
+// src/pages/periodoLetivoPerfil/PeriodoLetivoPerfil.jsx
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
-import "./periodoLetivoPerfil.css";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
+import { API_ROUTES } from "../../configs/apiRoutes";
 
 const PeriodoLetivoPerfil = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { peiCentralId, cargoSelecionado: cargoInicial } = location.state || {};
-
-  const API_ALUNO = import.meta.env.VITE_ALUNO_URL;
-  const API_PEICENTRAL = import.meta.env.VITE_PEI_CENTRAL_URL;
-  const API_CURSO = import.meta.env.VITE_CURSOS_URL;
-  const API_PEIPERIODO = import.meta.env.VITE_PEIPERIODOLETIVO_URL;
+  const { peiCentralId } = location.state || {};
 
   const [aluno, setAluno] = useState(null);
   const [curso, setCurso] = useState(null);
-  const [coordenador, setCoordenador] = useState(null);
+  const [coordenador, setCoordenador] = useState("—");
   const [periodoPrincipal, setPeriodoPrincipal] = useState(null);
-  const [periodos, setPeriodos] = useState([]);
+  const [pareceres, setPareceres] = useState([]);
+  const [gruposUsuario, setGruposUsuario] = useState([]);
+  const [nomeUsuario, setNomeUsuario] = useState("Usuário");
   const [erro, setErro] = useState(false);
-  const [cargoSelecionado, setCargoSelecionado] = useState(cargoInicial || ""); 
 
+  // PEGA NOME COMPLETO + GRUPOS DO USUÁRIO LOGADO
   useEffect(() => {
+    const usuarioSalvo = localStorage.getItem("usuario");
+    if (usuarioSalvo) {
+      try {
+        const user = JSON.parse(usuarioSalvo);
+
+        // Nome completo direto do backend (ex: "Jampier Brunetto")
+        setNomeUsuario(user.nome || "Usuário");
+
+        // Grupos (para os botões)
+        const grupos = (user.grupos || []).map(g => g.toLowerCase());
+        setGruposUsuario(grupos);
+
+        console.log("USUÁRIO LOGADO:", { nome: user.nome, grupos });
+      } catch (err) {
+        console.error("Erro ao ler usuário do localStorage", err);
+      }
+    }
+  }, []);
+
+  // CARREGA DADOS DO PEI
+  useEffect(() => {
+    if (!peiCentralId) return;
+
     async function carregarDados() {
       try {
-        const [resPeiCentral, resAlunos, resCursos, resPeriodos] = await Promise.all([
-          axios.get(`${API_PEICENTRAL}${peiCentralId}/`),
-          axios.get(API_ALUNO),
-          axios.get(API_CURSO),
-          axios.get(API_PEIPERIODO),
-        ]);
+        const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`);
+        const pei = res.data;
 
-        const peiCentral = resPeiCentral.data;
-        const alunosData = resAlunos.data.results || [];
-        const cursosData = Array.isArray(resCursos.data)
-          ? resCursos.data
-          : resCursos.data?.results || [];
-        const periodosData = Array.isArray(resPeriodos.data)
-          ? resPeriodos.data
-          : resPeriodos.data?.results || [];
+        setAluno(pei.aluno || { nome: "Aluno não encontrado", email: "" });
 
-        const alunoVinculado = alunosData.find((a) => a.id === peiCentral.aluno?.id);
-        setAluno(alunoVinculado || peiCentral.aluno || null);
-
-        const periodosDoPei = periodosData.filter((p) => p.pei_central === peiCentral.id);
-        setPeriodos(periodosDoPei);
-
-        if (periodosDoPei.length > 0) {
-          const periodoAtual = periodosDoPei[0];
-          setPeriodoPrincipal(periodoAtual.periodo_principal || "—");
-
-          let cursoEncontrado = null;
-          for (const periodo of periodosDoPei) {
-            for (const componente of periodo.componentes_curriculares || []) {
-              const disciplinaId = componente.disciplina?.id;
-              if (!disciplinaId) continue;
-
-              cursoEncontrado = cursosData.find((curso) =>
-                (curso.disciplinas || []).some((disc) => disc.id === disciplinaId)
-              );
-              if (cursoEncontrado) break;
-            }
-            if (cursoEncontrado) break;
-          }
-
-          if (cursoEncontrado) {
-            setCurso(cursoEncontrado);
-            setCoordenador(cursoEncontrado.coordenador || null);
-          }
+        const periodos = pei.periodos || [];
+        if (periodos.length > 0) {
+          setPeriodoPrincipal(periodos[0].periodo_principal || "—");
         }
+
+        // Busca curso e coordenador
+        let cursoTemp = null;
+        let coordNome = "—";
+        for (const p of periodos) {
+          for (const comp of p.componentes_curriculares || []) {
+            const disc = comp.disciplina || comp.disciplinas;
+            if (disc?.cursos?.[0]) {
+              cursoTemp = disc.cursos[0];
+              const coord = cursoTemp.coordenador;
+              coordNome = coord?.username || coord?.email?.split("@")[0] || "—";
+              break;
+            }
+          }
+          if (cursoTemp) break;
+        }
+        setCurso(cursoTemp);
+        setCoordenador(coordNome);
+
+        // Pareceres
+        const todosPareceres = periodos
+          .flatMap(p => p.componentes_curriculares || [])
+          .flatMap(comp => 
+            (comp.pareceres || []).map(parecer => ({
+              ...parecer,
+              componenteNome: comp.disciplina?.nome || comp.disciplinas?.nome || "Sem disciplina",
+              professorNome: parecer.professor?.username || 
+                           parecer.professor?.email?.split("@")[0] || 
+                           "Professor"
+            }))
+          );
+
+        setPareceres(todosPareceres);
+
       } catch (err) {
-        console.error("Erro ao carregar dados:", err);
+        console.error("Erro ao carregar PEI:", err);
         setErro(true);
       }
     }
 
-    if (peiCentralId) carregarDados();
+    carregarDados();
   }, [peiCentralId]);
 
-  if (erro)
-    return <p style={{ textAlign: "center", color: "red" }}>Erro ao carregar informações.</p>;
+  // BOTÕES ORIGINAIS (com correção do brn-verde → btn-verde)
+  const renderBotoesOriginais = () => {
+    return (
+      <>
+        {gruposUsuario.map((grupo) => {
+          switch (grupo) {
+            case "professor":
+              return (
+                <>
+                  <Link to="/pareceres" className="btn-verde">Cadastrar Parecer</Link>
+                  <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
+                </>
+              );
 
-  if (!aluno)
-    return <p style={{ textAlign: "center" }}>Carregando informações do aluno...</p>;
+            case "pedagogo":
+              return (
+                <>
+                  <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
+                  <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
+                  <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                </>
+              );
+
+            case "napne":
+              return (
+                <>
+                  <Link to="/periodo" className="btn-verde">Gerenciar Períodos Letivos</Link>
+                  <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
+                  <Link to="/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
+                  <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
+                  <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                </>
+              );
+
+            case "coordenador":
+              return (
+                <>
+                  <Link to="/curso" className="btn-verde">Gerenciar Cursos</Link>
+                  <Link to="/disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
+                  <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
+                  <Link to="/aluno" className="btn-verde">Gerenciar Alunos</Link>
+                  <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
+                  <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                </>
+              );
+
+            case "admin":
+              return (
+                <>
+                  <Link to="/usuario" className="btn-verde">Gerenciar Usuários</Link>
+                  <Link to="/crud/Curso" className="btn-verde">Gerenciar Cursos</Link>
+                  <Link to="/crud/Disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
+                  <Link to="/crud/PEIPeriodoLetivo" className="btn-verde">Gerenciar Períodos Letivos</Link>
+                  <Link to="/crud/aluno" className="btn-verde">Gerenciar Alunos</Link>
+                  <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
+                  <Link to="/crud/parecer" className="btn-verde">Cadastrar Parecer</Link>
+                  <Link to="/crud/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
+                  <Link to="/crud/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                </>
+              );
+
+            default:
+              return null;
+          }
+        })}
+
+        <BotaoVoltar />
+      </>
+    );
+  };
+
+  if (erro) return <p style={{ textAlign: "center", color: "red", padding: "50px" }}>Erro ao carregar o PEI.</p>;
+  if (!aluno) return <p style={{ textAlign: "center", padding: "50px" }}>Carregando perfil do aluno...</p>;
 
   return (
     <div className="pei-detalhe-container">
-      <div className="cargo-dropdown-container">
-        <label htmlFor="cargo" className="cargo-label">Selecione o cargo:</label>
-        <select
-          id="cargo"
-          className="cargo-dropdown"
-          value={cargoSelecionado}
-          onChange={(e) => setCargoSelecionado(e.target.value)}
-        >
-          <option value="">— Escolher —</option>
-          <option value="Professor">Professor</option>
-          <option value="NAPNE">NAPNE</option>
-          <option value="Coordenador de Curso">Coordenador de Curso</option>
-          <option value="Pedagogo">Pedagogo</option>
-        </select>
-      </div>
-
       <div className="pei-header">
         <div className="aluno-info">
           <img
-            src={aluno.foto || "https://randomuser.me/api/portraits/men/11.jpg"}
+            src={aluno.foto || "https://img.icons8.com/win10/1200/guest-male--v2.jpg"}
             alt={aluno.nome}
             className="aluno-fotoPerfil"
           />
@@ -117,101 +191,37 @@ const PeriodoLetivoPerfil = () => {
         </div>
 
         <div className="curso-info">
-          <p><b>Curso:</b> {curso?.name || "Não encontrado"}</p>
-          <p><b>Coordenador do Curso:</b> {coordenador?.nome || "—"}</p>
+          <p><b>Curso:</b> {curso?.nome || "—"}</p>
+          <p><b>Coordenador do Curso:</b> {coordenador}</p>
         </div>
       </div>
 
       <div className="pei-corpo">
         <div className="pei-documentos">
           <h3>Ações Disponíveis</h3>
-
           <div className="botoes-parecer">
-            {cargoSelecionado === "Professor" && (
-              <>
-                <Link to="/pareceres" className="btn-verde">Cadastrar Parecer</Link>
-                <Link to="/documentacaocomplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
-                <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-              </>
-            )}
-
-            {cargoSelecionado === "Pedagogo" && (
-              <>
-                <Link to="/atadeacompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                <Link to="/documentacaocomplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
-              </>
-            )}
-
-            {cargoSelecionado === "NAPNE" && (
-              <>
-                <Link to="/periodo" className="btn-verde">Gerenciar Períodos Letivos</Link>
-                <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                <Link to="/componentecurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
-                <Link to="/peicentral" className="btn-verde">Gerenciar PEIs</Link>
-                <Link to="/atadeacompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                <Link to="/pedagogo" className="btn-verde">Gerenciar Pedagogos</Link>
-                <Link to="/documentacaocomplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
-              </>
-            )}
-
-            {cargoSelecionado === "Coordenador de Curso" && (
-              <>
-                <Link to="/curso" className="btn-verde">Gerenciar Cursos</Link>
-                <Link to="/disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
-                <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                <Link to="/aluno" className="btn-verde">Gerenciar Alunos</Link>
-                <Link to="/professor" className="btn-verde">Gerenciar Professores</Link>
-                <Link to="/atadeacompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                <Link to="/documentacaocomplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
-              </>
-            )}
-
-            {cargoSelecionado === "Administrador" && (
-              <>
-                <Link to="/usuario" className="btn-verde">Cadastrar Usuários</Link>
-                <Link to="/curso" className="btn-verde">Gerenciar Cursos</Link>
-                <Link to="/disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
-                <Link to="/periodo" className="btn-verde">Gerenciar Períodos Letivos</Link>
-                <Link to="/coordenador" className="btn-verde">Gerenciar Coordenadores</Link>
-                <Link to="/aluno" className="btn-verde">Gerenciar Alunos</Link>
-                <Link to="/professor" className="btn-verde">Gerenciar Professores</Link>
-                <Link to="/peicentral" className="btn-verde">Gerenciar PEIs</Link>
-                <Link to="/pareceres" className="btn-verde">Gerenciar Pareceres</Link>
-                <Link to="/componentecurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
-                <Link to="/atadeacompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                <Link to="/documentacaocomplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
-                <Link to="/pedagogo" className="btn-verde">Gerenciar Pedagogos</Link>
-              </>
-            )}
-
-            <button className="btn-verde" onClick={() => navigate(-1)}>
-              Voltar
-            </button>
+            {renderBotoesOriginais()}
           </div>
         </div>
 
         <div className="pei-pareceres">
-          <h3>Últimas Interações</h3>
-          {periodos.length > 0 ? (
-            periodos.map((periodo) =>
-              periodo.componentes_curriculares?.map((comp) =>
-                comp.pareceres?.map((parecer) => (
-                  <div key={parecer.id} className="parecer-card">
-                    <div className="parecer-topo">
-                      <span className="parecer-professor">
-                        👤 {parecer.professor?.nome || "Professor não informado"}{" "}
-                        ({comp.disciplina?.nome || "Sem disciplina"})
-                      </span>
-                      <span className="parecer-data">{parecer.data || "—"}</span>
-                    </div>
-                    <div className="parecer-texto">
-                      {parecer.texto || "Sem texto disponível."}
-                    </div>
-                  </div>
-                ))
-              )
-            )
+          <h3>Últimos Pareceres</h3>
+          {pareceres.length > 0 ? (
+            pareceres.map((p) => (
+              <div key={p.id} className="parecer-card">
+                <div className="parecer-topo">
+                  <span className="parecer-professor">
+                    {p.professorNome} ({p.componenteNome})
+                  </span>
+                  <span className="parecer-data">
+                    {p.data ? new Date(p.data).toLocaleDateString("pt-BR") : "—"}
+                  </span>
+                </div>
+                <div className="parecer-texto">
+                  {p.texto || "Sem texto disponível."}
+                </div>
+              </div>
+            ))
           ) : (
             <p>Nenhum parecer encontrado.</p>
           )}

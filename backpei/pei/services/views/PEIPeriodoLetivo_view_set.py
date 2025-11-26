@@ -3,11 +3,17 @@ from ..serializers.PEIPeriodoLetivo_serializer import PEIPeriodoLetivoSerializer
 from pei.models.PEIPeriodoLetivo import PEIPeriodoLetivo
 from ..permissions import BackendTokenPermission
 from django.core.exceptions import ValidationError
+from rest_framework.response import Response
+from rest_framework import status
 
 class PEIPeriodoLetivoViewSet(ModelViewSet):
-    queryset = PEIPeriodoLetivo.objects.all()
     serializer_class = PEIPeriodoLetivoSerializer
-    permission_classes = [BackendTokenPermission]
+    #permission_classes = [BackendTokenPermission]
+
+    # Pré-carregando componentes e disciplinas com cursos
+    queryset = PEIPeriodoLetivo.objects.prefetch_related(
+        'componentes_curriculares__disciplinas__cursos__coordenador'
+    ).all()
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
