@@ -15,6 +15,9 @@ function CrudUniversal({ modelName }) {
   const [form, setForm] = useState({});
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({});
+  useEffect(() => {
+  console.log("🟩 FORM atualizado:", form);
+}, [form]);
   const [selectOptions, setSelectOptions] = useState({});
   const [servicesMap, setServicesMap] = useState({});
 
@@ -27,6 +30,63 @@ function CrudUniversal({ modelName }) {
     Parecer: "parecer",
     PeiCentral: "pei_central",
   };
+
+  function normalizeRecordForEdit(record, metadata) {
+  console.log("Metadata completo:", metadata);
+
+  const normalized = { ...record };
+
+  // ----------------------------------------------
+  // 🔥 1) Primeiro: converter automaticamente
+  // qualquer campo X → X_id
+  // ----------------------------------------------
+  Object.keys(record).forEach(key => {
+    const idKey = key + "_id";
+
+    if (metadata.fields.some(f => f.name === idKey)) {
+      if (record[key] && typeof record[key] === "object") {
+        normalized[idKey] = record[key].id;
+      } else {
+        normalized[idKey] = record[key]; // caso já venha como número
+      }
+      delete normalized[key]; // remove o campo antigo
+    }
+  });
+
+  // ----------------------------------------------
+  // 🔥 2) Agora processa conforme o metadata
+  // ----------------------------------------------
+  metadata.fields.forEach(f => {
+    const original = record[f.name];
+
+    console.log(
+      "Campo:", f.name,
+      "| type:", f.type,
+      "| related_model:", f.related_model,
+      "| valor original:", original
+    );
+
+    // FOREIGN KEY → se vier objeto, vira ID
+    if (f.type === "foreignkey") {
+      if (original && typeof original === "object") {
+        normalized[f.name] = original.id;
+      }
+    }
+
+    // MULTISELECT → array de objetos para array de IDs
+    if (f.type === "multiselect") {
+      if (Array.isArray(original)) {
+        normalized[f.name] = original.map(v =>
+          typeof v === "object" ? v.id : v
+        );
+      }
+    }
+  });
+
+  return normalized;
+}
+
+
 
   const formatLabel = (label) => {
     if (!label) return "";
@@ -41,7 +101,7 @@ function CrudUniversal({ modelName }) {
   useEffect(() => {
     async function fetchServices() {
       try {
-        const res = await axios.get("http://localhost:8080/services/");
+        const res = await axios.get("http://localhost:8000/services/");
         setServicesMap(res.data);
       } catch (err) {
         addAlert("Erro ao carregar lista de serviços", "error");
@@ -96,7 +156,7 @@ function CrudUniversal({ modelName }) {
               const endpoint =
                 f.related_endpoint ||
                 servicesMap[mappedKey] ||
-                `http://localhost:8080/services/${mappedKey}/`;
+                `http://localhost:8000/services/${mappedKey}/`;
 
               const r = await axios.get(endpoint);
               const options = Array.isArray(r.data) ? r.data : r.data?.results || [];
@@ -117,31 +177,45 @@ function CrudUniversal({ modelName }) {
   function handleApiErrors(err) {
   console.error("Erro da requisição:", err.response?.data || err.message);
 
-  if (err.response?.data) {
-    const data = err.response.data;
+  let data = err.response?.data;
 
-    // Se for objeto, percorre cada campo
-    if (typeof data === "object" && !Array.isArray(data)) {
-      Object.entries(data).forEach(([field, messages]) => {
-        if (Array.isArray(messages)) {
-          messages.forEach(msg => addAlert(`${field}: ${msg}`, "error", { fieldName: field }));
-        } else if (typeof messages === "object") {
-          // Caso seja objeto aninhado
-          Object.entries(messages).forEach(([subField, subMsg]) => {
-            addAlert(`${field}.${subField}: ${Array.isArray(subMsg) ? subMsg.join(", ") : subMsg}`, "error", { fieldName: field });
-          });
-        } else {
-          addAlert(`${field}: ${messages}`, "error", { fieldName: field });
-        }
-      });
-    } else if (Array.isArray(data)) {
-      data.forEach(msg => addAlert(msg, "error"));
-    } else {
+  // Caso o servidor retorne JSON como string
+  if (typeof data === "string") {
+    try {
+      data = JSON.parse(data);
+    } catch {
+      // Se não for JSON válido, simplesmente exibe a string
       addAlert(data, "error");
+      return;
     }
-  } else {
-    addAlert("Erro na requisição: " + (err.message || "desconhecido"), "error", { persist: true });
   }
+
+  // Caso padrão do backend: { erro: "mensagem..." }
+  if (data?.erro) {
+    addAlert(data.erro, "error");
+    return;
+  }
+
+  // Se for objeto com mensagens por campo
+  if (typeof data === "object" && !Array.isArray(data)) {
+    Object.entries(data).forEach(([field, messages]) => {
+      if (Array.isArray(messages)) {
+        messages.forEach(msg => addAlert(`${field}: ${msg}`, "error"));
+      } else {
+        addAlert(`${field}: ${messages}`, "error");
+      }
+    });
+    return;
+  }
+
+  // Se vier array de erros
+  if (Array.isArray(data)) {
+    data.forEach(msg => addAlert(msg, "error"));
+    return;
+  }
+
+  // Fallback
+  addAlert("Erro na requisição: " + (err.message || "desconhecido"), "error");
 }
 
   const getEndpoint = (model) => servicesMap[exceptions[model] || model];
@@ -165,7 +239,16 @@ function CrudUniversal({ modelName }) {
     }
     try {
       const payload = normalizePayload(form, metadata);
-      console.log("Payload enviado:", payload);
+      console.log("🟪 PAYLOAD enviado no CREATE:", payload);
+      console.log("🟪 PAYLOAD antes da correção:", payload);
+
+      if (payload.curso_id !== undefined) {
+          payload.curso = payload.curso_id;
+          delete payload.curso_id;
+      }
+
+      console.log("🟩 PAYLOAD final enviado:", payload);
+      
       await axios.post(getEndpoint(modelName), payload);
       await fetchRecords();
       setForm(Object.fromEntries(Object.keys(form).map(k => [k, ""])));
@@ -183,6 +266,7 @@ function CrudUniversal({ modelName }) {
       mensagens.forEach(m => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}` }));
       return;
     }
+    
     try {
       const payload = normalizePayload(editForm, metadata);
       await axios.put(`${getEndpoint(modelName)}${id}/`, payload);
@@ -197,7 +281,7 @@ function CrudUniversal({ modelName }) {
 
   // RENDER INPUT
   const renderInput = (f, value, onChange) => {
-  console.log("Renderizando input:", f.name, "Tipo:", f.type, "Valor atual:", value);
+  
 
   if (f.type === "textarea") 
     return <textarea value={value || ""} onChange={e => onChange(e.target.value)} />;
@@ -219,12 +303,16 @@ function CrudUniversal({ modelName }) {
 
   if (f.type === "foreignkey" || (f.type === "select" && f.related_model)) {
     const options = selectOptions[f.name] || [];
-    console.log("Options para", f.name, ":", options);
+    
 
     return (
       <select
         value={value || ""}
-        onChange={e => onChange(e.target.value ? Number(e.target.value) : null)}
+        onChange={e => {
+  const val = e.target.value ? Number(e.target.value) : null;
+  console.log("🟦 SELECT CHANGE → campo:", f.name, "| valor selecionado:", val);
+  onChange(val);
+}}
       >
         <option value="">Selecione...</option>
         {options.map(opt => {
@@ -242,7 +330,7 @@ function CrudUniversal({ modelName }) {
 
   if (f.type === "multiselect") {
     const options = selectOptions[f.name] || [];
-    console.log("Multiselect options para", f.name, ":", options);
+    
 
     return (
       <div className="checkbox-group">
@@ -365,7 +453,7 @@ const renderFieldValue = (f, record) => {
   <ul>
     {records.length === 0 && <li>Nenhum registro.</li>}
     {records.map(r => {
-      console.log("Registro:", r); // Log do registro completo
+      
       return (
         <li key={r.id}>
           {editId === r.id ? (
@@ -386,7 +474,7 @@ const renderFieldValue = (f, record) => {
             <div>
               {metadata?.fields?.filter(f => f.name !== "id").map(f => {
                 const valor = renderFieldValue(f, r);
-                console.log("Campo:", f.name, "Valor renderizado:", valor); // Log do valor renderizado
+                
                 return (
                   <div key={f.name}>
                     <strong>{f.label ? f.label : formatLabel(f.name)}:</strong>{" "}
@@ -395,7 +483,13 @@ const renderFieldValue = (f, record) => {
                 );
               })}
               <div className="posicao-buttons">
-                <BotaoEditar id={r.id} onClickInline={() => { setEditId(r.id); setEditForm(r); }} />
+                <BotaoEditar id={r.id} onClickInline={() => {
+                  console.log("=== Abrindo edição ===");
+                  console.log("Registro r recebido:", r);
+                  const normalized = normalizeRecordForEdit(r, metadata);
+                  console.log("Registro normalizado para edição:", normalized);
+                  setEditId(r.id);
+                  setEditForm(normalized); }} />
                 <BotaoDeletar
                   id={r.id}
                   axiosInstance={getEndpoint(modelName)}

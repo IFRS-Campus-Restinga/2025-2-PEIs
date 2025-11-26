@@ -27,10 +27,21 @@ export default function BotaoDeletar({ id, axiosInstance, onDeletarSucesso }) {
       if (onDeletarSucesso) onDeletarSucesso();
       addAlert("Registro deletado com sucesso!", "success");
     } catch (err) {
-      console.error("Erro ao deletar:", err);
-      setErro("Falha ao deletar. Tente novamente.");
-      addAlert("Erro ao deletar (servidor indisponível).", "error");
-    } finally {
+  console.error("Erro ao deletar:", err);
+
+  // Extrai mensagem amigável do backend
+  const backendMessage =
+    err.response?.data?.erro || 
+    err.response?.data?.message || 
+    err.response?.data?.detail || 
+    (typeof err.response?.data === "string" ? err.response.data : null);
+
+  const mensagemFinal = backendMessage || "Erro ao deletar (servidor indisponível).";
+
+  setErro(mensagemFinal);
+  addAlert(mensagemFinal, "error");
+} finally {
+
       setCarregando(false);
     }
   };
