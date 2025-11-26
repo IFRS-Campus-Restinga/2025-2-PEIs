@@ -34,6 +34,6 @@ class RelationshipValidator:
             model_name = instance._meta.verbose_name.title()
             related_list = ", ".join(related_objects)
             raise ValidationError(
-                f"Não é possível excluir o {model_name} porque ele está vinculado a: {related_list}."
+                f"Não é possível excluir o(a) {model_name} porque ele está vinculado a(o): {related_list}."
             )
 
