@@ -10,7 +10,7 @@ class AlunoSerializer(serializers.ModelSerializer):
         allow_null=True
     )
     
-    curso_obj = CursoSerializer(read_only=True, source="curso")
+    curso_obj = CursoSerializer(read_only=True)
 
 
 

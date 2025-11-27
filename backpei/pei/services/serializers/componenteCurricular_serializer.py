@@ -1,13 +1,13 @@
 from rest_framework import serializers
 from pei.models.componenteCurricular import ComponenteCurricular
 from pei.models.disciplina import Disciplina
-from pei.services.serializers.parecer_serializer import ParecerSerializer
+
 from pei.services.serializers.disciplina_serializer import DisciplinaSerializer
 from pei.models.PEIPeriodoLetivo import PEIPeriodoLetivo
 
 
 class ComponenteCurricularSerializer(serializers.ModelSerializer):
-    pareceres = ParecerSerializer(many=True, read_only=True)
+    pareceres = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     disciplinas_obj = DisciplinaSerializer(read_only=True, source="disciplinas")  # apenas leitura para GET
     disciplinas = serializers.PrimaryKeyRelatedField(
         queryset=Disciplina.objects.all(),
