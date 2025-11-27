@@ -44,7 +44,7 @@ export default function TelaPreCadastro() {
 
     try {
       // Endpoint de pré-cadastro (auth_app/views.py)
-      const resposta = await fetch("http://localhost:8000/api/auth/pre-cadastro/", {
+      const resposta = await fetch("http://localhost:8080/api/auth/pre-cadastro/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)

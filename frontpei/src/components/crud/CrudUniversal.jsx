@@ -31,60 +31,48 @@ function CrudUniversal({ modelName }) {
     PeiCentral: "pei_central",
   };
 
-  function normalizeRecordForEdit(record, metadata) {
-  console.log("Metadata completo:", metadata);
+  const normalizeRecordForEdit = (record, fields = []) => {
 
-  const normalized = { ...record };
+  const normalized = {};
 
-  // ----------------------------------------------
-  // 🔥 1) Primeiro: converter automaticamente
-  // qualquer campo X → X_id
-  // ----------------------------------------------
-  Object.keys(record).forEach(key => {
-    const idKey = key + "_id";
+  fields.forEach((f) => {
+    let value =
+      record[f.name] ??
+      record[`${f.name}_id`] ??
+      record[`${f.name}_obj`] ??
+      record[`${f.name}Obj`] ??
+      record[`${f.name}Objeto`] ??
+      null;
 
-    if (metadata.fields.some(f => f.name === idKey)) {
-      if (record[key] && typeof record[key] === "object") {
-        normalized[idKey] = record[key].id;
+    // SELECT (foreign key)
+    if (f.type === "select") {
+      if (value && typeof value === "object") {
+        // Ex: disciplinas_obj → extrair ID
+        normalized[f.name] = value.id;
       } else {
-        normalized[idKey] = record[key]; // caso já venha como número
+        normalized[f.name] = value ?? "";
       }
-      delete normalized[key]; // remove o campo antigo
-    }
-  });
-
-  // ----------------------------------------------
-  // 🔥 2) Agora processa conforme o metadata
-  // ----------------------------------------------
-  metadata.fields.forEach(f => {
-    const original = record[f.name];
-
-    console.log(
-      "Campo:", f.name,
-      "| type:", f.type,
-      "| related_model:", f.related_model,
-      "| valor original:", original
-    );
-
-    // FOREIGN KEY → se vier objeto, vira ID
-    if (f.type === "foreignkey") {
-      if (original && typeof original === "object") {
-        normalized[f.name] = original.id;
-      }
+      return;
     }
 
-    // MULTISELECT → array de objetos para array de IDs
+    // MULTISELECT (many-to-many)
     if (f.type === "multiselect") {
-      if (Array.isArray(original)) {
-        normalized[f.name] = original.map(v =>
+      if (Array.isArray(value)) {
+        normalized[f.name] = value.map((v) =>
           typeof v === "object" ? v.id : v
         );
+      } else {
+        normalized[f.name] = [];
       }
+      return;
     }
+
+    // Outros tipos
+    normalized[f.name] = value ?? "";
   });
 
   return normalized;
-}
+};
 
 
 
@@ -101,7 +89,7 @@ function CrudUniversal({ modelName }) {
   useEffect(() => {
     async function fetchServices() {
       try {
-        const res = await axios.get("http://localhost:8000/services/");
+        const res = await axios.get("http://localhost:8080/services/");
         setServicesMap(res.data);
       } catch (err) {
         addAlert("Erro ao carregar lista de serviços", "error");
@@ -167,7 +155,7 @@ function CrudUniversal({ modelName }) {
               const endpoint =
                 f.related_endpoint ||
                 servicesMap[mappedKey] ||
-                `http://localhost:8000/services/${mappedKey}/`;
+                `http://localhost:8080/services/${mappedKey}/`;
 
               const r = await axios.get(endpoint);
               const options = Array.isArray(r.data) ? r.data : r.data?.results || [];
@@ -387,7 +375,13 @@ const idFieldMap = {
 };
 
 const renderFieldValue = (f, record) => {
-  let value = record[f.name];
+  let value =
+    record[f.name] ??
+    record[`${f.name}_id`] ??
+    record[`${f.name}_obj`] ??
+    record[`${f.name}Obj`] ??
+    record[`${f.name}Objeto`] ??
+    null;
 
   // Se for campo *_id, tenta pegar o objeto correspondente
   if (f.name.endsWith("_id")) {
@@ -426,10 +420,10 @@ const renderFieldValue = (f, record) => {
 
   // Multiselect
   if (f.type === "multiselect") {
-    let values = record[f.name];
+    let value = record[f.name] ?? record[`${f.name}_obj`] ?? record[`${f.name}Obj`] ?? record[`${f.name}Objeto`];
     const options = selectOptions[f.name] || [];
-    if (Array.isArray(values)) {
-      return values
+    if (Array.isArray(value)) {
+      return value
         .map(v => {
           const found = options.find(opt => String(opt.id) === String(v));
           return found
@@ -482,7 +476,7 @@ const renderFieldValue = (f, record) => {
               ))}
               <div className="posicao-buttons esquerda">
                 <button type="submit" className="btn-salvar">Salvar</button>
-                <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
+                <button type="button" class="botao-deletar" onClick={() => setEditId(null)}>Cancelar</button>
               </div>
             </form>
           ) : (
@@ -501,7 +495,7 @@ const renderFieldValue = (f, record) => {
                 <BotaoEditar id={r.id} onClickInline={() => {
                   console.log("=== Abrindo edição ===");
                   console.log("Registro r recebido:", r);
-                  const normalized = normalizeRecordForEdit(r, metadata);
+                  const normalized = normalizeRecordForEdit(r, metadata.fields);
                   console.log("Registro normalizado para edição:", normalized);
                   setEditId(r.id);
                   setEditForm(normalized); }} />

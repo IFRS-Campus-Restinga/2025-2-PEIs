@@ -8,12 +8,14 @@ User = get_user_model()
 
 class CursoSerializer(serializers.ModelSerializer):
     nivel = serializers.ChoiceField(choices=Curso._meta.get_field("nivel").choices)
-    coordenador = UsuarioSerializer(read_only=True)
-    coordenador_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.filter(groups__name="Coordenador"),
-        source="coordenador",
-        write_only=True
+    coordenador_obj = UsuarioSerializer(read_only=True, source = "coordenador")
+
+    coordenador = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        required=False,
+        allow_null=True
     )
+    
     arquivo_nome = serializers.SerializerMethodField()
     arquivo_upload = serializers.FileField(write_only=True, required=False)
 
@@ -26,7 +28,7 @@ class CursoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Curso
-        fields = ['id', 'nome', 'nivel', 'coordenador', 'coordenador_id',
+        fields = ['id', 'nome', 'nivel', 'coordenador', 'coordenador_obj',
                   'arquivo_nome', 'arquivo_upload', 'disciplinas']
 
     def get_arquivo_nome(self, obj):

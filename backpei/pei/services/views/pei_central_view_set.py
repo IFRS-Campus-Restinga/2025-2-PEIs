@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError
 class PeiCentralViewSet(ModelViewSet):
     queryset = PeiCentral.objects.all().order_by('id')
     serializer_class = PeiCentralSerializer
-    permission_classes = [BackendTokenPermission]
+    #permission_classes = [BackendTokenPermission]
     
     def update(self, request, *args, **kwargs):
         print(">>> RECEBIDO PELO FRONT:", request.data)

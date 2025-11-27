@@ -68,44 +68,58 @@ const HomeView = () => {
 
   // 2) Extrai info do coordenador (nome + normalizado)
   const getCoordenadorInfo = (pei) => {
-    try {
-      let coord = null;
+  try {
+    let coord = null;
 
-      // Prioridade 1: Curso vinculado ao aluno (via serializer atualizado)
-      if (pei.aluno?.curso_detalhes?.coordenador) {
-        coord = pei.aluno.curso_detalhes.coordenador;
-      } else {
-        // Fallback: Tenta pegar das disciplinas
-        for (const periodo of pei.periodos || []) {
-          for (const comp of periodo.componentes_curriculares || []) {
-            const disc = comp.disciplina || comp.disciplinas;
-            if (disc?.cursos?.[0]?.coordenador) {
-              coord = disc.cursos[0].coordenador;
+    // 1) -> Coordenador pelo curso do aluno
+    if (pei.aluno?.curso_obj?.coordenador_obj) {
+      coord = pei.aluno.curso_obj.coordenador_obj;
+    }
+
+    // 2) -> Coordenador pelo(s) curso(s) da disciplina do componente
+    if (!coord) {
+      for (const periodo of pei.periodos || []) {
+        for (const comp of periodo.componentes_curriculares || []) {
+          const disc = comp.disciplina;
+          if (!disc) continue;
+
+          // NOVO PADRÃO REAL DO ENDPOINT
+          for (const curso of disc.cursos || []) {
+            if (curso.coordenador_obj) {
+              coord = curso.coordenador_obj;
               break;
             }
           }
+
           if (coord) break;
         }
+        if (coord) break;
       }
-
-      if (!coord) return null;
-
-      // Extrai dados possíveis do objeto coordenador
-      const nomeExibicao = coord.nome || coord.username || coord.email?.split("@")[0] || "—";
-      
-      // Normaliza todas as possibilidades para comparação
-      const possiveisNomes = [
-          coord.nome, 
-          coord.username, 
-          coord.email?.split("@")[0]
-      ].filter(Boolean).map(normalizar);
-
-      return { nomeExibicao, possiveisNomes };
-
-    } catch (e) {
-      return null;
     }
-  };
+
+    if (!coord) return null;
+
+    const nomeExibicao =
+      coord.username ||
+      coord.nome ||
+      coord.email?.split("@")[0] ||
+      "—";
+
+    const possiveisNomes = [
+      coord.username,
+      coord.nome,
+      coord.email?.split("@")[0],
+    ]
+      .filter(Boolean)
+      .map(normalizar);
+
+    return { nomeExibicao, possiveisNomes };
+
+  } catch (e) {
+    console.error("Erro no getCoordenadorInfo:", e);
+    return null;
+  }
+};
 
   // 3) Verifica se o professor logado deu parecer nesse PEI
   const temMeuParecer = (pei) => {

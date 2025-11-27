@@ -47,6 +47,11 @@ const PeriodoLetivoPerfil = () => {
         const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`);
         const pei = res.data;
 
+        console.log("PERIODOS RECEBIDOS:", pei.periodos);
+        console.log("COMPONENTES DO PERÍODO:", pei.periodos[0]);
+        console.log("UM COMPONENTE:", pei.periodos[0]?.componentes_curriculares?.[0]);
+        console.log("PARECERES NO COMPONENTE:", pei.periodos[0]?.componentes_curriculares?.[0]?.pareceres);
+        
         // --- ALUNO ---
         const alunoData = pei.aluno || { nome: "Aluno não encontrado", email: "" };
         setAluno(alunoData);
@@ -56,14 +61,14 @@ const PeriodoLetivoPerfil = () => {
         setPeriodoPrincipal(periodos[0]?.periodo_principal || "—");
 
         // --- CURSO → direto do aluno ---
-        const cursoAluno = alunoData.curso || null;
+        const cursoAluno = alunoData.curso_obj || null;
         setCurso(cursoAluno);
 
         // --- COORDENADOR REAL → curso → coordenador ---
         let nomeCoord = "—";
 
-        if (cursoAluno?.coordenador) {
-          const coord = cursoAluno.coordenador;
+        if (cursoAluno?.coordenador_obj) {
+          const coord = cursoAluno?.coordenador_obj;
           nomeCoord =
             coord.username ||
             coord.nome ||
