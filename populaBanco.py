@@ -83,7 +83,7 @@ def criar_admin_master():
     """
     Admin principal: ALTERE AQUI CASO QUEIRA SER CADASTRADO COMO ADMIN → 2023017316@aluno.restinga.ifrs.edu.br
     """
-    email = "2023017316@aluno.restinga.ifrs.edu.br"
+    email = "2019005112@restinga.ifrs.edu.br"
     nome = "Admin_Master"
 
     existente = User.objects.filter(email=email).first()

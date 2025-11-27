@@ -4,8 +4,9 @@ from pei.models.curso import Curso
 
 
 class AlunoSerializer(serializers.ModelSerializer):
-    curso = serializers.PrimaryKeyRelatedField(
+    curso_id = serializers.PrimaryKeyRelatedField(
         queryset=Curso.objects.all(),
+        source="curso",
         required=False,
         allow_null=True
     )
@@ -13,3 +14,4 @@ class AlunoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Aluno
         fields = '__all__'
+        depth = 1

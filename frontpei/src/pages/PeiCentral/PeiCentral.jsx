@@ -54,6 +54,7 @@ function PeiCentral() {
     const handleClick = (e) => {
       const visualizarBtn = e.target.closest(".visualizar-btn");
       const listarBtn = e.target.closest(".listar-periodos-btn");
+      const editarBtn = e.target.closest(".editar-btn");
 
       // --- VISUALIZAR ---
       if (visualizarBtn) {
@@ -72,6 +73,12 @@ function PeiCentral() {
         navigate("/listar_periodos/" + id);
         return;
       }
+      //--- EDITAR ---
+      if (editarBtn){
+        const id = editarBtn.getAttribute("data-id");
+        navigate("/editar_peicentral/"+ id)
+      }
+
     };
 
     wrapper.addEventListener("click", handleClick);
@@ -158,6 +165,15 @@ function PeiCentral() {
                     Visualizar
                   </button>
                 `,
+              },
+              {
+                title: "Editar",
+                data: "id",
+                render: (id) => `
+                  <button class="btn btn-sm btn-primary editar-btn" data-id="${id}">
+                    Editar
+                  </button>
+               `,
               },
             ]}
             className="display table table-striped table-hover w-100"
