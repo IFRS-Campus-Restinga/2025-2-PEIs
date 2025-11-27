@@ -18,6 +18,9 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'categoria', 'grupos', 'permissoes']
         read_only_fields = ['id', 'email']
+        extra_kwargs = {
+            "autor": {"required": False},
+        }
 
     def get_permissoes(self, obj):
         return list(obj.get_all_permissions())

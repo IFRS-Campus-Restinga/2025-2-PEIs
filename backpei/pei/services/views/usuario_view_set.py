@@ -11,8 +11,17 @@ User = get_user_model()
 class UsuarioViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsuarioSerializer
-    #permission_classes = [BackendTokenPermission]
+    permission_classes = [BackendTokenPermission]
+    
+    def perform_create(self, serializer):
+        user = self.request.user
+        
+        if not user.groups.filter(name="Professor").exists():
+            raise ValidationError("Apenas professores podem criar pareceres.")
+        
+        serializer.save(professor=user)
 
+    
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         try:
@@ -20,6 +29,7 @@ class UsuarioViewSet(ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except ValidationError as e:
             return Response({"erro": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
 
 
     #def destroy(self, request, *args, **kwargs):
