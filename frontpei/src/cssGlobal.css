@@ -1893,3 +1893,70 @@ input:checked + .slider:before {
     transform: scale(1);
   }
 }
+
+.login-manual-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* distância sutil entre todos os itens */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-size: 14px;
+  margin-bottom: 4px; /* espaço pequeno entre label e input */
+  color: #333;
+  font-weight: 500;
+}
+
+.login-input {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  width: 100%;
+}
+
+.login-button,
+.register-button {
+  padding: 10px;
+  width: 100%;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* BOTÕES DO MODAL DE REGISTRO */
+.modal-container button {
+  width: 95%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* Criar Conta */
+.modal-container .login-button {
+  background-color: #28a745; /* verde */
+  color: white;
+}
+
+/* Cancelar */
+.modal-container .cancel-button {
+  background-color: #dc3545; /* vermelho */
+  color: white;
+}
+
+/* Hover */
+.modal-container .login-button:hover {
+  background-color: #218838;
+}
+
+.modal-container .cancel-button:hover {
+  background-color: #c82333;
+}

@@ -187,29 +187,41 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
 
           {/* LOGIN MANUAL */}
           <form className="login-manual-form" onSubmit={handleLoginManual}>
-            <input
-              type="email"
-              placeholder="E-mail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="login-input"
-              required
-            />
-            <input
-              type="password"
-              placeholder="Senha"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              className="login-input"
-              required
-            />
+  
+            <div className="form-group">
+              <label className="form-label">E-mail</label>
+              <input
+                type="email"
+                placeholder="Digite seu e-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="login-input"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Senha</label>
+              <input
+                type="password"
+                placeholder="Digite sua senha"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                className="login-input"
+                required
+              />
+            </div>
+
             <button type="submit" className="login-button">
               Entrar
             </button>
+
             <button type="button" className="register-button" onClick={abrirRegistro}>
               Registrar
             </button>
+
           </form>
+
 
           <div className="login-divider"></div>
 
