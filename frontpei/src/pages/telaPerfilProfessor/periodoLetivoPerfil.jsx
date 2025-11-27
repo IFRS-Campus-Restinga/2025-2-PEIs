@@ -1,4 +1,3 @@
-// src/pages/periodoLetivoPerfil/PeriodoLetivoPerfil.jsx
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -26,7 +25,7 @@ const PeriodoLetivoPerfil = () => {
       try {
         const user = JSON.parse(usuarioSalvo);
 
-        // Nome completo direto do backend (ex: "Jampier Brunetto")
+        // Nome completo direto do backend
         setNomeUsuario(user.nome || "Usuário");
 
         // Grupos (para os botões)
@@ -98,7 +97,7 @@ const PeriodoLetivoPerfil = () => {
     carregarDados();
   }, [peiCentralId]);
 
-  // BOTÕES ORIGINAIS (com correção do brn-verde → btn-verde)
+  // BOTÕES
   const renderBotoesOriginais = () => {
     return (
       <>
