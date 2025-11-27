@@ -2,6 +2,10 @@ FROM node:22
 
 WORKDIR /app
 
+COPY limpezaFront.sh /limpezaFront.sh
+RUN chmod +x /limpezaFront.sh
+RUN sh /limpezaFront.sh
+
 COPY package.json package-lock.json ./
 RUN npm install
 
@@ -12,4 +16,5 @@ RUN chmod +x /frontend.sh
 
 EXPOSE 5173
 
-CMD ["/frontend.sh"]
+CMD ["sh", "/frontend.sh"]
+ 

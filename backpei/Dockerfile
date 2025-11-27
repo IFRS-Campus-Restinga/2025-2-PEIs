@@ -2,6 +2,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+COPY limpezaBack.sh /limpezaBack.sh
+RUN chmod +x /limpezaBack.sh
+RUN sh /limpezaBack.sh
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -12,4 +16,4 @@ RUN chmod +x /backend.sh
 
 EXPOSE 8000
 
-ENTRYPOINT ["/backend.sh"]
+CMD ["sh", "/backend.sh"]
