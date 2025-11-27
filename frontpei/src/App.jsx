@@ -233,7 +233,11 @@ function App() {
                   </PrivateRoute>
                 } />
 
-                <Route path="/pareceres" element={<PrivateRoute><Pareceres /></PrivateRoute>} />
+                <Route path="/pareceres" element={
+                  <PrivateRoute>
+                    <Pareceres usuario={usuario} />
+                  </PrivateRoute>
+                } />
                 <Route path="/periodo" element={<PrivateRoute><PEIPeriodoLetivo /></PrivateRoute>} />
                 <Route path="/listar_periodos" element={<PrivateRoute><PEIPeriodoLetivoLista /></PrivateRoute>} />
                 <Route path="/listar_periodos/:id" element={<PrivateRoute><PEIPeriodoLetivoLista /></PrivateRoute>} />

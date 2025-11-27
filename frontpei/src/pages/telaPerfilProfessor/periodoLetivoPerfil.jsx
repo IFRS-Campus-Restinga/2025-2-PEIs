@@ -21,17 +21,12 @@ const PeriodoLetivoPerfil = () => {
   // Carrega usuário do localStorage
   useEffect(() => {
     const usuarioSalvo = localStorage.getItem("usuario");
-
     if (usuarioSalvo) {
       try {
         const user = JSON.parse(usuarioSalvo);
-
         setNomeUsuario(user.nome || "Usuário");
-
-        const grupos = (user.grupos || []).map(g => g.toLowerCase());
-        setGruposUsuario(grupos);
-
-        console.log("USUÁRIO LOGADO:", { nome: user.nome, grupos });
+        setGruposUsuario((user.grupos || []).map(g => g.toLowerCase()));
+        console.log("USUÁRIO LOGADO:", { nome: user.nome, grupos: user.grupos });
       } catch (err) {
         console.error("Erro ao ler usuário do localStorage:", err);
       }
@@ -47,31 +42,29 @@ const PeriodoLetivoPerfil = () => {
         const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`);
         const pei = res.data;
 
+        console.log("PEI Central retornado:", pei);
+
         // --- ALUNO ---
         const alunoData = pei.aluno || { nome: "Aluno não encontrado", email: "" };
         setAluno(alunoData);
+        console.log("Aluno retornado:", alunoData);
 
         // --- PERÍODO PRINCIPAL ---
         const periodos = pei.periodos || [];
         setPeriodoPrincipal(periodos[0]?.periodo_principal || "—");
 
-        // --- CURSO → direto do aluno ---
-        const cursoAluno = alunoData.curso || null;
-        setCurso(cursoAluno);
+        // --- CURSO E COORDENADOR via novo campo cursos ---
+        const cursoData = pei.cursos || null;
+        setCurso(cursoData);
+        console.log("Curso retornado:", cursoData);
 
-        // --- COORDENADOR REAL → curso → coordenador ---
         let nomeCoord = "—";
-
-        if (cursoAluno?.coordenador) {
-          const coord = cursoAluno.coordenador;
-          nomeCoord =
-            coord.username ||
-            coord.nome ||
-            coord.email?.split("@")[0] ||
-            "—";
+        if (cursoData?.coordenador) {
+          const coord = cursoData.coordenador;
+          nomeCoord = coord.username || coord.nome || coord.email?.split("@")[0] || "—";
         }
-
         setCoordenador(nomeCoord);
+        console.log("Coordenador do curso:", nomeCoord);
 
         // --- PARECERES ---
         const todosPareceres = periodos
@@ -79,19 +72,13 @@ const PeriodoLetivoPerfil = () => {
           .flatMap(comp =>
             (comp.pareceres || []).map(parecer => ({
               ...parecer,
-              componenteNome:
-                comp.disciplina?.nome ||
-                comp.disciplinas?.nome ||
-                "Sem disciplina",
-              professorNome:
-                parecer.professor?.username ||
-                parecer.professor?.nome ||
-                parecer.professor?.email?.split("@")[0] ||
-                "Professor",
+              componenteNome: comp.disciplina?.nome || "Sem disciplina",
+              professorNome: parecer.professor?.username || parecer.professor?.nome || parecer.professor?.email?.split("@")[0] || "Professor",
             }))
           );
 
         setPareceres(todosPareceres);
+        console.log("Pareceres processados:", todosPareceres);
 
       } catch (err) {
         console.error("Erro ao carregar PEI:", err);
@@ -111,12 +98,11 @@ const PeriodoLetivoPerfil = () => {
             case "professor":
               return (
                 <>
-                  <Link to="/pareceres" className="btn-verde">Cadastrar Parecer</Link>
+                  <Link to="/pareceres" state={{ peiCentralId }} className="btn-verde">Cadastrar Parecer</Link>
                   <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
                 </>
               );
-
             case "pedagogo":
               return (
                 <>
@@ -125,7 +111,6 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
-
             case "napne":
               return (
                 <>
@@ -136,7 +121,6 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
-
             case "coordenador":
               return (
                 <>
@@ -148,7 +132,6 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
-
             case "admin":
               return (
                 <>
@@ -158,18 +141,16 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/crud/PEIPeriodoLetivo" className="btn-verde">Gerenciar Períodos Letivos</Link>
                   <Link to="/crud/aluno" className="btn-verde">Gerenciar Alunos</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/pareceres" className="btn-verde">Cadastrar Parecer</Link>
+                  <Link to="/pareceres" state={{ peiCentralId }} className="btn-verde">Cadastrar Parecer</Link>
                   <Link to="/crud/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
                   <Link to="/crud/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
                   <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
-
             default:
               return null;
           }
         })}
-
         <BotaoVoltar />
       </>
     );
