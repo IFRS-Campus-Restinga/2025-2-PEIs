@@ -242,7 +242,7 @@ function App() {
                 <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral />} />
 
                 <Route path="/componenteCurricular" element={<ComponenteCurricular />} />
-                <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento />} />
+                <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento usuario={usuario} />} />
                 <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar />} />
 
                 <Route path="/pedagogo" element={<Pedagogos />} />
