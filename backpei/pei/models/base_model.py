@@ -5,9 +5,18 @@ from logs.models import Log
 from django.core.exceptions import ValidationError
 from ..validators.relationship_validator import RelationshipValidator
 
+from pei.services.middleware import get_current_user
+
 class BaseModel(models.Model):
     class Meta:
         abstract = True
+
+    def _get_usuario_log(self):
+        user = get_current_user()
+        if user and user.is_authenticated:
+            # Salva como "ID - Username" (ex: "1 - Admin")
+            return f"{user.id} - {user.username}"
+        return "Sistema/Anônimo"
 
     def save(self, *args, **kwargs):
         acao = "Criação" if self._state.adding else "Atualização"
@@ -38,6 +47,7 @@ class BaseModel(models.Model):
             acao=acao,
             modelo=self.__class__.__name__,
             objeto_id=self.id,
+            usuario=self._get_usuario_log(),
             detalhes_completos={
                 "antes": safe_old,
                 "depois": safe_new,
@@ -72,6 +82,7 @@ class BaseModel(models.Model):
             acao="Exclusão",
             modelo=self.__class__.__name__,
             objeto_id=self.id,
+            usuario=self._get_usuario_log(),
             detalhes_completos={
                 "antes": safe_old,
                 "depois": {},
