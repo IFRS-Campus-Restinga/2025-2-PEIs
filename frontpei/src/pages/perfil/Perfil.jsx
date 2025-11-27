@@ -7,7 +7,7 @@ import defaultAvatar from "../../assets/user.svg";
 
 const Perfil = () => {
   const navigate = useNavigate();
-  const USUARIO_URL = API_ROUTES.USUARIO || "http://localhost:8080/services/usuario/";
+  const USUARIO_URL = API_ROUTES.USUARIO || "http://localhost:8000/services/usuario/";
   const TOKEN_HEADER = BACKEND_TOKEN || "";
   const TOKEN_BEARER = localStorage.getItem("access") || localStorage.getItem("token") || "";
 

@@ -25,7 +25,7 @@ ENDPOINT_MAP = {
 class ModelSchemaView(ViewSet):
 
     def list(self, request):
-        base_url = "http://localhost:8080/services/"
+        base_url = "http://localhost:8000/services/"
         models = apps.get_app_config("pei").get_models()
 
         output = {}

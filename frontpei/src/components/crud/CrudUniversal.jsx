@@ -101,7 +101,7 @@ function CrudUniversal({ modelName }) {
   useEffect(() => {
     async function fetchServices() {
       try {
-        const res = await axios.get("http://localhost:8080/services/");
+        const res = await axios.get("http://localhost:8000/services/");
         setServicesMap(res.data);
       } catch (err) {
         addAlert("Erro ao carregar lista de serviços", "error");
@@ -167,7 +167,7 @@ function CrudUniversal({ modelName }) {
               const endpoint =
                 f.related_endpoint ||
                 servicesMap[mappedKey] ||
-                `http://localhost:8080/services/${mappedKey}/`;
+                `http://localhost:8000/services/${mappedKey}/`;
 
               const r = await axios.get(endpoint);
               const options = Array.isArray(r.data) ? r.data : r.data?.results || [];

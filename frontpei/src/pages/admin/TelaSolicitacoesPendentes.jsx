@@ -6,7 +6,7 @@ export default function TelaSolicitacoesPendentes() {
   const [solicitacoes, setSolicitacoes] = useState([]);
 
   // Endpoint base para as ações do Admin (Aprovar/Rejeitar)
-  const ADMIN_API_BASE = "http://localhost:8080/api/auth/solicitacoes/"; 
+  const ADMIN_API_BASE = "http://localhost:8000/api/auth/solicitacoes/"; 
   const token = localStorage.getItem("token");
 
   async function carregar() {

@@ -42,7 +42,7 @@ const Header = ({ usuario, logado, logout }) => {
         try {
             const token = localStorage.getItem("token");
             if (!token) return; // Se não tiver token, nem tenta
-            const response = await axios.get("http://localhost:8080/services/notificacoes-lista/", {
+            const response = await axios.get("http://localhost:8000/services/notificacoes-lista/", {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
