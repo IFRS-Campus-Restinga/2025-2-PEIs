@@ -81,7 +81,7 @@ class ModelSchemaView(ViewSet):
                 info["related_model"] = field.related_model._meta.object_name
 
                 # 🔥 Ajuste: serializer usa <campo>_id
-                info["name"] = f"{field.name}_id"
+                info["name"] = f"{field.name}"
 
             # ------------------------
             # MANY TO MANY

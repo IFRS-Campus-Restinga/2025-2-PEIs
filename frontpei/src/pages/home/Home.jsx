@@ -14,6 +14,10 @@ const HomeView = () => {
   const [nomeCompleto, setNomeCompleto] = useState("Usuário");
   const [meusGrupos, setMeusGrupos] = useState([]);
   const [token, setToken] = useState("");
+  
+  // Restauramos o identificadorUsuario para ter o username do email também
+  const [identificadorUsuario, setIdentificadorUsuario] = useState(""); 
+  
   const navigate = useNavigate();
 
   // Normaliza texto: remove acentos, pontos, underlines, múltiplos espaços
@@ -36,6 +40,7 @@ const HomeView = () => {
     try {
       const usuario = JSON.parse(usuarioSalvo);
       const tokenSalvo = usuario.token;
+      const email = usuario.email || "";
       const nomeUsuario = usuario.nome || "Usuário";
       const gruposArray = usuario.grupos || (usuario.grupo ? [usuario.grupo] : []);
 
@@ -44,8 +49,16 @@ const HomeView = () => {
         return;
       }
 
+      // Lógica restaurada para pegar username do email
+      const usernameDoEmail = email.split("@")[0].toLowerCase().trim();
+      const nomeCompletoLower = nomeUsuario.toLowerCase().trim();
+      
+      // Identificador composto para comparação robusta
+      const identificador = usernameDoEmail || nomeCompletoLower;
+
       setToken(tokenSalvo);
       setNomeCompleto(nomeUsuario);
+      setIdentificadorUsuario(identificador);
       setMeusGrupos(gruposArray.map(g => g.toLowerCase()));
     } catch (err) {
       console.error("Erro ao ler usuário", err);
@@ -56,29 +69,47 @@ const HomeView = () => {
   // 2) Extrai info do coordenador (nome + normalizado)
   const getCoordenadorInfo = (pei) => {
     try {
-      for (const periodo of pei.periodos || []) {
-        for (const comp of periodo.componentes_curriculares || []) {
-          const disc = comp.disciplina || comp.disciplinas;
-          const coord = disc?.cursos?.[0]?.coordenador;
-          if (!coord) continue;
+      let coord = null;
 
-          const candidatos = [coord.nome, coord.username, coord.email?.split("@")[0]].filter(Boolean);
-          if (candidatos.length === 0) return null;
-
-          const nomeExibicao = coord.nome || coord.username || coord.email?.split("@")[0] || "—";
-          const nomeNormalizado = normalizar(candidatos[0]);
-
-          return { nomeExibicao, nomeNormalizado };
+      // Prioridade 1: Curso vinculado ao aluno (via serializer atualizado)
+      if (pei.aluno?.curso_detalhes?.coordenador) {
+        coord = pei.aluno.curso_detalhes.coordenador;
+      } else {
+        // Fallback: Tenta pegar das disciplinas
+        for (const periodo of pei.periodos || []) {
+          for (const comp of periodo.componentes_curriculares || []) {
+            const disc = comp.disciplina || comp.disciplinas;
+            if (disc?.cursos?.[0]?.coordenador) {
+              coord = disc.cursos[0].coordenador;
+              break;
+            }
+          }
+          if (coord) break;
         }
       }
-      return null;
-    } catch {
+
+      if (!coord) return null;
+
+      // Extrai dados possíveis do objeto coordenador
+      const nomeExibicao = coord.nome || coord.username || coord.email?.split("@")[0] || "—";
+      
+      // Normaliza todas as possibilidades para comparação
+      const possiveisNomes = [
+          coord.nome, 
+          coord.username, 
+          coord.email?.split("@")[0]
+      ].filter(Boolean).map(normalizar);
+
+      return { nomeExibicao, possiveisNomes };
+
+    } catch (e) {
       return null;
     }
   };
 
   // 3) Verifica se o professor logado deu parecer nesse PEI
   const temMeuParecer = (pei) => {
+    const meuIdentificadorNorm = normalizar(identificadorUsuario);
     const meuNomeNorm = normalizar(nomeCompleto);
 
     return (pei.periodos || []).some(periodo =>
@@ -91,16 +122,14 @@ const HomeView = () => {
             prof.nome,
             prof.username,
             prof.email ? prof.email.split("@")[0] : null
-          ].filter(Boolean);
+          ].filter(Boolean).map(normalizar);
 
-          return candidatos.some(c => {
-            const nomeProfNorm = normalizar(c);
-            return (
-              nomeProfNorm === meuNomeNorm ||
-              nomeProfNorm.includes(meuNomeNorm) ||
-              meuNomeNorm.includes(nomeProfNorm)
-            );
-          });
+          return candidatos.some(c => 
+            c.includes(meuIdentificadorNorm) || 
+            meuIdentificadorNorm.includes(c) ||
+            c.includes(meuNomeNorm) ||
+            meuNomeNorm.includes(c)
+          );
         })
       )
     );
@@ -108,7 +137,7 @@ const HomeView = () => {
 
   // 4) Carrega e filtra PEIs
   useEffect(() => {
-    if (!token || nomeCompleto === "Usuário") return;
+    if (!token || !identificadorUsuario) return;
 
     async function load() {
       try {
@@ -118,7 +147,10 @@ const HomeView = () => {
         });
 
         const peis = res.data.results || res.data || [];
+        
         const meuNomeNorm = normalizar(nomeCompleto);
+        const meuIdentificadorNorm = normalizar(identificadorUsuario);
+        
         const souCoordenador = meusGrupos.includes("coordenador");
         const souProfessor = meusGrupos.includes("professor");
 
@@ -132,7 +164,7 @@ const HomeView = () => {
             componente: disciplina.nome || "Diversos",
             status: pei.status_pei || "ABERTO",
             coordenador: coordInfo?.nomeExibicao || "—",
-            coordenadorNorm: coordInfo?.nomeNormalizado || null,
+            coordPossiveisNomes: coordInfo?.possiveisNomes || [],
             peiCentralId: pei.id,
             temMeuParecer: temMeuParecer(pei),
           };
@@ -141,11 +173,17 @@ const HomeView = () => {
         const dadosFiltrados = dados.filter((item) => {
           // COORDENADOR
           if (souCoordenador) {
-            if (!item.coordenadorNorm) return false;
-            const bateCoord =
-              item.coordenadorNorm === meuNomeNorm ||
-              item.coordenadorNorm.includes(meuNomeNorm) ||
-              meuNomeNorm.includes(item.coordenadorNorm);
+            // Se não achou info do coordenador no PEI, esconde por segurança
+            if (!item.coordPossiveisNomes || item.coordPossiveisNomes.length === 0) return false;
+            
+            // Verifica se ALGUM dos nomes possíveis do coordenador do PEI bate com ALGUM dos meus identificadores
+            const bateCoord = item.coordPossiveisNomes.some(nomeC => 
+                nomeC.includes(meuIdentificadorNorm) || 
+                meuIdentificadorNorm.includes(nomeC) ||
+                nomeC.includes(meuNomeNorm) ||
+                meuNomeNorm.includes(nomeC)
+            );
+            
             if (!bateCoord) return false;
           }
 
@@ -170,7 +208,7 @@ const HomeView = () => {
     }
 
     load();
-  }, [token, nomeCompleto, meusGrupos, navigate]);
+  }, [token, identificadorUsuario, nomeCompleto, meusGrupos, navigate]);
 
   // Botão Visualizar
   useEffect(() => {
@@ -192,7 +230,7 @@ const HomeView = () => {
         </p>
       ) : tableData.length === 0 ? (
         <div style={{ textAlign: "center", padding: "80px" }}>
-          <p style={{ fontSize: "1.8em", color: "#e74c3c" }}>
+          <p style={{ fontSize: "1.8em", color: "#e74c3c", marginBottom: "20px" }}>
             Nenhum PEI encontrado.
           </p>
           <p style={{ fontSize: "1.2em", color: "#7f8c8d" }}>
