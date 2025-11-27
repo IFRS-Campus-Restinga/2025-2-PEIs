@@ -7,29 +7,39 @@ import BotaoEditar from "../components/customButtons/botaoEditar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import "../cssGlobal.css";
 import { API_ROUTES } from "../configs/apiRoutes";
-import { enviarConviteReuniao } from "../lib/enviarConviteReuniao";
 
-function AtaDeAcompanhamento({usuario}) {
+function AtaDeAcompanhamento({ usuario }) {
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
   useEffect(() => {
-    // limpa todos os alertas ao entrar na tela
     clearAlerts();
   }, []);
+
   const DBATA = axios.create({ baseURL: API_ROUTES.ATADEACOMPANHAMENTO });
+  // injeta email do usuario nas requisições (ator)
+  if (usuario && usuario.email) {
+    DBATA.defaults.headers.common["X-User-Email"] = usuario.email;
+  }
+
   const PERIODO_LETIVO_API = axios.create({ baseURL: API_ROUTES.PEIPERIODOLETIVO });
 
   const [form, setForm] = useState({
     dataReuniao: "",
+    dataFim: "",
     participantes: "",
     descricao: "",
-    ator: "",
     periodoLetivo: "",
   });
 
   const [atasCadastradas, setAtasCadastradas] = useState([]);
   const [editId, setEditId] = useState(null);
-  const [editForm, setEditForm] = useState({ dataReuniao: "", participantes: "", descricao: "", ator: "", periodoLetivo: "" });
+  const [editForm, setEditForm] = useState({
+    dataReuniao: "",
+    dataFim: "",
+    participantes: "",
+    descricao: "",
+    periodoLetivo: "",
+  });
   const [periodosLetivos, setPeriodosLetivos] = useState([]);
 
   useEffect(() => {
@@ -55,8 +65,25 @@ function AtaDeAcompanhamento({usuario}) {
     }
   }
 
+  function parseParticipantsToArray(text) {
+    if (!text) return [];
+    return text
+      .split(",")
+      .map((p) => p.trim())
+      .filter((p) => p.length > 0);
+  }
+
+  function validateDates(startIso, endIso) {
+    if (!startIso || !endIso) return false;
+    const s = new Date(startIso);
+    const e = new Date(endIso);
+    return e > s;
+  }
+
   async function adicionaAta(e) {
     e.preventDefault();
+
+    // validacao de campos obrigatorios
     const mensagens = validaCampos(form, e.target);
     if (mensagens.length > 0) {
       mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
@@ -64,41 +91,37 @@ function AtaDeAcompanhamento({usuario}) {
       return;
     }
 
+    // valida data fim > inicio
+    if (!validateDates(form.dataReuniao, form.dataFim)) {
+      addAlert("A data de fim deve ser posterior à data de início.", "error");
+      return;
+    }
+
     try {
-      /*const convidados = ["maiquelhvr@gmail.com", "2022012656@aluno.restinga.ifrs.edu.br"];
-      await enviarConviteReuniao(
-        convidados,
-        "Reunião de Teste",
-        "Convite de teste para sistema PEI.",
-        "2025-11-28T16:00",
-        "2025-11-28T17:00"
-      );*/
+      const participantesArray = parseParticipantsToArray(form.participantes);
       await DBATA.post("/", {
         dataReuniao: new Date(form.dataReuniao).toISOString(),
+        dataFim: new Date(form.dataFim).toISOString(),
         participantes: form.participantes,
+        participantes_emails: participantesArray,
         descricao: form.descricao,
-        ator: form.ator,
         peiperiodoletivo: form.periodoLetivo,
       });
-      setForm({ dataReuniao: "", participantes: "", descricao: "", ator: "", periodoLetivo: "" });
+      setForm({ dataReuniao: "", dataFim: "", participantes: "", descricao: "", periodoLetivo: "" });
       recuperaAtas();
       addAlert("Ata cadastrada com sucesso!", "success");
     } catch (err) {
       if (err.response?.data) {
-        // Exibir mensagens inline (por campo)
         Object.entries(err.response.data).forEach(([f, m]) => {
           addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
-
-        // Montar mensagem amigável pro toast
         const msg = Object.entries(err.response.data)
           .map(([f, m]) => {
-            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1);
             const mensagens = Array.isArray(m) ? m.join(", ") : m;
             return `Campo ${nomeCampo}: ${mensagens}`;
           })
           .join("\n");
-
         addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
       } else {
         addAlert("Erro ao cadastrar ata de acompanhamento.", "error", { persist: true });
@@ -115,47 +138,61 @@ function AtaDeAcompanhamento({usuario}) {
       return;
     }
 
+    if (!validateDates(editForm.dataReuniao, editForm.dataFim)) {
+      addAlert("A data de fim deve ser posterior à data de início.", "error");
+      return;
+    }
+
     try {
+      const participantesArray = parseParticipantsToArray(editForm.participantes);
       await DBATA.put(`/${id}/`, {
         dataReuniao: new Date(editForm.dataReuniao).toISOString(),
+        dataFim: new Date(editForm.dataFim).toISOString(),
         participantes: editForm.participantes,
+        participantes_emails: participantesArray,
         descricao: editForm.descricao,
-        ator: editForm.ator,
         peiperiodoletivo: editForm.periodoLetivo,
       });
       setEditId(null);
-      setEditForm({ dataReuniao: "", participantes: "", descricao: "", ator: "", periodoLetivo: "" });
+      setEditForm({ dataReuniao: "", dataFim: "", participantes: "", descricao: "", periodoLetivo: "" });
       recuperaAtas();
       addAlert("Ata atualizada com sucesso!", "success");
     } catch (err) {
       if (err.response?.data) {
-        // Exibir mensagens inline (por campo)
         Object.entries(err.response.data).forEach(([f, m]) => {
           addAlert(Array.isArray(m) ? m.join(", ") : m, "error", { fieldName: f });
         });
-
-        // Montar mensagem amigável pro toast
         const msg = Object.entries(err.response.data)
           .map(([f, m]) => {
-            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1); // Capitaliza o nome do campo
+            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1);
             const mensagens = Array.isArray(m) ? m.join(", ") : m;
             return `Campo ${nomeCampo}: ${mensagens}`;
           })
           .join("\n");
-
-        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
+        addAlert(`Erro ao atualizar:\n${msg}`, "error", { persist: true });
       } else {
         addAlert("Erro ao editar ata de acompanhamento.", "error", { persist: true });
       }
     }
   }
 
+  async function deletaAta(id) {
+    if (!window.confirm("Deseja realmente excluir essa ata e notificar participantes?")) return;
+    try {
+      // o backend envia email de cancelamento antes de excluir
+      await DBATA.delete(`/${id}/`);
+      recuperaAtas();
+      addAlert("Ata excluída e participantes notificados.", "success");
+    } catch (err) {
+      addAlert("Erro ao excluir ata.", "error");
+    }
+  }
+
   return (
     <div className="container-padrao">
-      <h1>Gerenciar Atas de Acompanhamento</h1>
+      <h1>Gerenciar Reuniões de Acompanhamento</h1>
 
-      {/* FORMULÁRIO DE CADASTRO */}
-      <h2>Cadastrar Ata</h2>
+      <h2>Cadastrar Reunião</h2>
       <form className="form-padrao" onSubmit={adicionaAta}>
         <label>Período Letivo:</label>
         <select
@@ -175,7 +212,7 @@ function AtaDeAcompanhamento({usuario}) {
         </select>
         <FieldAlert fieldName="periodoLetivo" />
 
-        <label>Data da Reunião:</label>
+        <label>Data de Início:</label>
         <input
           type="datetime-local"
           name="dataReuniao"
@@ -187,7 +224,19 @@ function AtaDeAcompanhamento({usuario}) {
         />
         <FieldAlert fieldName="dataReuniao" />
 
-        <label>Participantes:</label>
+        <label>Data de Fim:</label>
+        <input
+          type="datetime-local"
+          name="dataFim"
+          value={form.dataFim}
+          onChange={(e) => {
+            setForm({ ...form, dataFim: e.target.value });
+            if (e.target.value) clearFieldAlert("dataFim");
+          }}
+        />
+        <FieldAlert fieldName="dataFim" />
+
+        <label>Participantes (emails separados por vírgula):</label>
         <input
           type="text"
           name="participantes"
@@ -196,11 +245,11 @@ function AtaDeAcompanhamento({usuario}) {
             setForm({ ...form, participantes: e.target.value });
             if (e.target.value.trim()) clearFieldAlert("participantes");
           }}
-          placeholder="Ex: João, Maria"
+          placeholder="ex: joao@ifrs.edu.br, maria@gmail.com"
         />
         <FieldAlert fieldName="participantes" />
 
-        <label>Descrição:</label>
+        <label>Descrição (servirá como título da reunião):</label>
         <input
           type="text"
           name="descricao"
@@ -209,27 +258,15 @@ function AtaDeAcompanhamento({usuario}) {
             setForm({ ...form, descricao: e.target.value });
             if (e.target.value.trim()) clearFieldAlert("descricao");
           }}
-          placeholder="Resumo da reunião"
+          placeholder="Assunto ou título da reunião"
         />
         <FieldAlert fieldName="descricao" />
 
-        <label>Ator:</label>
-        <input
-          type="text"
-          name="ator"
-          value={form.ator}
-          onChange={(e) => {
-            setForm({ ...form, ator: e.target.value });
-            if (e.target.value.trim()) clearFieldAlert("ator");
-          }}
-          placeholder="Responsável"
-        />
-        <FieldAlert fieldName="ator" />
-
-        <button type="submit" className="submit-btn">Adicionar Ata</button>
+        <div style={{ textAlign: "center" }}>
+          <button type="submit" className="submit-btn">Adicionar Ata</button>
+        </div>
       </form>
 
-      {/* LISTA */}
       <div className="list-padrao">
         <h3>Atas Cadastradas</h3>
         <ul>
@@ -241,104 +278,48 @@ function AtaDeAcompanhamento({usuario}) {
                 {editId === a.id ? (
                   <form id="editForm" onSubmit={(e) => atualizaAta(e, a.id)}>
                     <label>Período Letivo:</label>
-                    <select
-                      name="periodoLetivo"
-                      value={editForm.periodoLetivo}
-                      onChange={(e) => {
-                        setEditForm({ ...editForm, periodoLetivo: e.target.value });
-                        if (e.target.value) clearFieldAlert("edit-periodoLetivo");
-                      }}
-                    >
+                    <select name="periodoLetivo" value={editForm.periodoLetivo} onChange={(e) => setEditForm({ ...editForm, periodoLetivo: e.target.value })}>
                       <option value="">Selecione...</option>
-                      {periodosLetivos.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.periodo_principal} ({p.data_criacao} - {p.data_termino})
-                        </option>
-                      ))}
+                      {periodosLetivos.map((p) => (<option key={p.id} value={p.id}>{p.periodo_principal}</option>))}
                     </select>
-                    <FieldAlert fieldName="edit-periodoLetivo" />
 
-                    <label>Data da Reunião:</label>
-                    <input
-                      type="datetime-local"
-                      name="dataReuniao"
-                      value={editForm.dataReuniao}
-                      onChange={(e) => {
-                        setEditForm({ ...editForm, dataReuniao: e.target.value });
-                        if (e.target.value) clearFieldAlert("edit-dataReuniao");
-                      }}
-                    />
-                    <FieldAlert fieldName="edit-dataReuniao" />
+                    <label>Data de Início:</label>
+                    <input type="datetime-local" name="dataReuniao" value={editForm.dataReuniao} onChange={(e) => setEditForm({ ...editForm, dataReuniao: e.target.value })} />
 
-                    <label>Participantes:</label>
-                    <input
-                      type="text"
-                      name="participantes"
-                      value={editForm.participantes}
-                      onChange={(e) => {
-                        setEditForm({ ...editForm, participantes: e.target.value });
-                        if (e.target.value.trim()) clearFieldAlert("edit-participantes");
-                      }}
-                    />
-                    <FieldAlert fieldName="edit-participantes" />
+                    <label>Data de Fim:</label>
+                    <input type="datetime-local" name="dataFim" value={editForm.dataFim} onChange={(e) => setEditForm({ ...editForm, dataFim: e.target.value })} />
+
+                    <label>Participantes (emails separados por vírgula):</label>
+                    <input type="text" name="participantes" value={editForm.participantes} onChange={(e) => setEditForm({ ...editForm, participantes: e.target.value })} />
 
                     <label>Descrição:</label>
-                    <input
-                      type="text"
-                      name="descricao"
-                      value={editForm.descricao}
-                      onChange={(e) => {
-                        setEditForm({ ...editForm, descricao: e.target.value });
-                        if (e.target.value.trim()) clearFieldAlert("edit-descricao");
-                      }}
-                    />
-                    <FieldAlert fieldName="edit-descricao" />
-
-                    <label>Ator:</label>
-                    <input
-                      type="text"
-                      name="ator"
-                      value={editForm.ator}
-                      onChange={(e) => {
-                        setEditForm({ ...editForm, ator: e.target.value });
-                        if (e.target.value.trim()) clearFieldAlert("edit-ator");
-                      }}
-                    />
-                    <FieldAlert fieldName="edit-ator" />
+                    <input type="text" name="descricao" value={editForm.descricao} onChange={(e) => setEditForm({ ...editForm, descricao: e.target.value })} />
 
                     <div className="posicao-buttons esquerda">
                       <button type="submit" className="btn-salvar">Salvar</button>
-                      <button type="button" className="botao-deletar" onClick={() => setEditId(null)}>
-                        Cancelar
-                      </button>
+                      <button type="button" className="botao-deletar" onClick={() => setEditId(null)}>Cancelar</button>
                     </div>
                   </form>
                 ) : (
                   <div className="componente-detalhe">
                     <strong>Período:</strong> {periodo?.periodo_principal || "-"} <br />
                     <strong>Data:</strong> {a.dataReuniao ? new Date(a.dataReuniao).toLocaleString() : "-"} <br />
+                    <strong>Fim:</strong> {a.dataFim ? new Date(a.dataFim).toLocaleString() : "-"} <br />
                     <strong>Participantes:</strong> {a.participantes || "-"} <br />
                     <strong>Descrição:</strong> {a.descricao || "-"} <br />
                     <strong>Ator:</strong> {a.ator || "-"}
                     <div className="posicao-buttons">
-                      <BotaoEditar
-                        id={a.id}
-                        onClickInline={() => {
-                          setEditId(a.id);
-                          setEditForm({
-                            dataReuniao: a.dataReuniao ? new Date(a.dataReuniao).toISOString().slice(0, 16) : "",
-                            participantes: a.participantes,
-                            descricao: a.descricao,
-                            ator: a.ator,
-                            periodoLetivo: a.peiperiodoletivo,
-                          });
-                        }}
-                      />
-                      <BotaoDeletar
-                        id={a.id}
-                        axiosInstance={DBATA}
-                        onDeletarSucesso={recuperaAtas}
-                      />
+                      <BotaoEditar id={a.id} onClickInline={() => {
+                        setEditId(a.id);
+                        setEditForm({
+                          dataReuniao: a.dataReuniao ? new Date(a.dataReuniao).toISOString().slice(0, 16) : "",
+                          dataFim: a.dataFim ? new Date(a.dataFim).toISOString().slice(0, 16) : "",
+                          participantes: a.participantes,
+                          descricao: a.descricao,
+                          periodoLetivo: a.peiperiodoletivo,
+                        });
+                      }} />
+                      <BotaoDeletar id={a.id} axiosInstance={DBATA} onDeletarSucesso={recuperaAtas} />
                     </div>
                   </div>
                 )}
