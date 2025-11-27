@@ -3,6 +3,7 @@ import django
 import sys
 from datetime import date, timedelta
 import random
+from random import choice
 
 # ------------------------------------------------------------------------------
 # SETUP DJANGO
@@ -83,7 +84,7 @@ def criar_admin_master():
     """
     Admin principal: ALTERE AQUI CASO QUEIRA SER CADASTRADO COMO ADMIN → 2023017316@aluno.restinga.ifrs.edu.br
     """
-    email = "2019005112@restinga.ifrs.edu.br"
+    email = "2022012487@restinga.ifrs.edu.br"
     nome = "Admin_Master"
 
     existente = User.objects.filter(email=email).first()
@@ -130,19 +131,28 @@ def criar_coordenadores():
 
 def criar_alunos():
     print("--> Criando alunos...")
-    
+
     nomes = [
         "Lucas Silva", "Mariana Costa", "João Pereira",
         "Bruna Oliveira", "Felipe Santos", "Aline Rocha",
     ]
 
+    cursos = list(Curso.objects.all())
+    if not cursos:
+        print("Nenhum curso encontrado. Crie cursos antes de criar alunos.")
+        return
+
     for i, nome in enumerate(nomes):
+        curso_escolhido = choice(cursos)  
         Aluno.objects.create(
             nome=nome,
             matricula=f"202300{i+1}",
-            email=f"{nome.replace(' ', '.').lower()}@restinga.ifrs.edu.br"
+            email=f"{nome.replace(' ', '.').lower()}@restinga.ifrs.edu.br",
+            curso=curso_escolhido
         )
-    print("✔ Alunos criados")
+        print(f"Aluno {nome} vinculado ao curso {curso_escolhido.nome}")
+
+    print("Todos os alunos criados")
 
 
 def criar_disciplinas():
@@ -273,9 +283,9 @@ def rodar():
     criar_pedagogos()
     criar_professores()
     criar_coordenadores()
-    criar_alunos()
     criar_disciplinas()
     criar_cursos()
+    criar_alunos()
     criar_pei_central()
     criar_pei_periodo_letivo()
     criar_componentes_curriculares()

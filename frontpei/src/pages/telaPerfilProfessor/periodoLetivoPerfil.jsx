@@ -18,28 +18,27 @@ const PeriodoLetivoPerfil = () => {
   const [nomeUsuario, setNomeUsuario] = useState("Usuário");
   const [erro, setErro] = useState(false);
 
-  // PEGA NOME COMPLETO + GRUPOS DO USUÁRIO LOGADO
+  // Carrega usuário do localStorage
   useEffect(() => {
     const usuarioSalvo = localStorage.getItem("usuario");
+
     if (usuarioSalvo) {
       try {
         const user = JSON.parse(usuarioSalvo);
 
-        // Nome completo direto do backend
         setNomeUsuario(user.nome || "Usuário");
 
-        // Grupos (para os botões)
         const grupos = (user.grupos || []).map(g => g.toLowerCase());
         setGruposUsuario(grupos);
 
         console.log("USUÁRIO LOGADO:", { nome: user.nome, grupos });
       } catch (err) {
-        console.error("Erro ao ler usuário do localStorage", err);
+        console.error("Erro ao ler usuário do localStorage:", err);
       }
     }
   }, []);
 
-  // CARREGA DADOS DO PEI
+  // Carrega dados do PEI
   useEffect(() => {
     if (!peiCentralId) return;
 
@@ -48,41 +47,47 @@ const PeriodoLetivoPerfil = () => {
         const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`);
         const pei = res.data;
 
-        setAluno(pei.aluno || { nome: "Aluno não encontrado", email: "" });
+        // --- ALUNO ---
+        const alunoData = pei.aluno || { nome: "Aluno não encontrado", email: "" };
+        setAluno(alunoData);
 
+        // --- PERÍODO PRINCIPAL ---
         const periodos = pei.periodos || [];
-        if (periodos.length > 0) {
-          setPeriodoPrincipal(periodos[0].periodo_principal || "—");
+        setPeriodoPrincipal(periodos[0]?.periodo_principal || "—");
+
+        // --- CURSO → direto do aluno ---
+        const cursoAluno = alunoData.curso || null;
+        setCurso(cursoAluno);
+
+        // --- COORDENADOR REAL → curso → coordenador ---
+        let nomeCoord = "—";
+
+        if (cursoAluno?.coordenador) {
+          const coord = cursoAluno.coordenador;
+          nomeCoord =
+            coord.username ||
+            coord.nome ||
+            coord.email?.split("@")[0] ||
+            "—";
         }
 
-        // Busca curso e coordenador
-        let cursoTemp = null;
-        let coordNome = "—";
-        for (const p of periodos) {
-          for (const comp of p.componentes_curriculares || []) {
-            const disc = comp.disciplina || comp.disciplinas;
-            if (disc?.cursos?.[0]) {
-              cursoTemp = disc.cursos[0];
-              const coord = cursoTemp.coordenador;
-              coordNome = coord?.username || coord?.email?.split("@")[0] || "—";
-              break;
-            }
-          }
-          if (cursoTemp) break;
-        }
-        setCurso(cursoTemp);
-        setCoordenador(coordNome);
+        setCoordenador(nomeCoord);
 
-        // Pareceres
+        // --- PARECERES ---
         const todosPareceres = periodos
           .flatMap(p => p.componentes_curriculares || [])
-          .flatMap(comp => 
+          .flatMap(comp =>
             (comp.pareceres || []).map(parecer => ({
               ...parecer,
-              componenteNome: comp.disciplina?.nome || comp.disciplinas?.nome || "Sem disciplina",
-              professorNome: parecer.professor?.username || 
-                           parecer.professor?.email?.split("@")[0] || 
-                           "Professor"
+              componenteNome:
+                comp.disciplina?.nome ||
+                comp.disciplinas?.nome ||
+                "Sem disciplina",
+              professorNome:
+                parecer.professor?.username ||
+                parecer.professor?.nome ||
+                parecer.professor?.email?.split("@")[0] ||
+                "Professor",
             }))
           );
 
@@ -97,7 +102,7 @@ const PeriodoLetivoPerfil = () => {
     carregarDados();
   }, [peiCentralId]);
 
-  // BOTÕES
+  // Render dos botões baseado no grupo do usuário
   const renderBotoesOriginais = () => {
     return (
       <>
@@ -170,8 +175,11 @@ const PeriodoLetivoPerfil = () => {
     );
   };
 
-  if (erro) return <p style={{ textAlign: "center", color: "red", padding: "50px" }}>Erro ao carregar o PEI.</p>;
-  if (!aluno) return <p style={{ textAlign: "center", padding: "50px" }}>Carregando perfil do aluno...</p>;
+  if (erro)
+    return <p style={{ textAlign: "center", color: "red", padding: "50px" }}>Erro ao carregar o PEI.</p>;
+
+  if (!aluno)
+    return <p style={{ textAlign: "center", padding: "50px" }}>Carregando perfil do aluno...</p>;
 
   return (
     <div className="pei-detalhe-container">

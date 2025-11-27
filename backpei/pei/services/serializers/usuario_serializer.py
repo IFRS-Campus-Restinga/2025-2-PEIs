@@ -9,6 +9,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         many=True,
         slug_field='name',
         queryset=Group.objects.all(),
+        source="groups",
         required=False
     )
     permissoes = serializers.SerializerMethodField()
