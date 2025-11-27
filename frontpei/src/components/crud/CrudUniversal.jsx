@@ -133,10 +133,21 @@ function CrudUniversal({ modelName }) {
     async function fetchMetadata() {
       if (!servicesMap.schema) return;
 
+      
+
       try {
         const res = await axios.get(`${servicesMap.schema}${modelName}`);
         const data = res.data;
         setMetadata(data);
+
+        if (modelName === "PEIPeriodoLetivo") {
+        data.fields.push({
+          name: "periodo_formatado",
+          type: "text",
+          label: "Período Calculado",
+          required: false
+        });
+      }
 
         const initialForm = {};
         data.fields?.forEach(f => initialForm[f.name] = "");
@@ -384,6 +395,10 @@ const renderFieldValue = (f, record) => {
     if (record[objField] && typeof record[objField] === "object") {
       value = record[objField];
     }
+  }
+
+  if (f.name === "periodo_formatado") {
+    return record.periodo_formatado || "-";
   }
 
   // Para foreign keys ou selects com related_model

@@ -10,13 +10,13 @@ class Parecer(BaseModel):
     componente_curricular = models.ForeignKey(
         "pei.ComponenteCurricular",
         on_delete=models.CASCADE,
-        related_name="pareceres"
+        related_name="parecer"
     )
 
     professor = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="pareceres",
+        related_name="parecer",
         limit_choices_to={'groups__name': 'Professor'},
         help_text="Selecione apenas usuários do grupo Professor"
     )

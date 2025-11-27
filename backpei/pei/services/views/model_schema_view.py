@@ -80,7 +80,7 @@ class ModelSchemaView(ViewSet):
                 info["type"] = "select"
                 info["related_model"] = field.related_model._meta.object_name
 
-                # 🔥 Ajuste: serializer usa <campo>_id
+                #  Ajuste: serializer usa <campo>_id
                 info["name"] = f"{field.name}"
 
             # ------------------------
