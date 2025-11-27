@@ -11,6 +11,7 @@ const endpoints = [
   "ataDeAcompanhamento",
   "documentacaoComplementar",
   "mandaEmail",
+  "enviarConviteReuniao",
   "permissoes",
   "usuario",
   "conteudo",
