@@ -70,7 +70,7 @@ function App() {
         setLogado(true);
 
         try {
-          const respMe = await fetch("http://localhost:8000/api/auth/me/", {
+          const respMe = await fetch("http://localhost:8080/api/auth/me/", {
             headers: { "Authorization": `Token ${tokenSalvo}` }
           });
 
@@ -99,7 +99,7 @@ function App() {
     try {
       const idToken = credentialResponse.credential;
 
-      const resposta = await fetch("http://localhost:8000/api/auth/login/google/", {
+      const resposta = await fetch("http://localhost:8080/api/auth/login/google/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id_token: idToken })
@@ -128,7 +128,7 @@ function App() {
       }
 
       if (data.status === "ok") {
-        const respMe = await fetch("http://localhost:8000/api/auth/me/", {
+        const respMe = await fetch("http://localhost:8080/api/auth/me/", {
           headers: { "Authorization": `Token ${data.token}` }
         });
 

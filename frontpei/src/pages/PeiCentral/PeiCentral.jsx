@@ -108,7 +108,7 @@ function PeiCentral() {
 
     return {
       nome: pei.aluno?.nome || "Sem aluno vinculado",
-      curso: pei.aluno?.curso?.nome || "Sem curso",
+      curso: pei.aluno?.curso_obj?.nome || "Sem curso",
       status: pei.status_pei || "Sem status",
       periodo: ultimo?.periodo_principal || "Sem período",
       id: pei.id,

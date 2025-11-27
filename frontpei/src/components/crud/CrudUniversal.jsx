@@ -101,7 +101,7 @@ function CrudUniversal({ modelName }) {
   useEffect(() => {
     async function fetchServices() {
       try {
-        const res = await axios.get("http://localhost:8000/services/");
+        const res = await axios.get("http://localhost:8080/services/");
         setServicesMap(res.data);
       } catch (err) {
         addAlert("Erro ao carregar lista de serviços", "error");
@@ -133,10 +133,21 @@ function CrudUniversal({ modelName }) {
     async function fetchMetadata() {
       if (!servicesMap.schema) return;
 
+      
+
       try {
         const res = await axios.get(`${servicesMap.schema}${modelName}`);
         const data = res.data;
         setMetadata(data);
+
+        if (modelName === "PEIPeriodoLetivo") {
+        data.fields.push({
+          name: "periodo_formatado",
+          type: "text",
+          label: "Período Calculado",
+          required: false
+        });
+      }
 
         const initialForm = {};
         data.fields?.forEach(f => initialForm[f.name] = "");
@@ -156,7 +167,7 @@ function CrudUniversal({ modelName }) {
               const endpoint =
                 f.related_endpoint ||
                 servicesMap[mappedKey] ||
-                `http://localhost:8000/services/${mappedKey}/`;
+                `http://localhost:8080/services/${mappedKey}/`;
 
               const r = await axios.get(endpoint);
               const options = Array.isArray(r.data) ? r.data : r.data?.results || [];
@@ -384,6 +395,10 @@ const renderFieldValue = (f, record) => {
     if (record[objField] && typeof record[objField] === "object") {
       value = record[objField];
     }
+  }
+
+  if (f.name === "periodo_formatado") {
+    return record.periodo_formatado || "-";
   }
 
   // Para foreign keys ou selects com related_model

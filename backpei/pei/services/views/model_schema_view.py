@@ -25,7 +25,7 @@ ENDPOINT_MAP = {
 class ModelSchemaView(ViewSet):
 
     def list(self, request):
-        base_url = "http://localhost:8000/services/"
+        base_url = "http://localhost:8080/services/"
         models = apps.get_app_config("pei").get_models()
 
         output = {}
@@ -80,7 +80,7 @@ class ModelSchemaView(ViewSet):
                 info["type"] = "select"
                 info["related_model"] = field.related_model._meta.object_name
 
-                # 🔥 Ajuste: serializer usa <campo>_id
+                #  Ajuste: serializer usa <campo>_id
                 info["name"] = f"{field.name}"
 
             # ------------------------
