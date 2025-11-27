@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: ./backpei
+    container_name: pei_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backpei:/app
+
+  frontend:
+    build: ./frontpei
+    container_name: pei_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontpei:/app
+    depends_on:
+      - backend
