@@ -7,8 +7,9 @@ import BotaoEditar from "../components/customButtons/botaoEditar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import "../cssGlobal.css";
 import { API_ROUTES } from "../configs/apiRoutes";
+import { enviarConviteReuniao } from "../lib/enviarConviteReuniao";
 
-function AtaDeAcompanhamento() {
+function AtaDeAcompanhamento({usuario}) {
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
   useEffect(() => {
@@ -64,6 +65,14 @@ function AtaDeAcompanhamento() {
     }
 
     try {
+      /*const convidados = ["maiquelhvr@gmail.com", "2022012656@aluno.restinga.ifrs.edu.br"];
+      await enviarConviteReuniao(
+        convidados,
+        "Reunião de Teste",
+        "Convite de teste para sistema PEI.",
+        "2025-11-28T16:00",
+        "2025-11-28T17:00"
+      );*/
       await DBATA.post("/", {
         dataReuniao: new Date(form.dataReuniao).toISOString(),
         participantes: form.participantes,
