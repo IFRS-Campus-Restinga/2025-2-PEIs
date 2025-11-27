@@ -53,6 +53,26 @@ const Header = ({ usuario, logado, logout }) => {
         }
     };
 
+
+    const marcarTodasComoLidas = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+
+            // Chama o novo endpoint do backend
+            await axios.post("http://localhost:8000/services/notificacoes/marcar_todas_lidas/", {}, {
+                headers: { Authorization: `Token ${token}` },
+            });
+
+            // Atualiza a lista localmente para refletir a mudança sem recarregar tudo
+            const novasNotificacoes = notificacoes.map(n => ({ ...n, lida: true }));
+            setNotificacoes(novasNotificacoes);
+            
+        } catch (error) {
+            console.error("Erro ao marcar notificações:", error);
+        }
+    };
+
     // metodo para formatar a data para exibição de quanto tempo faz que a notificacao foi emitida
     const formatarData = (dataString) => {
         const data = new Date(dataString);
@@ -97,31 +117,64 @@ const Header = ({ usuario, logado, logout }) => {
                     <>
                         {/* 🔔 Notificações */}
                         <div className="notif-wrapper" ref={notifRef}>
-                            <button
-                                className="header-icon-btn"
-                                onClick={() => setNotificacoesAbertas(!notificacoesAbertas)}
-                            >
+                            <button className="header-icon-btn" onClick={() => setNotificacoesAbertas(!notificacoesAbertas)}>
                                 <img src={bellIcon} alt="Notificações" />
-                                {notificacoes.length > 0 && (
-                                    <span className="notif-badge">{notificacoes.length}</span>
+                                {notificacoes.filter(n => !n.lida).length > 0 && (
+                                    <span className="notif-badge">
+                                        {notificacoes.filter(n => !n.lida).length}
+                                    </span>
                                 )}
                             </button>
 
-                            <div className={`notif-dropdown ${notificacoesAbertas ? "active" : ""}`}>
-                                <div className="notif-header">
-                                    <p className="notif-title">Notificações</p>
-                                    {notificacoes.length > 0 && (
-                                        <span className="notif-count">{notificacoes.length} nova{notificacoes.length > 1 ? 's' : ''}</span>
-                                    )}
-                                </div>
+                        <div className={`notif-dropdown ${notificacoesAbertas ? "active" : ""}`}>
+                            <div className="notif-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <p className="notif-title">Notificações</p>
                                 
-                                <div className="notif-list-container">
+                                {/* 2. NOVO BOTÃO DE MARCAR COMO LIDA */}
+                                {notificacoes.some(n => !n.lida) && (
+                                    <button 
+                                        onClick={marcarTodasComoLidas}
+                                        style={{
+                                        background: '#e8f5e9',       // Fundo verde bem suave
+                                        color: '#055C0F',            // Texto verde IFRS
+                                        border: '1px solid #a5d6a7', // Borda sutil para definição
+                                        borderRadius: '20px',        // Bordas arredondadas (formato pílula)
+                                        padding: '3px 10px',         // Espaçamento interno confortável
+                                        fontSize: '10px',
+                                        fontWeight: '700',           // Negrito para legibilidade
+                                        cursor: 'pointer',
+                                        textTransform: 'uppercase',  // Caixa alta para parecer um "comando"
+                                        letterSpacing: '0.5px',
+                                        transition: 'all 0.2s ease'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.target.style.background = '#055C0F';
+                                        e.target.style.color = '#fff';
+                                        e.target.style.borderColor = '#055C0F';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.target.style.background = '#e8f5e9';
+                                        e.target.style.color = '#055C0F';
+                                        e.target.style.borderColor = '#a5d6a7';
+                                    }}
+                                    >
+                                        Marcar todas como lidas
+                                    </button>
+                                )}
+                            </div>
+                                
+                            <div className="notif-list-container">
+                                    {/* 3. MUDANÇA VISUAL: ITENS NÃO LIDOS FICAM DIFERENTES */}
                                     {notificacoes.length > 0 ? (
                                         <ul className="notif-list">
                                             {notificacoes.map((n) => (
-                                                <li key={n.id} className="notif-item">
+                                                <li key={n.id} className="notif-item" style={{ background: n.lida ? '#fff' : '#f0f9f0' }}>
                                                     <div className="notif-content">
-                                                        <h4 className="notif-item-title">{n.titulo}</h4>
+                                                        {/* Bolinha verde se não leu */}
+                                                        <h4 className="notif-item-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                            {!n.lida && <span style={{ width: '8px', height: '8px', background: '#055C0F', borderRadius: '50%', display: 'inline-block' }}></span>}
+                                                            {n.titulo}
+                                                        </h4>
                                                         <p className="notif-item-message">{n.mensagem}</p>
                                                         <span className="notif-item-time">{formatarData(n.data_criacao)}</span>
                                                     </div>
