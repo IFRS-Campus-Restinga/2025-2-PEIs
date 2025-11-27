@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-// import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import ErrorMessage from "../../components/errorMessage/ErrorMessage.jsx";
 import api from "../../configs/api";
 import { API_ROUTES } from "../../configs/apiRoutes.js";
 import "../../cssGlobal.css";
 import logo from "../../assets/logo-sem-nome.png";
 
-// const GOOGLE_CLIENT_ID = "992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com";
 
 const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -69,9 +69,9 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
   };
 
   // =============================
-  // LOGIN COM GOOGLE (DESATIVADO)
+  // LOGIN COM GOOGLE (ATIVADO)
   // =============================
-  /*
+  
   const handleGoogleLogin = async (credentialResponse) => {
     try {
       const google_token = credentialResponse.credential;
@@ -104,7 +104,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
       onLoginError?.(error);
     }
   };
-  */
+  
 
   // =============================
   // REGISTRO
@@ -162,8 +162,42 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
           <div className="login-features">
             <h2>Bem-vindo ao Sistema de Gerenciamento de PEI</h2>
             <p className="login-description">
-              Plataforma completa para criação, acompanhamento e gestão de PEIs.
+              Plataforma completa para criação, acompanhamento e gestão de Planos Educacionais 
+              Individualizados, promovendo educação inclusiva e personalizada.
             </p>
+            <div className="login-feature-list">
+              <div className="login-feature-item">
+                <div className="feature-icon">📋</div>
+                <div className="feature-text">
+                  <h3>Gestão Centralizada</h3>
+                  <p>Gerencie todos os PEIs em um único lugar com interface intuitiva</p>
+                </div>
+              </div>
+
+              <div className="login-feature-item">
+                <div className="feature-icon">👥</div>
+                <div className="feature-text">
+                  <h3>Colaboração em Equipe</h3>
+                  <p>Professores, coordenadores e familiares trabalhando juntos</p>
+                </div>
+              </div>
+
+              <div className="login-feature-item">
+                <div className="feature-icon">📊</div>
+                <div className="feature-text">
+                  <h3>Acompanhamento em Tempo Real</h3>
+                  <p>Monitore o progresso dos estudantes com relatórios detalhados</p>
+                </div>
+              </div>
+
+              <div className="login-feature-item">
+                <div className="feature-icon">🔒</div>
+                <div className="feature-text">
+                  <h3>Segurança e Privacidade</h3>
+                  <p>Dados protegidos com autenticação segura e criptografia</p>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="login-footer-info">
             <p>Instituto Federal do Rio Grande do Sul - Campus Restinga</p>
@@ -187,7 +221,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
 
           {/* LOGIN MANUAL */}
           <form className="login-manual-form" onSubmit={handleLoginManual}>
-  
+
             <div className="form-group">
               <label className="form-label">E-mail</label>
               <input
@@ -225,8 +259,8 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
 
           <div className="login-divider"></div>
 
-          {/* GOOGLE LOGIN DESATIVADO */}
-          {/*
+          {/* GOOGLE LOGIN ATIVADO */}
+          
           <div 
             className="login-button-wrapper" 
             style={{ opacity: logadoComSucesso ? 0.5 : 1, pointerEvents: logadoComSucesso ? 'none' : 'auto' }}
@@ -242,7 +276,7 @@ const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
               />
             </GoogleOAuthProvider>
           </div>
-          */}
+          
 
           <div className="login-help">
             <p className="login-help-text">

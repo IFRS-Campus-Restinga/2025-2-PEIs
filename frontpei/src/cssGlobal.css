@@ -1232,7 +1232,7 @@ div.dt-container .dt-info {
 .login-form-side {
   flex: 0 0 480px; background: #fff;
   display: flex; align-items: center; justify-content: center;
-  padding: 40px; box-shadow: -4px 0 20px rgba(0,0,0,.08);
+  padding: 10px; box-shadow: -4px 0 20px rgba(0,0,0,.08);
 }
 
 /* --- Perfil Admin --- */
