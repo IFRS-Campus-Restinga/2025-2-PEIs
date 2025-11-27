@@ -17,6 +17,8 @@ import Header from "./components/customHeader/Header.jsx";
 import SubHeader from "./components/customSubHeader/Subheader.jsx";
 import Footer from "./components/customFooter/Footer.jsx";
 
+import Sidebar from "./components/sidebar/Sidebar.jsx";   // ← ADIÇÃO
+
 import Home from "./pages/home/Home.jsx";
 import Pareceres from "./pages/Parecer.jsx";
 import PEIPeriodoLetivo from "./pages/peiPeriodoLetivo/PEIPeriodoLetivo.jsx";
@@ -42,25 +44,39 @@ import Professor from "./pages/Professor.jsx";
 import Conteudo from "./pages/Conteudo.jsx";
 import CrudWrapper from "./components/crud/crudWrapper.jsx";
 
+
 // Layout das rotas autenticadas
-const LayoutAutenticado = ({ usuario, onLogout }) => {
+const LayoutAutenticado = ({ usuario, onLogout, sidebarOpen, toggleSidebar }) => {
   return (
     <div className="app-container">
-      <Header usuario={usuario} logado={true} logout={onLogout} />
+      <Header usuario={usuario} logado={true} logout={onLogout} toggleSidebar={toggleSidebar} />
       <SubHeader />
       <hr />
-      <main className="main-content">
-        <Outlet context={{ usuario }} />
-      </main>
+
+      <div className="layout-principal-com-sidebar">
+        <main className="main-content">
+          <Outlet context={{ usuario }} />
+        </main>
+
+        {/* Sidebar retrátil */}
+        <Sidebar open={sidebarOpen} setOpen={toggleSidebar} />
+      </div>
+
       <Footer usuario={usuario} />
     </div>
   );
 };
 
+
 function App() {
   const [usuario, setUsuario] = useState(null);
   const [logado, setLogado] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);   // ← ADIÇÃO
+
   const navigate = useNavigate();
+
+  // Abrir/fechar sidebar
+  const toggleSidebar = () => setSidebarOpen((prev) => !prev);   // ← ADIÇÃO
 
   // Carrega usuário ao iniciar
   useEffect(() => {
@@ -109,7 +125,12 @@ function App() {
         <Route
           element={
             logado ? (
-              <LayoutAutenticado usuario={usuario} onLogout={handleLogout} />
+              <LayoutAutenticado
+                usuario={usuario}
+                onLogout={handleLogout}
+                sidebarOpen={sidebarOpen}
+                toggleSidebar={toggleSidebar}
+              />
             ) : (
               <Navigate to="/login" replace />
             )
@@ -141,10 +162,7 @@ function App() {
           <Route path="/professor" element={<Professor />} />
           <Route path="/conteudo" element={<Conteudo />} />
           <Route path="/crud/:modelKey" element={<CrudWrapper />} />
-          <Route
-            path="/logs"
-            element={isAdmin ? <Logs /> : <Navigate to="/" replace />}
-          />
+          <Route path="/logs" element={isAdmin ? <Logs /> : <Navigate to="/" replace />} />
         </Route>
 
         {/* Qualquer rota desconhecida */}
