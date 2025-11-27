@@ -5,12 +5,7 @@ from pei.models.curso import Curso
 from .curso_serializer import CursoSerializer 
 
 class AlunoSerializer(serializers.ModelSerializer):
-<<<<<<< HEAD
     curso_id = serializers.PrimaryKeyRelatedField(
-=======
-    # Campo para escrita (continua igual)
-    curso = serializers.PrimaryKeyRelatedField(
->>>>>>> 3788010158520222ce0f4f017392395bc15fc2eb
         queryset=Curso.objects.all(),
         source="curso",
         required=False,
@@ -22,9 +17,5 @@ class AlunoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Aluno
-<<<<<<< HEAD
         fields = '__all__'
         depth = 1
-=======
-        fields = '__all__'
->>>>>>> 3788010158520222ce0f4f017392395bc15fc2eb
