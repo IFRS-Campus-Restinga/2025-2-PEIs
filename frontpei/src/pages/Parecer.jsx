@@ -7,7 +7,7 @@ import { validaCampos } from "../utils/validaCampos";
 import "../cssGlobal.css"
 import { API_ROUTES } from "../configs/apiRoutes";
 
-function Pareceres() {
+function Pareceres({usuario}) {
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
 
   useEffect(() => {
@@ -74,31 +74,6 @@ function Pareceres() {
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
     }
-
-    //const confereTexto = texto.trim();
-
-    /* if (confereTexto.length > 1000) {
-      addAlert("O texto do parecer ultrapassa 1000 caracteres.", "warning");
-      return;
-    }
-
-    if (!componenteSelecionado) {
-      addAlert("Preencha o campo: componente", "error", { fieldName: "componente" });
-      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
-      return;
-    }
-
-    if (!professorSelecionado) {
-      addAlert("Preencha o campo: professor", "error", { fieldName: "professor" });
-      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
-      return;
-    }
-
-    if (!confereTexto) {
-      addAlert("Preencha o campo: texto", "error", { fieldName: "texto" });
-      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
-      return;
-    } */
 
     const novoParecer = {
         professor_id: Number(form.professor),

@@ -1,7 +1,7 @@
 import "../src/cssGlobal.css";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Navigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { API_ROUTES } from "./configs/apiRoutes";
 
@@ -50,15 +50,19 @@ import { consultaGrupo } from "./lib/consultaGrupo";
 import CrudWrapper from "./components/crud/crudWrapper.jsx";
 
 function App() {
-  const [usuario, setUsuario] = useState(null);
-  const [logado, setLogado] = useState(false);
+  const [usuario, setUsuario] = useState(() => {
+    const usuarioSalvo = localStorage.getItem("usuario");
+    return usuarioSalvo ? JSON.parse(usuarioSalvo) : null;
+  });
+  const [logado, setLogado] = useState(() => !!localStorage.getItem("usuario"));
   const [mensagemErro, setMensagemErro] = useState(null);
   const [perfilSelecionado, setPerfilSelecionado] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const isAdmin = usuario?.grupos?.some(g => g.toLowerCase() === "admin");
 
-  // carregar usuário do localStorage
+  // carregar usuário do localStorage e validar token
   useEffect(() => {
     async function carregarUsuario() {
       const usuarioSalvo = localStorage.getItem("usuario");
@@ -131,7 +135,6 @@ function App() {
         const respMe = await fetch("http://localhost:8000/api/auth/me/", {
           headers: { "Authorization": `Token ${data.token}` }
         });
-
         const me = await respMe.json();
         const dadosGoogle = jwtDecode(credentialResponse.credential);
         const grupoDoUsuario = await consultaGrupo(data.email);
@@ -151,6 +154,10 @@ function App() {
         setUsuario(userData);
         setLogado(true);
         mandaEmail(data.email, "Login PEI", "Novo login realizado!");
+
+        // Redireciona para rota anterior ou home
+        const from = location.state?.from?.pathname || "/";
+        navigate(from, { replace: true });
         return;
       }
 
@@ -170,6 +177,14 @@ function App() {
     setPerfilSelecionado(null);
     localStorage.removeItem("usuario");
     localStorage.removeItem("token");
+  };
+
+  // ================= PRIVATE ROUTE =================
+  const PrivateRoute = ({ children }) => {
+    if (!logado) {
+      return <Navigate to="/" state={{ from: location }} replace />;
+    }
+    return children;
   };
 
   return (
@@ -199,11 +214,8 @@ function App() {
                     mensagemErro={mensagemErro}
                   />
                 } />
-
                 <Route path="/pre-cadastro" element={<TelaPreCadastro />} />
                 <Route path="/aguardando-aprovacao" element={<AguardandoAprovacao />} />
-
-                {/* Se tentar acessar rota interna sem login → volta pro login */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </>
             )}
@@ -212,52 +224,54 @@ function App() {
             {logado && (
               <>
                 <Route path="/" element={
-                  <Home 
-                    usuario={usuario} 
-                    perfilSelecionado={perfilSelecionado} 
-                    setPerfilSelecionado={setPerfilSelecionado} 
-                  />
+                  <PrivateRoute>
+                    <Home 
+                      usuario={usuario} 
+                      perfilSelecionado={perfilSelecionado} 
+                      setPerfilSelecionado={setPerfilSelecionado} 
+                    />
+                  </PrivateRoute>
                 } />
 
-                <Route path="/pareceres" element={<Pareceres />} />
-                <Route path="/periodo" element={<PEIPeriodoLetivo />} />
-                <Route path="/listar_periodos" element={<PEIPeriodoLetivoLista />} />
-                <Route path="/listar_periodos/:id" element={<PEIPeriodoLetivoLista />} />
-                <Route path="/periodoLetivoPerfil" element={<PeriodoLetivoPerfil />} />
+                <Route path="/pareceres" element={<PrivateRoute><Pareceres /></PrivateRoute>} />
+                <Route path="/periodo" element={<PrivateRoute><PEIPeriodoLetivo /></PrivateRoute>} />
+                <Route path="/listar_periodos" element={<PrivateRoute><PEIPeriodoLetivoLista /></PrivateRoute>} />
+                <Route path="/listar_periodos/:id" element={<PrivateRoute><PEIPeriodoLetivoLista /></PrivateRoute>} />
+                <Route path="/periodoLetivoPerfil" element={<PrivateRoute><PeriodoLetivoPerfil /></PrivateRoute>} />
 
-                <Route path="/disciplina" element={<Disciplinas />} />
-                <Route path="/disciplinasCadastrar" element={<DisciplinasCRUD />} />
-                <Route path="/disciplinaEditar/:id" element={<DisciplinasCRUD />} />
+                <Route path="/disciplina" element={<PrivateRoute><Disciplinas /></PrivateRoute>} />
+                <Route path="/disciplinasCadastrar" element={<PrivateRoute><DisciplinasCRUD /></PrivateRoute>} />
+                <Route path="/disciplinaEditar/:id" element={<PrivateRoute><DisciplinasCRUD /></PrivateRoute>} />
 
-                <Route path="/curso" element={<Cursos />} />
-                <Route path="/cursoCadastrar" element={<CursosCRUD />} />
-                <Route path="/cursoEditar/:id" element={<CursosCRUD />} />
+                <Route path="/curso" element={<PrivateRoute><Cursos /></PrivateRoute>} />
+                <Route path="/cursoCadastrar" element={<PrivateRoute><CursosCRUD /></PrivateRoute>} />
+                <Route path="/cursoEditar/:id" element={<PrivateRoute><CursosCRUD /></PrivateRoute>} />
 
-                <Route path="/aluno" element={<Alunos />} />
-                <Route path="/coordenador" element={<CoordenadorCurso />} />
+                <Route path="/aluno" element={<PrivateRoute><Alunos /></PrivateRoute>} />
+                <Route path="/coordenador" element={<PrivateRoute><CoordenadorCurso /></PrivateRoute>} />
 
-                <Route path="/peicentral" element={<PeiCentral />} />
-                <Route path="/create_peicentral" element={<CreatePeiCentral />} />
-                <Route path="/editar_peicentral/:id" element={<EditarPeiCentral />} />
-                <Route path="/deletar_peicentral/:id" element={<DeletarPeiCentral />} />
+                <Route path="/peicentral" element={<PrivateRoute><PeiCentral /></PrivateRoute>} />
+                <Route path="/create_peicentral" element={<PrivateRoute><CreatePeiCentral /></PrivateRoute>} />
+                <Route path="/editar_peicentral/:id" element={<PrivateRoute><EditarPeiCentral /></PrivateRoute>} />
+                <Route path="/deletar_peicentral/:id" element={<PrivateRoute><DeletarPeiCentral /></PrivateRoute>} />
 
-                <Route path="/componenteCurricular" element={<ComponenteCurricular />} />
-                <Route path="/ataDeAcompanhamento" element={<AtaDeAcompanhamento usuario={usuario} />} />
-                <Route path="/documentacaoComplementar" element={<DocumentacaoComplementar />} />
+                <Route path="/componenteCurricular" element={<PrivateRoute><ComponenteCurricular /></PrivateRoute>} />
+                <Route path="/ataDeAcompanhamento" element={<PrivateRoute><AtaDeAcompanhamento usuario={usuario} /></PrivateRoute>} />
+                <Route path="/documentacaoComplementar" element={<PrivateRoute><DocumentacaoComplementar /></PrivateRoute>} />
 
-                <Route path="/pedagogo" element={<Pedagogos />} />
-                <Route path="/professor" element={<Professor />} />
-                <Route path="/perfil" element={<Perfil />} />
-                <Route path="/conteudo" element={<Conteudo usuario={usuario} />} />
+                <Route path="/pedagogo" element={<PrivateRoute><Pedagogos /></PrivateRoute>} />
+                <Route path="/professor" element={<PrivateRoute><Professor /></PrivateRoute>} />
+                <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
+                <Route path="/conteudo" element={<PrivateRoute><Conteudo usuario={usuario} /></PrivateRoute>} />
 
-                <Route path="/crud/:modelKey" element={<CrudWrapper />} />
+                <Route path="/crud/:modelKey" element={<PrivateRoute><CrudWrapper /></PrivateRoute>} />
 
                 {isAdmin && (
-                  <Route path="/admin/solicitacoes" element={<TelaSolicitacoesPendentes />} />
+                  <Route path="/admin/solicitacoes" element={<PrivateRoute><TelaSolicitacoesPendentes /></PrivateRoute>} />
                 )}
 
                 <Route path="/logs" element={
-                  isAdmin ? <Logs /> : <Navigate to="/" replace />
+                  <PrivateRoute>{isAdmin ? <Logs /> : <Navigate to="/" replace />}</PrivateRoute>
                 } />
 
                 {/* Fallback interno: qualquer rota inválida → home */}
