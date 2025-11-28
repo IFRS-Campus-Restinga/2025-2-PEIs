@@ -111,7 +111,7 @@ function PeiCentral() {
 
     return {
       nome: pei.aluno?.nome || "Sem aluno vinculado",
-      curso: pei.aluno?.curso_obj?.nome || "Sem curso",
+      curso: pei.cursos?.nome || "Sem curso",
       status: pei.status_pei || "Sem status",
       periodo: ultimo?.periodo_principal || "Sem período",
       id: pei.id,
@@ -187,8 +187,8 @@ function PeiCentral() {
                 decimal: ",",
                 thousands: ".",
                 search: "Pesquisar:",
-                lengthMenu: "Mostrar _MENU_ PEIs",
-                info: "Mostrando de _START_ até _END_ de _TOTAL_ PEIs",
+                lengthMenu: "Mostrar MENU PEIs",
+                info: "Mostrando de START até END de TOTAL PEIs",
                 zeroRecords: "Nenhum PEI encontrado",
                 emptyTable: "Sem dados",
                 paginate: {
@@ -327,7 +327,7 @@ function PeiCentral() {
                 <div>
                   <p><b>Aluno:</b> {selectPei.aluno?.nome}</p>
                   <p><b>Matrícula:</b> {selectPei.aluno?.matricula}</p>
-                  <p><b>Curso:</b> {selectPei.aluno?.curso?.nome}</p>
+                  <p><b>Curso:</b> {selectPei.cursos?.nome}</p>
                 </div>
                 <div>
                   <p><b>Status:</b> {selectPei.status_pei}</p>
@@ -344,11 +344,11 @@ function PeiCentral() {
               <br /><br />
 
               <div style={{ textAlign: 'center' }}>
-                <p><b>Assinatura Docente:</b><br />_________________________________________</p>
-                <p><b>Assinatura Coordenador de Curso:</b><br />_________________________________________</p>
-                <p><b>Assinatura NAPNE/NAAf (Reponsável):</b><br />_________________________________________</p>
-                <p><b>Assinatura Setor Pedagógico (Reponsável):</b><br />_________________________________________</p>
-                <p><b>Assinatura Assistência Estudantil (Reponsável):</b><br />_________________________________________</p>
+                <p><b>Assinatura Docente:</b><br />_______________</p>
+                <p><b>Assinatura Coordenador de Curso:</b><br />_______________</p>
+                <p><b>Assinatura NAPNE/NAAf (Reponsável):</b><br />_______________</p>
+                <p><b>Assinatura Setor Pedagógico (Reponsável):</b><br />_______________</p>
+                <p><b>Assinatura Assistência Estudantil (Reponsável):</b><br />_______________</p>
               </div>
 
             </div>
