@@ -8,6 +8,8 @@ import DataTable from "datatables.net-react";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import logo from '../../assets/logo.png';
 import logo_nome from '../../assets/logo-sem-nome.png';
+import { useMemo } from "react";
+
 
 DataTable.use(DT);
 
@@ -103,8 +105,9 @@ function PeiCentral() {
   };
 
   
-  const dadosTabela = peiCentral.map((pei) => {
-    const ultimo = getUltimoPeriodo(pei);
+  const dadosTabela = useMemo(() =>{
+    return peiCentral.map((pei) => {
+      const ultimo = getUltimoPeriodo(pei);
 
     return {
       nome: pei.aluno?.nome || "Sem aluno vinculado",
@@ -113,7 +116,8 @@ function PeiCentral() {
       periodo: ultimo?.periodo_principal || "Sem período",
       id: pei.id,
     };
-  });
+    });
+  }, [peiCentral]);
 
   return (
     <div className="telaPadrao-page">
