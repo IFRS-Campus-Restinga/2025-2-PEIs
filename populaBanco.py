@@ -106,7 +106,7 @@ def criar_pedagogos():
 
 def criar_professores():
     nomes = [
-        "Carlos Andrade", "Fernanda Lima", "Rafael Souza",
+        "Gabriel Lisboa Costa", "Fernanda Lima", "Rafael Souza",
         "Juliana Torres", "Marcelo Cunha", "Patrícia Mendes"
     ]
     for nome in nomes:
