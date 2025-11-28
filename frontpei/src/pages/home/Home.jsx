@@ -14,13 +14,10 @@ const HomeView = () => {
   const [nomeCompleto, setNomeCompleto] = useState("Usuário");
   const [meusGrupos, setMeusGrupos] = useState([]);
   const [token, setToken] = useState("");
-  
-  // Restauramos o identificadorUsuario para ter o username do email também
-  const [identificadorUsuario, setIdentificadorUsuario] = useState(""); 
-  
+  const [identificadorUsuario, setIdentificadorUsuario] = useState("");
+
   const navigate = useNavigate();
 
-  // Normaliza texto: remove acentos, pontos, underlines, múltiplos espaços
   const normalizar = (str = "") =>
     str
       .normalize("NFD")
@@ -30,7 +27,7 @@ const HomeView = () => {
       .trim()
       .toLowerCase();
 
-  // 1) Carrega usuário do localStorage
+  // Carrega usuário
   useEffect(() => {
     const usuarioSalvo = localStorage.getItem("usuario");
     if (!usuarioSalvo) {
@@ -49,11 +46,8 @@ const HomeView = () => {
         return;
       }
 
-      // Lógica restaurada para pegar username do email
       const usernameDoEmail = email.split("@")[0].toLowerCase().trim();
       const nomeCompletoLower = nomeUsuario.toLowerCase().trim();
-      
-      // Identificador composto para comparação robusta
       const identificador = usernameDoEmail || nomeCompletoLower;
 
       setToken(tokenSalvo);
@@ -66,48 +60,24 @@ const HomeView = () => {
     }
   }, [navigate]);
 
-  // 2) Extrai info do coordenador (nome + normalizado)
+  // Função para coordenador
   const getCoordenadorInfo = (pei) => {
     try {
-      let coord = null;
-
-      // Prioridade 1: Curso vinculado ao aluno (via serializer atualizado)
-      if (pei.aluno?.curso_detalhes?.coordenador) {
-        coord = pei.aluno.curso_detalhes.coordenador;
-      } else {
-        // Fallback: Tenta pegar das disciplinas
-        for (const periodo of pei.periodos || []) {
-          for (const comp of periodo.componentes_curriculares || []) {
-            const disc = comp.disciplina || comp.disciplinas;
-            if (disc?.cursos?.[0]?.coordenador) {
-              coord = disc.cursos[0].coordenador;
-              break;
-            }
-          }
-          if (coord) break;
-        }
-      }
-
+      let coord = pei.cursos?.coordenador;
       if (!coord) return null;
 
-      // Extrai dados possíveis do objeto coordenador
       const nomeExibicao = coord.nome || coord.username || coord.email?.split("@")[0] || "—";
-      
-      // Normaliza todas as possibilidades para comparação
-      const possiveisNomes = [
-          coord.nome, 
-          coord.username, 
-          coord.email?.split("@")[0]
-      ].filter(Boolean).map(normalizar);
+      const possiveisNomes = [coord.nome, coord.username, coord.email?.split("@")[0]]
+        .filter(Boolean)
+        .map(normalizar);
 
       return { nomeExibicao, possiveisNomes };
-
-    } catch (e) {
+    } catch {
       return null;
     }
   };
 
-  // 3) Verifica se o professor logado deu parecer nesse PEI
+  // Função para verificar se o professor já tem parecer
   const temMeuParecer = (pei) => {
     const meuIdentificadorNorm = normalizar(identificadorUsuario);
     const meuNomeNorm = normalizar(nomeCompleto);
@@ -121,11 +91,11 @@ const HomeView = () => {
           const candidatos = [
             prof.nome,
             prof.username,
-            prof.email ? prof.email.split("@")[0] : null
+            prof.email?.split("@")[0]
           ].filter(Boolean).map(normalizar);
 
-          return candidatos.some(c => 
-            c.includes(meuIdentificadorNorm) || 
+          return candidatos.some(c =>
+            c.includes(meuIdentificadorNorm) ||
             meuIdentificadorNorm.includes(c) ||
             c.includes(meuNomeNorm) ||
             meuNomeNorm.includes(c)
@@ -135,67 +105,91 @@ const HomeView = () => {
     );
   };
 
-  // 4) Carrega e filtra PEIs
+  // Cria instância Axios para disciplinas
+  const DBDISCIPLINAS = axios.create({
+    baseURL: API_ROUTES.DISCIPLINAS,
+    headers: { Authorization: `Token ${token}` },
+  });
+
+  // Carrega e filtra PEIs
   useEffect(() => {
     if (!token || !identificadorUsuario) return;
 
     async function load() {
       try {
         setLoading(true);
-        const res = await axios.get(API_ROUTES.PEI_CENTRAL, {
+
+        // GET PEIs
+        const resPei = await axios.get(API_ROUTES.PEI_CENTRAL, {
           headers: { Authorization: `Token ${token}` },
         });
+        const peis = resPei.data.results || resPei.data || [];
 
-        const peis = res.data.results || res.data || [];
-        
-        const meuNomeNorm = normalizar(nomeCompleto);
+        // GET todas as disciplinas
+        const resDiscs = await DBDISCIPLINAS.get("/");
+        const todasDisciplinas = resDiscs.data.results || resDiscs.data || [];
+
         const meuIdentificadorNorm = normalizar(identificadorUsuario);
-        
+        const meuNomeNorm = normalizar(nomeCompleto);
         const souCoordenador = meusGrupos.includes("coordenador");
         const souProfessor = meusGrupos.includes("professor");
 
-        const dados = peis.map((pei) => {
-          const comp = pei.periodos?.[0]?.componentes_curriculares?.[0];
-          const disciplina = comp?.disciplina || comp?.disciplinas || {};
+        // Processa PEIs
+        const dados = peis.map(pei => {
+          const comps = pei.periodos?.[0]?.componentes_curriculares || [];
+          const disciplinasDoPei = comps.map(c => c.disciplina).filter(Boolean);
+
+          // Filtra apenas disciplinas do professor logado
+          const disciplinasDoProf = disciplinasDoPei.filter(d => {
+            const discSistema = todasDisciplinas.find(td => td.id === d.id);
+            if (!discSistema?.professores) return false;
+
+            return discSistema.professores.some(prof => {
+              const candidatos = [
+                prof.nome,
+                prof.username,
+                prof.email?.split("@")[0]
+              ].filter(Boolean).map(normalizar);
+
+              return candidatos.includes(meuIdentificadorNorm);
+            });
+          });
+
           const coordInfo = getCoordenadorInfo(pei);
 
           return {
             nome: pei.aluno_nome || pei.aluno?.nome || "Sem nome",
-            componente: disciplina.nome || "Diversos",
+            componente: disciplinasDoProf[0]?.nome || "Diversos",
             status: pei.status_pei || "ABERTO",
             coordenador: coordInfo?.nomeExibicao || "—",
             coordPossiveisNomes: coordInfo?.possiveisNomes || [],
             peiCentralId: pei.id,
             temMeuParecer: temMeuParecer(pei),
+            disciplinasGet: disciplinasDoProf
           };
         });
 
-        const dadosFiltrados = dados.filter((item) => {
-          // COORDENADOR
+        // Filtra PEIs visíveis para o usuário
+        const dadosFiltrados = dados.filter(item => {
           if (souCoordenador) {
-            // Se não achou info do coordenador no PEI, esconde por segurança
-            if (!item.coordPossiveisNomes || item.coordPossiveisNomes.length === 0) return false;
-            
-            // Verifica se ALGUM dos nomes possíveis do coordenador do PEI bate com ALGUM dos meus identificadores
-            const bateCoord = item.coordPossiveisNomes.some(nomeC => 
-                nomeC.includes(meuIdentificadorNorm) || 
-                meuIdentificadorNorm.includes(nomeC) ||
-                nomeC.includes(meuNomeNorm) ||
-                meuNomeNorm.includes(nomeC)
+            if (!item.coordPossiveisNomes?.length) return false;
+            return item.coordPossiveisNomes.some(nomeC =>
+              nomeC.includes(meuIdentificadorNorm) ||
+              meuIdentificadorNorm.includes(nomeC) ||
+              nomeC.includes(meuNomeNorm) ||
+              meuNomeNorm.includes(nomeC)
             );
-            
-            if (!bateCoord) return false;
           }
 
-          // PROFESSOR (só vê onde já deu parecer)
           if (souProfessor && !souCoordenador) {
-            if (!item.temMeuParecer) return false;
+            return item.temMeuParecer || (item.disciplinasGet?.length > 0);
           }
 
           return true;
         });
 
         setTableData(dadosFiltrados);
+
       } catch (err) {
         console.error("Erro ao carregar PEIs:", err);
         if (err.response?.status === 401) {
