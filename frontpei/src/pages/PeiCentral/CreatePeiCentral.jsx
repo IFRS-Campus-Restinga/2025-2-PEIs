@@ -77,7 +77,7 @@ function CreatePeiCentral() {
 
   // NOVO — lista filtrada de alunos
   const alunosFiltrados = cursoSelecionado
-    ? alunos.filter((a) => a.curso?.id === Number(cursoSelecionado))
+    ? alunos.filter((a) => a.curso_obj?.id === Number(cursoSelecionado))
     : alunos;
 
   async function handleSubmit(e) {
@@ -141,7 +141,7 @@ function CreatePeiCentral() {
   }
 
   return (
-    <div className="container">
+    <div className="container-padrao">
       <h1 className="text-xl font-bold mb-4">Criar PEI Central</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">

@@ -253,7 +253,7 @@ const HomeView = () => {
               orderable: false,
               render: (id) => `
                 <button class="btn-verde visualizar-btn" data-id="${id}" style="padding: 8px 16px; font-size: 0.9em;">
-                  Visualizar
+                  Gerenciar
                 </button>
               `,
             },

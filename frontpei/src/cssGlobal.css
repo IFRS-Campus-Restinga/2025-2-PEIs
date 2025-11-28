@@ -16,6 +16,7 @@ body {
   font-family: 'Roboto', sans-serif;
   background-image: url('./assets/Papel_de_parede1.jpg');
   line-height: 1.6;
+   padding-bottom: 60px;
 }
 .app-container {
   display: flex;
@@ -228,7 +229,7 @@ body {
   justify-content: space-between; align-items: center;
   flex-wrap: wrap; font-size: 13px;
   box-shadow: 0 -2px 8px rgba(0,0,0,.1);
-  position: relative; bottom: 0; width: fluid;
+  position: fixed; bottom: 0; width: 98%;
   border-top: 2px solid #ccc; font-family: 'Roboto', sans-serif;
   opacity: 0; transform: translateY(20px);
   animation: footerFadeIn .5s ease forwards;
