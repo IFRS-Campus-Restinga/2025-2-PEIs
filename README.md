@@ -11,8 +11,8 @@ ou mesmo para continuar o desenvolvimento a partir da branch main.</p>
 Para fazer uso completo da automação criada para desenvolvimento, vai ser necessário estar usando Windows. Use uma máquina do campus ou uma VM, a delimitação de sistema operacional
 foi criada justamente para a uniformidade do ambiente e baseada no uso pessoal da equipe de desenvolvimento e das máquinas do campus. Segue o link de download:</p>
 
-<p>Atualizado:</p>
-<a href="https://drive.google.com/file/d/1Vo7cUiN5Pftxs0ZVdKJrlYCkegWFXIA1">https://drive.google.com/file/d/1Vo7cUiN5Pftxs0ZVdKJrlYCkegWFXIA1</a>
+<p>Atualizado:
+<a href="https://drive.google.com/file/d/1Vo7cUiN5Pftxs0ZVdKJrlYCkegWFXIA1">https://drive.google.com/file/d/1Vo7cUiN5Pftxs0ZVdKJrlYCkegWFXIA1</a></p>
 
 <p>Basta criar uma pasta qualquer e descompactar o conteúdo do ZIP, logo após ele é dispensável. Usaremos como exemplo uma pasta chamada "dev2" criada na área de trabalho. O ZIP vai
 lhe fornecer todo o ambiente Python, Node e Git que é dependência para nosso projeto. Não é necessária nenhuma instalação e nenhuma alteração será feita na sua instalação de Windows,
