@@ -24,10 +24,10 @@ class ComponenteCurricular(BaseModel):
         null=False
     )
 
-    periodo_letivo = models.ForeignKey(
+    periodos_letivos = models.ManyToManyField(
         "pei.PEIPeriodoLetivo",
-        on_delete=models.CASCADE,  
-        related_name="componentes_curriculares"   
+        related_name="componentes_curriculares",
+        blank=True
     )
     
     def __str__(self):

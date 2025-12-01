@@ -240,15 +240,17 @@ def criar_componentes_curriculares():
     for i, disc in enumerate(disciplinas):
         periodo = periodos[i % len(periodos)]
 
-        ComponenteCurricular.objects.create(
+        componente = ComponenteCurricular.objects.create(
             objetivos="Objetivos do componente.",
             conteudo_prog="1",
             metodologia="Metodologia padrão.",
-            disciplinas=disc,
-            periodo_letivo=periodo
+            disciplinas=disc
         )
 
+        componente.periodos_letivos.add(periodo)
+
     print("Componentes curriculares criados")
+
 
 
 def criar_pareceres():
