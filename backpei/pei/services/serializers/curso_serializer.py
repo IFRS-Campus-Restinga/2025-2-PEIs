@@ -53,3 +53,20 @@ class CursoSerializer(serializers.ModelSerializer):
         if disciplinas is not None:
             instance.disciplinas.set(disciplinas)
         return instance
+    
+    def to_internal_value(self, data):
+        # Permitir que o front envie "coordenador": 5
+        # ou "coordenador": { "id": 5 }
+        if "coordenador" in data and "coordenador_id" not in data:
+            value = data["coordenador"]
+
+            # se vier objeto { id: X }
+            if isinstance(value, dict) and "id" in value:
+                data = data.copy()
+                data["coordenador_id"] = value["id"]
+            else:
+                # se vier número direto
+                data = data.copy()
+                data["coordenador_id"] = value
+
+        return super().to_internal_value(data)
