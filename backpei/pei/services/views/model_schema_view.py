@@ -80,6 +80,9 @@ class ModelSchemaView(ViewSet):
                 info["type"] = "select"
                 info["related_model"] = field.related_model._meta.object_name
 
+
+                if field.name == "coordenador": #TODO: REVISAR E VER SE FUNCIONA EM CASA
+                    info["related_endpoint"] = "http://localhost:8000/services/usuario/?grupo=Coordenador"
                 # 🔥 Ajuste: serializer usa <campo>_id
                 info["name"] = f"{field.name}"
 
