@@ -23,7 +23,7 @@ function Pareceres({ usuario }) {
   const [carregando, setCarregando] = useState(true);
   const [componentes, setComponentes] = useState([]);
   const [disciplinas, setDisciplinas] = useState([]);
-  const [usuarioId, setUsuarioId] = useState(null); 
+  const [usuarioId, setUsuarioId] = useState(null); // id do usuário logado
   const [form, setForm] = useState({ disciplina: "", texto: "" });
 
   useEffect(() => {
