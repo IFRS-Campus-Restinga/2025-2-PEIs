@@ -18,15 +18,14 @@ function Pareceres({ usuario }) {
   const DBPEI = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
   const DBPARECERES = axios.create({ baseURL: API_ROUTES.PARECER });
   const DBCOMPONENTECURRICULAR = axios.create({ baseURL: API_ROUTES.COMPONENTECURRICULAR });
-  const DBUSUARIOS = axios.create({ baseURL: API_ROUTES.USUARIO }); // endpoint para todos usuários
+  const DBUSUARIOS = axios.create({ baseURL: API_ROUTES.USUARIO });
 
   const [carregando, setCarregando] = useState(true);
   const [componentes, setComponentes] = useState([]);
   const [disciplinas, setDisciplinas] = useState([]);
-  const [usuarioId, setUsuarioId] = useState(null); // id do usuário logado
+  const [usuarioId, setUsuarioId] = useState(null); 
   const [form, setForm] = useState({ disciplina: "", texto: "" });
 
-  // Atualiza PEI Central do localStorage
   useEffect(() => {
     if (peiIdFromState) {
       localStorage.setItem("peiCentralId", peiIdFromState);
@@ -35,7 +34,6 @@ function Pareceres({ usuario }) {
     }
   }, [peiIdFromState]);
 
-  // Carrega disciplinas, componentes curriculares e id do usuário logado
   useEffect(() => {
     async function carregarDisciplinas() {
       clearAlerts();
@@ -48,20 +46,26 @@ function Pareceres({ usuario }) {
       }
 
       try {
-        // 1. Carrega dados do PEI Central
         const resPEI = await DBPEI.get(`${peiCentralId}/`);
         const dadosPEI = resPEI.data || {};
         console.log("Dados do PEI Central recebidos:", dadosPEI);
 
-        const disciplinasPEI = dadosPEI.disciplinas || [];
-        console.log("Disciplinas do PEI:", disciplinasPEI);
-        setDisciplinas(disciplinasPEI);
+        const disciplinasPEI = (dadosPEI.periodos || [])
+          .flatMap(p => p.componentes_curriculares || [])
+          .map(c => c.disciplina)
+          .filter(Boolean);
 
-        if (disciplinasPEI.length === 0) {
-          addAlert("Nenhuma disciplina encontrada para o curso do aluno.", "error");
+        const disciplinasDoProfessor = disciplinasPEI.filter(d => 
+          Array.isArray(d.professores) && d.professores.some(p => p.email === usuario.email)
+        );
+
+        console.log("Disciplinas do PEI filtradas pelo professor logado:", disciplinasDoProfessor);
+        setDisciplinas(disciplinasDoProfessor);
+
+        if (disciplinasDoProfessor.length === 0) {
+          addAlert("Nenhuma disciplina encontrada para o professor logado.", "error");
         }
 
-        // 2. Carrega todos os componentes curriculares do sistema
         const resComponentes = await DBCOMPONENTECURRICULAR.get("/");
         const todosComponentes = Array.isArray(resComponentes.data)
           ? resComponentes.data
@@ -69,15 +73,13 @@ function Pareceres({ usuario }) {
 
         console.log("Todos componentes curriculares do sistema:", todosComponentes);
 
-        // 3. Filtra apenas os componentes que correspondem às disciplinas do PEI
         const componentesFiltrados = todosComponentes.filter(c =>
-          disciplinasPEI.some(d => d.nome === c.disciplina?.nome)
+          disciplinasDoProfessor.some(d => d.nome === c.disciplina?.nome)
         );
 
         console.log("Componentes filtrados pelas disciplinas do PEI:", componentesFiltrados);
         setComponentes(componentesFiltrados);
 
-        // 4. Carrega todos os usuários e encontra o id do logado pelo email
         const resUsuarios = await DBUSUARIOS.get("/");
         const todosUsuarios = Array.isArray(resUsuarios.data)
           ? resUsuarios.data
@@ -125,7 +127,6 @@ function Pareceres({ usuario }) {
     console.log("Form enviado:", form);
     console.log("Componentes carregados:", componentes);
 
-    // Encontrar o componente curricular correto pela disciplina (comparando pelo nome)
     const disciplinaSelecionada = disciplinas.find(d => d.id === Number(form.disciplina));
     console.log("Disciplina selecionada no dropdown:", disciplinaSelecionada);
 
