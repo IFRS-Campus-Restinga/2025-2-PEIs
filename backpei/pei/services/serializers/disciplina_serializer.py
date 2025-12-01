@@ -10,16 +10,25 @@ class ProfessorSerializer(serializers.ModelSerializer):
         fields = '__all__'
         # Se quiser incluir categoria ou grupos, só avisar.
 
-class DisciplinaSerializer(serializers.ModelSerializer):
+class DisciplinaSerializerParecer(serializers.ModelSerializer):
     cursos = serializers.SerializerMethodField()
     professores = ProfessorSerializer(many=True, read_only=True)
 
-    professores = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=User.objects.filter(groups__name='Professor'),
-        required=False,
-        write_only=False,
-    )
+    class Meta:
+        model = Disciplina
+        fields = ['id', 'nome', 'cursos', 'professores']
+
+    def get_cursos(self, obj):
+        # ManyToMany, precisamos usar .all()
+        return CursoSerializer(obj.cursos.all(), many=True).data
+    
+
+class DisciplinaSerializer(serializers.ModelSerializer):
+    cursos = serializers.SerializerMethodField()
+    professores = serializers.PrimaryKeyRelatedField( 
+        many=True, 
+        queryset=User.objects.filter(groups__name='Professor'), 
+        required=False, write_only=False, )
 
     class Meta:
         model = Disciplina
