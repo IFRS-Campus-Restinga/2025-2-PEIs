@@ -273,23 +273,34 @@ function CrudUniversal({ modelName }) {
     }
 
     if (f.type === "foreignkey" || (f.type === "select" && f.related_model)) {
-      const options = selectOptions[f.name] || [];
-      return (
-        <select
-          value={value || ""}
-          onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
-        >
-          <option value="">Selecione...</option>
-          {options.map((opt) => {
-            const label =
-              opt.nome ||
-              (opt.first_name || opt.last_name ? `${opt.first_name || ""} ${opt.last_name || ""}`.trim() : opt.username) ||
-              opt.id;
-            return <option key={opt.id} value={opt.id}>{label}</option>;
-          })}
-        </select>
-      );
-    }
+  const options = selectOptions[f.name] || [];
+  return (
+    <select
+      value={value || ""}
+      onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
+    >
+      <option value="">Selecione...</option>
+      {options.map((opt) => {
+        const label =
+          opt.nome || // valor direto
+          opt.label ||
+          (opt.aluno && opt.aluno.nome) || //  CORREÇÃO AQUI
+          (opt.first_name || opt.last_name
+            ? `${opt.first_name || ""} ${opt.last_name || ""}`.trim()
+            : null) ||
+          opt.username ||
+          opt.id;
+
+        return (
+          <option key={opt.id} value={opt.id}>
+            {label}
+          </option>
+        );
+      })}
+    </select>
+  );
+}
+
 
     if (f.type === "multiselect") {
       const options = selectOptions[f.name] || [];

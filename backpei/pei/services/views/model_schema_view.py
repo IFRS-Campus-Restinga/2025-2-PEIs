@@ -22,6 +22,13 @@ ENDPOINT_MAP = {
 }
 
 
+# CAMPOS QUE NÃO DEVEM APARECER NO FORMULÁRIO
+HIDDEN_FIELDS = {
+    "periodo_principal",
+    # basta adicionar mais nomes aqui no futuro
+}
+
+
 class ModelSchemaView(ViewSet):
 
     def list(self, request):
@@ -53,6 +60,14 @@ class ModelSchemaView(ViewSet):
             if field.auto_created and not field.concrete:
                 continue
 
+            # regra de ocultar campos
+            if field.name in HIDDEN_FIELDS:
+                continue
+
+            # ignora campos não editáveis
+            if not getattr(field, "editable", True):
+                continue
+            
             info = {
                 "name": field.name,
                 "required": not getattr(field, "null", False),
@@ -80,11 +95,8 @@ class ModelSchemaView(ViewSet):
                 info["type"] = "select"
                 info["related_model"] = field.related_model._meta.object_name
 
-
-                if field.name == "coordenador": #TODO: REVISAR E VER SE FUNCIONA EM CASA
+                if field.name == "coordenador":
                     info["related_endpoint"] = "http://localhost:8000/services/usuario/?grupo=Coordenador"
-                # 🔥 Ajuste: serializer usa <campo>_id
-                info["name"] = f"{field.name}"
 
             # ------------------------
             # MANY TO MANY
