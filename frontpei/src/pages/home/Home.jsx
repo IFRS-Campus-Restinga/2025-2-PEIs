@@ -60,7 +60,6 @@ const HomeView = () => {
     }
   }, [navigate]);
 
-  // Função para coordenador
   const getCoordenadorInfo = (pei) => {
     try {
       let coord = pei.cursos?.coordenador;
@@ -77,7 +76,6 @@ const HomeView = () => {
     }
   };
 
-  // Função para verificar se o professor já tem parecer
   const temMeuParecer = (pei) => {
     const meuIdentificadorNorm = normalizar(identificadorUsuario);
     const meuNomeNorm = normalizar(nomeCompleto);
@@ -105,13 +103,23 @@ const HomeView = () => {
     );
   };
 
-  // Cria instância Axios para disciplinas
   const DBDISCIPLINAS = axios.create({
     baseURL: API_ROUTES.DISCIPLINAS,
     headers: { Authorization: `Token ${token}` },
   });
 
-  // Carrega e filtra PEIs
+  // FUNÇÃO CORRIGIDA PARA SEU ENUM REAL
+  const obterStatusFormatado = (status_pei) => {
+    const mapa = {
+      "CONCLUÍDO": "CONCLUÍDO",
+      "SUSPENSO": "SUSPENSO",
+      "EM ANDAMENTO": "EM ANDAMENTO",
+      "ABERTO": "ABERTO"
+    };
+    return mapa[status_pei] || "ABERTO";
+  };
+
+  // Carrega PEIs
   useEffect(() => {
     if (!token || !identificadorUsuario) return;
 
@@ -119,13 +127,11 @@ const HomeView = () => {
       try {
         setLoading(true);
 
-        // GET PEIs
         const resPei = await axios.get(API_ROUTES.PEI_CENTRAL, {
           headers: { Authorization: `Token ${token}` },
         });
         const peis = resPei.data.results || resPei.data || [];
 
-        // GET todas as disciplinas
         const resDiscs = await DBDISCIPLINAS.get("/");
         const todasDisciplinas = resDiscs.data.results || resDiscs.data || [];
 
@@ -135,40 +141,29 @@ const HomeView = () => {
         const souProfessor = meusGrupos.includes("professor");
         const souAdmin = meusGrupos.includes("admin");
 
-        // Processa PEIs
         const dados = peis.map(pei => {
           const comps = pei.periodos?.[0]?.componentes_curriculares || [];
           const disciplinasDoPei = comps.map(c => c.disciplina).filter(Boolean);
 
-          let disciplinasDoProf;
-
-          if (souAdmin) {
-            // Admin vê todas as disciplinas
-            disciplinasDoProf = disciplinasDoPei;
-          } else {
-            // Professores veem apenas as disciplinas vinculadas a eles
-            disciplinasDoProf = disciplinasDoPei.filter(d => {
-              const discSistema = todasDisciplinas.find(td => td.id === d.id);
-              if (!discSistema?.professores) return false;
-
-              return discSistema.professores.some(prof => {
-                const candidatos = [
-                  prof.nome,
-                  prof.username,
-                  prof.email?.split("@")[0]
-                ].filter(Boolean).map(normalizar);
-
-                return candidatos.includes(meuIdentificadorNorm);
+          let disciplinasDoProf = souAdmin
+            ? disciplinasDoPei
+            : disciplinasDoPei.filter(d => {
+                const discSistema = todasDisciplinas.find(td => td.id === d.id);
+                if (!discSistema?.professores) return false;
+                return discSistema.professores.some(prof => {
+                  const candidatos = [prof.nome, prof.username, prof.email?.split("@")[0]]
+                    .filter(Boolean)
+                    .map(normalizar);
+                  return candidatos.includes(meuIdentificadorNorm);
+                });
               });
-            });
-          }
 
           const coordInfo = getCoordenadorInfo(pei);
 
           return {
             nome: pei.aluno_nome || pei.aluno?.nome || "Sem nome",
             componente: disciplinasDoProf.map(d => d.nome).join(", ") || "Nenhuma",
-            status: pei.status_pei || "ABERTO",
+            status: obterStatusFormatado(pei.status_pei), // AGORA CORRETO!
             coordenador: coordInfo?.nomeExibicao || "—",
             coordPossiveisNomes: coordInfo?.possiveisNomes || [],
             peiCentralId: pei.id,
@@ -177,12 +172,9 @@ const HomeView = () => {
           };
         });
 
-        // Filtra PEIs visíveis para o usuário
+        // Filtra PEIs
         const dadosFiltrados = dados.filter(item => {
-          if (souAdmin) {
-            return true; // Admin vê todos os PEIs
-          }
-
+          if (souAdmin) return true;
           if (souCoordenador) {
             if (!item.coordPossiveisNomes?.length) return false;
             return item.coordPossiveisNomes.some(nomeC =>
@@ -192,11 +184,9 @@ const HomeView = () => {
               meuNomeNorm.includes(nomeC)
             );
           }
-
           if (souProfessor && !souCoordenador) {
             return item.temMeuParecer || (item.disciplinasGet?.length > 0);
           }
-
           return true;
         });
 
@@ -216,7 +206,7 @@ const HomeView = () => {
     load();
   }, [token, identificadorUsuario, nomeCompleto, meusGrupos, navigate]);
 
-  // Botão Visualizar
+  // Botão Gerenciar
   useEffect(() => {
     const handler = (e) => {
       if (e.target.classList.contains("visualizar-btn")) {
@@ -251,7 +241,21 @@ const HomeView = () => {
           columns={[
             { title: "Aluno", data: "nome" },
             { title: "Componente", data: "componente" },
-            { title: "Status", data: "status" },
+            {
+              title: "Status",
+              data: "status",
+              render: (data) => {
+                const cores = {
+                  "CONCLUÍDO": "#28a745",
+                  "SUSPENSO": "#ffc107",
+                  "EM ANDAMENTO": "#15a1b9",
+                  "ABERTO": "#6c757d"
+                };
+                const corFundo = cores[data] || "#6c757d";
+                const corTexto = data === "EM ANDAMENTO" ? "white" : "#ffffff";
+                return `<span style="padding:8px 16px; border-radius:30px; background:${corFundo}; color:${corTexto}; font-weight:bold; font-size:0.9em; text-transform:uppercase;">${data}</span>`;
+              }
+            },
             { title: "Coordenador", data: "coordenador" },
             {
               title: "Ação",

@@ -225,7 +225,7 @@ body {
    ======================================== */
 .footer {
   background: #f2f2f2; color: #333;
-  padding: 12px 24px; display: flex;
+  padding: 12px 15px; display: flex;
   justify-content: space-between; align-items: center;
   flex-wrap: wrap; font-size: 13px;
   box-shadow: 0 -2px 8px rgba(0,0,0,.1);
@@ -288,6 +288,7 @@ body {
 }
 
 .botao-deletar:hover,
+.btn-finalizar-pei:hover,
 .btn-encerrar:hover,
 .professor-buttons button:last-of-type:hover,
 .btn-group button:last-of-type:hover {
@@ -298,10 +299,10 @@ body {
   box-shadow: 0 2px 6px rgba(245,9,9,.2);
 }
 
-.btn-suspender:hover {
+.btn-suspender-pei:hover {
   background: #fff !important;
-  color: #d4a017 !important;
-  border: 1px solid #d4a017 !important;
+  color: #fbc02d !important;
+  border: 1px solid #fbc02d !important;
   transform: scale(1.02);
   box-shadow: 0 2px 6px rgba(212,160,23,.2);
 }
@@ -335,8 +336,20 @@ body {
   width: fit-content; border: 1px solid transparent;
 }
 
-.botao-deletar {
+.botao-deletar,
+.btn-finalizar-pei  {
   background: #f50909; color: #fff;
+  border: none; border-radius: 6px;
+  padding: 6px 12px; cursor: pointer;
+  font-weight: bold; transition: all .3s ease;
+  display: block; justify-content: center;
+  margin-top: 20px; text-decoration: none;
+  width: fit-content; border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.btn-suspender-pei { 
+  background: #fbc02d; color: #fff;
   border: none; border-radius: 6px;
   padding: 6px 12px; cursor: pointer;
   font-weight: bold; transition: all .3s ease;
@@ -395,7 +408,7 @@ body {
   border: 2px solid transparent;
 }
 .btn-encerrar { background: #d32f2f; color: #fff; }
-.btn-suspender { background: #fbc02d; color: #fff; }
+
 
 /* Posição de botões lado a lado (editar/deletar) */
 .posicao-buttons {
@@ -1848,5 +1861,75 @@ input:checked + .slider:before {
 .alert-close:hover {
   color: #555;
 }
+
+/* ========================================
+   STATUS PEI
+   ======================================== */
+.status-badge {
+  padding: 8px 16px;
+  border-radius: 30px;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.9em;
+}
+
+.status-badge.concluido   { background: #28a745; }
+.status-badge.suspenso    { background: #ffc107; }
+.status-badge.em_andamento { background: #35c3dc; }
+.status-badge.aberto { background: #6c757d !important; color: white !important; }
+
+/* Remove hover dos botões desabilitados */
+.btn-finalizar-pei:disabled,
+.btn-suspender-pei:disabled,
+.btn-finalizar-pei.concluido,
+.btn-suspender-pei.suspenso {
+  opacity: 0.65;
+  cursor: not-allowed;
+  pointer-events: none; /* IMPORTANTE: desativa hover completamente */
+  box-shadow: none !important;
+}
+
+/* Garante que não mude de cor no hover */
+.btn-finalizar-pei:disabled:hover,
+.btn-suspender-pei:disabled:hover {
+  background-color: #6c757d !important;
+  color: white !important;
+}
+
+.btn-finalizar-pei.concluido{
+  background: #f50909 !important;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-suspender-pei.suspenso {
+  background: #fbc02d !important;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-reabrir-pei {
+  background: #007bff; /* azul */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-reabrir-pei:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+}
+
+.btn-reabrir-pei:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 
 
