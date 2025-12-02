@@ -283,7 +283,22 @@ function CrudUniversal({ modelName }) {
       `[RENDER INPUT] Campo: ${f.name}, Tipo: ${f.type}, Valor:`,
       value
     );
+    // Normalização dos tipos vindos do schema DRF
+    let fieldType = f.type;
 
+    // DateField → date
+    if (f.type === "DateField") {
+      fieldType = "date";
+    }
+
+    // DateTimeField → datetime
+    if (f.type === "DateTimeField") {
+      fieldType = "datetime";
+    }
+    // FileField → file
+    if (f.type === "FileField") {
+      fieldType = "file";
+    }
     // SELECT (ENUM)
     if (f.type === "select" && f.choices) {
       return (
@@ -358,7 +373,35 @@ function CrudUniversal({ modelName }) {
         </div>
       );
     }
-
+    // DATE
+    if (fieldType === "date") {
+      return (
+        <input
+          type="date"
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      );
+    }
+    // DATETIME
+    if (fieldType === "datetime") {
+      return (
+        <input
+          type="datetime-local"
+          value={value ? value.substring(0, 16) : ""}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      );
+    }
+    // FILE
+    if (fieldType === "file") {
+      return (
+        <input
+          type="file"
+          onChange={(e) => onChange(e.target.files[0])}
+        />
+      );
+    }
     // TEXT
     return (
       <input
@@ -417,7 +460,7 @@ function CrudUniversal({ modelName }) {
       return value
         .map((v) => {
           if (typeof v === "object") {
-            return v.nome || v.label || v.periodo_principal || username || v.id;
+            return v.nome || v.label || v.periodo_principal || v.username || v.id;
           }
 
           const found = options.find((o) => o.id === v);
@@ -437,7 +480,30 @@ function CrudUniversal({ modelName }) {
         })
         .join(", ");
     }
+    // FILE FIELD
+if (f.type === "FileField" || f.type === "file") {
+  if (!value) return "-";
 
+  // Se vier objeto com URL
+  if (typeof value === "object" && value.url) {
+    return (
+      <a href={value.url} target="_blank" rel="noreferrer">
+        {value.name || "Arquivo"}
+      </a>
+    );
+  }
+
+  // Se vier somente a URL
+  if (typeof value === "string") {
+    return (
+      <a href={value} target="_blank" rel="noreferrer">
+        {value.split("/").pop()}
+      </a>
+    );
+  }
+
+  return "-";
+}
     return value ?? "-";
   };
 
