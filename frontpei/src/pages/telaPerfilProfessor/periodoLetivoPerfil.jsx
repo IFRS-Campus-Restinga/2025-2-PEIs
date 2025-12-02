@@ -4,6 +4,7 @@ import axios from "axios";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
+import logo_nome from "../../assets/logo-sem-nome.png";
 
 const PeriodoLetivoPerfil = () => {
   const location = useLocation();
@@ -17,6 +18,63 @@ const PeriodoLetivoPerfil = () => {
   const [gruposUsuario, setGruposUsuario] = useState([]);
   const [nomeUsuario, setNomeUsuario] = useState("Usuário");
   const [erro, setErro] = useState(false);
+  const [mostrarPopup, setMostrarPopup] = useState(false);
+  const [parecerSelecionado, setParecerSelecionado] = useState(null);
+  const [modoEdicao, setModoEdicao] = useState(false);
+  const [textoEditado, setTextoEditado] = useState("");
+
+
+  // Funções para abrir e fechar popup de parecer
+  function abrirPopup(parecer) {
+    setParecerSelecionado(parecer);
+    setMostrarPopup(true);
+  };
+
+  function ativarEdicao() {
+  setModoEdicao(true);
+  setTextoEditado(parecerSelecionado.texto || "");
+  };
+
+  async function salvarEdicao() {
+    try {
+      const payload = {
+        texto: textoEditado,
+        professor_id: parecerSelecionado.professor.id,
+        componente_curricular_id: parecerSelecionado.componente_curricular,
+        data: parecerSelecionado.data
+      };
+
+      await axios.put(
+        `${API_ROUTES.PARECER}${parecerSelecionado.id}/`,
+        payload
+      );
+
+      // Atualiza o parecer na listagem
+      setPareceres((prev) =>
+        prev.map((p) =>
+          p.id === parecerSelecionado.id
+            ? { ...p, texto: textoEditado }
+            : p
+        )
+      );
+
+      setParecerSelecionado((prev) => ({
+        ...prev,
+        texto: textoEditado
+      }));
+
+      setModoEdicao(false);
+    } catch (err) {
+      console.error("Erro ao salvar edição:", err);
+      alert("Erro ao editar parecer.");
+    }
+  }
+
+
+  function fecharPopup() {
+    setMostrarPopup(false);
+    setParecerSelecionado(null);
+  }
 
   // Carrega usuário do localStorage
   useEffect(() => {
@@ -196,7 +254,7 @@ const PeriodoLetivoPerfil = () => {
           <h3>Últimos Pareceres</h3>
           {pareceres.length > 0 ? (
             pareceres.map((p) => (
-              <div key={p.id} className="parecer-card">
+              <div key={p.id} className="parecer-card" onClick={() => abrirPopup(p)} style={{ cursor: "pointer" }}>
                 <div className="parecer-topo">
                   <span className="parecer-professor">
                     {p.professorNome} ({p.componenteNome})
@@ -213,6 +271,89 @@ const PeriodoLetivoPerfil = () => {
           ) : (
             <p>Nenhum parecer encontrado.</p>
           )}
+          {mostrarPopup && (
+            <div className="popup-overlay" onClick={fecharPopup}>
+              <div 
+                className="popup-content" 
+                onClick={(e) => e.stopPropagation()} // impede fechar ao clicar dentro
+              >
+                <header 
+                  className="header"
+                >
+                  <div className="header-left">
+                    <img src={logo_nome} alt="Logo IFRS" className="header-logo" />
+                  </div>
+
+                  <div style={{ marginRight: "auto" }} className="header-text">
+                    <strong>INSTITUTO FEDERAL</strong>
+                    <span>Rio Grande do Sul</span>
+                    <span>Campus Restinga</span>
+                  </div>
+
+                  <div className="header-center">
+                    <h1>Visualização do Parecer</h1>
+                    <span>Plano Educacional Individualizado</span>
+                  </div>
+
+                  <div
+                    className="header-actions"
+                    style={{ 
+                      display: "flex", 
+                      gap: "8px", 
+                      marginLeft: "20px" 
+                    }}
+                  >
+                  </div>
+                </header>
+
+                <h3>Parecer de {parecerSelecionado.professorNome}</h3>
+
+                <p><strong>Componente:</strong> {parecerSelecionado.componenteNome}</p>
+                <p><strong>Data:</strong> {new Date(parecerSelecionado.data).toLocaleDateString("pt-BR")}</p>
+                <div className="popup-texto">
+                  {modoEdicao ? (
+                    <textarea
+                      value={textoEditado}
+                      onChange={(e) => setTextoEditado(e.target.value)}
+                      style={{
+                        width: "100%",
+                        minHeight: "140px",
+                        padding: "10px",
+                        fontSize: "16px",
+                        borderRadius: "8px"
+                      }}
+                    />
+                  ) : (
+                    parecerSelecionado.texto
+                  )}
+                </div>
+
+                <div className="popup-botoes">
+                  {modoEdicao ? (
+                    <>
+                      <button className="botao-editar" onClick={salvarEdicao}>
+                        Salvar
+                      </button>
+                      <button className="btn-fechar" onClick={() => setModoEdicao(false)}>
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button className="botao-editar" onClick={ativarEdicao}>
+                        Editar
+                      </button>
+                      <button className="btn-fechar" onClick={fecharPopup}>
+                        Fechar
+                      </button>
+                    </>
+                  )}
+                </div>
+
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
