@@ -284,7 +284,7 @@ function CrudUniversal({ modelName }) {
         const label =
           opt.nome || // valor direto
           opt.label ||
-          (opt.aluno && opt.aluno.nome) || //  CORREÇÃO AQUI
+          opt.aluno_nome ||
           (opt.first_name || opt.last_name
             ? `${opt.first_name || ""} ${opt.last_name || ""}`.trim()
             : null) ||
@@ -341,19 +341,15 @@ function CrudUniversal({ modelName }) {
 
     // ForeignKey / Select
     if ((f.type === "foreignkey" || (f.type === "select" && f.related_model)) && value) {
-      if (typeof value === "object") {
-        return value.nome ||
-          (value.first_name || value.last_name ? `${value.first_name || ""} ${value.last_name || ""}`.trim() : value.username) ||
-          "-";
-      }
-      const found = options.find((opt) => String(opt.id) === String(value));
-      if (found) {
-        return found.nome ||
-          (found.first_name || found.last_name ? `${found.first_name || ""} ${found.last_name || ""}`.trim() : found.username) ||
-          "-";
-      }
-      return "-";
-    }
+  if (typeof value === "object") {
+    return value.aluno_nome || value.nome || "-";
+  }
+  const found = options.find((opt) => String(opt.id) === String(value));
+  if (found) {
+    return found.aluno_nome || found.nome || "-";
+  }
+  return "-";
+}
 
     // Multiselect
     if (f.type === "multiselect") {

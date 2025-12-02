@@ -6,13 +6,15 @@ from django.core.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework import status
 
+from rest_framework.decorators import action
+
 class PEIPeriodoLetivoViewSet(ModelViewSet):
     serializer_class = PEIPeriodoLetivoSerializer
     #permission_classes = [BackendTokenPermission]
 
-    # Pré-carregando componentes e disciplinas com cursos
     queryset = PEIPeriodoLetivo.objects.prefetch_related(
-        'componentes_curriculares__disciplinas__cursos__coordenador'
+        'componentes_curriculares__disciplinas__cursos__coordenador',
+        'pei_central__aluno'
     ).all()
 
     def destroy(self, request, *args, **kwargs):
@@ -21,7 +23,16 @@ class PEIPeriodoLetivoViewSet(ModelViewSet):
             instance.safe_delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except ValidationError as e:
-            return Response(
-                {"erro": e.message},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"erro": e.message}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'], url_path='alunos')
+    def get_alunos(self, request):
+        """
+        Retorna uma lista dos nomes dos alunos vinculados aos PEIs centrais
+        de todos os períodos letivos.
+        """
+        alunos = set()
+        for periodo in self.get_queryset():
+            if periodo.pei_central and periodo.pei_central.aluno:
+                alunos.add(periodo.pei_central.aluno.nome)
+        return Response({"alunos": list(alunos)}, status=status.HTTP_200_OK)
