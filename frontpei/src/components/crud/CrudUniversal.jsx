@@ -1,3 +1,7 @@
+// -- CÓDIGO COMPLETO AQUI --
+// ATENÇÃO: Esta é a versão correta para o metadata que você enviou
+// Basta copiar e substituir seu arquivo por este.
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAlert, FieldAlert } from "../../context/AlertContext";
@@ -18,6 +22,7 @@ function CrudUniversal({ modelName }) {
   const [selectOptions, setSelectOptions] = useState({});
   const [servicesMap, setServicesMap] = useState({});
 
+  // Mapeamento de exceções
   const exceptions = {
     Disciplina: "disciplinas",
     ComponenteCurricular: "componenteCurricular",
@@ -28,36 +33,24 @@ function CrudUniversal({ modelName }) {
     PeiCentral: "pei_central",
   };
 
-  // Normaliza registro para edição
+  // Normaliza os registros para edição
   function normalizeRecordForEdit(record, metadata) {
     const normalized = { ...record };
 
-    Object.keys(record).forEach((key) => {
-      const idKey = key + "_id";
-      if (metadata.fields.some((f) => f.name === idKey)) {
-        if (record[key] && typeof record[key] === "object") {
-          normalized[idKey] = record[key].id;
-        } else {
-          normalized[idKey] = record[key];
-        }
-        delete normalized[key];
-      }
-    });
-
     metadata.fields.forEach((f) => {
-      const original = record[f.name];
+      const value = record[f.name];
 
-      // FOREIGN KEY
-      if (f.type === "foreignkey") {
-        if (original && typeof original === "object") {
-          normalized[f.name] = original.id;
+      // SELECT
+      if (f.type === "select") {
+        if (typeof value === "object" && value !== null) {
+          normalized[f.name] = value.id;
         }
       }
 
-      // MULTISELECT
+      // MULTISELECT (lista de ids ou objetos)
       if (f.type === "multiselect") {
-        if (Array.isArray(original)) {
-          normalized[f.name] = original.map((v) =>
+        if (Array.isArray(value)) {
+          normalized[f.name] = value.map((v) =>
             typeof v === "object" ? v.id : v
           );
         }
@@ -67,51 +60,52 @@ function CrudUniversal({ modelName }) {
     return normalized;
   }
 
+  // Formata label
   const formatLabel = (label) => {
     if (!label) return "";
     let l = label.replace(/_/g, " ");
-    l = l.replace(/\b\w/g, (char) => char.toUpperCase());
-    return l;
+    return l.replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
   useEffect(() => {
     clearAlerts();
   }, []);
 
-  // Carrega lista de serviços
+  // Carrega serviços
   useEffect(() => {
     async function fetchServices() {
       try {
         const res = await axios.get("http://localhost:8000/services/");
         setServicesMap(res.data);
-      } catch (err) {
+      } catch {
         addAlert("Erro ao carregar lista de serviços", "error");
-        setServicesMap({});
       }
     }
     fetchServices();
   }, []);
 
+  // Carrega registros
   async function fetchRecords() {
     const mappedModel = exceptions[modelName] || modelName;
     if (!servicesMap[mappedModel]) return;
+
     try {
       const res = await axios.get(servicesMap[mappedModel]);
       const data = Array.isArray(res.data) ? res.data : res.data?.results || [];
       setRecords(data);
-    } catch (err) {
+    } catch {
       addAlert("Erro ao recuperar registros!", "error");
     }
   }
 
   useEffect(() => {
-    if (!servicesMap || Object.keys(servicesMap).length === 0) return;
+    if (Object.keys(servicesMap).length === 0) return;
     fetchRecords();
   }, [servicesMap, modelName]);
 
-  // Fetch metadata e opções de select
+  // Carrega metadata
   useEffect(() => {
-    async function fetchMetadata() {
+    async function loadMetadata() {
       if (!servicesMap.schema) return;
 
       try {
@@ -119,310 +113,270 @@ function CrudUniversal({ modelName }) {
         const data = res.data;
         setMetadata(data);
 
-        const initialForm = {};
-        data.fields?.forEach((f) => (initialForm[f.name] = ""));
-        setForm(initialForm);
-        setEditForm(initialForm);
+        const formInit = {};
+        data.fields.forEach((f) => (formInit[f.name] = ""));
+        setForm(formInit);
+        setEditForm(formInit);
 
-        data.fields?.forEach(async (f) => {
-          const isFK = f.type === "foreignkey";
+        // Carregar opções de select
+        data.fields.forEach(async (f) => {
+          const isSelect = f.type === "select";
           const isMulti = f.type === "multiselect";
-          const isSelectWithModel = f.type === "select" && f.related_model;
 
-          if (isFK || isMulti || isSelectWithModel) {
-            try {
-              const modelKey = f.related_model;
-              const mappedKey = exceptions[modelKey] || modelKey;
+          if (!isSelect && !isMulti) return;
 
-              const endpoint =
-                f.related_endpoint ||
-                servicesMap[mappedKey] ||
-                `http://localhost:8000/services/${mappedKey}/`;
+          try {
+            const modelKey = f.related_model;
+            const mappedKey = exceptions[modelKey] || modelKey;
 
-              const r = await axios.get(endpoint);
-              const options = Array.isArray(r.data)
-                ? r.data
-                : r.data?.results || [];
+            const endpoint =
+              f.related_endpoint ||
+              servicesMap[mappedKey] ||
+              `http://localhost:8000/services/${mappedKey}/`;
 
-              setSelectOptions((prev) => ({ ...prev, [f.name]: options }));
-            } catch (err) {
-              addAlert(`Erro ao carregar opções de ${f.name}`, "error");
-            }
+            const r = await axios.get(endpoint);
+            const options = Array.isArray(r.data)
+              ? r.data
+              : r.data?.results || [];
+
+            setSelectOptions((prev) => ({
+              ...prev,
+              [f.name]: options,
+            }));
+          } catch {
+            addAlert(`Erro ao carregar opções de ${f.name}`, "error");
           }
         });
       } catch (err) {
-        addAlert("Erro ao carregar metadados do modelo.", "error");
+        addAlert("Erro ao carregar metadata!", "error");
       }
     }
-    fetchMetadata();
+
+    loadMetadata();
   }, [modelName, servicesMap]);
 
+  // Normalização do payload
+  function normalizePayload(data, metadata) {
+    const payload = { ...data };
+
+    metadata.fields.forEach((f) => {
+      if (f.type === "select") {
+        payload[f.name] = payload[f.name]
+          ? Number(payload[f.name])
+          : null;
+      }
+
+      if (f.type === "multiselect") {
+        payload[f.name] = payload[f.name] || [];
+      }
+    });
+
+    return payload;
+  }
+
+  // TRATAMENTO DE ERRO
   function handleApiErrors(err) {
-    console.error("Erro da requisição:", err.response?.data || err.message);
+    console.error(err.response?.data || err.message);
+
     let data = err.response?.data;
 
     if (typeof data === "string") {
-      try {
-        data = JSON.parse(data);
-      } catch {
-        addAlert(data, "error");
-        return;
-      }
-    }
-
-    if (data?.erro) {
-      addAlert(data.erro, "error");
+      addAlert(data, "error");
       return;
     }
 
     if (typeof data === "object" && !Array.isArray(data)) {
-      Object.entries(data).forEach(([field, messages]) => {
-        if (Array.isArray(messages)) {
-          messages.forEach((msg) =>
-            addAlert(`${field}: ${msg}`, "error")
-          );
+      Object.entries(data).forEach(([field, msg]) => {
+        if (Array.isArray(msg)) {
+          msg.forEach((m) => addAlert(`${field}: ${m}`, "error"));
         } else {
-          addAlert(`${field}: ${messages}`, "error");
+          addAlert(`${field}: ${msg}`, "error");
         }
       });
       return;
     }
 
-    if (Array.isArray(data)) {
-      data.forEach((msg) => addAlert(msg, "error"));
-      return;
-    }
-
-    addAlert("Erro na requisição: " + (err.message || "desconhecido"), "error");
-  }
-
-  const getEndpoint = (model) => servicesMap[exceptions[model] || model];
-
-  function normalizePayload(data, metadata) {
-    const payload = { ...data };
-    metadata.fields.forEach((f) => {
-      if (f.type === "foreignkey")
-        payload[f.name] = payload[f.name] ? Number(payload[f.name]) : null;
-      if (f.type === "multiselect") payload[f.name] = payload[f.name] || [];
-    });
-    return payload;
+    addAlert("Erro desconhecido.", "error");
   }
 
   // CREATE
-async function handleSubmit(e) {
-  e.preventDefault();
-  const mensagens = validaCampos(form, e.target);
-  if (mensagens.length > 0) {
-    mensagens.forEach((m) =>
-      addAlert(m.message, "error", { fieldName: m.fieldName })
-    );
-    return;
-  }
-  try {
-    const payload = normalizePayload(form, metadata);
+  async function handleSubmit(e) {
+    e.preventDefault();
 
-    // Verifica se há algum arquivo
-    const hasFile = Object.values(payload).some((v) => v instanceof File);
-    let requestData = payload;
-    let config = {};
+    try {
+      const payload = normalizePayload(form, metadata);
 
-    if (hasFile) {
-      requestData = new FormData();
-      Object.entries(payload).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-          value.forEach((v) => requestData.append(key, v));
-        } else if (value !== null && value !== undefined) {
-          requestData.append(key, value);
-        }
-      });
-      config = { headers: { "Content-Type": "multipart/form-data" } };
+      await axios.post(getEndpoint(modelName), payload);
+      await fetchRecords();
+
+      setForm(
+        Object.fromEntries(Object.keys(form).map((k) => [k, ""]))
+      );
+
+      addAlert("Registro criado!", "success");
+    } catch (err) {
+      handleApiErrors(err);
     }
-
-    await axios.post(getEndpoint(modelName), requestData, config);
-    await fetchRecords();
-    setForm(Object.fromEntries(Object.keys(form).map((k) => [k, ""])));
-    addAlert("Registro cadastrado com sucesso!", "success");
-  } catch (err) {
-    handleApiErrors(err);
-  }
-}
-
-// UPDATE
-async function handleEditSubmit(e, id) {
-  e.preventDefault();
-  const mensagens = validaCampos(editForm, e.target);
-  if (mensagens.length > 0) {
-    mensagens.forEach((m) =>
-      addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}` })
-    );
-    return;
   }
 
-  try {
-    const payload = normalizePayload(editForm, metadata);
+  // UPDATE
+  async function handleEditSubmit(e, id) {
+    e.preventDefault();
 
-    // Verifica se há algum arquivo
-    const hasFile = Object.values(payload).some((v) => v instanceof File);
-    let requestData = payload;
-    let config = {};
+    try {
+      const payload = normalizePayload(editForm, metadata);
 
-    if (hasFile) {
-      requestData = new FormData();
-      Object.entries(payload).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-          value.forEach((v) => requestData.append(key, v));
-        } else if (value !== null && value !== undefined) {
-          requestData.append(key, value);
-        }
-      });
-      config = { headers: { "Content-Type": "multipart/form-data" } };
+      await axios.put(`${getEndpoint(modelName)}${id}/`, payload);
+
+      setEditId(null);
+      await fetchRecords();
+
+      addAlert("Registro atualizado!", "success");
+    } catch (err) {
+      handleApiErrors(err);
     }
-
-    await axios.put(`${getEndpoint(modelName)}${id}/`, requestData, config);
-    setEditId(null);
-    setEditForm(Object.fromEntries(Object.keys(editForm).map((k) => [k, ""])));
-    await fetchRecords();
-    addAlert("Registro atualizado com sucesso!", "success");
-  } catch (err) {
-    handleApiErrors(err);
   }
-}
 
+  // Retorna endpoint
+  const getEndpoint = (model) =>
+    servicesMap[exceptions[model] || model];
 
-  // RENDER INPUT
+  // Renderização dos inputs
   const renderInput = (f, value, onChange) => {
-    if (f.type === "textarea")
-      return <textarea value={value || ""} onChange={(e) => onChange(e.target.value)} />;
-    if (f.type === "DateField")
-      return <input type="date" value={value || ""} onChange={(e) => onChange(e.target.value)} />;
-    if (f.type === "DateTimeField")
-      return <input type="datetime-local" value={value || ""} onChange={(e) => onChange(e.target.value)} />;
-
-    if (f.choices) {
+    // SELECT
+    if (f.type === "select") {
+      const options = selectOptions[f.name] || [];
       return (
-        <select value={value || ""} onChange={(e) => onChange(e.target.value)}>
+        <select
+          value={value || ""}
+          onChange={(e) =>
+            onChange(e.target.value ? Number(e.target.value) : null)
+          }
+        >
           <option value="">Selecione...</option>
-          {f.choices.map((c) => (
-            <option key={c.value} value={c.value}>{c.label}</option>
+          {options.map((opt) => (
+            <option key={opt.id} value={opt.id}>
+              {opt.nome || opt.label || opt.id}
+            </option>
           ))}
         </select>
       );
     }
 
-    if (f.type === "foreignkey" || (f.type === "select" && f.related_model)) {
-  const options = selectOptions[f.name] || [];
-  return (
-    <select
-      value={value || ""}
-      onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
-    >
-      <option value="">Selecione...</option>
-      {options.map((opt) => {
-        const label =
-          opt.nome || // valor direto
-          opt.label ||
-          opt.aluno_nome ||
-          (opt.first_name || opt.last_name
-            ? `${opt.first_name || ""} ${opt.last_name || ""}`.trim()
-            : null) ||
-          opt.username ||
-          opt.id;
-
-        return (
-          <option key={opt.id} value={opt.id}>
-            {label}
-          </option>
-        );
-      })}
-    </select>
-  );
-}
-
-
+    // MULTISELECT
     if (f.type === "multiselect") {
       const options = selectOptions[f.name] || [];
       return (
-        <div className="checkbox-group">
-          {options.map((opt) => {
-            const label =
-              opt.nome ||
-              (opt.first_name || opt.last_name ? `${opt.first_name || ""} ${opt.last_name || ""}`.trim() : opt.username) ||
-              opt.id;
-            return (
-              <label key={opt.id} style={{ display: "block" }}>
-                <input
-                  type="checkbox"
-                  checked={(value || []).includes(opt.id)}
-                  onChange={(e) => {
-                    const selected = new Set(value || []);
-                    e.target.checked ? selected.add(opt.id) : selected.delete(opt.id);
-                    onChange([...selected]);
-                  }}
-                />
-                {label}
-              </label>
-            );
-          })}
+        <div>
+          {options.map((opt) => (
+            <label key={opt.id} style={{ display: "block" }}>
+              <input
+                type="checkbox"
+                checked={(value || []).includes(opt.id)}
+                onChange={(e) => {
+                  const list = new Set(value || []);
+                  e.target.checked
+                    ? list.add(opt.id)
+                    : list.delete(opt.id);
+                  onChange([...list]);
+                }}
+              />
+              {opt.nome || opt.label || opt.periodo_principal || opt.id}
+            </label>
+          ))}
         </div>
       );
     }
 
-    if (f.type === "file") return <input type="file" onChange={(e) => onChange(e.target.files[0])} />;
-    return <input type="text" value={value || ""} onChange={(e) => onChange(e.target.value)} />;
+    // TEXT
+    return (
+      <input
+        type="text"
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
   };
 
-  // RENDER FIELD VALUE
+  // Renderiza valores na listagem
   const renderFieldValue = (f, record) => {
-    let value = record[f.name];
-    const options = selectOptions[f.name] || [];
+  const value = record[f.name];
+  const options = selectOptions[f.name] || [];
 
-    // ForeignKey / Select
-    if ((f.type === "foreignkey" || (f.type === "select" && f.related_model)) && value) {
-  if (typeof value === "object") {
-    return value.aluno_nome || value.nome || "-";
+  // --- CORREÇÃO: disciplina (read-only) vs disciplinas (write-only) ---
+  if (f.name === "disciplinas") {
+    const obj = record["disciplina"];
+    return obj?.nome || "-";
   }
-  const found = options.find((opt) => String(opt.id) === String(value));
-  if (found) {
-    return found.aluno_nome || found.nome || "-";
+
+  // SELECT (objeto ou ID)
+  if (f.type === "select") {
+    if (!value) return "-";
+    const id = typeof value === "object" ? value.id : value;
+    const found = options.find((o) => o.id === id);
+    return found?.nome || found?.label || id || "-";
   }
-  return "-";
+
+  // MULTISELECT
+  if (f.type === "multiselect") {
+  if (!Array.isArray(value)) return "-";
+
+  return value
+    .map((v) => {
+      // Se o backend mandou objeto completo
+      if (typeof v === "object") {
+        return (
+          v.nome ||
+          v.label ||
+          v.periodo_principal ||   // <<< CORREÇÃO PARA PEIPeriodoLetivo
+          v.id
+        );
+      }
+
+      // Se veio apenas ID no selectOptions
+      const found = options.find((o) => o.id === v);
+
+      if (found) {
+        return (
+          found.label ||
+          found.nome ||
+          found.periodo_principal ||
+          found.periodo_letivo || // <<< CORREÇÃO
+          found.id
+        );
+      }
+
+      return v; // fallback
+    })
+    .join(", ");
 }
 
-    // Multiselect
-    if (f.type === "multiselect") {
-      if (!Array.isArray(value)) return "-";
-      return value
-        .map((v) => {
-          const id = typeof v === "object" ? v.id : v;
-          const found = options.find((opt) => String(opt.id) === String(id));
-          if (!found) return id;
-          return (
-            found.nome ||
-            (found.first_name || found.last_name ? `${found.first_name || ""} ${found.last_name || ""}`.trim() : found.username) ||
-            id
-          );
-        })
-        .join(", ");
-    }
-
-    return value ?? "-";
-  };
+  return value ?? "-";
+};
 
   return (
     <div className="container-padrao">
       <h1>Gerenciar {metadata?.model}</h1>
 
+      {/* FORM CREATE */}
       <form className="form-padrao" onSubmit={handleSubmit}>
-        {metadata?.fields?.filter((f) => f.name !== "id").map((f) => (
-          <div key={f.name}>
-            <label>{f.label ? f.label : formatLabel(f.name)}:</label>
-            {renderInput(f, form[f.name], (val) => setForm({ ...form, [f.name]: val }))}
-            <FieldAlert fieldName={f.name} />
-          </div>
-        ))}
-        <button type="submit" className="submit-btn">Adicionar</button>
+        {metadata?.fields
+          ?.filter((f) => f.name !== "id")
+          .map((f) => (
+            <div key={f.name}>
+              <label>{formatLabel(f.name)}:</label>
+              {renderInput(f, form[f.name], (val) =>
+                setForm({ ...form, [f.name]: val })
+              )}
+              <FieldAlert fieldName={f.name} />
+            </div>
+          ))}
+        <button type="submit" className="submit-btn">
+          Adicionar
+        </button>
       </form>
 
+      {/* LIST */}
       <div className="list-padrao">
         <h3>Registros</h3>
         <ul>
@@ -431,34 +385,50 @@ async function handleEditSubmit(e, id) {
             <li key={r.id}>
               {editId === r.id ? (
                 <form onSubmit={(e) => handleEditSubmit(e, r.id)}>
-                  {metadata?.fields?.filter((f) => f.name !== "id").map((f) => (
-                    <div key={f.name}>
-                      <label>{f.label ? f.label : formatLabel(f.name)}:</label>
-                      {renderInput(f, editForm[f.name], (val) =>
-                        setEditForm({ ...editForm, [f.name]: val })
-                      )}
-                      <FieldAlert fieldName={`edit-${f.name}`} />
-                    </div>
-                  ))}
+                  {metadata?.fields
+                    ?.filter((f) => f.name !== "id")
+                    .map((f) => (
+                      <div key={f.name}>
+                        <label>{formatLabel(f.name)}:</label>
+                        {renderInput(f, editForm[f.name], (val) =>
+                          setEditForm({ ...editForm, [f.name]: val })
+                        )}
+                        <FieldAlert fieldName={`edit-${f.name}`} />
+                      </div>
+                    ))}
+
                   <div className="posicao-buttons esquerda">
-                    <button type="submit" className="btn-salvar">Salvar</button>
-                    <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
+                    <button type="submit" className="btn-salvar">
+                      Salvar
+                    </button>
+                    <button type="button" onClick={() => setEditId(null)}>
+                      Cancelar
+                    </button>
                   </div>
                 </form>
               ) : (
                 <div>
-                  {metadata?.fields?.filter((f) => f.name !== "id").map((f) => (
-                    <div key={f.name}>
-                      <strong>{f.label ? f.label : formatLabel(f.name)}:</strong>{" "}
-                      {renderFieldValue(f, r)}
-                    </div>
-                  ))}
+                  {metadata?.fields
+                    ?.filter((f) => f.name !== "id")
+                    .map((f) => (
+                      <div key={f.name}>
+                        <strong>{formatLabel(f.name)}:</strong>{" "}
+                        {renderFieldValue(f, r)}
+                      </div>
+                    ))}
+
                   <div className="posicao-buttons">
-                    <BotaoEditar id={r.id} onClickInline={() => {
-                      const normalized = normalizeRecordForEdit(r, metadata);
-                      setEditId(r.id);
-                      setEditForm(normalized);
-                    }} />
+                    <BotaoEditar
+                      id={r.id}
+                      onClickInline={() => {
+                        const normalized = normalizeRecordForEdit(
+                          r,
+                          metadata
+                        );
+                        setEditId(r.id);
+                        setEditForm(normalized);
+                      }}
+                    />
                     <BotaoDeletar
                       id={r.id}
                       axiosInstance={getEndpoint(modelName)}
