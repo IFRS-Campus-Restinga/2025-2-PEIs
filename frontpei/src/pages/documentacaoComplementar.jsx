@@ -5,8 +5,8 @@ import { useAlert, FieldAlert } from "../context/AlertContext";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
-import "../cssGlobal.css";
 import { API_ROUTES } from "../configs/apiRoutes";
+import "../cssGlobal.css";
 
 function DocumentacaoComplementar() {
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();

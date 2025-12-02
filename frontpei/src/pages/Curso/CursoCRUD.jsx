@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom"; 
 import axios from "axios"; 
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import { API_ROUTES } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
 import { useAlert, FieldAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
-import { API_ROUTES } from "../../configs/apiRoutes";
 
 function CursoCRUD() {
   const { id } = useParams();

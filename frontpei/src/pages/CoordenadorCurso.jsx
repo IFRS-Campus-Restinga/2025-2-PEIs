@@ -5,8 +5,8 @@ import { validaCampos } from "../utils/validaCampos";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
-import "../cssGlobal.css";
 import { API_ROUTES } from "../configs/apiRoutes";
+import "../cssGlobal.css";
 
 function CoordenadoresCurso() {
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();

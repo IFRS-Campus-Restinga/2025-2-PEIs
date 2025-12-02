@@ -3,8 +3,8 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useAlert, FieldAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
-import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
+import "../../cssGlobal.css";
 
 function EditarPeiCentral() {
   const { id } = useParams();

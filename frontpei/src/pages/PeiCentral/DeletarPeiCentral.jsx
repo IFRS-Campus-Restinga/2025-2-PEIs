@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
+import "../../cssGlobal.css";
 import { validaCampos } from "../../utils/validaCampos";
 import { useAlert, FieldAlert } from "../../context/AlertContext";
 

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
-import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import logo_nome from "../../assets/logo-sem-nome.png";
 

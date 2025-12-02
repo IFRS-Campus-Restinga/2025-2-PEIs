@@ -1,4 +1,12 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.utils import timezone
+from django.utils.crypto import get_random_string
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from django.core.mail import send_mail
+from django.db import transaction
+
 from .models.PEIPeriodoLetivo import PEIPeriodoLetivo
 from .models.parecer import Parecer
 from .models.pei_central import PeiCentral

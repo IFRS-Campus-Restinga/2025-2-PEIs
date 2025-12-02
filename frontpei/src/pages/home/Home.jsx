@@ -17,6 +17,8 @@ const HomeView = () => {
   const [identificadorUsuario, setIdentificadorUsuario] = useState("");
 
   const navigate = useNavigate();
+  
+  const [erro, setErro] = useState(null);
 
   const normalizar = (str = "") =>
     str

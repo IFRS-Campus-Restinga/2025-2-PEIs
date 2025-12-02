@@ -3,9 +3,9 @@ import axios from "axios";
 import { useAlert, FieldAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
 import { Link } from "react-router-dom";
+import { API_ROUTES, BACKEND_TOKEN } from "../../configs/apiRoutes";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import "../../cssGlobal.css";
-import { API_ROUTES } from "../../configs/apiRoutes";
 
 function PEIPeriodoLetivo() {
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
@@ -146,7 +146,10 @@ function PEIPeriodoLetivo() {
           console.error("Erro ao deletar período:", err);
           if (err.response?.data) {
             const messages = Object.entries(err.response.data)
-              .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
+              .map(
+                ([field, msgs]) =>
+                  `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`
+              )
               .join(" | ");
             addAlert(`Erro ao deletar período: ${messages}`, "error");
           } else {
@@ -227,7 +230,7 @@ function PEIPeriodoLetivo() {
           {Array.isArray(peiCentrals) &&
             peiCentrals.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.aluno.nome || `PEI Central ${p.id}`}
+                {p.aluno?.nome || `PEI Central ${p.id}`}
               </option>
             ))}
         </select>

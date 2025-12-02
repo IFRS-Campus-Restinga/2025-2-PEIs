@@ -4,8 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { validaCampos } from "../../utils/validaCampos";
 import { FieldAlert, useAlert } from "../../context/AlertContext";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
-import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
+import "../../cssGlobal.css";
 
 function CreatePeiCentral() {
   const [historico_do_aluno, setHistorico] = useState("");
