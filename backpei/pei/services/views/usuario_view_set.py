@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from ..serializers import UsuarioSerializer
 from ..permissions import BackendTokenPermission
+from rest_framework.viewsets import ModelViewSet
 
 User = get_user_model()
 

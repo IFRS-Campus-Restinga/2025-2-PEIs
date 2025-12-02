@@ -6,7 +6,6 @@ import { API_ROUTES, BACKEND_TOKEN } from "../../configs/apiRoutes";
 import "../../cssGlobal.css";
 import DT from "datatables.net-dt";
 import DataTable from "datatables.net-react";
-import { API_ROUTES } from "../../configs/apiRoutes";
 import logo from '../../assets/logo.png';
 import logo_nome from '../../assets/logo-sem-nome.png';
 import { useMemo } from "react";
