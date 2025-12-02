@@ -41,7 +41,9 @@ const Header = ({ usuario, logado, logout }) => {
     const buscarNotificacoes = async () => {
         try {
             const token = localStorage.getItem("token");
-            if (!token) return; // Se não tiver token, nem tenta
+            if (!token) return;
+
+            // Ajustado para porta 8000 e prefixo Token
             const response = await axios.get("http://localhost:8000/services/notificacoes-lista/", {
                 headers: {
                     Authorization: `Token ${token}`,
@@ -53,7 +55,24 @@ const Header = ({ usuario, logado, logout }) => {
         }
     };
 
-    // metodo para formatar a data para exibição de quanto tempo faz que a notificacao foi emitida
+    const marcarTodasComoLidas = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+
+            await axios.post("http://localhost:8000/services/notificacoes/marcar_todas_lidas/", {}, {
+                headers: { Authorization: `Token ${token}` },
+            });
+
+            // Atualiza localmente
+            const novasNotificacoes = notificacoes.map(n => ({ ...n, lida: true }));
+            setNotificacoes(novasNotificacoes);
+            
+        } catch (error) {
+            console.error("Erro ao marcar notificações:", error);
+        }
+    };
+
     const formatarData = (dataString) => {
         const data = new Date(dataString);
         const agora = new Date();
@@ -73,6 +92,9 @@ const Header = ({ usuario, logado, logout }) => {
             year: 'numeric' 
         });
     };
+
+    // Contagem de não lidas
+    const naoLidasCount = notificacoes.filter(n => !n.lida).length;
 
     return (
         <header className="header">
@@ -102,16 +124,44 @@ const Header = ({ usuario, logado, logout }) => {
                                 onClick={() => setNotificacoesAbertas(!notificacoesAbertas)}
                             >
                                 <img src={bellIcon} alt="Notificações" />
-                                {notificacoes.length > 0 && (
-                                    <span className="notif-badge">{notificacoes.length}</span>
+                                {naoLidasCount > 0 && (
+                                    <span className="notif-badge">{naoLidasCount}</span>
                                 )}
                             </button>
 
                             <div className={`notif-dropdown ${notificacoesAbertas ? "active" : ""}`}>
-                                <div className="notif-header">
+                                <div className="notif-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <p className="notif-title">Notificações</p>
-                                    {notificacoes.length > 0 && (
-                                        <span className="notif-count">{notificacoes.length} nova{notificacoes.length > 1 ? 's' : ''}</span>
+                                    
+                                    {naoLidasCount > 0 && (
+                                        <button 
+                                            onClick={marcarTodasComoLidas}
+                                            style={{
+                                                background: '#e8f5e9',
+                                                color: '#055C0F',
+                                                border: '1px solid #a5d6a7',
+                                                borderRadius: '20px',
+                                                padding: '3px 10px',
+                                                fontSize: '10px',
+                                                fontWeight: '700',
+                                                cursor: 'pointer',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.5px',
+                                                transition: 'all 0.2s ease'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.target.style.background = '#055C0F';
+                                                e.target.style.color = '#fff';
+                                                e.target.style.borderColor = '#055C0F';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.target.style.background = '#e8f5e9';
+                                                e.target.style.color = '#055C0F';
+                                                e.target.style.borderColor = '#a5d6a7';
+                                            }}
+                                        >
+                                            Marcar lidas
+                                        </button>
                                     )}
                                 </div>
                                 
@@ -119,9 +169,12 @@ const Header = ({ usuario, logado, logout }) => {
                                     {notificacoes.length > 0 ? (
                                         <ul className="notif-list">
                                             {notificacoes.map((n) => (
-                                                <li key={n.id} className="notif-item">
+                                                <li key={n.id} className="notif-item" style={{ background: n.lida ? '#fff' : '#f0f9f0' }}>
                                                     <div className="notif-content">
-                                                        <h4 className="notif-item-title">{n.titulo}</h4>
+                                                        <h4 className="notif-item-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                            {!n.lida && <span style={{ width: '8px', height: '8px', background: '#055C0F', borderRadius: '50%', display: 'inline-block' }}></span>}
+                                                            {n.titulo}
+                                                        </h4>
                                                         <p className="notif-item-message">{n.mensagem}</p>
                                                         <span className="notif-item-time">{formatarData(n.data_criacao)}</span>
                                                     </div>
@@ -138,6 +191,7 @@ const Header = ({ usuario, logado, logout }) => {
                             </div>
                         </div>
                         <LeitorTela />
+                        
                         {/* 👤 Usuário */}
                         <div className="user-wrapper" ref={menuRef}>
                             <div

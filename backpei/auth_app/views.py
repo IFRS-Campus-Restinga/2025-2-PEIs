@@ -3,9 +3,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group  # Importante para buscar o grupo
 
 from auth_app.services.google_service import GoogleAuthService
-from pei.utils.notificacoes_utils import verificar_periodos_e_gerar_notificacoes
+# IMPORTAÇÃO DA FUNÇÃO DE NOTIFICAÇÃO
+from pei.utils.notificacoes_utils import criar_notificacao
 
 User = get_user_model()
 
@@ -18,18 +20,18 @@ class GoogleLoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        print(">>> GATILHO DE LOGIN ACIONADO! <<<") # print pra saber se cai a geração de notificações
+
+        print(">>> GATILHO DE LOGIN ACIONADO! <<<")
         try:
             from pei.utils.notificacoes_utils import verificar_periodos_e_gerar_notificacoes
             verificar_periodos_e_gerar_notificacoes()
         except Exception as e:
             print(f"ERRO NO GATILHO: {e}")
-        # ----------------
+            
         id_token_str = request.data.get("id_token")
         if not id_token_str:
             return Response({"detail": "id_token é obrigatório"}, status=400)
 
-        # valida com o Google
         try:
             info = GoogleAuthService.verify_google_token(id_token_str)
         except ValueError as e:
@@ -39,10 +41,8 @@ class GoogleLoginView(APIView):
         name = info.get("name")
         picture = info.get("picture")
 
-        # CustomUser é o user REAL
         user = User.objects.filter(email=email).first()
 
-        # Se não existe -> tela de pré-cadastro
         if not user:
             return Response({
                 "status": "pending",
@@ -51,24 +51,14 @@ class GoogleLoginView(APIView):
                 "picture": picture
             })
 
-        # Existe mas não aprovado
         if not user.aprovado:
             return Response({"status": "not_approved"}, status=403)
 
-        # Existe mas não tem grupo
         if user.groups.count() == 0:
             return Response({"status": "no_group"}, status=403)
 
-        # Gerar token
         from rest_framework.authtoken.models import Token
         token, _ = Token.objects.get_or_create(user=user)
-
-        try:
-            # Verifica prazos e gera notificações agora!
-            print("🔄 Verificando prazos e gerando notificações...")
-            verificar_periodos_e_gerar_notificacoes()
-        except Exception as e:
-            print(f"⚠️ Erro ao gerar notificações no login: {e}")
 
         return Response({
             "status": "ok",
@@ -82,28 +72,18 @@ class GoogleLoginView(APIView):
 # =============================================================================
 
 class PreCadastroSerializer(serializers.Serializer):
-    # aceita tanto name quanto nome
     name = serializers.CharField(required=False, allow_blank=True)
     nome = serializers.CharField(required=False, allow_blank=True)
-
     email = serializers.EmailField()
     picture = serializers.URLField(required=False, allow_blank=True)
-
-    # aceita tanto categoria quanto categoria_solicitada
     categoria = serializers.CharField(required=False)
     categoria_solicitada = serializers.CharField(required=False)
 
     def validate(self, data):
-        """
-        Harmoniza os campos recebidos.
-        Garante que sempre teremos name e categoria_solicitada.
-        """
-        # NAME
         data["name"] = data.get("name") or data.get("nome")
         if not data["name"]:
             raise serializers.ValidationError("Nome é obrigatório.")
 
-        # CATEGORIA
         data["categoria_solicitada"] = (
             data.get("categoria_solicitada")
             or data.get("categoria")
@@ -126,11 +106,10 @@ class PreCadastroView(APIView):
         data = serializer.validated_data
         email = data["email"]
 
-        # já existe?
         if User.objects.filter(email=email).exists():
             return Response({"detail": "Usuário já cadastrado"}, status=400)
 
-        # criar usuário pendente
+        # Cria usuário pendente
         user = User.objects.create(
             username=email,
             email=email,
@@ -141,5 +120,24 @@ class PreCadastroView(APIView):
         )
         user.set_unusable_password()
         user.save()
+
+        # 👇 NOVA LÓGICA: NOTIFICAR ADMINS
+        try:
+            # Busca todos os usuários do grupo 'Admin'
+            admins = User.objects.filter(groups__name='Admin')
+            
+            titulo = "Nova Solicitação de Cadastro"
+            mensagem = f"O usuário {data['name']} ({email}) solicitou acesso como {data['categoria_solicitada']}."
+
+            print(f"🔔 Notificando {admins.count()} administradores sobre novo cadastro.")
+
+            for admin in admins:
+                # Cria notificação no sistema e dispara e-mail (thread separada)
+                criar_notificacao(admin, titulo, mensagem, enviar_email=True)
+
+        except Exception as e:
+            # Não queremos que o cadastro falhe se a notificação der erro (apenas loga)
+            print(f"❌ Erro ao notificar admins: {e}")
+        # -------------------------------------
 
         return Response({"status": "ok", "message": "Pré-cadastro enviado"})
