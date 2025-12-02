@@ -209,48 +209,85 @@ function CrudUniversal({ modelName }) {
   }
 
   // CREATE
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const mensagens = validaCampos(form, e.target);
-    if (mensagens.length > 0) {
-      mensagens.forEach((m) =>
-        addAlert(m.message, "error", { fieldName: m.fieldName })
-      );
-      return;
-    }
-    try {
-      const payload = normalizePayload(form, metadata);
-      await axios.post(getEndpoint(modelName), payload);
-      await fetchRecords();
-      setForm(Object.fromEntries(Object.keys(form).map((k) => [k, ""])));
-      addAlert("Registro cadastrado com sucesso!", "success");
-    } catch (err) {
-      handleApiErrors(err);
-    }
+async function handleSubmit(e) {
+  e.preventDefault();
+  const mensagens = validaCampos(form, e.target);
+  if (mensagens.length > 0) {
+    mensagens.forEach((m) =>
+      addAlert(m.message, "error", { fieldName: m.fieldName })
+    );
+    return;
   }
+  try {
+    const payload = normalizePayload(form, metadata);
 
-  // UPDATE
-  async function handleEditSubmit(e, id) {
-    e.preventDefault();
-    const mensagens = validaCampos(editForm, e.target);
-    if (mensagens.length > 0) {
-      mensagens.forEach((m) =>
-        addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}` })
-      );
-      return;
+    // Verifica se há algum arquivo
+    const hasFile = Object.values(payload).some((v) => v instanceof File);
+    let requestData = payload;
+    let config = {};
+
+    if (hasFile) {
+      requestData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach((v) => requestData.append(key, v));
+        } else if (value !== null && value !== undefined) {
+          requestData.append(key, value);
+        }
+      });
+      config = { headers: { "Content-Type": "multipart/form-data" } };
     }
 
-    try {
-      const payload = normalizePayload(editForm, metadata);
-      await axios.put(`${getEndpoint(modelName)}${id}/`, payload);
-      setEditId(null);
-      setEditForm(Object.fromEntries(Object.keys(editForm).map((k) => [k, ""])));
-      await fetchRecords();
-      addAlert("Registro atualizado com sucesso!", "success");
-    } catch (err) {
-      handleApiErrors(err);
-    }
+    await axios.post(getEndpoint(modelName), requestData, config);
+    await fetchRecords();
+    setForm(Object.fromEntries(Object.keys(form).map((k) => [k, ""])));
+    addAlert("Registro cadastrado com sucesso!", "success");
+  } catch (err) {
+    handleApiErrors(err);
   }
+}
+
+// UPDATE
+async function handleEditSubmit(e, id) {
+  e.preventDefault();
+  const mensagens = validaCampos(editForm, e.target);
+  if (mensagens.length > 0) {
+    mensagens.forEach((m) =>
+      addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}` })
+    );
+    return;
+  }
+
+  try {
+    const payload = normalizePayload(editForm, metadata);
+
+    // Verifica se há algum arquivo
+    const hasFile = Object.values(payload).some((v) => v instanceof File);
+    let requestData = payload;
+    let config = {};
+
+    if (hasFile) {
+      requestData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach((v) => requestData.append(key, v));
+        } else if (value !== null && value !== undefined) {
+          requestData.append(key, value);
+        }
+      });
+      config = { headers: { "Content-Type": "multipart/form-data" } };
+    }
+
+    await axios.put(`${getEndpoint(modelName)}${id}/`, requestData, config);
+    setEditId(null);
+    setEditForm(Object.fromEntries(Object.keys(editForm).map((k) => [k, ""])));
+    await fetchRecords();
+    addAlert("Registro atualizado com sucesso!", "success");
+  } catch (err) {
+    handleApiErrors(err);
+  }
+}
+
 
   // RENDER INPUT
   const renderInput = (f, value, onChange) => {

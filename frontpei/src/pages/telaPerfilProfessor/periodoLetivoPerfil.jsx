@@ -99,7 +99,7 @@ const PeriodoLetivoPerfil = () => {
               return (
                 <>
                   <Link to="/pareceres" state={{ peiCentralId }} className="btn-verde">Cadastrar Parecer</Link>
-                  <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
                 </>
               );
@@ -108,7 +108,7 @@ const PeriodoLetivoPerfil = () => {
                 <>
                   <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "napne":
@@ -118,7 +118,7 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
                   <Link to="/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
                   <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "coordenador":
@@ -129,7 +129,7 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
                   <Link to="/aluno" className="btn-verde">Gerenciar Alunos</Link>
                   <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "admin":

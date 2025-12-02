@@ -9,7 +9,7 @@ from rest_framework import status
 class DocumentacaoComplementarViewSet(ModelViewSet):
     queryset = DocumentacaoComplementar.objects.all()
     serializer_class = DocumentacaoComplementarSerializer
-    permission_classes = [BackendTokenPermission]
+    #permission_classes = [BackendTokenPermission]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
