@@ -7,21 +7,15 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: false,
+  withCredentials: false,     // ← FORÇA desativado
+  // Remove tudo de CSRF
 });
 
-// Interceptor: aplica sempre o token como "Token <token>"
+// Interceptor para garantir que NUNCA envie X-CSRFToken
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-
-  if (token) {
-    config.headers.Authorization = `Token ${token}`;
-  }
-
   delete config.headers["X-CSRFToken"];
   delete config.headers["X-Csrftoken"];
   config.withCredentials = false;
-
   return config;
 });
 

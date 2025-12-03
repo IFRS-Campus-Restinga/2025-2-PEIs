@@ -18,6 +18,7 @@ from .views.permissoes_view_set import UsuarioPermissoesView
 from .views.conteudo_view_set import ConteudoViewSet
 from .views.consulta_grupos import ConsultaGrupos
 from .views.model_schema_view import ModelSchemaView
+from .views.acompanhamento_view import (listar_meus_acompanhamentos, detalhe_acompanhamento, recusar_acompanhamento, aceitar_acompanhamento)
 
 
 # === OUTRAS VIEWS ===
@@ -57,6 +58,10 @@ urlpatterns = [
     path('notificacoes-lista/', listar_notificacoes, name='notificacoes-lista'),
     path("permissoes/", UsuarioPermissoesView.as_view(), name="usuario-permissoes"),
     path('consultaGrupos/', ConsultaGrupos.as_view(), name='consultaGrupos'),
-    
+
+    path("acompanhamentos/meus/", listar_meus_acompanhamentos, name="listar_meus_acompanhamentos"),
+    path("acompanhamentos/<int:id>/", detalhe_acompanhamento, name="detalhe_acompanhamento"),
+    path("acompanhamentos/<int:id>/recusar/", recusar_acompanhamento, name="recusar_acompanhamento"),
+    path("acompanhamentos/<int:id>/aceitar/", aceitar_acompanhamento, name="aceitar_acompanhamento"),    
 
 ]

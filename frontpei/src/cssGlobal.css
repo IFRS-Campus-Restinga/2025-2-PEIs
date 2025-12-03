@@ -1908,3 +1908,106 @@ Pop-up dos Pareceres
   gap: 10px;
   margin-top: 20px;
 }
+
+/* ----- Acompanhamentos ----- */
+
+.acompanhamentos-container {
+  padding: 20px;
+}
+
+.lista-acompanhamentos {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.acompanhamento-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 0 10px #0002;
+}
+
+.acompanhamento-card h3 {
+  margin-bottom: 8px;
+}
+
+.botoes-card {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-aceitar {
+  padding: 8px 14px;
+  background: #32c732;
+  border: none;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn-recusar {
+  padding: 8px 14px;
+  background: #d93434;
+  border: none;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* ----- Modal ----- */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background: #00000075;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-box {
+  background: #fff;
+  width: 400px;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #0005;
+}
+
+.modal-box textarea {
+  width: 100%;
+  height: 100px;
+  margin-top: 10px;
+  padding: 10px;
+  resize: none;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-cancelar {
+  padding: 8px 14px;
+  background: #d93434;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-confirmar {
+  padding: 8px 14px;
+  background: #32c732;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}

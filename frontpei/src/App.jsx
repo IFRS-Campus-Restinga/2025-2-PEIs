@@ -48,6 +48,7 @@ import TelaSolicitacoesPendentes from "./pages/admin/TelaSolicitacoesPendentes";
 import { mandaEmail } from "./lib/mandaEmail";
 import { consultaGrupo } from "./lib/consultaGrupo";
 import CrudWrapper from "./components/crud/crudWrapper.jsx";
+import Acompanhamentos from "./pages/acompanhamentos/Acompanhamentos.jsx";
 
 function App() {
   const [usuario, setUsuario] = useState(() => {
@@ -269,6 +270,7 @@ function App() {
                 <Route path="/conteudo" element={<PrivateRoute><Conteudo usuario={usuario} /></PrivateRoute>} />
 
                 <Route path="/crud/:modelKey" element={<PrivateRoute><CrudWrapper /></PrivateRoute>} />
+                <Route path="/acompanhamentos" element={<Acompanhamentos />} />
 
                 {isAdmin && (
                   <Route path="/admin/solicitacoes" element={<PrivateRoute><TelaSolicitacoesPendentes /></PrivateRoute>} />

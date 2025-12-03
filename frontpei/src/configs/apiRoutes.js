@@ -21,7 +21,7 @@ const endpoints = [
   "usuario",
   "conteudo",
   "consultaGrupos",
-  "schema"
+  "schema",
 ];
 
 // Constrói automaticamente as rotas padronizadas
@@ -33,7 +33,13 @@ export const API_ROUTES = {
     ])
   ),
 
-  // 🔥 ROTA DE LOGIN (não entra na lista automática!)
+  // Rotas especiais do Acompanhamento
+  ACOMPANHAMENTOS_MEUS: `${API_BASE_URL}acompanhamentos/meus/`,
+  ACOMPANHAMENTOS_DETALHE: (id) => `${API_BASE_URL}acompanhamentos/${id}/`,
+  ACOMPANHAMENTOS_RECUSAR: (id) => `${API_BASE_URL}acompanhamentos/${id}/recusar/`,
+  ACOMPANHAMENTOS_ACEITAR: (id) => `${API_BASE_URL}acompanhamentos/${id}/aceitar/`,
+
+  // ROTA DE LOGIN (não entra na lista automática!)
   //LOGIN: `${API_BASE_URL}services/login/`,
 
   // Rota especial de registro
