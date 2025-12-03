@@ -4,7 +4,7 @@
 *,
 *::before,
 *::after {
-  box-sizing: inherit;
+  box-sizing: border-box;
 }
 html,
 body {
@@ -32,6 +32,9 @@ body {
 .main-content {
   flex: 1;
   padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 80px;
 }
 .text-block {
   white-space: pre-wrap;
@@ -230,15 +233,25 @@ body {
     FOOTER
    ======================================== */
 .footer {
-  background: #f2f2f2; color: #333;
-  padding: 12px 24px; display: flex;
-  justify-content: space-between; align-items: center;
-  flex-wrap: wrap; font-size: 13px;
-  box-shadow: 0 -2px 8px rgba(0,0,0,.1);
-  position: fixed; bottom: 0; width: 98%;
-  border-top: 2px solid #ccc; font-family: 'Roboto', sans-serif;
-  opacity: 0; transform: translateY(20px);
-  animation: footerFadeIn .5s ease forwards;
+  background: #f2f2f2;
+  color: #333;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 13px;
+  box-shadow: 0 -2px 8px rgba(0,0,0,.05);
+  border-top: 1px solid #e0e0e0;
+  font-family: 'Roboto', sans-serif;
+  z-index: 10;
+
+  /* MUDANÇA CRUCIAL: */
+  position: relative; /* Solta ele da tela */
+  width: 100%;
+  margin-top: auto;   /* Empurra para o fundo */
+  bottom: auto;
+  z-index: 10;
 }
 @keyframes footerFadeIn { to { opacity: 1; transform: translateY(0); } }
 .footer-left { display: flex; flex-direction: row; align-items: center; gap: 12px; }

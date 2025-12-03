@@ -193,101 +193,74 @@ function App() {
       <AlertProvider>
         <AlertComponent />
 
-        {/* Layout interno (aparece apenas logado) */}
-        {logado && (
-          <>
+        {/* ======================================================== */}
+        {/* LAYOUT LOGADO*/}
+        {/* ======================================================== */}
+        {logado ? (
+          <div className="app-container">
+            {/* Header, Subheader e HR são filhos diretos do app-container */}
             <Header usuario={usuario} logado={logado} logout={logout} />
-            <SubHeader perfilSelecionado={perfilSelecionado} />
             <hr />
-          </>
-        )}
 
-        <main className="main-content">
-          <Routes>
-
-            {/* ================== ROTAS PÚBLICAS ================== */}
-            {!logado && (
-              <>
-                <Route path="/" element={
-                  <LoginPage 
-                    onLoginSuccess={sucessoLoginGoogle} 
-                    onLoginError={erroLoginGoogle}
-                    mensagemErro={mensagemErro}
-                  />
-                } />
-                <Route path="/pre-cadastro" element={<TelaPreCadastro />} />
-                <Route path="/aguardando-aprovacao" element={<AguardandoAprovacao />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </>
-            )}
-
-            {/* ================== ROTAS INTERNAS (LOGADO) ================== */}
-            {logado && (
-              <>
-                <Route path="/" element={
-                  <PrivateRoute>
-                    <Home 
-                      usuario={usuario} 
-                      perfilSelecionado={perfilSelecionado} 
-                      setPerfilSelecionado={setPerfilSelecionado} 
-                    />
-                  </PrivateRoute>
-                } />
-
-                <Route path="/pareceres" element={
-                  <PrivateRoute>
-                    <Pareceres usuario={usuario} />
-                  </PrivateRoute>
-                } />
+            {/* main.main-content é o elemento que cresce (flex: 1) */}
+            <main className="main-content">
+              <Routes>
+                {/* ROTAS INTERNAS */}
+                <Route path="/" element={<PrivateRoute><Home usuario={usuario} perfilSelecionado={perfilSelecionado} setPerfilSelecionado={setPerfilSelecionado} /></PrivateRoute>} />
+                <Route path="/pareceres" element={<PrivateRoute><Pareceres usuario={usuario} /></PrivateRoute>} />
                 <Route path="/periodo" element={<PrivateRoute><PEIPeriodoLetivo /></PrivateRoute>} />
                 <Route path="/listar_periodos" element={<PrivateRoute><PEIPeriodoLetivoLista /></PrivateRoute>} />
                 <Route path="/listar_periodos/:id" element={<PrivateRoute><PEIPeriodoLetivoLista /></PrivateRoute>} />
                 <Route path="/periodoLetivoPerfil" element={<PrivateRoute><PeriodoLetivoPerfil /></PrivateRoute>} />
-
                 <Route path="/disciplina" element={<PrivateRoute><Disciplinas /></PrivateRoute>} />
                 <Route path="/disciplinasCadastrar" element={<PrivateRoute><DisciplinasCRUD /></PrivateRoute>} />
                 <Route path="/disciplinaEditar/:id" element={<PrivateRoute><DisciplinasCRUD /></PrivateRoute>} />
-
                 <Route path="/curso" element={<PrivateRoute><Cursos /></PrivateRoute>} />
                 <Route path="/cursoCadastrar" element={<PrivateRoute><CursosCRUD /></PrivateRoute>} />
                 <Route path="/cursoEditar/:id" element={<PrivateRoute><CursosCRUD /></PrivateRoute>} />
-
                 <Route path="/aluno" element={<PrivateRoute><Alunos /></PrivateRoute>} />
                 <Route path="/coordenador" element={<PrivateRoute><CoordenadorCurso /></PrivateRoute>} />
-
                 <Route path="/peicentral" element={<PrivateRoute><PeiCentral /></PrivateRoute>} />
                 <Route path="/create_peicentral" element={<PrivateRoute><CreatePeiCentral /></PrivateRoute>} />
                 <Route path="/editar_peicentral/:id" element={<PrivateRoute><EditarPeiCentral /></PrivateRoute>} />
                 <Route path="/deletar_peicentral/:id" element={<PrivateRoute><DeletarPeiCentral /></PrivateRoute>} />
-
                 <Route path="/componenteCurricular" element={<PrivateRoute><ComponenteCurricular /></PrivateRoute>} />
                 <Route path="/ataDeAcompanhamento" element={<PrivateRoute><AtaDeAcompanhamento usuario={usuario} /></PrivateRoute>} />
                 <Route path="/documentacaoComplementar" element={<PrivateRoute><DocumentacaoComplementar /></PrivateRoute>} />
-
                 <Route path="/pedagogo" element={<PrivateRoute><Pedagogos /></PrivateRoute>} />
                 <Route path="/professor" element={<PrivateRoute><Professor /></PrivateRoute>} />
                 <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
                 <Route path="/conteudo" element={<PrivateRoute><Conteudo usuario={usuario} /></PrivateRoute>} />
-
                 <Route path="/crud/:modelKey" element={<PrivateRoute><CrudWrapper /></PrivateRoute>} />
                 <Route path="/todas-notificacoes" element={<PrivateRoute><TodasNotificacoes /></PrivateRoute>} />
-
-                {isAdmin && (
-                  <Route path="/admin/solicitacoes" element={<PrivateRoute><TelaSolicitacoesPendentes /></PrivateRoute>} />
-                )}
-
-                <Route path="/logs" element={
-                  <PrivateRoute>{isAdmin ? <Logs /> : <Navigate to="/" replace />}</PrivateRoute>
-                } />
+                
+                {isAdmin && (<Route path="/admin/solicitacoes" element={<PrivateRoute><TelaSolicitacoesPendentes /></PrivateRoute>} />)}
+                <Route path="/logs" element={<PrivateRoute>{isAdmin ? <Logs /> : <Navigate to="/" replace />}</PrivateRoute>} />
 
                 {/* Fallback interno: qualquer rota inválida → home */}
                 <Route path="*" element={<Navigate to="/" replace />} />
-              </>
-            )}
+              </Routes>
+            </main>
+            
+            <Footer usuario={usuario} />
+          </div>
+        ) : (
+        /* ======================================================== */
+        /* LAYOUT PÚBLICO (LOGIN)                                   */
+        /* ======================================================== */
+          <Routes>
+            <Route path="/" element={
+              <LoginPage 
+                onLoginSuccess={sucessoLoginGoogle} 
+                onLoginError={erroLoginGoogle}
+                mensagemErro={mensagemErro}
+              />
+            } />
+            <Route path="/pre-cadastro" element={<TelaPreCadastro />} />
+            <Route path="/aguardando-aprovacao" element={<AguardandoAprovacao />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </main>
-
-        {logado && <Footer usuario={usuario} />}
+        )}
       </AlertProvider>
     </GoogleOAuthProvider>
   );
