@@ -34,28 +34,33 @@ function CrudUniversal({ modelName }) {
   };
 
   function normalizeRecordForEdit(record, metadata) {
-    console.log("[NORMALIZE RECORD] Entrada:", record);
+  const normalized = { ...record };
 
-    const normalized = { ...record };
+  metadata.fields.forEach((f) => {
+    const value = record[f.name];
 
-    metadata.fields.forEach((f) => {
-      const value = record[f.name];
-
-      if (f.type === "select") {
-        normalized[f.name] =
-          typeof value === "object" && value !== null ? value.id : value;
+    if (f.name === "disciplinas") {
+      // Backend manda "disciplina: { id, nome }"
+      if (record.disciplina) {
+        normalized.disciplinas = record.disciplina.id;
       }
+      return;
+    }
 
-      if (f.type === "multiselect") {
-        normalized[f.name] = Array.isArray(value)
-          ? value.map((v) => (typeof v === "object" ? v.id : v))
-          : [];
-      }
-    });
+    if (f.type === "select") {
+      normalized[f.name] =
+        typeof value === "object" && value !== null ? value.id : value;
+    }
 
-    console.log("[NORMALIZE RECORD] Saída:", normalized);
-    return normalized;
-  }
+    if (f.type === "multiselect") {
+      normalized[f.name] = Array.isArray(value)
+        ? value.map((v) => (typeof v === "object" ? v.id : v))
+        : [];
+    }
+  });
+
+  return normalized;
+}
 
   const formatLabel = (label) => {
     if (!label) return "";
@@ -199,7 +204,19 @@ function CrudUniversal({ modelName }) {
         payload[f.name] = payload[f.name] || [];
       }
     });
+     // --- CONDIÇÃO CUSTOM PARA ComponenteCurricular ---
+    if (modelName === "ComponenteCurricular") {
+      console.log("[PAYLOAD CUSTOM] Detectado ComponenteCurricular, ajustando periodos_letivos_id");
 
+      // Se o form tiver periodos_letivos (multiselect), enviamos isso como periodos_letivos_id
+      if (Array.isArray(payload.periodos_letivos)) {
+        payload.periodos_letivos_id = payload.periodos_letivos.map(Number);
+      }
+
+      // Segurança: remove a chave errada caso exista
+      delete payload.periodos_letivos;
+    }
+    
     console.log("[PAYLOAD] Final:", payload);
     return payload;
   }
@@ -420,6 +437,7 @@ function CrudUniversal({ modelName }) {
     const options = selectOptions[f.name] || [];
 
     if (f.name === "disciplinas") {
+      
       // Se for multiselect, usa a lógica padrão de multiselect
       if (f.type === "multiselect") {
         return value && value.length
@@ -436,7 +454,7 @@ function CrudUniversal({ modelName }) {
               .join(", ")
           : "-";
       }
-
+      
       // Se NÃO for multiselect, usa sua lógica original (para outro model)
       const obj = record["disciplina"];
       console.log("[RENDER] disciplina (detalhe):", obj);
