@@ -1,9 +1,12 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import ErrorMessage from "../../components/errorMessage/ErrorMessage.jsx";
-import "../../components/errorMessage/ErrorMessage.css"
-
+import { validaCampos } from "../../utils/validaCampos";
+import { FieldAlert, useAlert } from "../../context/AlertContext";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
+import { API_ROUTES } from "../../configs/apiRoutes";
+import BuscaAutoComplete from "../../components/BuscaAutoComplete";
 
 function CreatePeiCentral() {
   const [historico_do_aluno, setHistorico] = useState("");
@@ -15,32 +18,58 @@ function CreatePeiCentral() {
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const navigate = useNavigate();
-  //constantes de validação dos campos no front
-  const [erroHistorico, setErroHistorico] = useState("");
-  const [erroNecessidadesEducacionaisEspecificas, setErroNecessidadesEducadionaisEspecificas] = useState("")
-  const [erroHabilidades, setErroHabilidades] = useState("");
-  const DB = axios.create({ baseURL: import.meta.env.VITE_PEI_CENTRAL_URL });
+
+  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
+  const DBALUNO = axios.create({ baseURL: API_ROUTES.ALUNO });
+
+  // NOVO — rota cursos
+  const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS });
+
+  // Carrega alunos
+  useEffect(() => {
+    async function recuperaAlunos() {
+      try {
+        const resp = await DBALUNO.get("/");
+        const data = resp.data;
+        console.log("ALUNOS:", data);
+        setAlunos(Array.isArray(data) ? data : data.results || []);
+      } catch (err) {
+        addAlert("Erro ao carregar alunos!", "error");
+      }
+    }
+    recuperaAlunos();
+  }, []);
+
+  // Carrega cursos
+  useEffect(() => {
+    async function recuperaCursos() {
+      try {
+        const resp = await DBCURSOS.get("/");
+        const data = resp.data;
+        setCursos(Array.isArray(data) ? data : data.results || []);
+      } catch (err) {
+        addAlert("Erro ao carregar cursos!", "error");
+      }
+    }
+    recuperaCursos();
+  }, []);
+
+  // Filtra alunos por curso
+  const alunosFiltrados = cursoSelecionado
+    ? alunos.filter((a) => a.curso_obj?.id === Number(cursoSelecionado))
+    : alunos;
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setErro("");
-    setSucesso("");
-    setErroHistorico("");
-    setErroNecessidadesEducadionaisEspecificas("");
-    setErroHabilidades("");
 
-    //Validação campo histórico
-    if(historico_do_aluno.trim().length < 200){
-      setErroHistorico("!A descrição do Histórico do Aluno deve conter pelo menos duzentos (200) caracteres!")
-      
-    }
-    //Validação do campo necessidades
-    if(necessidades_educacionais_especificas.trim().length < 50){
-      setErroNecessidadesEducadionaisEspecificas("!A descrição para as Necessidades Educacionais do Aluno devem conter ao menos cinquenta (50) caracteres!")
-    }
-    //Validação do campo habilidades
-    if(habilidades.trim().length < 50){
-      setErroHabilidades("!A descrição para as Habilidades do Aluno devem conter ao menos cinquenta (50) caracteres !")
+    const mensagens = validaCampos(form, e.target);
+
+    if (mensagens.length > 0) {
+      mensagens.forEach((m) =>
+        addAlert(m.message, "error", { fieldName: m.fieldName })
+      );
+      addAlert("Campos obrigatórios não preenchidos.", "warning");
+      return;
     }
 
     try {
@@ -89,7 +118,49 @@ function CreatePeiCentral() {
       </div>  
       
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Campo de preenchimento de historico_do_aluno */}
+
+        {/* Seleção de Curso */}
+        <label>Selecione o Curso</label>
+        <br />
+        <select
+          value={cursoSelecionado}
+          onChange={(e) => {
+            setCursoSelecionado(e.target.value);
+            setForm({ ...form, aluno_id: "" });
+            clearFieldAlert("aluno_id");
+          }}
+        >
+          <option value="">-- Selecione --</option>
+          {cursos.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.nome}
+            </option>
+          ))}
+        </select>
+
+        {/* Autocomplete do Aluno */}
+        <label>Selecione o Aluno</label>
+        <br />
+
+        <div>
+          <label className="block mb-1 font-medium">
+            Selecione o Aluno (Busca por Nome/Matrícula)
+          </label>
+
+          <BuscaAutoComplete
+            onSelectAluno={(alunoId) => {
+              setForm({ ...form, aluno_id: alunoId });
+            }}
+            disabled={!cursoSelecionado}
+            clearFieldAlert={clearFieldAlert}
+          />
+
+          <FieldAlert fieldName="aluno_id" />
+
+          <input type="hidden" name="aluno_id" value={form.aluno_id} />
+        </div>
+
+        {/* Histórico */}
         <div>
           <label className="block mb-1 font-medium">Histórico do Aluno:{erroHistorico &&(<span>⚠️</span>)}</label> 
           <br></br>
@@ -100,9 +171,13 @@ function CreatePeiCentral() {
               borderColor: erroHistorico ? "red": "#770404",
             }}
             rows={6}
-            value={historico_do_aluno}
-            onChange={(e) => setHistorico(e.target.value)}
-            className="px-2 py-1 rounded w-full h-32 resize-y" 
+            name="historico_do_aluno"
+            value={form.historico_do_aluno}
+            onChange={(e) => {
+              setForm({ ...form, historico_do_aluno: e.target.value });
+              if (e.target.value.trim()) clearFieldAlert("historico_do_aluno");
+            }}
+            className="border px-2 py-1 rounded w-full h-32 resize-y"
             placeholder="Digite o histórico completo do aluno"
             required
           />
@@ -123,8 +198,7 @@ function CreatePeiCentral() {
             value={necessidades_educacionais_especificas}
             onChange={(e) => setNecessidades(e.target.value)}
             className="border px-2 py-1 rounded w-full h-32 resize-y"
-            placeholder="Detalhar as condições do estudante o que ele necessita. Ex: Se o estudante é cego: sua condição é: cegueira. Precisa de: Braille, Leitor de telas..."
-            required
+            placeholder="Ex: Se o estudante é cego, precisa de Braille..."
           />
         </div>
 
@@ -142,8 +216,7 @@ function CreatePeiCentral() {
             value={habilidades}
             onChange={(e) => setHabilidades(e.target.value)}
             className="border px-2 py-1 rounded w-full h-32 resize-y"
-            placeholder="Conhecimentos, Habilidades, Capacidades, Interesses, Necessidades (O que sabe? Do que gosta/afinidades?...)"
-            required
+            placeholder="Conhecimentos, habilidades, interesses..."
           />
         </div>
 
@@ -155,8 +228,13 @@ function CreatePeiCentral() {
           <textarea
             style={{ width: "100%" }}
             rows={6}
-            value={dificuldades_apresentadas}
-            onChange={(e) => SetDificuldadesApresentadas(e.target.value)}
+            name="dificuldades_apresentadas"
+            value={form.dificuldades_apresentadas}
+            onChange={(e) => {
+              setForm({ ...form, dificuldades_apresentadas: e.target.value });
+              if (e.target.value.trim())
+                clearFieldAlert("dificuldades_apresentadas");
+            }}
             className="border px-2 py-1 rounded w-full h-32 resize-y"
             placeholder="Dificuldades Apresentadas"
             required
