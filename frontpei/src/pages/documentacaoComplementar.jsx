@@ -7,24 +7,18 @@ import BotaoEditar from "../components/customButtons/botaoEditar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
 import "../cssGlobal.css";
 import { API_ROUTES } from "../configs/apiRoutes";
+import { useLocation} from "react-router-dom";
 
 function DocumentacaoComplementar() {
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
-
-  useEffect(() => {
-    // limpa todos os alertas ao entrar na tela
-    clearAlerts();
-  }, []);
-
-  // Cria instância da API
-  const DBDOC = axios.create({
-    baseURL: API_ROUTES.DOCUMENTACAOCOMPLEMENTAR });
-
-  const [form, setForm] = useState({ autor: "", tipo: "", arquivo: null });
+  const location = useLocation()
+  const {matricula} = location.state || {}
+  const DBDOC = axios.create({baseURL: API_ROUTES.DOCUMENTACAOCOMPLEMENTAR });
+  const [form, setForm] = useState({ nomeArquivo: "" });
   const [arquivo, setArquivo] = useState(null);
   const [docs, setDocs] = useState([]);
   const [editId, setEditId] = useState(null);
-  const [editForm, setEditForm] = useState({ autor: "", tipo: "", arquivo: null });
+  const [editForm, setEditForm] = useState({ nomeArquivo: "" });
   const [editArquivo, setEditArquivo] = useState(null);
 
   const recuperaDocs = async () => {
@@ -36,20 +30,23 @@ function DocumentacaoComplementar() {
     }
   };
 
-  useEffect(() => {
-    recuperaDocs();
-  }, []);
+  const montaFormData = (dados, arquivo, matricula) => {
+    const form = new FormData();
 
-  const montaFormData = (dados, arquivo) => {
-    const fd = new FormData();
-    Object.entries(dados).forEach(([k, v]) => fd.append(k, v));
-    if (arquivo) fd.append("arquivo", arquivo);
-    return fd;
-  };
+    form.append("nomeArquivo", dados.nomeArquivo || "");
+    form.append("matricula", matricula);
+
+    if(arquivo){
+      form.append("arquivo", arquivo)
+    }
+
+    return form
+  }
 
   const adicionaDoc = async (e) => {
     e.preventDefault();
-    const mensagens = validaCampos(form, e.target);
+    const formComArquivo = { ...form, arquivo };
+    const mensagens = validaCampos(formComArquivo, e.target);
     if (mensagens.length > 0) {
       mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
@@ -57,11 +54,11 @@ function DocumentacaoComplementar() {
     }
 
     try {
-      await DBDOC.post("/", montaFormData(form, arquivo), {
+      await DBDOC.post("/", montaFormData(form, arquivo, matricula), {
         headers: { "Content-Type": "multipart/form-data" },
       });
       addAlert("Documento cadastrado com sucesso!", "success");
-      setForm({ autor: "", tipo: "" });
+      setForm({ nomeArquivo: ""});
       setArquivo(null);
       recuperaDocs();
     } catch (err) {
@@ -97,12 +94,12 @@ function DocumentacaoComplementar() {
     }
 
     try {
-      await DBDOC.put(`/${id}/`, montaFormData(editForm, editArquivo), {
+      await DBDOC.put(`/${id}/`, montaFormData(editForm, editArquivo, matricula), {
         headers: { "Content-Type": "multipart/form-data" },
       });
       addAlert("Documento atualizado com sucesso!", "success");
       setEditId(null);
-      setEditForm({ autor: "", tipo: "" });
+      setEditForm({ nomeArquivo: ""});
       setEditArquivo(null);
       recuperaDocs();
     } catch (err) {
@@ -128,37 +125,29 @@ function DocumentacaoComplementar() {
     }
   };
 
+  useEffect(() => {
+    recuperaDocs();
+    clearAlerts();
+  }, []);
+
   return (
     <div className="container-padrao">
       <h1>Gerenciar Documentação Complementar</h1>
 
       <h2>Adicionar Documento</h2>
       <form className="form-padrao" onSubmit={adicionaDoc}>
-        <label>Autor:</label>
+        <label>Nome do arquivo:</label>
         <input
           type="text"
-          name="autor"
-          value={form.autor}
+          name="nomeArquivo"
+          value={form.nomeArquivo}
           onChange={(e) => {
-            setForm({ ...form, autor: e.target.value });
-            if (e.target.value.trim()) clearFieldAlert("autor");
+            setForm({ ...form, nomeArquivo: e.target.value });
+            if (e.target.value.trim()) clearFieldAlert("nomeArquivo");
           }}
-          placeholder="Nome do autor"
+          placeholder="Ex: Plano de Ensino Matemática 2025/1"
         />
-        <FieldAlert fieldName="autor" />
-
-        <label>Tipo:</label>
-        <input
-          type="text"
-          name="tipo"
-          value={form.tipo}
-          onChange={(e) => {
-            setForm({ ...form, tipo: e.target.value });
-            if (e.target.value.trim()) clearFieldAlert("tipo");
-          }}
-          placeholder="Ex: Relatório, Ata"
-        />
-        <FieldAlert fieldName="tipo" />
+        <FieldAlert fieldName="nomeArquivo" />
 
         <label>Arquivo:</label>
         <input
@@ -172,7 +161,9 @@ function DocumentacaoComplementar() {
         />
         <FieldAlert fieldName="arquivo" />
 
-        <button type="submit" className="submit-btn">Adicionar Documento</button>
+        <button type="submit" className="submit-btn">
+          Adicionar Documento
+        </button>
       </form>
 
       <div className="list-padrao">
@@ -183,29 +174,18 @@ function DocumentacaoComplementar() {
             <li key={d.id} className="componente-item">
               {editId === d.id ? (
                 <form id="editForm" onSubmit={(e) => atualizaDoc(e, d.id)}>
-                  <label>Autor:</label>
+                  <label>Nome do arquivo:</label>
                   <input
                     type="text"
-                    name="autor"
-                    value={editForm.autor}
+                    name="nomeArquivo"
+                    value={editForm.nomeArquivo}
                     onChange={(e) => {
-                      setEditForm({ ...editForm, autor: e.target.value });
-                      if (e.target.value.trim()) clearFieldAlert("edit-autor");
+                      setEditForm({ ...editForm, nomeArquivo: e.target.value });
+                      if (e.target.value.trim())
+                        clearFieldAlert("edit-nomeArquivo");
                     }}
                   />
-                  <FieldAlert fieldName="edit-autor" />
-
-                  <label>Tipo:</label>
-                  <input
-                    type="text"
-                    name="tipo"
-                    value={editForm.tipo}
-                    onChange={(e) => {
-                      setEditForm({ ...editForm, tipo: e.target.value });
-                      if (e.target.value.trim()) clearFieldAlert("edit-tipo");
-                    }}
-                  />
-                  <FieldAlert fieldName="edit-tipo" />
+                  <FieldAlert fieldName="edit-nomeArquivo" />
 
                   <label>Novo Arquivo (opcional):</label>
                   <input
@@ -220,18 +200,28 @@ function DocumentacaoComplementar() {
                   <FieldAlert fieldName="edit-arquivo" />
 
                   <div className="posicao-buttons esquerda">
-                    <button type="submit" className="btn-salvar">Salvar</button>
-                    <button type="button" className="botao-deletar" onClick={() => setEditId(null)}>
+                    <button type="submit" className="btn-salvar">
+                      Salvar
+                    </button>
+                    <button
+                      type="button"
+                      className="botao-deletar"
+                      onClick={() => setEditId(null)}
+                    >
                       Cancelar
                     </button>
                   </div>
                 </form>
               ) : (
                 <div className="componente-detalhe">
-                  <strong>Autor:</strong> {d.autor || "-"} <br />
-                  <strong>Tipo:</strong> {d.tipo || "-"} <br />
+                  <strong>Nome do arquivo:</strong> {d.nomeArquivo || "-"} <br />
                   {d.arquivo ? (
-                    <a href={d.arquivo} target="_blank" rel="noreferrer" className="link-arquivo">
+                    <a
+                      href={d.arquivo}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="link-arquivo"
+                    >
                       Ver Arquivo
                     </a>
                   ) : (
@@ -242,7 +232,7 @@ function DocumentacaoComplementar() {
                       id={d.id}
                       onClickInline={() => {
                         setEditId(d.id);
-                        setEditForm({ autor: d.autor, tipo: d.tipo });
+                        setEditForm({ nomeArquivo: d.nomeArquivo });
                       }}
                     />
                     <BotaoDeletar

@@ -27,8 +27,15 @@ class Parecer(BaseModel):
 
     data = models.DateField(auto_now_add=True)
 
+    
+
     def __str__(self):
-        return f"Parecer {self.id} - {self.componente_curricular.periodo_letivo.periodo}"
+        if self.componente_curricular.periodos_letivos.exists():
+            periodos = ", ".join([p.periodo for p in self.componente_curricular.periodos_letivos.all()])
+        else:
+            periodos = "Sem período"
+        return f"Parecer {self.id} - {periodos}"
+
 
     def clean(self):
         if self.professor and not self.professor.groups.filter(name="Professor").exists():

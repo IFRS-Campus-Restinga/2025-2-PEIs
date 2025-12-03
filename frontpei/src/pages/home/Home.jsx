@@ -10,27 +10,35 @@ DataTable.use(DT);
 
 const HomeView = () => {
   const [tableData, setTableData] = useState([]);
-  const [loading, setLoading] = useState(true);     
-  const [nomeCompleto, setNomeCompleto] = useState("Usuário"); 
+  const [loading, setLoading] = useState(true);
+  const [nomeCompleto, setNomeCompleto] = useState("Usuário");
   const [meusGrupos, setMeusGrupos] = useState([]);
   const [token, setToken] = useState("");
-  const navigate = useNavigate();
-
   const [identificadorUsuario, setIdentificadorUsuario] = useState("");
 
-  // 1) PEGA USUÁRIO DO localStorage — NOME COMPLETO + USERNAME + GRUPOS
+  const navigate = useNavigate();
+
+  const normalizar = (str = "") =>
+    str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[\._-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+
+  // Carrega usuário
   useEffect(() => {
     const usuarioSalvo = localStorage.getItem("usuario");
     if (!usuarioSalvo) {
       navigate("/");
       return;
     }
-
     try {
       const usuario = JSON.parse(usuarioSalvo);
       const tokenSalvo = usuario.token;
       const email = usuario.email || "";
-      const nomeDoUsuario = usuario.nome || "Usuário";
+      const nomeUsuario = usuario.nome || "Usuário";
       const gruposArray = usuario.grupos || (usuario.grupo ? [usuario.grupo] : []);
 
       if (!tokenSalvo) {
@@ -39,121 +47,161 @@ const HomeView = () => {
       }
 
       const usernameDoEmail = email.split("@")[0].toLowerCase().trim();
-      const nomeCompletoLower = nomeDoUsuario.toLowerCase().trim();
-
-      // AQUI É A MÁGICA: guardamos os DOIS identificadores
+      const nomeCompletoLower = nomeUsuario.toLowerCase().trim();
       const identificador = usernameDoEmail || nomeCompletoLower;
 
-      console.log("USUÁRIO LOGADO:", { 
-        nome: nomeDoUsuario, 
-        username: usernameDoEmail,
-        identificadorUsado: identificador 
-      });
-
       setToken(tokenSalvo);
-      setNomeCompleto(nomeDoUsuario);
-      setIdentificadorUsuario(identificador);  // ← usado no filtro
+      setNomeCompleto(nomeUsuario);
+      setIdentificadorUsuario(identificador);
       setMeusGrupos(gruposArray.map(g => g.toLowerCase()));
-
     } catch (err) {
-      console.error("Erro ao ler usuario", err);
+      console.error("Erro ao ler usuário", err);
       navigate("/");
     }
   }, [navigate]);
 
-  // 2) PEGA COORDENADOR DO PEI
-  const extrairCoordenador = (pei) => {
+  // Função para coordenador
+  const getCoordenadorInfo = (pei) => {
     try {
-      for (const periodo of pei.periodos || []) {
-        for (const comp of periodo.componentes_curriculares || []) {
-          const disc = comp.disciplina || comp.disciplinas;
-          if (!disc?.cursos?.[0]?.coordenador) continue;
-          const coord = disc.cursos[0].coordenador;
-          return (coord.username || coord.email?.split("@")[0] || "").toLowerCase().trim();
-        }
-      }
-      return null;
+      let coord = pei.cursos?.coordenador;
+      if (!coord) return null;
+
+      const nomeExibicao = coord.nome || coord.username || coord.email?.split("@")[0] || "—";
+      const possiveisNomes = [coord.nome, coord.username, coord.email?.split("@")[0]]
+        .filter(Boolean)
+        .map(normalizar);
+
+      return { nomeExibicao, possiveisNomes };
     } catch {
       return null;
     }
   };
 
-  // 3) VERIFICA SE O PROFESSOR DEU PARECER
+  // Função para verificar se o professor já tem parecer
   const temMeuParecer = (pei) => {
-    try {
-      const identificadorLower = identificadorUsuario.toLowerCase().trim();
+    const meuIdentificadorNorm = normalizar(identificadorUsuario);
+    const meuNomeNorm = normalizar(nomeCompleto);
 
-      for (const periodo of pei.periodos || []) {
-        for (const comp of periodo.componentes_curriculares || []) {
-          for (const parecer of comp.pareceres || []) {
-            const prof = parecer.professor;
-            if (!prof) continue;
+    return (pei.periodos || []).some(periodo =>
+      (periodo.componentes_curriculares || []).some(comp =>
+        (comp.pareceres || []).some(parecer => {
+          const prof = parecer.professor;
+          if (!prof) return false;
 
-            const nomeProf = (prof.nome || "").toLowerCase().trim();
-            const usernameProf = (prof.username || "").toLowerCase().trim();
-            const emailUser = prof.email ? prof.email.split("@")[0].toLowerCase().trim() : "";
+          const candidatos = [
+            prof.nome,
+            prof.username,
+            prof.email?.split("@")[0]
+          ].filter(Boolean).map(normalizar);
 
-            // Agora compara com QUALQUER coisa que você tenha
-            if (
-              nomeProf.includes(identificadorLower) ||
-              usernameProf === identificadorLower ||
-              emailUser === identificadorLower ||
-              identificadorLower.includes(nomeProf) // caso o nome completo esteja no identificador
-            ) {
-              return true;
-            }
-          }
-        }
-      }
-      return false;
-    } catch (err) {
-      console.error("Erro em temMeuParecer:", err);
-      return false;
-    }
+          return candidatos.some(c =>
+            c.includes(meuIdentificadorNorm) ||
+            meuIdentificadorNorm.includes(c) ||
+            c.includes(meuNomeNorm) ||
+            meuNomeNorm.includes(c)
+          );
+        })
+      )
+    );
   };
 
-  // 4) CARREGA E FILTRA OS PEIs
+  // Cria instância Axios para disciplinas
+  const DBDISCIPLINAS = axios.create({
+    baseURL: API_ROUTES.DISCIPLINAS,
+    headers: { Authorization: `Token ${token}` },
+  });
+
+  // Carrega e filtra PEIs
   useEffect(() => {
     if (!token || !identificadorUsuario) return;
 
     async function load() {
       try {
         setLoading(true);
-        const res = await axios.get(API_ROUTES.PEI_CENTRAL, {
+
+        // GET PEIs
+        const resPei = await axios.get(API_ROUTES.PEI_CENTRAL, {
           headers: { Authorization: `Token ${token}` },
         });
+        const peis = resPei.data.results || resPei.data || [];
 
-        const peis = res.data.results || res.data || [];
+        // GET todas as disciplinas
+        const resDiscs = await DBDISCIPLINAS.get("/");
+        const todasDisciplinas = resDiscs.data.results || resDiscs.data || [];
 
-        const dados = peis
-          .map((pei) => {
-            const coordUsername = extrairCoordenador(pei);
-            const comp = pei.periodos?.[0]?.componentes_curriculares?.[0];
-            const disciplina = comp?.disciplina || comp?.disciplinas || {};
+        const meuIdentificadorNorm = normalizar(identificadorUsuario);
+        const meuNomeNorm = normalizar(nomeCompleto);
+        const souCoordenador = meusGrupos.includes("coordenador");
+        const souProfessor = meusGrupos.includes("professor");
+        const souAdmin = meusGrupos.includes("admin");
 
-            return {
-              nome: pei.aluno_nome || pei.aluno?.nome || "Sem nome",
-              componente: disciplina.nome || "Diversos",
-              status: pei.status_pei || "ABERTO",
-              coordenador: coordUsername ? coordUsername.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') 
-              : "—",
-              peiCentralId: pei.id,
-              coordenadorRaw: coordUsername,
-              temMeuParecer: temMeuParecer(pei),
-            };
-          })
-          .filter((item => {
-            const souCoordenador = meusGrupos.includes("coordenador");
-            const souProfessor = meusGrupos.includes("professor");
+        // Processa PEIs
+        const dados = peis.map(pei => {
+          const comps = pei.periodos?.[0]?.componentes_curriculares || [];
+          const disciplinasDoPei = comps.map(c => c.disciplina).filter(Boolean);
 
-            if (souCoordenador && item.coordenadorRaw !== identificadorUsuario) return false;
-            if (souProfessor && !souCoordenador && !item.temMeuParecer) return false;
+          let disciplinasDoProf;
 
-            return true;
-          }));
+          if (souAdmin) {
+            // Admin vê todas as disciplinas
+            disciplinasDoProf = disciplinasDoPei;
+          } else {
+            // Professores veem apenas as disciplinas vinculadas a eles
+            disciplinasDoProf = disciplinasDoPei.filter(d => {
+              const discSistema = todasDisciplinas.find(td => td.id === d.id);
+              if (!discSistema?.professores) return false;
 
-        console.log(`Mostrando ${dados.length} PEIs para ${nomeCompleto} (${meusGrupos.join(", ")})`);
-        setTableData(dados);
+              return discSistema.professores.some(prof => {
+                const candidatos = [
+                  prof.nome,
+                  prof.username,
+                  prof.email?.split("@")[0]
+                ].filter(Boolean).map(normalizar);
+
+                return candidatos.includes(meuIdentificadorNorm);
+              });
+            });
+          }
+
+          const coordInfo = getCoordenadorInfo(pei);
+
+          return {
+            nome: pei.aluno_nome || pei.aluno?.nome || "Sem nome",
+            componente: disciplinasDoProf.map(d => d.nome).join(", ") || "Nenhuma",
+            status: pei.status_pei || "ABERTO",
+            coordenador: coordInfo?.nomeExibicao || "—",
+            coordPossiveisNomes: coordInfo?.possiveisNomes || [],
+            peiCentralId: pei.id,
+            temMeuParecer: temMeuParecer(pei),
+            disciplinasGet: disciplinasDoProf
+          };
+        });
+
+        // Filtra PEIs visíveis para o usuário
+        const dadosFiltrados = dados.filter(item => {
+          if (souAdmin) {
+            return true; // Admin vê todos os PEIs
+          }
+
+          if (souCoordenador) {
+            if (!item.coordPossiveisNomes?.length) return false;
+            return item.coordPossiveisNomes.some(nomeC =>
+              nomeC.includes(meuIdentificadorNorm) ||
+              meuIdentificadorNorm.includes(nomeC) ||
+              nomeC.includes(meuNomeNorm) ||
+              meuNomeNorm.includes(nomeC)
+            );
+          }
+
+          if (souProfessor && !souCoordenador) {
+            return item.temMeuParecer || (item.disciplinasGet?.length > 0);
+          }
+
+          return true;
+        });
+
+        setTableData(dadosFiltrados);
+
       } catch (err) {
         console.error("Erro ao carregar PEIs:", err);
         if (err.response?.status === 401) {
@@ -166,7 +214,7 @@ const HomeView = () => {
     }
 
     load();
-  }, [token, identificadorUsuario, meusGrupos, navigate]);
+  }, [token, identificadorUsuario, nomeCompleto, meusGrupos, navigate]);
 
   // Botão Visualizar
   useEffect(() => {
@@ -180,16 +228,8 @@ const HomeView = () => {
     return () => document.removeEventListener("click", handler);
   }, [navigate]);
 
-  // RENDER
   return (
     <div className="telaPadrao-page">
-        <p style={{ margin: "8px 0 0", color: "#555" }}>
-          {meusGrupos.includes("coordenador")}
-          {meusGrupos.includes("professor") && !meusGrupos.includes("coordenador")}
-          {!meusGrupos.includes("coordenador") && !meusGrupos.includes("professor")}
-        </p>
-      
-
       {loading ? (
         <p style={{ textAlign: "center", padding: "100px", fontSize: "1.8em", fontWeight: "bold" }}>
           Carregando seus PEIs...
@@ -200,9 +240,9 @@ const HomeView = () => {
             Nenhum PEI encontrado.
           </p>
           <p style={{ fontSize: "1.2em", color: "#7f8c8d" }}>
-            {meusGrupos.includes("coordenador") && `${nomeCompleto}, você ainda não tem alunos nos cursos que coordena.`}
+            {meusGrupos.includes("coordenador") && `${nomeCompleto}, você ainda não tem alunos nos seus cursos.`}
             {meusGrupos.includes("professor") && !meusGrupos.includes("coordenador") && `${nomeCompleto}, você ainda não cadastrou parecer em nenhum aluno.`}
-            {!meusGrupos.includes("coordenador") && !meusGrupos.includes("professor") && "Não há PEIs registrados no sistema no momento."}
+            {!meusGrupos.some(g => ["coordenador", "professor", "admin"].includes(g)) && "Não há PEIs registrados no sistema no momento."}
           </p>
         </div>
       ) : (
@@ -218,8 +258,8 @@ const HomeView = () => {
               data: "peiCentralId",
               orderable: false,
               render: (id) => `
-                <button class="btn btn-sm btn-primary visualizar-btn" data-id="${id}">
-                  Visualizar
+                <button class="btn-verde visualizar-btn" data-id="${id}" style="padding: 8px 16px; font-size: 0.9em;">
+                  Gerenciar
                 </button>
               `,
             },
@@ -227,7 +267,7 @@ const HomeView = () => {
           className="display table table-striped table-hover w-100"
           options={{
             destroy: true,
-            pageLength: 15,
+            pageLength: 10,
             lengthMenu: [10, 15, 25, 50, 100],
             language: {
               search: "Pesquisar aluno:",

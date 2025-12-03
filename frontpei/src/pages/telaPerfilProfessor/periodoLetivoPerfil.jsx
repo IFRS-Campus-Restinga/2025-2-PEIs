@@ -1,4 +1,3 @@
-// src/pages/periodoLetivoPerfil/PeriodoLetivoPerfil.jsx
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -19,28 +18,22 @@ const PeriodoLetivoPerfil = () => {
   const [nomeUsuario, setNomeUsuario] = useState("Usuário");
   const [erro, setErro] = useState(false);
 
-  // PEGA NOME COMPLETO + GRUPOS DO USUÁRIO LOGADO
+  // Carrega usuário do localStorage
   useEffect(() => {
     const usuarioSalvo = localStorage.getItem("usuario");
     if (usuarioSalvo) {
       try {
         const user = JSON.parse(usuarioSalvo);
-
-        // Nome completo direto do backend (ex: "Jampier Brunetto")
         setNomeUsuario(user.nome || "Usuário");
-
-        // Grupos (para os botões)
-        const grupos = (user.grupos || []).map(g => g.toLowerCase());
-        setGruposUsuario(grupos);
-
-        console.log("USUÁRIO LOGADO:", { nome: user.nome, grupos });
+        setGruposUsuario((user.grupos || []).map(g => g.toLowerCase()));
+        console.log("USUÁRIO LOGADO:", { nome: user.nome, grupos: user.grupos });
       } catch (err) {
-        console.error("Erro ao ler usuário do localStorage", err);
+        console.error("Erro ao ler usuário do localStorage:", err);
       }
     }
   }, []);
 
-  // CARREGA DADOS DO PEI
+  // Carrega dados do PEI
   useEffect(() => {
     if (!peiCentralId) return;
 
@@ -49,45 +42,43 @@ const PeriodoLetivoPerfil = () => {
         const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`);
         const pei = res.data;
 
-        setAluno(pei.aluno || { nome: "Aluno não encontrado", email: "" });
+        console.log("PEI Central retornado:", pei);
 
+        // --- ALUNO ---
+        const alunoData = pei.aluno || { nome: "Aluno não encontrado", email: "" };
+        setAluno(alunoData);
+        console.log("Aluno retornado:", alunoData);
+
+        // --- PERÍODO PRINCIPAL ---
         const periodos = pei.periodos || [];
-        if (periodos.length > 0) {
-          setPeriodoPrincipal(periodos[0].periodo_principal || "—");
-        }
+        setPeriodoPrincipal(periodos[0]?.periodo_principal || "—");
 
-        // Busca curso e coordenador
-        let cursoTemp = null;
-        let coordNome = "—";
-        for (const p of periodos) {
-          for (const comp of p.componentes_curriculares || []) {
-            const disc = comp.disciplina || comp.disciplinas;
-            if (disc?.cursos?.[0]) {
-              cursoTemp = disc.cursos[0];
-              const coord = cursoTemp.coordenador;
-              coordNome = coord?.username || coord?.email?.split("@")[0] || "—";
-              break;
-            }
-          }
-          if (cursoTemp) break;
-        }
-        setCurso(cursoTemp);
-        setCoordenador(coordNome);
+        // --- CURSO E COORDENADOR via novo campo cursos ---
+        const cursoData = pei.cursos || null;
+        setCurso(cursoData);
+        console.log("Curso retornado:", cursoData);
 
-        // Pareceres
+        let nomeCoord = "—";
+        if (cursoData?.coordenador) {
+          const coord = cursoData.coordenador;
+          nomeCoord = coord.username || coord.nome || coord.email?.split("@")[0] || "—";
+        }
+        setCoordenador(nomeCoord);
+        console.log("Coordenador do curso:", nomeCoord);
+
+        // --- PARECERES ---
         const todosPareceres = periodos
           .flatMap(p => p.componentes_curriculares || [])
-          .flatMap(comp => 
+          .flatMap(comp =>
             (comp.pareceres || []).map(parecer => ({
               ...parecer,
-              componenteNome: comp.disciplina?.nome || comp.disciplinas?.nome || "Sem disciplina",
-              professorNome: parecer.professor?.username || 
-                           parecer.professor?.email?.split("@")[0] || 
-                           "Professor"
+              componenteNome: comp.disciplina?.nome || "Sem disciplina",
+              professorNome: parecer.professor?.username || parecer.professor?.nome || parecer.professor?.email?.split("@")[0] || "Professor",
             }))
           );
 
         setPareceres(todosPareceres);
+        console.log("Pareceres processados:", todosPareceres);
 
       } catch (err) {
         console.error("Erro ao carregar PEI:", err);
@@ -98,7 +89,7 @@ const PeriodoLetivoPerfil = () => {
     carregarDados();
   }, [peiCentralId]);
 
-  // BOTÕES ORIGINAIS (com correção do brn-verde → btn-verde)
+  // Render dos botões baseado no grupo do usuário
   const renderBotoesOriginais = () => {
     return (
       <>
@@ -107,12 +98,11 @@ const PeriodoLetivoPerfil = () => {
             case "professor":
               return (
                 <>
-                  <Link to="/pareceres" className="btn-verde">Cadastrar Parecer</Link>
+                  <Link to="/pareceres" state={{ peiCentralId }} className="btn-verde">Cadastrar Parecer</Link>
                   <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
                 </>
               );
-
             case "pedagogo":
               return (
                 <>
@@ -121,7 +111,6 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
-
             case "napne":
               return (
                 <>
@@ -132,7 +121,6 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
-
             case "coordenador":
               return (
                 <>
@@ -144,7 +132,6 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
-
             case "admin":
               return (
                 <>
@@ -154,25 +141,26 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/crud/PEIPeriodoLetivo" className="btn-verde">Gerenciar Períodos Letivos</Link>
                   <Link to="/crud/aluno" className="btn-verde">Gerenciar Alunos</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/crud/parecer" className="btn-verde">Cadastrar Parecer</Link>
+                  <Link to="/pareceres" state={{ peiCentralId }} className="btn-verde">Cadastrar Parecer</Link>
                   <Link to="/crud/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
                   <Link to="/crud/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}}className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
-
             default:
               return null;
           }
         })}
-
         <BotaoVoltar />
       </>
     );
   };
 
-  if (erro) return <p style={{ textAlign: "center", color: "red", padding: "50px" }}>Erro ao carregar o PEI.</p>;
-  if (!aluno) return <p style={{ textAlign: "center", padding: "50px" }}>Carregando perfil do aluno...</p>;
+  if (erro)
+    return <p style={{ textAlign: "center", color: "red", padding: "50px" }}>Erro ao carregar o PEI.</p>;
+
+  if (!aluno)
+    return <p style={{ textAlign: "center", padding: "50px" }}>Carregando perfil do aluno...</p>;
 
   return (
     <div className="pei-detalhe-container">

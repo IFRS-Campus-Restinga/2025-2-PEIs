@@ -8,6 +8,8 @@ import DataTable from "datatables.net-react";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import logo from '../../assets/logo.png';
 import logo_nome from '../../assets/logo-sem-nome.png';
+import { useMemo } from "react";
+
 
 DataTable.use(DT);
 
@@ -54,6 +56,7 @@ function PeiCentral() {
     const handleClick = (e) => {
       const visualizarBtn = e.target.closest(".visualizar-btn");
       const listarBtn = e.target.closest(".listar-periodos-btn");
+      const editarBtn = e.target.closest(".editar-btn");
 
       // --- VISUALIZAR ---
       if (visualizarBtn) {
@@ -72,6 +75,12 @@ function PeiCentral() {
         navigate("/listar_periodos/" + id);
         return;
       }
+      //--- EDITAR ---
+      if (editarBtn){
+        const id = editarBtn.getAttribute("data-id");
+        navigate("/editar_peicentral/"+ id)
+      }
+
     };
 
     wrapper.addEventListener("click", handleClick);
@@ -96,17 +105,19 @@ function PeiCentral() {
   };
 
   
-  const dadosTabela = peiCentral.map((pei) => {
-    const ultimo = getUltimoPeriodo(pei);
+  const dadosTabela = useMemo(() =>{
+    return peiCentral.map((pei) => {
+      const ultimo = getUltimoPeriodo(pei);
 
     return {
       nome: pei.aluno?.nome || "Sem aluno vinculado",
-      curso: pei.aluno?.curso?.nome || "Sem curso",
+      curso: pei.cursos?.nome || "Sem curso",
       status: pei.status_pei || "Sem status",
       periodo: ultimo?.periodo_principal || "Sem período",
       id: pei.id,
     };
-  });
+    });
+  }, [peiCentral]);
 
   return (
     <div className="telaPadrao-page">
@@ -159,6 +170,15 @@ function PeiCentral() {
                   </button>
                 `,
               },
+              {
+                title: "Editar",
+                data: "id",
+                render: (id) => `
+                  <button class="btn btn-sm btn-primary editar-btn" data-id="${id}">
+                    Editar
+                  </button>
+               `,
+              },
             ]}
             className="display table table-striped table-hover w-100"
             options={{
@@ -167,8 +187,8 @@ function PeiCentral() {
                 decimal: ",",
                 thousands: ".",
                 search: "Pesquisar:",
-                lengthMenu: "Mostrar _MENU_ PEIs",
-                info: "Mostrando de _START_ até _END_ de _TOTAL_ PEIs",
+                lengthMenu: "Mostrar MENU PEIs",
+                info: "Mostrando de START até END de TOTAL PEIs",
                 zeroRecords: "Nenhum PEI encontrado",
                 emptyTable: "Sem dados",
                 paginate: {
@@ -183,9 +203,10 @@ function PeiCentral() {
         </div>
       )}
 
+
       <BotaoVoltar />
 
-      {/* --- MODAL COMPLETO DO VISUALIZAR --- */}
+      {/* ---- MODAL COMPLETO DO VISUALIZAR --- */}
       {modalOpen && selectPei && (
         <div
           style={{
@@ -306,7 +327,7 @@ function PeiCentral() {
                 <div>
                   <p><b>Aluno:</b> {selectPei.aluno?.nome}</p>
                   <p><b>Matrícula:</b> {selectPei.aluno?.matricula}</p>
-                  <p><b>Curso:</b> {selectPei.aluno?.curso?.nome}</p>
+                  <p><b>Curso:</b> {selectPei.cursos?.nome}</p>
                 </div>
                 <div>
                   <p><b>Status:</b> {selectPei.status_pei}</p>
@@ -323,11 +344,11 @@ function PeiCentral() {
               <br /><br />
 
               <div style={{ textAlign: 'center' }}>
-                <p><b>Assinatura Docente:</b><br />_________________________________________</p>
-                <p><b>Assinatura Coordenador de Curso:</b><br />_________________________________________</p>
-                <p><b>Assinatura NAPNE/NAAf (Reponsável):</b><br />_________________________________________</p>
-                <p><b>Assinatura Setor Pedagógico (Reponsável):</b><br />_________________________________________</p>
-                <p><b>Assinatura Assistência Estudantil (Reponsável):</b><br />_________________________________________</p>
+                <p><b>Assinatura Docente:</b><br />_______________</p>
+                <p><b>Assinatura Coordenador de Curso:</b><br />_______________</p>
+                <p><b>Assinatura NAPNE/NAAf (Reponsável):</b><br />_______________</p>
+                <p><b>Assinatura Setor Pedagógico (Reponsável):</b><br />_______________</p>
+                <p><b>Assinatura Assistência Estudantil (Reponsável):</b><br />_______________</p>
               </div>
 
             </div>

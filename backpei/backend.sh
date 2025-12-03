@@ -1,7 +1,6 @@
 #!/bin/sh
-
-echo "Instalando dependências do Python..."
-pip install --no-cache-dir -r requirements.txt
+echo "Iniciando limpeza"
+sh limpezaBack.sh
 
 echo "Aplicando migrations..."
 python manage.py makemigrations

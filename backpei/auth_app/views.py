@@ -5,6 +5,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
 from auth_app.services.google_service import GoogleAuthService
+from pei.utils.notificacoes_utils import verificar_periodos_e_gerar_notificacoes
 
 User = get_user_model()
 
@@ -17,6 +18,13 @@ class GoogleLoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        print(">>> GATILHO DE LOGIN ACIONADO! <<<") # print pra saber se cai a geração de notificações
+        try:
+            from pei.utils.notificacoes_utils import verificar_periodos_e_gerar_notificacoes
+            verificar_periodos_e_gerar_notificacoes()
+        except Exception as e:
+            print(f"ERRO NO GATILHO: {e}")
+        # ----------------
         id_token_str = request.data.get("id_token")
         if not id_token_str:
             return Response({"detail": "id_token é obrigatório"}, status=400)
@@ -54,6 +62,13 @@ class GoogleLoginView(APIView):
         # Gerar token
         from rest_framework.authtoken.models import Token
         token, _ = Token.objects.get_or_create(user=user)
+
+        try:
+            # Verifica prazos e gera notificações agora!
+            print("🔄 Verificando prazos e gerando notificações...")
+            verificar_periodos_e_gerar_notificacoes()
+        except Exception as e:
+            print(f"⚠️ Erro ao gerar notificações no login: {e}")
 
         return Response({
             "status": "ok",

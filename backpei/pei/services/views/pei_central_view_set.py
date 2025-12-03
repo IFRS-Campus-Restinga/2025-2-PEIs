@@ -8,7 +8,7 @@ from ..permissions import BackendTokenPermission
 from django.core.exceptions import ValidationError
 
 class PeiCentralViewSet(ModelViewSet):
-    queryset = PeiCentral.objects.all()
+    queryset = PeiCentral.objects.all().order_by('id')
     serializer_class = PeiCentralSerializer
     permission_classes = [BackendTokenPermission]
     

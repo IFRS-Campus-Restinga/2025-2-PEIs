@@ -9,7 +9,7 @@ from .views.ataDeAcompanhamento_view_set import AtaDeAcompanhamentoViewSet
 from .views.documentacaoComplementar_view_set import DocumentacaoComplementarViewSet
 from .views.disciplina_view_set import DisciplinaViewSet
 from .views.curso_view_set import CursoViewSet
-from .views.manda_email import manda_email
+from .views.manda_email import manda_email, enviar_convite_reuniao
 from .views.notificacao_view import NotificacaoViewSet
 from .views.notificacao_lista import listar_notificacoes
 from .views.usuario_view_set import UsuarioViewSet
@@ -39,6 +39,7 @@ app_name = 'api'
 urlpatterns = [
     path('', include(router.urls)),
     path('mandaEmail/', manda_email, name='mandaEmail'),
+    path("enviarConviteReuniao/", enviar_convite_reuniao, name='enviarConviteReuniao'),
     path('notificacoes-lista/', listar_notificacoes, name='notificacoes-lista'),
     path("permissoes/", UsuarioPermissoesView.as_view(), name="usuario-permissoes"),
     path('consultaGrupos/', ConsultaGrupos.as_view(), name='consultaGrupos'),
