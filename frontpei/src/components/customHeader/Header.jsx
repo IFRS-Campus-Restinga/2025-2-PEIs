@@ -227,7 +227,7 @@ const Header = ({ usuario, logado, logout }) => {
                                 <div className="notif-list-container">
                                         {notificacoes.length > 0 ? (
                                             <ul className="notif-list">
-                                                {notificacoes.map((n) => (
+                                                {notificacoes.slice(0, 5).map((n) => (
                                                     <li 
                                                         key={n.id} 
                                                         className="notif-item" 
