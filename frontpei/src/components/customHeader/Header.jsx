@@ -6,7 +6,6 @@ import chevronDown from "../../assets/chevron-down.svg";
 import bellIcon from "../../assets/bell.svg";
 import axios from "axios";
 import "../../cssGlobal.css";
-import LeitorTela from '../leitorTela/LeitorTela';
 
 const Header = ({ usuario, logado, logout }) => {
     const [menuAberto, setMenuAberto] = useState(false);
@@ -280,7 +279,6 @@ const Header = ({ usuario, logado, logout }) => {
                                     </div>
                             </div>
                         </div>
-                        <LeitorTela />
                         
                         {/* 👤 Usuário */}
                         <div className="user-wrapper" ref={menuRef}>
