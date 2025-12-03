@@ -332,7 +332,7 @@ function CrudUniversal({ modelName }) {
           <option value="">Selecione...</option>
           {options.map((opt) => (
             <option key={opt.id} value={opt.id}>
-              {opt.nome || opt.label || opt.username || opt.id}
+              {opt.nome || opt.aluno_nome || opt.label || opt.username || opt.id}
             </option>
           ))}
         </select>
@@ -420,28 +420,28 @@ function CrudUniversal({ modelName }) {
     const options = selectOptions[f.name] || [];
 
     if (f.name === "disciplinas") {
-  // Se for multiselect, usa a lógica padrão de multiselect
-  if (f.type === "multiselect") {
-    return value && value.length
-      ? value
-          .map((v) => {
-            if (typeof v === "object") {
-              return v.nome || v.label || v.id;
-            }
-            const found = selectOptions["disciplinas"]?.find(
-              (o) => o.id === v
-            );
-            return found?.nome || v;
-          })
-          .join(", ")
-      : "-";
-  }
+      // Se for multiselect, usa a lógica padrão de multiselect
+      if (f.type === "multiselect") {
+        return value && value.length
+          ? value
+              .map((v) => {
+                if (typeof v === "object") {
+                  return v.nome || v.label || v.id;
+                }
+                const found = selectOptions["disciplinas"]?.find(
+                  (o) => o.id === v
+                );
+                return found?.nome || v;
+              })
+              .join(", ")
+          : "-";
+      }
 
-  // Se NÃO for multiselect, usa sua lógica original (para outro model)
-  const obj = record["disciplina"];
-  console.log("[RENDER] disciplina (detalhe):", obj);
-  return obj?.nome || "-";
-}
+      // Se NÃO for multiselect, usa sua lógica original (para outro model)
+      const obj = record["disciplina"];
+      console.log("[RENDER] disciplina (detalhe):", obj);
+      return obj?.nome || "-";
+    }
 
     if (f.type === "select" && f.choices) {
       const found = f.choices.find((c) => c.value === value);
@@ -451,7 +451,7 @@ function CrudUniversal({ modelName }) {
     if (f.type === "select") {
       const id = typeof value === "object" ? value.id : value;
       const found = options.find((o) => o.id === id);
-      return found?.nome || found?.label || found?.username || id || "-";
+      return found?.nome || found?.aluno_nome || found?.label || found?.username || id || "-";
     }
 
     if (f.type === "multiselect") {
@@ -556,7 +556,7 @@ if (f.type === "FileField" || f.type === "file") {
                     <button type="submit" className="btn-salvar">
                       Salvar
                     </button>
-                    <button type="button" onClick={() => setEditId(null)}>
+                    <button type="button" class="botao-deletar" onClick={() => setEditId(null)}>
                       Cancelar
                     </button>
                   </div>
