@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo-sem-nome.png";
 import userIcon from "../../assets/user.svg";
 import chevronDown from "../../assets/chevron-down.svg";
 import bellIcon from "../../assets/bell.svg";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import "../../cssGlobal.css";
 import LeitorTela from '../leitorTela/LeitorTela';
@@ -14,6 +14,7 @@ const Header = ({ usuario, logado, logout }) => {
     const [notificacoes, setNotificacoes] = useState([]);
     const menuRef = useRef(null);
     const notifRef = useRef(null);
+    const navigate = useNavigate();
 
     // Fecha dropdowns ao clicar fora
     useEffect(() => {
@@ -70,6 +71,64 @@ const Header = ({ usuario, logado, logout }) => {
             
         } catch (error) {
             console.error("Erro ao marcar notificações:", error);
+        }
+    };
+
+//  CLIQUE NA NOTIFICAÇÃO 
+    const handleNotificationClick = async (n) => {
+        // 1. Se não estiver lida, marca como lida no backend
+        if (!n.lida) {
+            try {
+                const token = localStorage.getItem("token");
+                // Endpoint padrão do ViewSet para editar um item (PATCH)
+                await axios.patch(`http://localhost:8000/services/notificacoes/${n.id}/`, 
+                    { lida: true },
+                    { headers: { Authorization: `Token ${token}` } }
+                );
+                
+                // Atualiza estado local para feedback instantâneo (caso a navegação demore)
+                setNotificacoes(prev => prev.map(notif => 
+                    notif.id === n.id ? { ...notif, lida: true } : notif
+                ));
+            } catch (error) {
+                console.error("Erro ao marcar notificação individual como lida:", error);
+            }
+        }
+
+        // 2. Navegação (Lógica original)
+        if (n.dados_extras && n.dados_extras.url) {
+            if (n.tipo === 'prazo' && n.dados_extras.pei_central_id) {
+                navigate(n.dados_extras.url, { state: { peiCentralId: n.dados_extras.pei_central_id } });
+            } else {
+                navigate(n.dados_extras.url);
+            }
+            setNotificacoesAbertas(false); // Fecha o dropdown
+        }
+    };
+
+    // NOVA FUNÇÃO: AÇÃO RÁPIDA (APROVAR/REJEITAR)
+    const handleQuickAction = async (e, action, candidatoId) => {
+        e.stopPropagation(); // Impede que o clique no botão abra a notificação
+        
+        if (!candidatoId) return;
+        const token = localStorage.getItem("token");
+        const endpoint = action === 'aprovar' 
+            ? "http://localhost:8000/api/auth/solicitacoes/aprovar/"
+            : "http://localhost:8000/api/auth/solicitacoes/rejeitar/";
+
+        try {
+            await axios.post(endpoint, { id: candidatoId }, {
+                headers: { Authorization: `Token ${token}` }
+            });
+            // Opcional: Atualizar a lista de notificações ou marcar como lida
+            // Aqui vamos apenas forçar uma atualização visual rápida removendo a notificação da lista local ou marcando lida
+            setNotificacoes(prev => prev.map(n => 
+                n.dados_extras?.candidato_id === candidatoId ? { ...n, lida: true, processada: true } : n
+            ));
+            alert(`Solicitação ${action === 'aprovar' ? 'aprovada' : 'rejeitada'} com sucesso!`);
+        } catch (err) {
+            console.error("Erro na ação rápida:", err);
+            alert("Erro ao processar ação.");
         }
     };
 
@@ -166,28 +225,59 @@ const Header = ({ usuario, logado, logout }) => {
                                 </div>
                                 
                                 <div className="notif-list-container">
-                                    {notificacoes.length > 0 ? (
-                                        <ul className="notif-list">
-                                            {notificacoes.map((n) => (
-                                                <li key={n.id} className="notif-item" style={{ background: n.lida ? '#fff' : '#f0f9f0' }}>
-                                                    <div className="notif-content">
-                                                        <h4 className="notif-item-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                            {!n.lida && <span style={{ width: '8px', height: '8px', background: '#055C0F', borderRadius: '50%', display: 'inline-block' }}></span>}
-                                                            {n.titulo}
-                                                        </h4>
-                                                        <p className="notif-item-message">{n.mensagem}</p>
-                                                        <span className="notif-item-time">{formatarData(n.data_criacao)}</span>
-                                                    </div>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
+                                        {notificacoes.length > 0 ? (
+                                            <ul className="notif-list">
+                                                {notificacoes.map((n) => (
+                                                    <li 
+                                                        key={n.id} 
+                                                        className="notif-item" 
+                                                        style={{ background: n.lida ? '#fff' : '#f0f9f0', cursor: 'pointer' }}
+                                                        onClick={() => handleNotificationClick(n)} // Clique na linha toda
+                                                    >
+                                                        <div className="notif-content">
+                                                            <h4 className="notif-item-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                {!n.lida && <span style={{ width: '8px', height: '8px', background: '#055C0F', borderRadius: '50%', display: 'inline-block' }}></span>}
+                                                                {n.titulo}
+                                                            </h4>
+                                                            <p className="notif-item-message">{n.mensagem}</p>
+                                                            
+                                                            {/* RENDERIZAÇÃO CONDICIONAL: BOTÕES PARA ADMIN */}
+                                                            {n.tipo === 'solicitacao_cadastro' && !n.lida && !n.processada && (
+                                                                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                                                    <button 
+                                                                        onClick={(e) => handleQuickAction(e, 'aprovar', n.dados_extras?.candidato_id)}
+                                                                        className="btn-verde"
+                                                                        style={{ fontSize: '10px', padding: '4px 8px' }}
+                                                                    >
+                                                                        Aprovar
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={(e) => handleQuickAction(e, 'rejeitar', n.dados_extras?.candidato_id)}
+                                                                        className="botao-deletar"
+                                                                        style={{ fontSize: '10px', padding: '4px 8px', marginTop: 0 }}
+                                                                    >
+                                                                        Rejeitar
+                                                                    </button>
+                                                                </div>
+                                                            )}
+
+                                                            <span className="notif-item-time">{formatarData(n.data_criacao)}</span>
+                                                        </div>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
                                         <div className="notif-empty">
                                             <p className="notif-empty-text">Nenhuma notificação</p>
                                             <span className="notif-empty-subtext">Você está em dia!</span>
                                         </div>
                                     )}
                                 </div>
+                                    <div className="notif-footer">
+                                        <Link to="/todas-notificacoes" onClick={() => setNotificacoesAbertas(false)}>
+                                            Ver todas as notificações
+                                        </Link>
+                                    </div>
                             </div>
                         </div>
                         <LeitorTela />

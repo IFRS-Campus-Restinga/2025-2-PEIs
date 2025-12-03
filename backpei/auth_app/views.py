@@ -121,23 +121,29 @@ class PreCadastroView(APIView):
         user.set_unusable_password()
         user.save()
 
-        # 👇 NOVA LÓGICA: NOTIFICAR ADMINS
+        # logica para notificar admins de novos usuarios
         try:
-            # Busca todos os usuários do grupo 'Admin'
             admins = User.objects.filter(groups__name='Admin')
-            
             titulo = "Nova Solicitação de Cadastro"
             mensagem = f"O usuário {data['name']} ({email}) solicitou acesso como {data['categoria_solicitada']}."
 
-            print(f"🔔 Notificando {admins.count()} administradores sobre novo cadastro.")
+            print(f"🔔 Notificando {admins.count()} administradores.")
 
             for admin in admins:
-                # Cria notificação no sistema e dispara e-mail (thread separada)
-                criar_notificacao(admin, titulo, mensagem, enviar_email=True)
+                criar_notificacao(
+                    usuario=admin, 
+                    titulo=titulo, 
+                    mensagem=mensagem, 
+                    enviar_email=True,
+                    tipo='solicitacao_cadastro',  # Tipo específico
+                    dados_extras={
+                        'candidato_id': user.id,  # ID do usuário novo (para aprovar/rejeitar)
+                        'candidato_nome': user.first_name,
+                        'url': '/admin/solicitacoes'
+                    }
+                )
 
         except Exception as e:
-            # Não queremos que o cadastro falhe se a notificação der erro (apenas loga)
             print(f"❌ Erro ao notificar admins: {e}")
-        # -------------------------------------
-
+        
         return Response({"status": "ok", "message": "Pré-cadastro enviado"})

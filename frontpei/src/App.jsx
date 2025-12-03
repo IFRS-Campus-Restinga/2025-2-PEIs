@@ -44,6 +44,7 @@ import Pedagogos from './pages/Pedagogo.jsx';
 import Professor from "./pages/Professor.jsx";
 import Conteudo from './pages/Conteudo.jsx';
 import TelaSolicitacoesPendentes from "./pages/admin/TelaSolicitacoesPendentes";
+import TodasNotificacoes from "./pages/Notificacoes/TodasNotificacoes.jsx";
 
 import { mandaEmail } from "./lib/mandaEmail";
 import { consultaGrupo } from "./lib/consultaGrupo";
@@ -269,6 +270,7 @@ function App() {
                 <Route path="/conteudo" element={<PrivateRoute><Conteudo usuario={usuario} /></PrivateRoute>} />
 
                 <Route path="/crud/:modelKey" element={<PrivateRoute><CrudWrapper /></PrivateRoute>} />
+                <Route path="/todas-notificacoes" element={<PrivateRoute><TodasNotificacoes /></PrivateRoute>} />
 
                 {isAdmin && (
                   <Route path="/admin/solicitacoes" element={<PrivateRoute><TelaSolicitacoesPendentes /></PrivateRoute>} />
