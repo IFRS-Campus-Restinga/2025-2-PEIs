@@ -9,7 +9,7 @@ from rest_framework import status
 class DisciplinaViewSet(ModelViewSet):
     queryset = Disciplina.objects.prefetch_related('professores', 'cursos').all()    
     serializer_class = DisciplinaSerializer
-    permission_classes = [BackendTokenPermission]
+    #permission_classes = [BackendTokenPermission]
 
     def create(self, request, *args, **kwargs):
         professores_ids = request.data.pop('professores', [])

@@ -13,7 +13,7 @@ class PEIPeriodoLetivo(BaseModel):
         choices=PeriodoLetivoChoice.choices,
         default=PeriodoLetivoChoice.SEMESTRE
     )
-    periodo_principal = models.CharField(max_length=10, blank=True, null=True)
+    periodo_principal = models.CharField(max_length=10, blank=True, null=True, editable=False)
     pei_central = models.ForeignKey(PeiCentral, on_delete=models.CASCADE, related_name="periodos") 
 
 

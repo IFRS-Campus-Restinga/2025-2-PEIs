@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework import status
 from pei.models.aluno import Aluno
+from rest_framework.exceptions import ValidationError
 
 class DocumentacaoComplementarViewSet(ModelViewSet):
     queryset = DocumentacaoComplementar.objects.all().order_by('id')
@@ -13,15 +14,21 @@ class DocumentacaoComplementarViewSet(ModelViewSet):
     permission_classes = [BackendTokenPermission]
 
     def perform_create(self, serializer):
-        aluno = Aluno.objects.get(
-            matricula = self.request.data["matricula"]
-        )
+        matricula = self.request.data.get("matricula")
+
+        print("MATRICULA RECEBIDA:", matricula)
+
+        if not matricula:
+            raise ValidationError({"matricula": "Matrícula não enviada."})
+
+        try:
+            aluno = Aluno.objects.get(matricula=matricula)
+        except Aluno.DoesNotExist:
+            raise ValidationError({"matricula": "Aluno não encontrado com essa matrícula."})
 
         serializer.save(
-            usuario=self.request.user,
             aluno=aluno    
-        )
-        
+        )        
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

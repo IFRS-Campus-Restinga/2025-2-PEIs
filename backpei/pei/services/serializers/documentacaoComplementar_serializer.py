@@ -5,4 +5,4 @@ class DocumentacaoComplementarSerializer(serializers.ModelSerializer):
     class Meta:
         model = DocumentacaoComplementar
         fields = '__all__'
-        read_only_fields = ['usuario']
+        read_only_fields = ['aluno']
