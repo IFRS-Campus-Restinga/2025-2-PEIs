@@ -122,6 +122,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+<<<<<<< HEAD
             name='DocumentacaoComplementar',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -135,6 +136,8 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+=======
+>>>>>>> b4593574d5857cbbfafe0226a0fbd4b1535e0fe1
             name='Notificacao',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
