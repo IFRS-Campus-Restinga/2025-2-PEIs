@@ -20,6 +20,10 @@ body {
 #root {
   height: 100%;
 }
+.hover-scale:hover {
+    transform: translateY(-5px);
+    cursor: pointer;
+}
 .app-container {
   display: flex;
   flex-direction: column;
@@ -909,7 +913,7 @@ body {
 .erro { color: red; margin-top: 10px; }
 
 /* ========================================
-    TABELAS (DataTables)
+   TABELAS (DataTables) - ESTILO MODERNO
    ======================================== */
 
 /* Wrapper principal */
@@ -919,12 +923,30 @@ body {
   color: #333;
 }
 
+/* --- NOVO: BARRA DE FERRAMENTAS SUPERIOR --- */
+/* Cria a "caixa branca" que segura o Search e o Length */
+div.dt-container .row:first-child {
+  background: #fff;
+  padding: 15px 20px;
+  border-radius: 12px 12px 0 0; /* Arredonda só em cima */
+  margin-bottom: 0; /* Cola na tabela */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #f0f0f0;
+  border-bottom: none; /* Remove borda de baixo para fundir */
+}
+
 /* Tabela */
 .display {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
-  border-radius: 12px;
+  
+  /* MUDANÇA: Arredonda só embaixo para colar na toolbar */
+  border-radius: 0 0 12px 12px; 
+  border-top: none;
+  
   overflow: hidden;
   box-shadow: 0 4px 14px rgba(0,0,0,.06);
   font-size: .9rem;
@@ -941,13 +963,10 @@ body {
   font-weight: 600;
   letter-spacing: .4px;
   font-size: .95rem;
-}
-
-/* Setinhas de ordenação (voltaram!) */
-.display thead th {
   position: relative;
 }
 
+/* Setinhas de ordenação */
 .display thead th::after,
 .display thead th::before {
   content: '';
@@ -1034,33 +1053,100 @@ body {
   font-weight: bold;
 }
 
-/*  Caixa "Mostrar" - MENOR */
-div.dt-container div.dt-length select {
-  width: 60px !important;
-  padding: 4px 8px !important;
-  font-size: 13px !important;
-  height: 36px !important;
-  border: 1px solid #ccc !important;
-  border-radius: 8px !important;
+/* --- CONTROLES (PESQUISA E ITENS POR PÁGINA) --- */
+
+div.dt-container .row:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px; /* Espaço extra no rodapé */
+  background: #fff;   /* Garante fundo branco se precisar */
+  border-radius: 0 0 12px 12px;
 }
 
-/*  "Pesquisar" - À DIREITA + AJUSTE FINO */
+/* 1. Dropdown "X itens por página" */
+div.dt-container div.dt-length {
+  margin-right: 15px;
+}
+
+div.dt-container div.dt-length select {
+  width: auto !important;
+  padding: 4px 8px !important;
+  font-size: 13px !important;
+  height: 32px !important; /* Um pouco mais compacto no rodapé */
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 6px !important;
+  background-color: #fff;
+  cursor: pointer;
+  color: #555;
+  font-weight: 500;
+}
+
+div.dt-container div.dt-length label {
+  font-weight: 500;
+  color: #666;
+  margin-left: 8px;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+div.dt-container div.dt-length select:hover {
+  border-color: #055C0F !important;
+  background-color: #fff;
+}
+
+div.dt-container div.dt-length select:focus {
+  outline: none;
+  border-color: #055C0F !important;
+  box-shadow: 0 0 0 2px rgba(5, 92, 15, 0.1);
+}
+
+
+/* 2. Input "Pesquisar" */
 div.dt-container div.dt-search {
+  float: none !important;
   text-align: right !important;
-  margin-top: -30px !important;
-  margin-bottom: 2rem !important;
-  margin-right: 20px !important;
+  margin: 0 !important;
+  position: relative;
+}
+
+div.dt-container div.dt-search label {
+  display: none; /* Esconde o texto "Pesquisar:" */
 }
 
 div.dt-container div.dt-search input {
-  min-width: 180px !important;
-  padding: 6px 12px !important;
+  width: 220px !important;
+  height: 38px !important;
+  padding: 8px 16px !important;
+  padding-left: 36px !important; /* Espaço para lupa */
   font-size: 13px !important;
-  border: 1px solid #ccc !important;
-  border-radius: 8px !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 20px !important; /* Formato Pílula */
+  background-color: #f9f9f9;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  
+  /* Ícone de Lupa (SVG inline) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 12px center;
 }
 
-/*  Paginação - CENTRALIZADA */
+/* Efeito ao focar na busca */
+div.dt-container div.dt-search input:focus {
+  width: 300px !important; /* Estica a barra */
+  border-color: #055C0F !important;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  outline: none;
+}
+
+div.dt-container div.dt-search input::placeholder {
+  color: #999;
+  font-weight: 500;
+}
+
+/* Paginação - CENTRALIZADA */
 div.dt-container div.dt-paging {
   display: flex !important;
   justify-content: center !important;
@@ -1084,18 +1170,25 @@ div.dt-container .dt-info {
   margin-top: 10px !important;
 }
 
-/* Responsivo: mantém em coluna */
-@media (max-width: 767px) {
-  div.dt-container .row:last-child {
-    align-items: center;
+/* Responsivo */
+@media (max-width: 768px) {
+  /* No celular, empilha a toolbar */
+  div.dt-container .row:first-child {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
   }
+  
+  div.dt-container div.dt-search input {
+    width: 100% !important; /* Ocupa tudo no mobile */
+  }
+
   div.dt-container .dt-info,
   div.dt-container .dt-paging {
     width: 100%;
     text-align: center;
   }
 }
-
 /* ========================================
    PAGINAÇÃO DATATABLES
    ======================================== */
@@ -2098,3 +2191,33 @@ input:checked + .slider:before {
 }
 
 
+/* --- Badges de Status para Tabelas --- */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+  text-align: center;
+  min-width: 80px;
+}
+
+.status-aberto {
+  background-color: #e6f4ea;
+  color: #1e7e34;
+  border: 1px solid #c3e6cb;
+}
+
+.status-em-andamento {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.status-fechado, 
+.status-concluido {
+  background-color: #e2e3e5;
+  color: #383d41;
+  border: 1px solid #d6d8db;
+}
