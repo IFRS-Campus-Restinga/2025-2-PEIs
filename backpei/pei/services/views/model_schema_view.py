@@ -105,6 +105,9 @@ class ModelSchemaView(ViewSet):
                 info["type"] = "multiselect"
                 info["related_model"] = field.related_model._meta.object_name
 
+                if field.name == "professores":
+                    info["related_endpoint"] = "http://localhost:8000/services/usuario/?grupo=Professor"
+
             # ------------------------
             # CAMPOS SIMPLES
             # ------------------------
