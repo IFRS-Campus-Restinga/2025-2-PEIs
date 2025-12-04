@@ -16,6 +16,12 @@ export default function Acompanhamentos() {
       setAcompanhamentos(resp.data);
     } catch (e) {
       console.error("Erro ao carregar acompanhamentos:", e);
+
+      if (e.response) {
+        console.log("STATUS:", e.response.status);
+        console.log("DATA:", e.response.data);
+        console.log("HEADERS ENVIADOS:", e.config.headers);
+      }
     }
   }
 

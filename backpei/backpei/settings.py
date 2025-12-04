@@ -208,3 +208,6 @@ CSRF_COOKIE_SECURE = False
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
 ]
+
+BACKEND_URL = "http://localhost:8000"
+DEFAULT_FROM_EMAIL = "pei@restinga.com"

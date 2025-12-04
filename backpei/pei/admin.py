@@ -13,9 +13,10 @@ from .models.pei_central import PeiCentral
 from .models.curso import Curso
 from .models.disciplina import Disciplina
 from .models.aluno import Aluno
+from .models.acompanhamento import Acompanhamento
 #from .models.usuario import Usuario
 from .models.componenteCurricular import ComponenteCurricular
 from .models.CustomUser import CustomUser
 from .models.conteudo import Conteudo
 
-admin.site.register((PEIPeriodoLetivo, Parecer, Curso, Disciplina, Aluno, PeiCentral, CustomUser, ComponenteCurricular, Conteudo))
+admin.site.register((PEIPeriodoLetivo, Parecer, Curso, Disciplina, Aluno, PeiCentral, CustomUser, ComponenteCurricular, Conteudo, Acompanhamento))

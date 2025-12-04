@@ -1,6 +1,8 @@
 from django.db import models
+from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
+from pei.models.aluno import Aluno
 
 
 class Acompanhamento(models.Model):
@@ -18,7 +20,7 @@ class Acompanhamento(models.Model):
 
     # Usuário alvo do acompanhamento (estudante ou responsável)
     aluno = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        "pei.Aluno",
         on_delete=models.CASCADE,
         related_name="acompanhamentos"
     )
@@ -34,29 +36,65 @@ class Acompanhamento(models.Model):
         default="pendente"
     )
 
-    # Dados da recusa (se houver)
+    """# Dados da recusa (se houver)
     motivo_recusa = models.TextField(null=True, blank=True)
     data_recusa = models.DateTimeField(null=True, blank=True)
 
     # Dados do aceite (se houver)
-    data_aceite = models.DateTimeField(null=True, blank=True)
+    data_aceite = models.DateTimeField(null=True, blank=True)"""
 
     # Controle de datas
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
-    def recusar(self, motivo: str):
-        """Aplica recusa ao acompanhamento."""
-        self.status = "recusado"
-        self.motivo_recusa = motivo
-        self.data_recusa = timezone.now()
-        self.save()
+    def save(self, *args, **kwargs):
+        novo = self.pk is None  # se não existe PK → está criando
 
-    def aceitar(self):
-        """Marca o acompanhamento como aceito."""
-        self.status = "aceito"
-        self.data_aceite = timezone.now()
-        self.save()
+        super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"Acompanhamento #{self.id} - {self.titulo} ({self.status})"
+        if novo:
+            # envia o email após criar
+            self.enviar_email_criacao()
+
+    def enviar_email_criacao(self):
+        assunto = f"Novo acompanhamento criado: {self.titulo}"
+        aceitar_url = f"{settings.BACKEND_URL}/api/acompanhamentos/{self.id}/aceitar/"
+        recusar_url = f"{settings.BACKEND_URL}/api/acompanhamentos/{self.id}/recusar/"
+        mensagem = (
+            f"Olá {self.aluno.nome},\n\n"
+            f"Um novo acompanhamento foi criado para você.\n\n"
+            f"Título: {self.titulo}\n"
+            f"Descrição: {self.descricao}\n\n"
+            f"Atenciosamente,\nEquipe PEI"
+        )
+        mensagem = f"""
+
+        Por favor, escolha uma opção:
+
+        Aceitar acompanhamento:
+        {aceitar_url}
+
+        Recusar acompanhamento:
+        {recusar_url}
+
+        Caso não reconheça esta mensagem, entre em contato com a escola.
+
+        Atenciosamente,
+        PEI - Instituto Federal do Rio Grande do Sul - Campus Restinga
+        """
+        try:
+            send_mail(
+                assunto,
+                mensagem,
+                settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[self.aluno.email],
+                fail_silently=False,
+            )
+
+            print("E-mail de acompanhamento enviado com sucesso!")
+        except Exception as e:
+            print(f"Erro ao enviar e-mail de acompanhamento: {e}")
+
+        print("ACEITAR:", aceitar_url)
+        print("RECUSAR:", recusar_url)
+

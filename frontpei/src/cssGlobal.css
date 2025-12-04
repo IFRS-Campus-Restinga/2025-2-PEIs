@@ -15,8 +15,12 @@ body {
   overflow-x: hidden;
   font-family: 'Roboto', sans-serif;
   background-image: url('./assets/Papel_de_parede1.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
   line-height: 1.6;
-   padding-bottom: 60px;
+  padding-bottom: 60px;
 }
 .app-container {
   display: flex;

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from pei.models.acompanhamento import Acompanhamento
+from pei.utils.notificacoes_utils import enviar_email_acompanhamento
 
 
 class AcompanhamentoSerializer(serializers.ModelSerializer):
@@ -28,3 +29,13 @@ class AcompanhamentoSerializer(serializers.ModelSerializer):
             "criado_em",
             "atualizado_em",
         ]
+
+    def create(self, validated_data):
+        acompanhamento = super().create(validated_data)
+
+        try:
+            enviar_email_acompanhamento(acompanhamento)
+        except Exception as e:
+            print("Erro ao enviar email de acompanhamento:", e)
+
+        return acompanhamento

@@ -70,3 +70,39 @@ def verificar_periodos_e_gerar_notificacoes():
 
             if not existe:
                 criar_notificacao(coordenador, titulo, mensagem)
+
+def enviar_email_acompanhamento(acompanhamento):
+    aluno = acompanhamento.aluno
+    email = aluno.email
+
+    assunto = "Solicitação de Acompanhamento - PEI"
+
+    aceitar_url = f"{settings.FRONTEND_URL}/api/acompanhamentos/{acompanhamento.id}/aceitar/"
+    recusar_url = f"{settings.FRONTEND_URL}/api/acompanhamentos/{acompanhamento.id}/recusar/"
+
+    mensagem = f"""
+Olá,
+
+Foi criado um novo acompanhamento para o aluno {aluno.nome}.
+
+Por favor, escolha uma opção:
+
+Aceitar acompanhamento:
+{aceitar_url}
+
+Recusar acompanhamento:
+{recusar_url}
+
+Caso não reconheça esta mensagem, entre em contato com a escola.
+
+Atenciosamente,
+PEI - Instituto Federal do Rio Grande do Sul - Campus Restinga
+"""
+
+    send_mail(
+        assunto,
+        mensagem,
+        settings.DEFAULT_FROM_EMAIL,
+        [email],
+        fail_silently=False,
+    )

@@ -7,3 +7,4 @@ class CategoriaUsuario(models.TextChoices):
     PROFESSOR = "PROFESSOR", _("Professor")
     COORDENADOR = "COORDENADOR", _("Coordenador")
     PEDAGOGO = "PEDAGOGO", _("Pedagogo")
+    ALUNO = "ALUNO", _("Aluno")
