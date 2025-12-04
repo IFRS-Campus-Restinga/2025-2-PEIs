@@ -41,19 +41,9 @@ function Pareceres({ usuario }) {
   });
 
 
-  // → Reaplica o token ANTES de cada requisição (agora seguro)
   [DBPEI, DBPARECERES, DBCOMPONENTECURRICULAR, DBUSUARIOS].forEach(api => {
     api.interceptors.request.use(config => {
       config.headers = getAuthHeaders();
-      return config;
-    });
-  });
-
-
-  // interceptor para garantir q SEMPRE manda o token certo
-  [DBPEI, DBPARECERES, DBCOMPONENTECURRICULAR, DBUSUARIOS].forEach(api => {
-    api.interceptors.request.use(config => {
-      config.headers = { ...config.headers, ...getAuthHeaders() };
       return config;
     });
   });
