@@ -4,10 +4,20 @@ import json
 from logs.models import Log
 from django.core.exceptions import ValidationError
 from ..validators.relationship_validator import RelationshipValidator
+# FUNÇÃO QUE PEGA O USUÁRIO DA THREAD (MIDDLEWARE)
+from pei.services.middleware import get_current_user 
 
 class BaseModel(models.Model):
     class Meta:
         abstract = True
+
+    #  MÉTODO AUXILIAR PARA PEGAR QUEM ESTÁ LOGADO
+    def _get_usuario_log(self):
+        user = get_current_user()
+        # Verifica se existe e se não é AnonymousUser
+        if user and user.is_authenticated:
+            return f"{user.id} - {user.username}"
+        return "Sistema/Anônimo"
 
     def save(self, *args, **kwargs):
         acao = "Criação" if self._state.adding else "Atualização"
@@ -34,10 +44,12 @@ class BaseModel(models.Model):
 
         super().save(*args, **kwargs)
 
+        
         Log.objects.create(
             acao=acao,
             modelo=self.__class__.__name__,
             objeto_id=self.id,
+            usuario=self._get_usuario_log(),
             detalhes_completos={
                 "antes": safe_old,
                 "depois": safe_new,
@@ -50,10 +62,9 @@ class BaseModel(models.Model):
         """
         validator = RelationshipValidator()
         try:
-            validator(self)  # Chama o validador antes de excluir
+            validator(self)
             super().delete(*args, **kwargs)
         except ValidationError as e:
-            # Repassa a exceção para o DRF tratar
             raise e
 
     def delete(self, *args, **kwargs):
@@ -68,10 +79,12 @@ class BaseModel(models.Model):
 
         safe_old = {k: safe_json(v) for k, v in old_values.items()}
 
+        
         Log.objects.create(
             acao="Exclusão",
             modelo=self.__class__.__name__,
             objeto_id=self.id,
+            usuario=self._get_usuario_log(),
             detalhes_completos={
                 "antes": safe_old,
                 "depois": {},
