@@ -14,9 +14,19 @@ class BaseModel(models.Model):
     #  MÉTODO AUXILIAR PARA PEGAR QUEM ESTÁ LOGADO
     def _get_usuario_log(self):
         user = get_current_user()
-        # Verifica se existe e se não é AnonymousUser
         if user and user.is_authenticated:
-            return f"{user.id} - {user.username}"
+            # Tenta pegar o nome completo
+            nome = user.get_full_name().strip()
+            if not nome:
+                # Se não tiver last_name, tenta só o first_name (comum no login Google simples)
+                nome = user.first_name.strip()
+            
+            # Fallback final: username (email)
+            if not nome:
+                nome = user.username
+
+            return f"{nome} (ID: {user.id})"
+            
         return "Sistema/Anônimo"
 
     def save(self, *args, **kwargs):
