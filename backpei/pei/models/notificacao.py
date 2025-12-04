@@ -7,6 +7,8 @@ class Notificacao(BaseModel):
     mensagem = models.TextField()
     data_criacao = models.DateTimeField(auto_now_add=True)
     lida = models.BooleanField(default=False)
+    tipo = models.CharField(max_length=50, default='geral')
+    dados_extras = models.JSONField(default=dict, blank=True)
     
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
@@ -17,4 +19,4 @@ class Notificacao(BaseModel):
 
     def __str__(self):
         destinatario = self.usuario.username if self.usuario else "Geral"
-        return f"[{destinatario}] {self.titulo}"
+        return f"[{destinatario}] {self.titulo} ({self.tipo})"

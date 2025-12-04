@@ -186,8 +186,9 @@ function PeiCentral() {
               language: {
                 decimal: ",",
                 thousands: ".",
-                search: "Pesquisar:",
-                lengthMenu: "Mostrar MENU PEIs",
+                search: "",
+                searchPlaceholder: "Pesquisar",
+                lengthMenu: "Mostrar _MENU_ PEIs",
                 info: "Mostrando de START até END de TOTAL PEIs",
                 zeroRecords: "Nenhum PEI encontrado",
                 emptyTable: "Sem dados",

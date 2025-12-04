@@ -22,7 +22,7 @@ const PeriodoLetivoPerfil = () => {
 
   // Estados do MODAL (AGORA NO LUGAR CERTO!)
   const [modalAberto, setModalAberto] = useState(false);
-  const [acaoPendente, setAcaoPendente] = useState(null); // "concluido", "suspenso" ou "reabrir"
+  const [acaoPendente, setAcaoPendente] = useState(null); // "fechado", "suspenso" ou "reabrir"
 
   // Carrega usuário
   useEffect(() => {
@@ -67,7 +67,7 @@ const PeriodoLetivoPerfil = () => {
 
         // Conversão do status do backend → frontend
         const mapa = {
-          "CONCLUÍDO": "concluido",
+          "FECHADO": "fechado",
           "SUSPENSO": "suspenso",
           "EM ANDAMENTO": "em_andamento",
           "ABERTO": "aberto"
@@ -105,9 +105,9 @@ const PeriodoLetivoPerfil = () => {
     let valorBackend;
     let novoStatusFrontend;
 
-    if (acao === "concluido") {
-      valorBackend = "CONCLUÍDO";
-      novoStatusFrontend = "concluido";
+    if (acao === "fechado") {
+      valorBackend = "FECHADO";
+      novoStatusFrontend = "fechado";
     } else if (acao === "suspenso") {
       valorBackend = "SUSPENSO";
       novoStatusFrontend = "suspenso";
@@ -214,31 +214,49 @@ const PeriodoLetivoPerfil = () => {
           <div style={{ margin: "18px 0" }}>
             <strong>Status do PEI: </strong>
             <span className={`status-badge ${statusPEI}`}>
-              {statusPEI === "concluido" ? "Concluído" :
+              {statusPEI === "fechado" ? "Fechado" :
                statusPEI === "suspenso" ? "Suspenso" :
                statusPEI === "em_andamento" ? "Em Andamento" : "Aberto"}
             </span>
           </div>
 
           {/* BOTÕES COM MODAL */}
-          <div style= {{ marginTop: "20px", display: "flex", gap: "12px", flexWrap: "wrap" }} >
-            {statusPEI === "suspenso" && (
-              <button className="btn-reabrir-pei" onClick={() => abrirModal("reabrir")} disabled={carregandoStatus}>
-                Reabrir PEI
-              </button>
-            )}
+          {(gruposUsuario.includes("admin") || 
+            gruposUsuario.includes("napne") || 
+            gruposUsuario.includes("coordenador")) && (
+            <div style={{ marginTop: "20px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
+              {/* REABRIR — só aparece se estiver suspenso */}
+              {statusPEI === "suspenso" && (
+                <button 
+                  className="btn-reabrir-pei" 
+                  onClick={() => abrirModal("reabrir")} 
+                  disabled={carregandoStatus}
+                >
+                  Reabrir PEI
+                </button>
+              )}
 
-            {(statusPEI === "aberto" || statusPEI === "em_andamento") && (
-              <>
-                <button className="btn-finalizar-pei" onClick={() => abrirModal("concluido")} disabled={carregandoStatus}>
-                  Finalizar PEI
-                </button>
-                <button className="btn-suspender-pei" onClick={() => abrirModal("suspenso")} disabled={carregandoStatus}>
-                  Suspender PEI
-                </button>
-              </>
-            )}
-          </div>
+              {/* FINALIZAR E SUSPENDER — só aparecem se estiver aberto ou em andamento */}
+              {(statusPEI === "aberto" || statusPEI === "em_andamento") && (
+                <>
+                  <button 
+                    className="btn-finalizar-pei" 
+                    onClick={() => abrirModal("fechado")} 
+                    disabled={carregandoStatus}
+                  >
+                    Finalizar PEI
+                  </button>
+                  <button 
+                    className="btn-suspender-pei" 
+                    onClick={() => abrirModal("suspenso")} 
+                    disabled={carregandoStatus}
+                  >
+                    Suspender PEI
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -275,12 +293,12 @@ const PeriodoLetivoPerfil = () => {
         }}>
           <div className="modal-content">
             <h3>
-              {acaoPendente === "concluido" && "Finalizar PEI"}
+              {acaoPendente === "fechado" && "Finalizar PEI"}
               {acaoPendente === "suspenso" && "Suspender PEI"}
               {acaoPendente === "reabrir" && "Reabrir PEI"}
             </h3>
             <p>
-              {acaoPendente === "concluido" && "Após finalizar, o PEI não poderá mais ser alterado. Tem certeza?"}
+              {acaoPendente === "fechado" && "Após finalizar, o PEI não poderá mais ser alterado. Tem certeza?"}
               {acaoPendente === "suspenso" && "O PEI será pausado e poderá ser reaberto depois. Deseja continuar?"}
               {acaoPendente === "reabrir" && "O PEI voltará ao status EM ANDAMENTO. Deseja continuar?"}
             </p>
