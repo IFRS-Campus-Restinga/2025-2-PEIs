@@ -43,24 +43,33 @@ function CreatePeiCentral() {
   const [alunos, setAlunos] = useState([]);
 
   // API
-  const token = localStorage.getItem("token") || "";
-
+  function getAuthHeaders() {
+    const token = localStorage.getItem("access") || localStorage.getItem("token");
+    return token ? { Authorization: `token ${token}` } : {};
+  }
   const DB = axios.create({
     baseURL: API_ROUTES.PEI_CENTRAL,
-    headers: { Authorization: `Token ${token}` }
+    headers: getAuthHeaders()
   });
 
   const DBALUNO = axios.create({
     baseURL: API_ROUTES.ALUNO,
-    headers: { Authorization: `Token ${token}` }
+    headers: getAuthHeaders()
   });
 
   const DBCURSOS = axios.create({
     baseURL: API_ROUTES.CURSOS,
-    headers: { Authorization: `Token ${token}` }
+    headers: getAuthHeaders()
   });
 
-  // Carrega todos os cursos
+  [DB, DBALUNO, DBCURSOS].forEach(api => {
+    api.interceptors.request.use(config => {
+      config.headers = getAuthHeaders();
+      return config;
+    });
+  });
+
+  // ================== GET CURSOS ==================
   useEffect(() => {
     async function recuperaCursos() {
       try {
@@ -68,13 +77,15 @@ function CreatePeiCentral() {
         const data = resp.data;
         setCursos(Array.isArray(data) ? data : data.results || []);
       } catch (err) {
+        console.error("Erro ao carregar cursos:", err);
         addAlert("Erro ao carregar cursos!", "error");
       }
     }
     recuperaCursos();
   }, []);
 
-  // Carrega alunos
+
+  // ================== GET ALUNOS ==================
   useEffect(() => {
     async function recuperaAlunos() {
       try {
@@ -82,10 +93,28 @@ function CreatePeiCentral() {
         const data = resp.data;
         setAlunos(Array.isArray(data) ? data : data.results || []);
       } catch (err) {
+        console.error("Erro ao carregar alunos:", err);
         addAlert("Erro ao carregar alunos!", "error");
       }
     }
     recuperaAlunos();
+  }, []);
+
+
+  // ================== GET PEI CENTRAL (CASO PRECISE LISTAR) ==================
+  useEffect(() => {
+    async function recuperaPeiCentral() {
+      try {
+        const resp = await DB.get("/");
+        const data = resp.data;
+        console.log("PEI Central carregado:", data);
+        // se quiser salvar no state, coloque abaixo:
+        // setPeis(Array.isArray(data) ? data : data.results || []);
+      } catch (err) {
+        console.error("Erro ao carregar PEI Central:", err);
+      }
+    }
+    recuperaPeiCentral();
   }, []);
 
   // Filtrar alunos por curso
@@ -173,7 +202,6 @@ function CreatePeiCentral() {
         </select>
 
         {/* Aluno */}
-        <label>Selecione o Aluno</label>
         <div>
           <label className="block mb-1 font-medium">
             Selecione o Aluno (Busca por Nome/Matrícula)

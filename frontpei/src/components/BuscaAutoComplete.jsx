@@ -27,7 +27,22 @@ const BuscaAutoComplete = ({ onSelectAluno, initialValue = "", disabled = false,
   const [isLoading, setIsLoading] = useState(false);
   const debouncedSearchText = useDebounce(searchText, 300); // 300ms de atraso
   
-  const DBALUNO = axios.create({ baseURL: API_ROUTES.ALUNO });
+  function getAuthHeaders() {
+    const token = localStorage.getItem("access") || localStorage.getItem("token");
+    return token ? { Authorization: `token ${token}` } : {};
+  }
+
+  const DBALUNO = axios.create({
+      baseURL: API_ROUTES.ALUNO,
+      headers: getAuthHeaders()
+    });
+
+  [DBALUNO].forEach(api => {
+    api.interceptors.request.use(config => {
+      config.headers = getAuthHeaders();
+      return config;
+    });
+  });
 
   // Dispara a busca quando o texto debounced muda (e tem 3+ caracteres)
   useEffect(() => {
