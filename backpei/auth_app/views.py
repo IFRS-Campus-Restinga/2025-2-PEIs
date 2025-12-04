@@ -108,12 +108,18 @@ class PreCadastroView(APIView):
 
         if User.objects.filter(email=email).exists():
             return Response({"detail": "Usuário já cadastrado"}, status=400)
+        
+        # Tenta separar nome e sobrenome
+        nome_completo = data["name"].strip().split(" ", 1)
+        first_name = nome_completo[0]
+        last_name = nome_completo[1] if len(nome_completo) > 1 else ""
 
         # Cria usuário pendente
         user = User.objects.create(
             username=email,
             email=email,
-            first_name=data["name"],
+            first_name=first_name,
+            last_name=last_name,
             foto=data.get("picture") or "",
             categoria_solicitada=data["categoria_solicitada"],
             aprovado=False
@@ -121,23 +127,29 @@ class PreCadastroView(APIView):
         user.set_unusable_password()
         user.save()
 
-        # 👇 NOVA LÓGICA: NOTIFICAR ADMINS
+        # logica para notificar admins de novos usuarios
         try:
-            # Busca todos os usuários do grupo 'Admin'
             admins = User.objects.filter(groups__name='Admin')
-            
             titulo = "Nova Solicitação de Cadastro"
             mensagem = f"O usuário {data['name']} ({email}) solicitou acesso como {data['categoria_solicitada']}."
 
-            print(f"🔔 Notificando {admins.count()} administradores sobre novo cadastro.")
+            print(f"🔔 Notificando {admins.count()} administradores.")
 
             for admin in admins:
-                # Cria notificação no sistema e dispara e-mail (thread separada)
-                criar_notificacao(admin, titulo, mensagem, enviar_email=True)
+                criar_notificacao(
+                    usuario=admin, 
+                    titulo=titulo, 
+                    mensagem=mensagem, 
+                    enviar_email=True,
+                    tipo='solicitacao_cadastro',  # Tipo específico
+                    dados_extras={
+                        'candidato_id': user.id,  # ID do usuário novo (para aprovar/rejeitar)
+                        'candidato_nome': user.first_name,
+                        'url': '/admin/solicitacoes'
+                    }
+                )
 
         except Exception as e:
-            # Não queremos que o cadastro falhe se a notificação der erro (apenas loga)
             print(f"❌ Erro ao notificar admins: {e}")
-        # -------------------------------------
-
+        
         return Response({"status": "ok", "message": "Pré-cadastro enviado"})

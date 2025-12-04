@@ -1,10 +1,12 @@
 from django.core.mail import send_mail
 from django.conf import settings
 from pei.models.notificacao import Notificacao
-import threading # Para não travar o sistema enquanto envia email
+import threading
+from django.utils import timezone
+from datetime import timedelta
+from pei.models.PEIPeriodoLetivo import PEIPeriodoLetivo
 
 def enviar_email_em_background(assunto, mensagem, destinatarios):
-    """Função auxiliar para enviar e-mail sem travar a requisição"""
     try:
         send_mail(
             subject=assunto,
@@ -16,52 +18,47 @@ def enviar_email_em_background(assunto, mensagem, destinatarios):
     except Exception as e:
         print(f"Erro ao enviar e-mail background: {e}")
 
-def criar_notificacao(usuario, titulo, mensagem, enviar_email=True):
-    """
-    Cria uma notificação no sistema e opcionalmente envia um e-mail.
-    """
-    # Cria no Banco (Para o Sininho)
+def criar_notificacao(usuario, titulo, mensagem, enviar_email=True, tipo='geral', dados_extras=None):
+    if dados_extras is None:
+        dados_extras = {}
+
+    # 1. Cria no Banco
     Notificacao.objects.create(
         usuario=usuario,
         titulo=titulo,
-        mensagem=mensagem
+        mensagem=mensagem,
+        tipo=tipo,
+        dados_extras=dados_extras
     )
 
-    # Envia E-mail (se solicitado e se o usuário tiver e-mail)
+    # 2. Envia E-mail
     if enviar_email and usuario and usuario.email:
-        # Usamos threading para o usuário não ficar esperando o Gmail responder
         thread = threading.Thread(
             target=enviar_email_em_background,
             args=(titulo, mensagem, [usuario.email])
         )
         thread.start()
-        
-from django.utils import timezone
-from datetime import timedelta
-from pei.models.PEIPeriodoLetivo import PEIPeriodoLetivo
 
+# Função para verificar -> períodos letivos <- e gerar notificações
 def verificar_periodos_e_gerar_notificacoes():
+    print("--- VERIFICANDO PRAZOS ---")
     hoje = timezone.now().date()
-    limite = hoje + timedelta(days=7)
+    limite = hoje + timedelta(days=7) # Aviso com 7 dias de antecedência
 
-    # Busca períodos terminando
     periodos = PEIPeriodoLetivo.objects.filter(data_termino__range=(hoje, limite))
 
     for periodo in periodos:
-        # LÓGICA MELHORADA:
-        # Em vez de criar notificação solta, vamos avisar o COORDENADOR do curso
-        # Precisamos navegar: Periodo -> PeiCentral -> Aluno -> Curso -> Coordenador
-        
-        # Tentativa de chegar no coordenador (depende da sua estrutura exata)
-        aluno = periodo.pei_central.aluno
-        if aluno and aluno.curso and aluno.curso.coordenador:
+        try:
+            aluno = periodo.pei_central.aluno
+            if not aluno or not aluno.curso or not aluno.curso.coordenador:
+                continue
+            
             coordenador = aluno.curso.coordenador
             
             titulo = "Período letivo próximo do fim"
             mensagem = f"O período do aluno {aluno.nome} termina em {periodo.data_termino.strftime('%d/%m/%Y')}."
-
-            # Evita duplicatas verificando se já existe notificação para este usuário com este título hoje
-            # (Lógica simplificada, pode ser refinada)
+            
+            # Evita duplicatas
             existe = Notificacao.objects.filter(
                 usuario=coordenador, 
                 titulo=titulo, 
@@ -69,4 +66,19 @@ def verificar_periodos_e_gerar_notificacoes():
             ).exists()
 
             if not existe:
-                criar_notificacao(coordenador, titulo, mensagem)
+                # Injetado os dados para o clique funcionar
+                # Tipo 'prazo' e ID do PEI Central para redirecionar
+                criar_notificacao(
+                    usuario=coordenador, 
+                    titulo=titulo, 
+                    mensagem=mensagem, 
+                    tipo='prazo',
+                    dados_extras={
+                        'pei_central_id': periodo.pei_central.id,
+                        'url': '/periodoLetivoPerfil' # Front vai usar isso
+                    }
+                )
+                print(f"    ✨ Notificação criada para {coordenador.username}")
+
+        except Exception as e:
+            print(f"    ☠️ Erro ao processar período: {e}")

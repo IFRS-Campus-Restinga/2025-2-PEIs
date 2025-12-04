@@ -84,7 +84,7 @@ def criar_admin_master():
     """
     Admin principal: ALTERE AQUI CASO QUEIRA SER CADASTRADO COMO ADMIN → 2023017316@aluno.restinga.ifrs.edu.br
     """
-    email = "2022012834@aluno.restinga.ifrs.edu.br"
+    email = "2022012487@aluno.restinga.ifrs.edu.br"
     nome = "Admin_Master"
 
     existente = User.objects.filter(email=email).first()
@@ -298,11 +298,35 @@ def rodar():
     # -----------------------------
     # Teste para ver permissões do usuário
     # -----------------------------
-    user = User.objects.get(username="Marcelo Cunha")
-    print("is_superuser:", user.is_superuser)
-    print("is_staff:", user.is_staff)
-    print("user_permissions:", list(user.user_permissions.all()))
-    print("all permissions:", list(user.get_all_permissions()))
+    print("\n================= TESTANDO PERMISSÕES =================\n")
+
+    # Escolher um usuário de cada grupo
+    testes = {
+        "Professor": User.objects.filter(groups__name="Professor").first(),
+        "Pedagogo": User.objects.filter(groups__name="Pedagogo").first(),
+        "Coordenador": User.objects.filter(groups__name="Coordenador").first(),
+        "Admin": User.objects.filter(groups__name="Admin").first(),
+    }
+
+    for grupo, user in testes.items():
+        print(f"\n--- {grupo.upper()} ---")
+        print("Usuário:", user.username)
+        print("email:", user.email)
+
+        print("is_superuser:", user.is_superuser)
+        print("is_staff:", user.is_staff)
+
+        print("Grupo(s):", [g.name for g in user.groups.all()])
+
+        print("Permissões individuais:", user.user_permissions.count())
+
+        print("Permissões vindas do grupo:")
+        for perm in user.get_group_permissions():
+            print("   •", perm)
+
+        print("TODAS permissões (user + grupo):")
+        for perm in user.get_all_permissions():
+            print("   →", perm)
 
 
 if __name__ == '__main__':

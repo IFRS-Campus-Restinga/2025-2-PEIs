@@ -5,7 +5,7 @@ from rest_framework import status
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-
+from pei.models.notificacao import Notificacao  # Importação necessária
 
 User = get_user_model()
 
@@ -79,6 +79,15 @@ class AprovarSolicitacaoView(APIView):
         user.aprovado = True
         user.save()
 
+        # ATUALIZA A NOTIFICAÇÃO PARA "LIDA" E REMOVE BOTÕES
+        Notificacao.objects.filter(
+            tipo='solicitacao_cadastro',
+            dados_extras__candidato_id=usuario_id
+        ).update(
+            lida=True, 
+            titulo=f"Cadastro Aprovado: {user.first_name}"
+        )
+
         return Response({"status": "aprovado"}, status=200)
 
 
@@ -101,6 +110,16 @@ class RejeitarSolicitacaoView(APIView):
         except User.DoesNotExist:
             return Response({"detail": "Solicitação não encontrada."}, status=404)
 
+        nome_usuario = user.first_name or user.email
         user.delete()
+
+        # ATUALIZA A NOTIFICAÇÃO PARA "LIDA" E INDICA REJEIÇÃO
+        Notificacao.objects.filter(
+            tipo='solicitacao_cadastro',
+            dados_extras__candidato_id=usuario_id
+        ).update(
+            lida=True, 
+            titulo=f"Cadastro Rejeitado: {nome_usuario}"
+        )
 
         return Response({"status": "rejeitado"}, status=200)

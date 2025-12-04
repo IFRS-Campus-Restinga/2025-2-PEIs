@@ -13,9 +13,6 @@ function DocumentacaoComplementar() {
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
   const location = useLocation()
   const {matricula} = location.state || {}
-  console.log("MATRICULA NO FRONT:", matricula);
-
-
   const DBDOC = axios.create({baseURL: API_ROUTES.DOCUMENTACAOCOMPLEMENTAR });
   const [form, setForm] = useState({ nomeArquivo: "" });
   const [arquivo, setArquivo] = useState(null);

@@ -4,10 +4,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from pei.models.notificacao import Notificacao
 from pei.services.serializers.notificacao_serializer import NotificacaoSerializer
+from rest_framework.permissions import DjangoObjectPermissions
 
 class NotificacaoViewSet(viewsets.ModelViewSet):
     serializer_class = NotificacaoSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, DjangoObjectPermissions]
 
     def get_queryset(self):
         # Filtra apenas as notificações do usuário atual

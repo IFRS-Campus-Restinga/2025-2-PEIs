@@ -1,4 +1,3 @@
-// --- CÓDIGO COMPLETO COM CONSOLE.LOGS ---
 
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -8,6 +7,8 @@ import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import BotaoDeletar from "../../components/customButtons/botaoDeletar";
 import BotaoEditar from "../../components/customButtons/botaoEditar";
 import "../../cssGlobal.css";
+import { api } from "../../services/api";
+
 
 function CrudUniversal({ modelName }) {
   const { addAlert, clearAlerts } = useAlert();
@@ -20,7 +21,6 @@ function CrudUniversal({ modelName }) {
   const [selectOptions, setSelectOptions] = useState({});
   const [servicesMap, setServicesMap] = useState({});
 
-  console.log("[INIT] Renderizou CrudUniversal para:", modelName);
 
   // Mapeamento de exceções
   const exceptions = {
@@ -34,28 +34,33 @@ function CrudUniversal({ modelName }) {
   };
 
   function normalizeRecordForEdit(record, metadata) {
-    console.log("[NORMALIZE RECORD] Entrada:", record);
+  const normalized = { ...record };
 
-    const normalized = { ...record };
+  metadata.fields.forEach((f) => {
+    const value = record[f.name];
 
-    metadata.fields.forEach((f) => {
-      const value = record[f.name];
-
-      if (f.type === "select") {
-        normalized[f.name] =
-          typeof value === "object" && value !== null ? value.id : value;
+    if (f.name === "disciplinas") {
+      // Backend manda "disciplina: { id, nome }"
+      if (record.disciplina) {
+        normalized.disciplinas = record.disciplina.id;
       }
+      return;
+    }
 
-      if (f.type === "multiselect") {
-        normalized[f.name] = Array.isArray(value)
-          ? value.map((v) => (typeof v === "object" ? v.id : v))
-          : [];
-      }
-    });
+    if (f.type === "select") {
+      normalized[f.name] =
+        typeof value === "object" && value !== null ? value.id : value;
+    }
 
-    console.log("[NORMALIZE RECORD] Saída:", normalized);
-    return normalized;
-  }
+    if (f.type === "multiselect") {
+      normalized[f.name] = Array.isArray(value)
+        ? value.map((v) => (typeof v === "object" ? v.id : v))
+        : [];
+    }
+  });
+
+  return normalized;
+}
 
   const formatLabel = (label) => {
     if (!label) return "";
@@ -71,9 +76,7 @@ function CrudUniversal({ modelName }) {
   useEffect(() => {
     async function fetchServices() {
       try {
-        console.log("[SERVICES] Buscando lista de serviços...");
-        const res = await axios.get("http://localhost:8000/services/");
-        console.log("[SERVICES] Recebido:", res.data);
+        const res = await api.get("http://localhost:8000/services/");
         setServicesMap(res.data);
       } catch (err) {
         console.error("[SERVICES] Erro:", err);
@@ -88,18 +91,15 @@ function CrudUniversal({ modelName }) {
     const mappedModel = exceptions[modelName] || modelName;
     const url = servicesMap[mappedModel];
 
-    console.log("[RECORDS] Buscando registros em:", url);
 
     if (!url) return;
 
     try {
-      const res = await axios.get(url);
+      const res = await api.get(url);
 
-      console.log("[RECORDS] Dados crus recebidos:", res.data);
 
       const data = Array.isArray(res.data) ? res.data : res.data?.results || [];
 
-      console.log("[RECORDS] Dados normalizados:", data);
 
       setRecords(data);
     } catch (err) {
@@ -118,26 +118,21 @@ function CrudUniversal({ modelName }) {
     async function loadMetadata() {
       if (!servicesMap.schema) return;
 
-      console.log(
-        `[METADATA] Buscando metadata em: ${servicesMap.schema}${modelName}`
-      );
+      
 
       try {
-        const res = await axios.get(`${servicesMap.schema}${modelName}`);
-        console.log("[METADATA] Recebido:", res.data);
+        const res = await api.get(`${servicesMap.schema}${modelName}`);
 
         const data = res.data;
         setMetadata(data);
 
         // Carregar opções de selects/multiselects
         data.fields.forEach(async (f) => {
-          console.log(`[SELECT LOAD] Campo encontrado:`, f);
 
           const isSelect = f.type === "select";
           const isMulti = f.type === "multiselect";
 
           if (f.choices) {
-            console.log(`[SELECT LOAD] Campo ${f.name} é ENUM, ignorando.`);
             return;
           }
 
@@ -152,15 +147,13 @@ function CrudUniversal({ modelName }) {
               servicesMap[mappedKey] ||
               `http://localhost:8000/services/${mappedKey}/`;
 
-            console.log(`[SELECT LOAD] Buscando opções em:`, endpoint);
 
-            const r = await axios.get(endpoint);
+            const r = await api.get(endpoint);
 
             const options = Array.isArray(r.data)
               ? r.data
               : r.data?.results || [];
 
-            console.log(`[SELECT LOAD] Opções recebidas para ${f.name}:`, options);
 
             setSelectOptions((prev) => ({
               ...prev,
@@ -182,7 +175,6 @@ function CrudUniversal({ modelName }) {
 
   // Normalização do payload
   function normalizePayload(data, metadata) {
-    console.log("[PAYLOAD] Normalizando:", data);
 
     const payload = { ...data };
 
@@ -199,8 +191,18 @@ function CrudUniversal({ modelName }) {
         payload[f.name] = payload[f.name] || [];
       }
     });
+     // --- CONDIÇÃO CUSTOM PARA ComponenteCurricular ---
+    if (modelName === "ComponenteCurricular") {
 
-    console.log("[PAYLOAD] Final:", payload);
+      // Se o form tiver periodos_letivos (multiselect), enviamos isso como periodos_letivos_id
+      if (Array.isArray(payload.periodos_letivos)) {
+        payload.periodos_letivos_id = payload.periodos_letivos.map(Number);
+      }
+
+      // Segurança: remove a chave errada caso exista
+      delete payload.periodos_letivos;
+    }
+    
     return payload;
   }
 
@@ -233,14 +235,12 @@ function CrudUniversal({ modelName }) {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    console.log("[CREATE] Form enviado:", form);
 
     try {
       const payload = normalizePayload(form, metadata);
 
-      console.log("[CREATE] Payload enviado ao backend:", payload);
 
-      await axios.post(getEndpoint(modelName), payload);
+      await api.post(getEndpoint(modelName), payload);
       await fetchRecords();
 
       setForm(
@@ -257,14 +257,12 @@ function CrudUniversal({ modelName }) {
   async function handleEditSubmit(e, id) {
     e.preventDefault();
 
-    console.log("[UPDATE] Edit form:", editForm);
 
     try {
       const payload = normalizePayload(editForm, metadata);
 
-      console.log("[UPDATE] Payload enviado:", payload);
 
-      await axios.put(`${getEndpoint(modelName)}${id}/`, payload);
+      await api.put(`${getEndpoint(modelName)}${id}/`, payload);
 
       setEditId(null);
       await fetchRecords();
@@ -279,10 +277,7 @@ function CrudUniversal({ modelName }) {
 
   // Renderização dos inputs
   const renderInput = (f, value, onChange) => {
-    console.log(
-      `[RENDER INPUT] Campo: ${f.name}, Tipo: ${f.type}, Valor:`,
-      value
-    );
+    
     // Normalização dos tipos vindos do schema DRF
     let fieldType = f.type;
 
@@ -320,7 +315,6 @@ function CrudUniversal({ modelName }) {
     if (f.type === "select") {
       const options = selectOptions[f.name] || [];
 
-      console.log(`[RENDER INPUT] Opções carregadas para ${f.name}:`, options);
 
       return (
         <select
@@ -332,7 +326,7 @@ function CrudUniversal({ modelName }) {
           <option value="">Selecione...</option>
           {options.map((opt) => (
             <option key={opt.id} value={opt.id}>
-              {opt.nome || opt.label || opt.username || opt.id}
+              {opt.nome || opt.aluno_nome || opt.label || opt.username || opt.id}
             </option>
           ))}
         </select>
@@ -343,10 +337,6 @@ function CrudUniversal({ modelName }) {
     if (f.type === "multiselect") {
       const options = selectOptions[f.name] || [];
 
-      console.log(
-        `[RENDER MULTI] Opções para ${f.name}:`,
-        options
-      );
 
       return (
         <div>
@@ -414,34 +404,33 @@ function CrudUniversal({ modelName }) {
 
   // Renderiza valores na listagem
   const renderFieldValue = (f, record) => {
-    console.log("[RENDER FIELD VALUE] Campo:", f.name, "Record:", record);
 
     const value = record[f.name];
     const options = selectOptions[f.name] || [];
 
     if (f.name === "disciplinas") {
-  // Se for multiselect, usa a lógica padrão de multiselect
-  if (f.type === "multiselect") {
-    return value && value.length
-      ? value
-          .map((v) => {
-            if (typeof v === "object") {
-              return v.nome || v.label || v.id;
-            }
-            const found = selectOptions["disciplinas"]?.find(
-              (o) => o.id === v
-            );
-            return found?.nome || v;
-          })
-          .join(", ")
-      : "-";
-  }
-
-  // Se NÃO for multiselect, usa sua lógica original (para outro model)
-  const obj = record["disciplina"];
-  console.log("[RENDER] disciplina (detalhe):", obj);
-  return obj?.nome || "-";
-}
+      
+      // Se for multiselect, usa a lógica padrão de multiselect
+      if (f.type === "multiselect") {
+        return value && value.length
+          ? value
+              .map((v) => {
+                if (typeof v === "object") {
+                  return v.nome || v.label || v.id;
+                }
+                const found = selectOptions["disciplinas"]?.find(
+                  (o) => o.id === v
+                );
+                return found?.nome || v;
+              })
+              .join(", ")
+          : "-";
+      }
+      
+      // Se NÃO for multiselect, usa sua lógica original (para outro model)
+      const obj = record["disciplina"];
+      return obj?.nome || "-";
+    }
 
     if (f.type === "select" && f.choices) {
       const found = f.choices.find((c) => c.value === value);
@@ -451,7 +440,7 @@ function CrudUniversal({ modelName }) {
     if (f.type === "select") {
       const id = typeof value === "object" ? value.id : value;
       const found = options.find((o) => o.id === id);
-      return found?.nome || found?.label || found?.username || id || "-";
+      return found?.nome || found?.aluno_nome || found?.label || found?.username || id || "-";
     }
 
     if (f.type === "multiselect") {
@@ -556,7 +545,7 @@ if (f.type === "FileField" || f.type === "file") {
                     <button type="submit" className="btn-salvar">
                       Salvar
                     </button>
-                    <button type="button" onClick={() => setEditId(null)}>
+                    <button type="button" class="botao-deletar" onClick={() => setEditId(null)}>
                       Cancelar
                     </button>
                   </div>
@@ -576,9 +565,7 @@ if (f.type === "FileField" || f.type === "file") {
                     <BotaoEditar
                       id={r.id}
                       onClickInline={() => {
-                        console.log("[EDIT] Normalizando registro:", r);
                         const normalized = normalizeRecordForEdit(r, metadata);
-                        console.log("[EDIT] Normalizado:", normalized);
 
                         setEditId(r.id);
                         setEditForm(normalized);

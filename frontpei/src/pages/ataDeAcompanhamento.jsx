@@ -16,8 +16,18 @@ function AtaDeAcompanhamento({usuario}) {
     // limpa todos os alertas ao entrar na tela
     clearAlerts();
   }, []);
-  const DBATA = axios.create({ baseURL: API_ROUTES.ATADEACOMPANHAMENTO });
-  const PERIODO_LETIVO_API = axios.create({ baseURL: API_ROUTES.PEIPERIODOLETIVO });
+  const TOKEN_BEARER = localStorage.getItem("access") || localStorage.getItem("token") || "";
+
+  const DBATA = axios.create({
+    baseURL: API_ROUTES.ATADEACOMPANHAMENTO,
+    headers: { Authorization: TOKEN_BEARER ? `token ${TOKEN_BEARER}` : undefined }
+  });
+
+  const PERIODO_LETIVO_API = axios.create({
+    baseURL: API_ROUTES.PEIPERIODOLETIVO,
+    headers: { Authorization: TOKEN_BEARER ? `token ${TOKEN_BEARER}` : undefined }
+  });
+
 
   const [form, setForm] = useState({
     dataReuniao: "",

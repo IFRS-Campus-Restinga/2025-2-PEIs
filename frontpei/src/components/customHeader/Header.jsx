@@ -1,19 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo-sem-nome.png";
 import userIcon from "../../assets/user.svg";
 import chevronDown from "../../assets/chevron-down.svg";
 import bellIcon from "../../assets/bell.svg";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import "../../cssGlobal.css";
-import LeitorTela from '../leitorTela/LeitorTela';
+import { useAlert } from "../../context/AlertContext";
 
 const Header = ({ usuario, logado, logout }) => {
+    
+    const { addAlert } = useAlert();
     const [menuAberto, setMenuAberto] = useState(false);
     const [notificacoesAbertas, setNotificacoesAbertas] = useState(false);
     const [notificacoes, setNotificacoes] = useState([]);
     const menuRef = useRef(null);
     const notifRef = useRef(null);
+    const navigate = useNavigate();
 
     // Fecha dropdowns ao clicar fora
     useEffect(() => {
@@ -43,7 +46,6 @@ const Header = ({ usuario, logado, logout }) => {
             const token = localStorage.getItem("token");
             if (!token) return;
 
-            // Ajustado para porta 8000 e prefixo Token
             const response = await axios.get("http://localhost:8000/services/notificacoes-lista/", {
                 headers: {
                     Authorization: `Token ${token}`,
@@ -64,12 +66,69 @@ const Header = ({ usuario, logado, logout }) => {
                 headers: { Authorization: `Token ${token}` },
             });
 
-            // Atualiza localmente
             const novasNotificacoes = notificacoes.map(n => ({ ...n, lida: true }));
             setNotificacoes(novasNotificacoes);
             
         } catch (error) {
             console.error("Erro ao marcar notificações:", error);
+        }
+    };
+
+    const handleNotificationClick = async (n) => {
+        if (!n.lida) {
+            try {
+                const token = localStorage.getItem("token");
+                await axios.patch(`http://localhost:8000/services/notificacoes/${n.id}/`, 
+                    { lida: true },
+                    { headers: { Authorization: `Token ${token}` } }
+                );
+                
+                setNotificacoes(prev => prev.map(notif => 
+                    notif.id === n.id ? { ...notif, lida: true } : notif
+                ));
+            } catch (error) {
+                console.error("Erro ao marcar notificação individual como lida:", error);
+            }
+        }
+
+        if (n.dados_extras && n.dados_extras.url) {
+            if (n.tipo === 'prazo' && n.dados_extras.pei_central_id) {
+                navigate(n.dados_extras.url, { state: { peiCentralId: n.dados_extras.pei_central_id } });
+            } else {
+                navigate(n.dados_extras.url);
+            }
+            setNotificacoesAbertas(false);
+        }
+    };
+
+    // AÇÃO RÁPIDA (APROVAR/REJEITAR)
+    const handleQuickAction = async (e, action, candidatoId) => {
+        e.stopPropagation();
+        
+        if (!candidatoId) return;
+        const token = localStorage.getItem("token");
+        const endpoint = action === 'aprovar' 
+            ? "http://localhost:8000/api/auth/solicitacoes/aprovar/"
+            : "http://localhost:8000/api/auth/solicitacoes/rejeitar/";
+
+        try {
+            await axios.post(endpoint, { id: candidatoId }, {
+                headers: { Authorization: `Token ${token}` }
+            });
+            
+            // ATUALIZA A NOTIFICAÇÃO LOCALMENTE E REMOVE OS BOTÕES
+            setNotificacoes(prev => prev.map(n => 
+                n.dados_extras?.candidato_id === candidatoId ? { ...n, lida: true, processada: true } : n
+            ));
+            
+            // 
+            addAlert(`Solicitação ${action === 'aprovar' ? 'aprovada' : 'rejeitada'} com sucesso!`, "success");
+
+        } catch (err) {
+            console.error("Erro na ação rápida:", err);
+            // 
+            addAlert("Erro ao processar ação.", "error");
+
         }
     };
 
@@ -166,31 +225,88 @@ const Header = ({ usuario, logado, logout }) => {
                                 </div>
                                 
                                 <div className="notif-list-container">
-                                    {notificacoes.length > 0 ? (
-                                        <ul className="notif-list">
-                                            {notificacoes.map((n) => (
-                                                <li key={n.id} className="notif-item" style={{ background: n.lida ? '#fff' : '#f0f9f0' }}>
-                                                    <div className="notif-content">
-                                                        <h4 className="notif-item-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                            {!n.lida && <span style={{ width: '8px', height: '8px', background: '#055C0F', borderRadius: '50%', display: 'inline-block' }}></span>}
-                                                            {n.titulo}
-                                                        </h4>
-                                                        <p className="notif-item-message">{n.mensagem}</p>
-                                                        <span className="notif-item-time">{formatarData(n.data_criacao)}</span>
-                                                    </div>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
+                                        {notificacoes.length > 0 ? (
+                                            <ul className="notif-list">
+                                                {notificacoes.slice(0, 5).map((n) => (
+                                                    <li 
+                                                        key={n.id} 
+                                                        className="notif-item" 
+                                                        style={{ background: n.lida ? '#fff' : '#f0f9f0', cursor: 'pointer' }}
+                                                        onClick={() => handleNotificationClick(n)} // Clique na linha toda
+                                                    >
+                                                        <div className="notif-content">
+                                                            <h4 className="notif-item-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                {!n.lida && <span style={{ width: '8px', height: '8px', background: '#055C0F', borderRadius: '50%', display: 'inline-block' }}></span>}
+                                                                {n.titulo}
+                                                            </h4>
+                                                            <p className="notif-item-message">{n.mensagem}</p>
+                                                            
+                                                            {/* RENDERIZAÇÃO CONDICIONAL: BOTÕES PARA ADMIN */}
+                                                            {n.tipo === 'solicitacao_cadastro' && !n.lida && !n.processada && (
+                                                                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                                                    <button 
+                                                                        onClick={(e) => handleQuickAction(e, 'aprovar', n.dados_extras?.candidato_id)}
+                                                                        className="btn-verde"
+                                                                        style={{ fontSize: '10px', padding: '4px 8px' }}
+                                                                    >
+                                                                        Aprovar
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={(e) => handleQuickAction(e, 'rejeitar', n.dados_extras?.candidato_id)}
+                                                                        className="botao-deletar"
+                                                                        style={{ fontSize: '10px', padding: '4px 8px', marginTop: 0 }}
+                                                                    >
+                                                                        Rejeitar
+                                                                    </button>
+                                                                </div>
+                                                            )}
+
+                                                            <span className="notif-item-time">{formatarData(n.data_criacao)}</span>
+                                                        </div>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
                                         <div className="notif-empty">
                                             <p className="notif-empty-text">Nenhuma notificação</p>
                                             <span className="notif-empty-subtext">Você está em dia!</span>
                                         </div>
                                     )}
                                 </div>
+                                    <div className="notif-footer">
+                                        <Link 
+                                            to="/todas-notificacoes" 
+                                            onClick={() => setNotificacoesAbertas(false)}
+                                            style={{
+                                                background: '#e8f5e9',
+                                                color: '#055C0F',
+                                                border: '1px solid #a5d6a7',
+                                                borderRadius: '20px',
+                                                padding: '4px 10px',
+                                                fontSize: '11px',
+                                                fontWeight: '600',
+                                                textDecoration: 'none',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.5px',
+                                                transition: 'all 0.2s ease',
+                                                display: 'inline-block' 
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.target.style.background = '#055C0F';
+                                                e.target.style.color = '#fff';
+                                                e.target.style.borderColor = '#055C0F';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.target.style.background = '#e8f5e9';
+                                                e.target.style.color = '#055C0F';
+                                                e.target.style.borderColor = '#a5d6a7';
+                                            }}
+                                        >
+                                            Ver todas as notificações
+                                        </Link>
+                                    </div>
                             </div>
                         </div>
-                        <LeitorTela />
                         
                         {/* 👤 Usuário */}
                         <div className="user-wrapper" ref={menuRef}>

@@ -4,19 +4,25 @@
 *,
 *::before,
 *::after {
-  box-sizing: inherit;
+  box-sizing: border-box;
 }
 html,
 body {
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
   font-family: 'Roboto', sans-serif;
   background-image: url('./assets/Papel_de_parede1.jpg');
   line-height: 1.6;
-   padding-bottom: 60px;
+}
+#root {
+  height: 100%;
+}
+.hover-scale:hover {
+    transform: translateY(-5px);
+    cursor: pointer;
 }
 .app-container {
   display: flex;
@@ -26,6 +32,9 @@ body {
 .main-content {
   flex: 1;
   padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 80px;
 }
 .text-block {
   white-space: pre-wrap;
@@ -224,15 +233,25 @@ body {
     FOOTER
    ======================================== */
 .footer {
-  background: #f2f2f2; color: #333;
-  padding: 12px 24px; display: flex;
-  justify-content: space-between; align-items: center;
-  flex-wrap: wrap; font-size: 13px;
-  box-shadow: 0 -2px 8px rgba(0,0,0,.1);
-  position: fixed; bottom: 0; width: 98%;
-  border-top: 2px solid #ccc; font-family: 'Roboto', sans-serif;
-  opacity: 0; transform: translateY(20px);
-  animation: footerFadeIn .5s ease forwards;
+  background: #f2f2f2;
+  color: #333;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 13px;
+  box-shadow: 0 -2px 8px rgba(0,0,0,.05);
+  border-top: 1px solid #e0e0e0;
+  font-family: 'Roboto', sans-serif;
+  z-index: 10;
+
+  /* MUDANÇA CRUCIAL: */
+  position: relative; /* Solta ele da tela */
+  width: 100%;
+  margin-top: auto;   /* Empurra para o fundo */
+  bottom: auto;
+  z-index: 10;
 }
 @keyframes footerFadeIn { to { opacity: 1; transform: translateY(0); } }
 .footer-left { display: flex; flex-direction: row; align-items: center; gap: 12px; }
@@ -907,7 +926,7 @@ body {
 .erro { color: red; margin-top: 10px; }
 
 /* ========================================
-    TABELAS (DataTables)
+   TABELAS (DataTables) - ESTILO MODERNO
    ======================================== */
 
 /* Wrapper principal */
@@ -917,12 +936,30 @@ body {
   color: #333;
 }
 
+/* --- NOVO: BARRA DE FERRAMENTAS SUPERIOR --- */
+/* Cria a "caixa branca" que segura o Search e o Length */
+div.dt-container .row:first-child {
+  background: #fff;
+  padding: 15px 20px;
+  border-radius: 12px 12px 0 0; /* Arredonda só em cima */
+  margin-bottom: 0; /* Cola na tabela */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #f0f0f0;
+  border-bottom: none; /* Remove borda de baixo para fundir */
+}
+
 /* Tabela */
 .display {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
-  border-radius: 12px;
+  
+  /* MUDANÇA: Arredonda só embaixo para colar na toolbar */
+  border-radius: 0 0 12px 12px; 
+  border-top: none;
+  
   overflow: hidden;
   box-shadow: 0 4px 14px rgba(0,0,0,.06);
   font-size: .9rem;
@@ -939,13 +976,10 @@ body {
   font-weight: 600;
   letter-spacing: .4px;
   font-size: .95rem;
-}
-
-/* Setinhas de ordenação (voltaram!) */
-.display thead th {
   position: relative;
 }
 
+/* Setinhas de ordenação */
 .display thead th::after,
 .display thead th::before {
   content: '';
@@ -1032,33 +1066,100 @@ body {
   font-weight: bold;
 }
 
-/*  Caixa "Mostrar" - MENOR */
-div.dt-container div.dt-length select {
-  width: 60px !important;
-  padding: 4px 8px !important;
-  font-size: 13px !important;
-  height: 36px !important;
-  border: 1px solid #ccc !important;
-  border-radius: 8px !important;
+/* --- CONTROLES (PESQUISA E ITENS POR PÁGINA) --- */
+
+div.dt-container .row:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px; /* Espaço extra no rodapé */
+  background: #fff;   /* Garante fundo branco se precisar */
+  border-radius: 0 0 12px 12px;
 }
 
-/*  "Pesquisar" - À DIREITA + AJUSTE FINO */
+/* 1. Dropdown "X itens por página" */
+div.dt-container div.dt-length {
+  margin-right: 15px;
+}
+
+div.dt-container div.dt-length select {
+  width: auto !important;
+  padding: 4px 8px !important;
+  font-size: 13px !important;
+  height: 32px !important; /* Um pouco mais compacto no rodapé */
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 6px !important;
+  background-color: #fff;
+  cursor: pointer;
+  color: #555;
+  font-weight: 500;
+}
+
+div.dt-container div.dt-length label {
+  font-weight: 500;
+  color: #666;
+  margin-left: 8px;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+div.dt-container div.dt-length select:hover {
+  border-color: #055C0F !important;
+  background-color: #fff;
+}
+
+div.dt-container div.dt-length select:focus {
+  outline: none;
+  border-color: #055C0F !important;
+  box-shadow: 0 0 0 2px rgba(5, 92, 15, 0.1);
+}
+
+
+/* 2. Input "Pesquisar" */
 div.dt-container div.dt-search {
+  float: none !important;
   text-align: right !important;
-  margin-top: -30px !important;
-  margin-bottom: 2rem !important;
-  margin-right: 20px !important;
+  margin: 0 !important;
+  position: relative;
+}
+
+div.dt-container div.dt-search label {
+  display: none; /* Esconde o texto "Pesquisar:" */
 }
 
 div.dt-container div.dt-search input {
-  min-width: 180px !important;
-  padding: 6px 12px !important;
+  width: 220px !important;
+  height: 38px !important;
+  padding: 8px 16px !important;
+  padding-left: 36px !important; /* Espaço para lupa */
   font-size: 13px !important;
-  border: 1px solid #ccc !important;
-  border-radius: 8px !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 20px !important; /* Formato Pílula */
+  background-color: #f9f9f9;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  
+  /* Ícone de Lupa (SVG inline) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 12px center;
 }
 
-/*  Paginação - CENTRALIZADA */
+/* Efeito ao focar na busca */
+div.dt-container div.dt-search input:focus {
+  width: 300px !important; /* Estica a barra */
+  border-color: #055C0F !important;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  outline: none;
+}
+
+div.dt-container div.dt-search input::placeholder {
+  color: #999;
+  font-weight: 500;
+}
+
+/* Paginação - CENTRALIZADA */
 div.dt-container div.dt-paging {
   display: flex !important;
   justify-content: center !important;
@@ -1082,18 +1183,25 @@ div.dt-container .dt-info {
   margin-top: 10px !important;
 }
 
-/* Responsivo: mantém em coluna */
-@media (max-width: 767px) {
-  div.dt-container .row:last-child {
-    align-items: center;
+/* Responsivo */
+@media (max-width: 768px) {
+  /* No celular, empilha a toolbar */
+  div.dt-container .row:first-child {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
   }
+  
+  div.dt-container div.dt-search input {
+    width: 100% !important; /* Ocupa tudo no mobile */
+  }
+
   div.dt-container .dt-info,
   div.dt-container .dt-paging {
     width: 100%;
     text-align: center;
   }
 }
-
 /* ========================================
    PAGINAÇÃO DATATABLES
    ======================================== */
@@ -1214,23 +1322,269 @@ div.dt-container .dt-info {
 .parecer-data { font-size: .85rem; color: #777; }
 .parecer-texto { color: #444; line-height: 1.4; }
 
-/* --- Login --- */
-.login-container { display: flex; min-height: 100vh; width: 100%; background: #f5f5f5; text-align: center;}
-.login-info-side {
-  flex: 1; background: linear-gradient(135deg, #055C0F 0%, #0a7d2c 50%, #0d9939 100%);
-  color: #fff; padding: 60px; display: flex; align-items: center; justify-content: center;
-  position: relative; overflow: hidden;
-}
-.login-info-side::before,
-.login-info-side::after { content: ''; position: absolute; width: 500px; height: 500px; background: rgba(255,255,255,.05); border-radius: 50%; }
-.login-info-side::before { top: -200px; left: -200px; }
-.login-info-side::after { bottom: -150px; right: -150px; }
-.login-form-side {
-  flex: 0 0 480px; background: #fff;
-  display: flex; align-items: center; justify-content: center;
-  padding: 40px; box-shadow: -4px 0 20px rgba(0,0,0,.08);
+/* ========================================
+   LOGIN PAGE - ESTILO CORRIGIDO
+   ======================================== */
+
+.login-container {
+  display: flex;
+  height: 100vh;      /* Altura exata da viewport */
+  width: 100vw;       /* Largura exata da viewport */
+  overflow: hidden;   /* PROIBIDO ROLAR a página inteira */
+  background: #fff;
+  position: absolute; /* Garante que fique sobre tudo */
+  top: 0;
+  left: 0;
 }
 
+/* --- LADO ESQUERDO (VERDE) --- */
+.login-info-side {
+  flex: 1.2; 
+  height: 100%; 
+  background: linear-gradient(135deg, #03490b 0%, #055C0F 50%, #087f17 100%);
+  color: #fff; 
+  padding: 40px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  position: relative; 
+  z-index: 1; /* Nível base */
+  box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+  overflow: hidden; /* Permite rolar se a tela for muito baixa */
+}
+
+/* Bolhas Decorativas (Fundo) */
+.login-info-side::before,
+.login-info-side::after { 
+  content: ''; 
+  position: absolute; 
+  border-radius: 50%; 
+  pointer-events: none; /* Deixa clicar através delas */
+  z-index: 0; /* Fica ATRÁS do texto */
+}
+
+.login-info-side::before { 
+  width: 600px; height: 600px; 
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); 
+  top: -150px; left: -150px; 
+}
+
+.login-info-side::after { 
+  width: 500px; height: 500px; 
+  background: rgba(255,255,255,0.05); 
+  bottom: -100px; right: -100px; 
+}
+
+/* Wrapper do Conteúdo de Texto (IMPORTANTE: Z-INDEX) */
+.login-info-content {
+  position: relative;
+  z-index: 10; /* Traz o texto para FRENTE das bolhas */
+  max-width: 650px;
+  width: 100%;
+  text-align: left;
+}
+
+/* Brand / Logo */
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.login-brand-logo {
+  height: 60px;
+  width: auto;
+  filter: brightness(0) invert(1); /* Deixa logo branco */
+}
+
+.login-brand-text h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1;
+}
+
+.login-brand-text p {
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Features List */
+.login-features h2 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.login-description {
+  font-size: 16px;
+  opacity: 0.9;
+  margin-bottom: 40px;
+  line-height: 1.5;
+  max-width: 500px;
+}
+
+.login-feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.login-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.feature-icon {
+  font-size: 24px;
+  background: rgba(255,255,255,0.2);
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.feature-text h3 {
+  font-size: 18px;
+  margin: 0 0 4px 0;
+  font-weight: 600;
+}
+
+.feature-text p {
+  font-size: 14px;
+  margin: 0;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+.login-footer-info {
+  margin-top: 60px;
+  font-size: 12px;
+  opacity: 0.6;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  padding-top: 20px;
+}
+
+/* --- LADO DIREITO (FORMULÁRIO) --- */
+.login-form-side {
+  flex: 1; 
+  height: 100%;
+  background: #f8f9fa; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  padding: 40px; 
+  overflow-y: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.login-form-container {
+  background: #fff;
+  width: 100%;
+  max-width: 450px;
+  padding: 50px 40px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+  text-align: center;
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-form-header h2 {
+  color: #055C0F;
+  font-size: 28px;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.login-form-header p {
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 40px;
+}
+
+.login-button-wrapper {
+  margin: 30px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.login-help-text {
+  font-size: 13px;
+  color: #555;
+  background: #f1f8f1;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #d4ebd6;
+  line-height: 1.5;
+}
+
+.login-divider {
+  height: 1px;
+  background: #eee;
+  margin: 30px 0;
+}
+
+.login-support h4 {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 5px;
+  font-weight: 700;
+}
+
+.login-support p {
+  font-size: 13px;
+  color: #777;
+  margin: 0 0 5px 0;
+}
+
+.login-support a {
+  color: #055C0F;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.login-support a:hover {
+  text-decoration: underline;
+}
+
+/* Responsividade Login */
+@media (max-width: 900px) {
+  .login-container {
+    flex-direction: column;
+    overflow-y: auto; /* Permite rolar em mobile */
+  }
+  
+  .login-info-side {
+    display: none; /* Esconde o lado decorativo em telas pequenas/mobile */
+  }
+  
+  .login-form-side {
+    width: 100%;
+    flex: 1;
+    padding: 20px;
+    background: #fff;
+  }
+  
+  .login-form-container {
+    box-shadow: none;
+    padding: 20px;
+  }
+}
 /* --- Perfil Admin --- */
 .perfil-admin-container {
   width: 90%; margin: 40px auto; text-align: center;
@@ -1850,3 +2204,33 @@ input:checked + .slider:before {
 }
 
 
+/* --- Badges de Status para Tabelas --- */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+  text-align: center;
+  min-width: 80px;
+}
+
+.status-aberto {
+  background-color: #e6f4ea;
+  color: #1e7e34;
+  border: 1px solid #c3e6cb;
+}
+
+.status-em-andamento {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.status-fechado, 
+.status-concluido {
+  background-color: #e2e3e5;
+  color: #383d41;
+  border: 1px solid #d6d8db;
+}

@@ -2,6 +2,7 @@ import React from 'react';
 import logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
 import "../../cssGlobal.css";
+import LeitorTela from '../leitorTela/LeitorTela';
 
 const Footer = ({ usuario }) => {
     //
@@ -23,6 +24,7 @@ const Footer = ({ usuario }) => {
             </div>
 
             <div className="footer-right">
+                <LeitorTela />
                 {/* OS LOGS E APROVAÇÃO SÓ APARECEM SE FOR ADMIN */}
                 {isAdmin && (
                     <Link to="/logs" className="footer-logs-btn" title="Ver logs do sistema">

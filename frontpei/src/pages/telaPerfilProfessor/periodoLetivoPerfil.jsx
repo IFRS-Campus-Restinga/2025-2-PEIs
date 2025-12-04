@@ -4,6 +4,8 @@ import axios from "axios";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
+import api from "../../configs/axiosConfig";
+
 
 const PeriodoLetivoPerfil = () => {
   const location = useLocation();
@@ -39,7 +41,20 @@ const PeriodoLetivoPerfil = () => {
 
     async function carregarDados() {
       try {
-        const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`);
+        const token = localStorage.getItem("token");
+        console.log("Token obtido do localStorage:", token);
+        if (!token) throw new Error("Token de autenticação não encontrado.");
+        const headers = {
+          Authorization: `Token ${token}`, 
+        };
+        console.log("Headers enviados na requisição:", headers);
+
+        const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`, {
+          headers,
+        });
+
+        console.log("Resposta do backend:", res.data);
+
         const pei = res.data;
 
         console.log("PEI Central retornado:", pei);
@@ -99,7 +114,7 @@ const PeriodoLetivoPerfil = () => {
               return (
                 <>
                   <Link to="/pareceres" state={{ peiCentralId }} className="btn-verde">Cadastrar Parecer</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
                 </>
               );
@@ -108,28 +123,28 @@ const PeriodoLetivoPerfil = () => {
                 <>
                   <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "napne":
               return (
                 <>
-                  <Link to="/periodo" className="btn-verde">Gerenciar Períodos Letivos</Link>
+                  <Link to="/crud/PEIPeriodoLetivo" className="btn-verde">Gerenciar Períodos Letivos</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
+                  <Link to="/crud/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
                   <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "coordenador":
               return (
                 <>
-                  <Link to="/curso" className="btn-verde">Gerenciar Cursos</Link>
-                  <Link to="/disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
+                  <Link to="/crud/Curso" className="btn-verde">Gerenciar Cursos</Link>
+                  <Link to="/crud/Disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/aluno" className="btn-verde">Gerenciar Alunos</Link>
+                  <Link to="/crud/aluno" className="btn-verde">Gerenciar Alunos</Link>
                   <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "admin":
@@ -143,8 +158,8 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
                   <Link to="/pareceres" state={{ peiCentralId }} className="btn-verde">Cadastrar Parecer</Link>
                   <Link to="/crud/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
-                  <Link to="/crud/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             default:
