@@ -9,9 +9,16 @@ from pei.models.aluno import Aluno
 from rest_framework.exceptions import ValidationError
 
 class DocumentacaoComplementarViewSet(ModelViewSet):
-    queryset = DocumentacaoComplementar.objects.all().order_by('id')
     serializer_class = DocumentacaoComplementarSerializer
     permission_classes = [BackendTokenPermission]
+
+    def get_queryset(self):
+        queryset = DocumentacaoComplementar.objects.all().order_by('id')
+        matricula = self.request.query_params.get("matricula")
+        if matricula:
+            queryset = queryset.filter(aluno__matricula = matricula)
+
+        return queryset
 
     def perform_create(self, serializer):
         matricula = self.request.data.get("matricula")

@@ -26,7 +26,9 @@ function DocumentacaoComplementar() {
 
   const recuperaDocs = async () => {
     try {
-      const res = await DBDOC.get("/");
+      const res = await DBDOC.get("/", {
+        params: {matricula}
+      });
       setDocs(Array.isArray(res.data) ? res.data : res.data.results || []);
     } catch (err) {
       addAlert("Erro ao carregar documentos.", "error");
@@ -129,9 +131,12 @@ function DocumentacaoComplementar() {
   };
 
   useEffect(() => {
-    recuperaDocs();
+    if (matricula) {
+      recuperaDocs();
+    }
     clearAlerts();
-  }, []);
+  }, [matricula]);
+
 
   return (
     <div className="container-padrao">
@@ -224,8 +229,9 @@ function DocumentacaoComplementar() {
                       target="_blank"
                       rel="noreferrer"
                       className="link-arquivo"
+                      
                     >
-                      Ver Arquivo
+                      Fazer download do arquivo
                     </a>
                   ) : (
                     <span>Sem arquivo</span>
