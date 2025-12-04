@@ -272,11 +272,40 @@ const Header = ({ usuario, logado, logout }) => {
                                         </div>
                                     )}
                                 </div>
-                                    <div className="notif-footer">
-                                        <Link to="/todas-notificacoes" onClick={() => setNotificacoesAbertas(false)}>
+                                        <div className="notif-footer">
+                                        <Link 
+                                            to="/todas-notificacoes" 
+                                            onClick={() => setNotificacoesAbertas(false)}
+                                            // 👇 ESTILOS DE BOTÃO (PILL) APLICADOS AO LINK
+                                            style={{
+                                                background: '#e8f5e9',       
+                                                color: '#055C0F',            
+                                                border: '1px solid #a5d6a7',
+                                                borderRadius: '20px',        
+                                                padding: '4px 10px',         
+                                                fontSize: '11px',
+                                                fontWeight: '600',
+                                                textDecoration: 'none',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.5px',
+                                                transition: 'all 0.2s ease',
+                                                display: 'inline-block' // Força a link a ser um bloco
+                                                }}
+                                                // HOVER
+                                                onMouseEnter={(e) => {
+                                                e.target.style.background = '#055C0F';
+                                                e.target.style.color = '#fff';
+                                                e.target.style.borderColor = '#055C0F';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                e.target.style.background = '#e8f5e9';
+                                                e.target.style.color = '#055C0F';
+                                                e.target.style.borderColor = '#a5d6a7';
+                                                }}
+                                                >
                                             Ver todas as notificações
                                         </Link>
-                                    </div>
+                                </div>
                             </div>
                         </div>
                         
