@@ -1350,7 +1350,7 @@ div.dt-container .dt-info {
   position: relative; 
   z-index: 1; /* Nível base */
   box-shadow: 4px 0 15px rgba(0,0,0,0.1);
-  overflow-y: hidden; /* Permite rolar se a tela for muito baixa */
+  overflow: hidden; /* Permite rolar se a tela for muito baixa */
 }
 
 /* Bolhas Decorativas (Fundo) */
