@@ -6,11 +6,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ValidationError
 from rest_framework import filters  # Manter o SearchFilter
+from rest_framework.permissions import DjangoObjectPermissions
+
 
 
 class AlunoViewSet(ModelViewSet):
     serializer_class = AlunoSerializer
-    permission_classes = [BackendTokenPermission]
+    permission_classes = [BackendTokenPermission, DjangoObjectPermissions]
 
     # --- ATIVAÇÃO DO FILTRO DE BUSCA POR TEXTO ---
     filter_backends = [filters.SearchFilter]

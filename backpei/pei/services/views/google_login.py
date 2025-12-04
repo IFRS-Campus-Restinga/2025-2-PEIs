@@ -4,9 +4,10 @@ from django.contrib.auth import get_user_model
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from usuarios.models import Usuario
+from rest_framework.permissions import DjangoObjectPermissions
 
 class GoogleLoginView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny, DjangoObjectPermissions]
 
     def post(self, request):
         email = request.data.get("email")

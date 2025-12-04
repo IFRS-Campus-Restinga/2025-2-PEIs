@@ -43,9 +43,22 @@ function CreatePeiCentral() {
   const [alunos, setAlunos] = useState([]);
 
   // API
-  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
-  const DBALUNO = axios.create({ baseURL: API_ROUTES.ALUNO });
-  const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS });
+  const token = localStorage.getItem("token") || "";
+
+  const DB = axios.create({
+    baseURL: API_ROUTES.PEI_CENTRAL,
+    headers: { Authorization: `Token ${token}` }
+  });
+
+  const DBALUNO = axios.create({
+    baseURL: API_ROUTES.ALUNO,
+    headers: { Authorization: `Token ${token}` }
+  });
+
+  const DBCURSOS = axios.create({
+    baseURL: API_ROUTES.CURSOS,
+    headers: { Authorization: `Token ${token}` }
+  });
 
   // Carrega todos os cursos
   useEffect(() => {

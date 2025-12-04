@@ -7,10 +7,11 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from rest_framework.decorators import action
+from rest_framework.permissions import DjangoObjectPermissions
 
 class PEIPeriodoLetivoViewSet(ModelViewSet):
     serializer_class = PEIPeriodoLetivoSerializer
-    #permission_classes = [BackendTokenPermission]
+    permission_classes = [DjangoObjectPermissions]
 
     queryset = PEIPeriodoLetivo.objects.prefetch_related(
         'componentes_curriculares__disciplinas__cursos__coordenador',

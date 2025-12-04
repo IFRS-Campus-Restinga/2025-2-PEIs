@@ -4,6 +4,8 @@ import axios from "axios";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
+import api from "../../configs/axiosConfig";
+
 
 const PeriodoLetivoPerfil = () => {
   const location = useLocation();
@@ -39,7 +41,20 @@ const PeriodoLetivoPerfil = () => {
 
     async function carregarDados() {
       try {
-        const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`);
+        const token = localStorage.getItem("token");
+        console.log("Token obtido do localStorage:", token);
+        if (!token) throw new Error("Token de autenticação não encontrado.");
+        const headers = {
+          Authorization: `Token ${token}`, 
+        };
+        console.log("Headers enviados na requisição:", headers);
+
+        const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`, {
+          headers,
+        });
+
+        console.log("Resposta do backend:", res.data);
+
         const pei = res.data;
 
         console.log("PEI Central retornado:", pei);

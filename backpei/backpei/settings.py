@@ -44,11 +44,19 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework', 'rest_framework.authtoken', "corsheaders",
     'pei', 'logs', 'auth_app',
+    'guardian',
 ]
 
 GOOGLE_OAUTH2_CLIENT_ID = "992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com"
 
 AUTH_USER_MODEL = "pei.CustomUser"
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',        
+    'guardian.backends.ObjectPermissionBackend',        
+)
+
+ANONYMOUS_USER_NAME = "anonymous_user"
 
 
 MIDDLEWARE = [
@@ -69,8 +77,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        #'rest_framework.permissions.IsAuthenticated',
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
+        #'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,

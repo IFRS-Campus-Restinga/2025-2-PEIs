@@ -15,7 +15,12 @@ function DeletarPeiCentral() {
       clearAlerts();
     }, []);
 
-  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
+  const DB = axios.create({
+    baseURL: API_ROUTES.PEI_CENTRAL,
+    headers: {
+      Authorization: `Token ${localStorage.getItem("token") || ""}`
+    }
+  });
 
   async function handleDelete() {
     try {
