@@ -1,27 +1,34 @@
 import { getAlertManager } from "../context/AlertContext";
 
-// Mantém um gerenciador global para exibir alertas inline sem hooks
 const alertManager = getAlertManager();
 
 /**
- * Valida campos obrigatórios de um formulário
- * e adiciona mensagens inline persistentes até o usuário corrigir o valor.
+ * Valida campos obrigatórios de um formulário, podendo ignorar campos opcionais.
  *
- * @param {Object} form - estado atual do formulário (ex: { nome: "abc", email: "" })
- * @param {HTMLElement} formElement - elemento <form> para percorrer os inputs
- * @param {Object} [backendErrors] - opcional: erros vindos do backend (ex: { nome: ["já existe"], email: ["inválido"] })
+ * @param {Object} form - estado atual do formulário
+ * @param {HTMLElement} formElement - elemento <form>
+ * @param {Object} [backendErrors] - erros vindos do backend
+ * @param {Array<string>} [camposOpcionais] - lista de campos que NÃO devem ser validados
  * @returns {Array<{ fieldName: string, message: string }>}
  */
-export function validaCampos(form, formElement, backendErrors = null) {
+export function validaCampos(
+  form,
+  formElement,
+  backendErrors = null,
+  camposOpcionais = []
+) {
   const mensagens = [];
 
   if (!formElement) return mensagens;
 
   const inputs = formElement.querySelectorAll("[name]");
 
-  // Verifica campos obrigatórios
   inputs.forEach((input) => {
     const nome = input.getAttribute("name");
+
+    // 🔥 PULA validação se o campo estiver na lista de opcionais
+    if (camposOpcionais.includes(nome)) return;
+
     const label =
       input.previousElementSibling?.innerText.replace(/:$/, "") || nome;
 
@@ -30,7 +37,6 @@ export function validaCampos(form, formElement, backendErrors = null) {
         ? form[nome].toString().trim()
         : "";
 
-    // Campo obrigatório vazio
     if (valor === "" || valor.length === 0) {
       const msg = `Preencha o campo: ${label}`;
       mensagens.push({ fieldName: nome, message: msg });
@@ -38,7 +44,6 @@ export function validaCampos(form, formElement, backendErrors = null) {
     }
   });
 
-  //  Integração com erros do backend
   if (backendErrors && typeof backendErrors === "object") {
     Object.entries(backendErrors).forEach(([field, msgs]) => {
       if (Array.isArray(msgs) && msgs.length > 0) {

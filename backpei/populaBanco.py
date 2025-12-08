@@ -13,20 +13,31 @@ sys.path.append(os.path.join(baseDir, "backpei"))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backpei.settings')
 django.setup()
 
+
+
 # ------------------------------------------------------------------------------
 # IMPORTS
 # ------------------------------------------------------------------------------
+
+# Após setup()
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
+from rest_framework.authtoken.models import Token
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
+# Importar modelos usados em permissões
+from pei.models.pei_central import PeiCentral
+from pei.models.PEIPeriodoLetivo import PEIPeriodoLetivo
+from pei.models.componenteCurricular import ComponenteCurricular
 from pei.models.aluno import Aluno
 from pei.models.disciplina import Disciplina
 from pei.models.curso import Curso
-from pei.models.pei_central import PeiCentral
-from pei.models.PEIPeriodoLetivo import PEIPeriodoLetivo
+from pei.models.ataDeAcompanhamento import AtaDeAcompanhamento
+from pei.models.CustomUser import CustomUser
 from pei.models.parecer import Parecer
-from pei.models.componenteCurricular import ComponenteCurricular
-from pei.enums.nivel import Nivel
+from pei.models.documentacaoComplementar import DocumentacaoComplementar
 from pei.enums import StatusDoPei, PeriodoLetivoChoice, CategoriaUsuario
+from pei.enums.nivel import Nivel
 
 User = get_user_model()
 
@@ -47,6 +58,92 @@ def limpar_tudo():
     User.objects.exclude(username="administrador").delete()
 
     print("✔ Banco limpo!\n")
+
+    print("\nCriando superusuário administrador...")
+
+    senhaAdmin = "12345678"
+    if not User.objects.filter(username="administrador").exists():
+        admin = User.objects.create_superuser(
+            username="administrador",
+            email="",
+            password=senhaAdmin,
+        )
+        print("Superusuário criado.")
+    else:
+        admin = User.objects.get(username="administrador")
+        print("Superusuário já existe.")
+
+
+    grupo_admin, _ = Group.objects.get_or_create(name="Admin")
+    if grupo_admin not in admin.groups.all():
+        admin.groups.add(grupo_admin)
+        admin.save()
+
+    # Token do superuser
+    token, _ = Token.objects.get_or_create(user=admin)
+    with open(os.path.join(baseDir, "backpei", "token.txt"), "w") as f:
+        f.write(token.key)
+
+    print(f"Token salvo em token.txt: {token.key}")
+
+    # ------------------------------------------
+    # Grupos e permissões
+    print("\nConfigurando grupos e permissões...\n")
+
+    grupos = {
+        "Professor": [
+            ("add_parecer", Parecer),
+            ("change_documentocomplementar", DocumentacaoComplementar),
+            ("change_peicentral", PeiCentral),
+        ],
+        "Pedagogo": [
+            ("add_atadeacompanhamento", AtaDeAcompanhamento),
+            ("change_peicentral", PeiCentral),
+            ("change_documentocomplementar", DocumentacaoComplementar),
+        ],
+        "NAPNE": [
+            ("add_peiperiodoletivo", PEIPeriodoLetivo),
+            ("view_peicentral", PeiCentral),
+            ("add_componentecurricular", ComponenteCurricular),
+            ("change_peicentral", PeiCentral),
+            ("add_atadeacompanhamento", AtaDeAcompanhamento),
+            ("change_documentocomplementar", DocumentacaoComplementar),
+        ],
+        "Coordenador": [
+            ("add_curso", Curso),
+            ("add_disciplina", Disciplina),
+            ("change_peicentral", PeiCentral),
+            ("add_aluno", Aluno),
+            ("add_atadeacompanhamento", AtaDeAcompanhamento),
+            ("change_documentocomplementar", DocumentacaoComplementar),
+        ],
+        "Admin": [
+            ("add_user", User),
+            ("change_user", User),
+            ("add_curso", Curso),
+            ("add_disciplina", Disciplina),
+            ("change_peiperiodoletivo", PEIPeriodoLetivo),
+            ("add_aluno", Aluno),
+            ("change_peicentral", PeiCentral),
+            ("add_parecer", Parecer),
+            ("change_componentecurricular", ComponenteCurricular),
+            ("add_componentecurricular", ComponenteCurricular),
+            ("add_atadeacompanhamento", AtaDeAcompanhamento),
+            ("change_documentocomplementar", DocumentacaoComplementar),
+            ("add_documentocomplementar", DocumentacaoComplementar),
+        ],
+    }
+
+    for nome_grupo, perm_list in grupos.items():
+        grupo, _ = Group.objects.get_or_create(name=nome_grupo)
+        for codename, model in perm_list:
+            try:
+                ct = ContentType.objects.get_for_model(model)
+                perm = Permission.objects.get(codename=codename, content_type=ct)
+                grupo.permissions.add(perm)
+            except Permission.DoesNotExist:
+                print(f"⚠ Permissão não encontrada: {codename} ({model.__name__})")
+        print(f"Grupo configurado: {nome_grupo}")
 
 
 # ==============================================================================

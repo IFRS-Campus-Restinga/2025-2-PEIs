@@ -1,16 +1,16 @@
 from rest_framework.viewsets import ModelViewSet
 from ..serializers import DocumentacaoComplementarSerializer
 from pei.models.documentacaoComplementar import DocumentacaoComplementar
-from ..permissions import BackendTokenPermission
 from django.core.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework import status
 from pei.models.aluno import Aluno
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import DjangoObjectPermissions
 
 class DocumentacaoComplementarViewSet(ModelViewSet):
     serializer_class = DocumentacaoComplementarSerializer
-    permission_classes = [BackendTokenPermission]
+    permission_classes = [DjangoObjectPermissions]
 
     def get_queryset(self):
         queryset = DocumentacaoComplementar.objects.all().order_by('id')

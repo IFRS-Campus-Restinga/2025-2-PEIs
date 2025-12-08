@@ -8,11 +8,11 @@ import os
 
 
 def upload_documento_aluno(instance, filename):
-        aluno_id = instance.aluno.id
+        matricula = instance.aluno.matricula
 
         return os.path.join(
             'documentos',
-            f'aluno_{aluno_id}',
+            f'aluno_{matricula}',
             filename
         )
 
