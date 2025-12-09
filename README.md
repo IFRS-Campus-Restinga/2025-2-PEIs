@@ -342,3 +342,119 @@ const sucessoLoginGoogle = (credentialResponse) => {
 <h2>Cadastro de Usuário do Sistema</h2>
 
 <p>...</p>
+
+<h2>API para mapear models e retornar metadados para construção de formulários e listagem</h2>
+<h3>Visão Geral</h3>
+
+<p>Esta API fornece:
+Lista de todos os endpoints reais associados aos models da aplicação.
+
+Estrutura completa dos models:
+Campos
+Tipos de input
+Se é obrigatório
+Choices
+Relacionamentos FK/ManyToMany
+Endpoints especializados (ex: busca de professores, coordenadores)
+Campos ocultos
+Campos não editáveis
+
+O objetivo é permitir ao frontend gerar formulários totalmente dinâmicos sem necessidade de hardcode.</p>
+
+<h3>Endpoint principal do schema:</h3>
+<p>http://localhost:8000/services/schema/
+
+<p>Este endpoint serve como índice. Ele:
+
+Lista todos os modelos cadastrados no ENDPOINT_MAP
+Retorna as URLs reais da API para cada recurso
+Inclui o próprio link para o schema detalhado de cada model
+
+Exemplo de Resposta (JSON):
+{
+    "usuario": "http://localhost:8000/services/usuario/",
+    "conteudo": "http://localhost:8000/services/conteudo/",
+    "parecer": "http://localhost:8000/services/parecer/",
+    "cursos": "http://localhost:8000/services/cursos/",
+    "aluno": "http://localhost:8000/services/aluno/",
+    "pei_central": "http://localhost:8000/services/pei_central/",
+    "PEIPeriodoLetivo": "http://localhost:8000/services/PEIPeriodoLetivo/",
+    "disciplinas": "http://localhost:8000/services/disciplinas/",
+    "componenteCurricular": "http://localhost:8000/services/componenteCurricular/",
+    "ataDeAcompanhamento": "http://localhost:8000/services/ataDeAcompanhamento/",
+    "documentacaoComplementar": "http://localhost:8000/services/documentacaoComplementar/",
+    "notificacoes": "http://localhost:8000/services/notificacoes/",
+    "schema": "http://localhost:8000/services/schema/"
+}
+
+<h3>GET /services/schema/{model}/:</h3>
+<p>Este endpoint, especificando o model que deve ser mapeado via rota do React, irá retornar a estrutura detalhada do model especificado, exemplo:</p>
+
+    <h4>GET /services/schema/componenteCurricular/ </h4>
+
+{
+    "model": "componenteCurricular",
+    "fields": [
+        {
+            "name": "id",
+            "required": true,
+            "type": "BigAutoField"
+        },
+        {
+            "name": "objetivos",
+            "required": true,
+            "type": "CharField"
+        },
+        {
+            "name": "conteudo_prog",
+            "required": true,
+            "type": "CharField"
+        },
+        {
+            "name": "metodologia",
+            "required": true,
+            "type": "CharField"
+        },
+        {
+            "name": "disciplinas",
+            "required": true,
+            "type": "select",
+            "related_model": "Disciplina"
+        },
+        {
+            "name": "periodos_letivos",
+            "required": true,
+            "type": "multiselect",
+            "related_model": "PEIPeriodoLetivo"
+        }
+    ]
+}
+
+<h3>O que retorna?</h3>
+<p>Para cada campo do model:
+
+name: nome do campo no Django
+required: se o campo é obrigatório
+type: tipo de input no frontend (file, text, select, multiselect, char, integer etc.)
+choices: lista de valores possíveis (se aplicável)
+related_model: nome do model relacionado (FK ou M2M)
+related_endpoint: endpoint customizado (casos especiais)</p>
+
+<h3>Regras importantes:</h3>
+
+<p>Campos ocultos não aparecem (periodo_principal, ou outros definidos no HIDDEN_FIELDS)
+Campos reverse (relações automáticas) não aparecem
+Campos não editáveis são ignorados
+Campos relacionais têm tratamento especial</p>
+
+<h3>Este serviço existe para:</h3>
+
+✔ Criar formulários dinâmicos
+✔ Criar telas CRUD sem código repetido
+✔ Reduzir necessidade de mapeamentos manuais
+✔ Centralizar lógica de frontend
+✔ Permitir adição de models sem ajustes no React/JS/Flutter
+
+
+
+
