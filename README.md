@@ -521,7 +521,176 @@ Este endpoint é consumido pelo frontend para construção dinâmica de formulá
 
 <hr/>
 
+<h2>Componente de CRUD Dinâmico</h2>
 
+<p>caminho para o componente no frontend:
+<pre><code>frontpei/src/components/crud</code></pre></p>
 
+<h3>Geração de formulários, telas de edição e listagens sem código repetido</h3>
+<p>Este módulo implementa um CRUD Universal Dinâmico, capaz de gerar telas completas de criação, edição e listagem de registros sem necessidade de escrever componentes manuais para cada model.
+Ele funciona consumindo a API de mapeamento de models (/services/schema/)</p>
+
+<h3>1. Visão geral do funcionamento:</h3>
+<p><strong>O fluxo de funcionamento é:</strong>
+<ul>
+<li>React envia o nome do model para o componente CrudUniversal.</li>
+<li>O componente consulta o endpoint de serviços (/services/) para descobrir os links de cada model.</li>
+<li>Em seguida, consulta o endpoint de schema:</li>
+</ul>
+<pre><code>GET /services/schema/{model}/</code></pre>
+
+<p>Este endpoint retorna metadados completos do model.</p>
+
+<p>O CRUD renderiza automaticamente:</p>
+<ul>
+<li>Formulário de criação</li>
+<li>Listagem de registros</li>
+<li>Edição inline</li>
+<li>Remoção</li>
+</ul>
+
+<p>Nenhum componente específico para cada model é necessário.</p>
+
+<h3>2. Arquitetura do CRUD Universal:</h3>
+<p>Mapeia todos os endpoints reais da API:</p>
+
+<pre><code>const [servicesMap, setServicesMap] = useState({}); </code></pre>
+
+<p><strong>Carregamento da Metadata do Model</strong></p>
+<pre><code>api.get(`${servicesMap.schema}${modelName}`); </code></pre>
+
+<p>Aqui o CRUD recebe:</p>
+<ul>
+<li>Campos</li>
+<li>Tipos</li>
+<li>Choices</li>
+<li>Relacionamentos</li>
+<li>Campo obrigatórios</li>
+<li>Campos editáveis</li>
+</ul>
+
+<p>Essa metadata passa a controlar toda a lógica da tela.</p>
+
+<strong>Carregamento Dinâmico de Selects e MultiSelects</strong>
+
+<p>Para cada campo select ou multiselect, o componente: </p>
+<ul>
+<li>Identifica o related_model</li>
+<li>Converte nomes que precisam de exceção (Disciplina → disciplinas) </li>
+<li>Busca automaticamente o endpoint correto</li>
+<li>Carrega as opções</li>
+</ul>
+<pre><code>setSelectOptions((prev) => ({
+  ...prev,
+  [f.name]: options,
+}));</code></pre>
+
+Assim, uma FK pode aparecer automaticamente como dropdown.
+
+<strong>Normalização de Payload:</strong>
+
+<p>Antes de enviar ao backend, o CRUD transforma o payload:</p>
+<ul>
+<li>Converte IDs de selects para número</li>
+<li>Converte arrays de multiselects</li>
+<li>Adapta campos especiais (ex.: periodos_letivos_id)</li>
+<li>Remove campos ignorados</li>
+</ul>
+Isso garante compatibilidade com o serializer no backend.
+
+<strong>Criação de Registro (POST)</strong>
+<pre><code>await api.post(getEndpoint(modelName), payload);</code></pre>
+
+O payload já vem normalizado.
+
+<strong>Edição Inline (PUT)</strong>
+
+<p>Quando o usuário clica em Editar, o CRUD:</p>
+<ul>
+<li>Normaliza o registro retornado do backend</li>
+<li>Preenche o formulário com os valores corretos</li>
+<li>Salva via PUT</li>
+</ul>
+<pre><code>await api.put(`${getEndpoint(modelName)}${id}/`, payload);</code></pre>
+
+<strong>Exclusão</strong>
+
+<p>A deleção usa um componente dedicado:</p>
+<pre><code><BotaoDeletar id={r.id} axiosInstance={getEndpoint(modelName)} /></pre></code>
+
+<strong>Renderização Dinâmica de Inputs</strong>
+
+<p>O método renderInput decide qual componente utilizar:</p>
+
+| Tipo DRF           | Tipo do Form        | Exemplo                     |
+|--------------------|---------------------|------------------------------|
+| CharField          | text                | `<input type="text">`        |
+| IntegerField       | number              | `<input type="number">`      |
+| DateField          | date                | `<input type="date">`        |
+| FileField          | file                | `<input type="file">`        |
+| select + choices   | enum                | `<select>`                   |
+| select + FK        | dropdown (API)      | `<select>`                   |
+| multiselect        | checkbox list       | *lista de checkboxes*        |
+
+<p>Não é necessário escrever nenhum input manual. </p>
+
+<strong>Renderização da Listagem</strong>
+
+<p>O componente lista todos os registros usando a mesma metadata, formatando:</p>
+<ul>
+<li>Selects</li>
+<li>Choices</li>
+<li>Many-to-many</li>
+<li>Arquivos</li>
+<li>Datas</li>
+</ul>
+<p>Tudo baseado no tipo do campo detectado dinamicamente.</p>
+
+<strong>Exceções de Models</strong>
+
+<p>Alguns nomes de models precisam ser ajustados, por exemplo:</p>
+
+<pre><code>const exceptions = {
+  Disciplina: "disciplinas",
+  ComponenteCurricular: "componenteCurricular",
+  CustomUser: "usuario",
+  Curso: "cursos",
+};</code></pre>
+
+<p>Isso garante que o nome do model → endpoint real seja interpretado corretamente.</p>
+
+<strong>Benefícios do CRUD Dinâmico</strong>
+✔ Zero repetição de código
+Sem componentes separados para Curso, Aluno, Disciplina, etc.
+
+✔ O backend controla a UI
+Alterou o model?
+O schema muda e o CRUD se adapta automaticamente.
+
+✔ Expansão instantânea
+Criou um novo model e adicionou ao schema?
+Já funciona no frontend sem desenvolver nenhuma tela.
+
+✔ Redução de bugs
+Menos código duplicado significa menos inconsistências.
+
+✔ Padronização das telas
+Todas as telas CRUD ficam unificadas, limpas e previsíveis.
+
+<strong>Conclusão</strong>
+Este componente transforma a aplicação em uma plataforma extremamente escalável, onde novos models podem ser manipulados pelo frontend sem desenvolvimento adicional, graças à integração entre:
+<ul>
+<li>API de Metadados</li>
+<li>CRUD Universal Dinâmico</li>
+</ul>
+
+<p>Essa abordagem combina:</p>
+<ul>
+<li>Flexibilidade</li>
+<li>Padronização</li>
+<li>Redução de esforço/li>
+<li>Baixa manutenção</li>
+<li>Expansão rápida</li>
+</ul>
 
 
