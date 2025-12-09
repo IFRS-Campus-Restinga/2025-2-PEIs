@@ -343,35 +343,60 @@ const sucessoLoginGoogle = (credentialResponse) => {
 
 <p>...</p>
 
-<h2>API para mapear models e retornar metadados para construção de formulários e listagem</h2>
-<h3>Visão Geral</h3>
+<h2> API de Schema Dinâmico — Mapeamento de Models para Formulários e Listagens</h2>
 
-<p>Esta API fornece:
-Lista de todos os endpoints reais associados aos models da aplicação.
+<p>
+Esta API fornece metadados completos dos <strong>models</strong> da aplicação, permitindo que o frontend
+gere formulários e interfaces totalmente dinâmicas, sem necessidade de códigos fixos (hardcoded).
+</p>
 
-Estrutura completa dos models:
-Campos
-Tipos de input
-Se é obrigatório
-Choices
-Relacionamentos FK/ManyToMany
-Endpoints especializados (ex: busca de professores, coordenadores)
-Campos ocultos
-Campos não editáveis
+<hr/>
 
-O objetivo é permitir ao frontend gerar formulários totalmente dinâmicos sem necessidade de hardcode.</p>
+<h3> Visão Geral</h3>
 
-<h3>Endpoint principal do schema:</h3>
-<p>http://localhost:8000/services/schema/
+<p>A API oferece:</p>
 
-<p>Este endpoint serve como índice. Ele:
+<ul>
+    <li> Lista de todos os endpoints reais associados aos models</li>
+    <li> Estrutura detalhada de cada model, incluindo:
+        <ul>
+            <li>Nome e tipo de cada campo</li>
+            <li>Informação sobre obrigatoriedade</li>
+            <li>Choices (opções pré-definidas)</li>
+            <li>Campos de relacionamento (FK e ManyToMany)</li>
+            <li>Tipos adequados para construção de inputs no frontend</li>
+            <li>Endpoints especializados para filtragem (ex: professores, coordenadores)</li>
+        </ul>
+    </li>
+    <li> Respeito a regras internas:
+        <ul>
+            <li>Campos ocultos definidos em <code>HIDDEN_FIELDS</code></li>
+            <li>Ignora campos reverse (relações automáticas)</li>
+            <li>Ignora campos marcados como não editáveis</li>
+        </ul>
+    </li>
+</ul>
 
-Lista todos os modelos cadastrados no ENDPOINT_MAP
-Retorna as URLs reais da API para cada recurso
-Inclui o próprio link para o schema detalhado de cada model
+<p>O objetivo central é permitir geração automática de formulários e páginas CRUD,
+reduzindo retrabalho e garantindo consistência com o backend.</p>
 
-Exemplo de Resposta (JSON):
-{
+<hr/>
+
+<h3> Endpoint Principal</h3>
+
+<pre><code>GET http://localhost:8000/services/schema/</code></pre>
+
+<p>Este endpoint funciona como o índice do schema. Ele:</p>
+
+<ul>
+    <li>Retorna todos os models configurados em <code>ENDPOINT_MAP</code></li>
+    <li>Mapeia cada model ao seu endpoint real da API</li>
+    <li>Inclui o próprio link para acessar o schema individual de cada model</li>
+</ul>
+
+<h3> Exemplo de Resposta</h3>
+
+<pre><code>{
     "usuario": "http://localhost:8000/services/usuario/",
     "conteudo": "http://localhost:8000/services/conteudo/",
     "parecer": "http://localhost:8000/services/parecer/",
@@ -386,13 +411,26 @@ Exemplo de Resposta (JSON):
     "notificacoes": "http://localhost:8000/services/notificacoes/",
     "schema": "http://localhost:8000/services/schema/"
 }
+</code></pre>
 
-<h3>GET /services/schema/{model}/:</h3>
-<p>Este endpoint, especificando o model que deve ser mapeado via rota do React, irá retornar a estrutura detalhada do model especificado, exemplo:</p>
+<hr/>
 
-    <h4>GET /services/schema/componenteCurricular/ </h4>
+<h3> Endpoint de Schema por Model</h3>
 
-{
+<pre><code>GET /services/schema/&lt;model&gt;/</code></pre>
+
+<p>
+Retorna a estrutura completa do model especificado.  
+Este endpoint é consumido pelo frontend para construção dinâmica de formulários, listas, selects, multiselects etc.
+</p>
+
+<h3> Exemplo real:</h3>
+
+<pre><code>GET /services/schema/componenteCurricular/</code></pre>
+
+<h3>Resposta:</h3>
+
+<pre><code>{
     "model": "componenteCurricular",
     "fields": [
         {
@@ -429,31 +467,62 @@ Exemplo de Resposta (JSON):
         }
     ]
 }
+</code></pre>
 
-<h3>O que retorna?</h3>
-<p>Para cada campo do model:
+<hr/>
 
-name: nome do campo no Django
-required: se o campo é obrigatório
-type: tipo de input no frontend (file, text, select, multiselect, char, integer etc.)
-choices: lista de valores possíveis (se aplicável)
-related_model: nome do model relacionado (FK ou M2M)
-related_endpoint: endpoint customizado (casos especiais)</p>
+<h3> O que cada campo representa?</h3>
 
-<h3>Regras importantes:</h3>
+<p>Cada item dentro de <code>fields[]</code> contém:</p>
 
-<p>Campos ocultos não aparecem (periodo_principal, ou outros definidos no HIDDEN_FIELDS)
-Campos reverse (relações automáticas) não aparecem
-Campos não editáveis são ignorados
-Campos relacionais têm tratamento especial</p>
+<ul>
+    <li><strong>name</strong> — nome do campo no model</li>
+    <li><strong>required</strong> — se é obrigatório no formulário</li>
+    <li><strong>type</strong> — tipo esperado no frontend:
+        <ul>
+            <li><code>file</code></li>
+            <li><code>select</code></li>
+            <li><code>multiselect</code></li>
+            <li><code>CharField</code>, <code>IntegerField</code>, etc.</li>
+        </ul>
+    </li>
+    <li><strong>choices</strong> — lista de opções (caso o campo tenha choices)</li>
+    <li><strong>related_model</strong> — nome do model relacionado (FK / M2M)</li>
+    <li><strong>related_endpoint</strong> — endpoint especializado (quando aplicável)</li>
+</ul>
 
-<h3>Este serviço existe para:</h3>
+<hr/>
 
-✔ Criar formulários dinâmicos
-✔ Criar telas CRUD sem código repetido
-✔ Reduzir necessidade de mapeamentos manuais
-✔ Centralizar lógica de frontend
-✔ Permitir adição de models sem ajustes no React/JS/Flutter
+<h3>Regras Internas</h3>
+
+<ul>
+    <li> <strong>Campos ocultos</strong> definidos em <code>HIDDEN_FIELDS</code> não aparecem no schema</li>
+    <li> Campos reverse (relações automáticas) são ignorados</li>
+    <li> Campos com <code>editable = False</code> são descartados</li>
+    <li> <strong>ForeignKeys</strong> são retornados como <code>select</code></li>
+    <li> <strong>ManyToMany</strong> são retornados como <code>multiselect</code></li>
+    <li> <strong>FileField</strong> é retornado como <code>file</code></li>
+</ul>
+
+<hr/>
+
+<h3> Benefícios deste Serviço</h3>
+
+<ul>
+    <li>✔ Criação automática de formulários dinâmicos</li>
+    <li>✔ Geração de telas CRUD sem repetição de código</li>
+    <li>✔ Redução drástica de acoplamento entre frontend e backend</li>
+    <li>✔ Consistência total com os models reais</li>
+    <li>✔ Facilidade para adicionar novos models sem modificar o frontend</li>
+    <li>✔ Ideal para arquiteturas baseadas em componentes</li>
+</ul>
+
+<hr/>
+
+<p style="text-align:center; font-size:14px; opacity:0.7;">
+Documentação gerada automaticamente — Projeto PEI
+</p>
+
 
 
 
