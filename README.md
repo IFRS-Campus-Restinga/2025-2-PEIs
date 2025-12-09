@@ -344,6 +344,8 @@ const sucessoLoginGoogle = (credentialResponse) => {
 <p>...</p>
 
 <h2> API de Schema Dinâmico — Mapeamento de Models para Formulários e Listagens</h2>
+<p>Caminho para o arquivo dentro do projeto:</p>
+<pre><code>backpei/pei/services/views/model_schema_view.py</code></pre>
 
 <p>
 Esta API fornece metadados completos dos <strong>models</strong> da aplicação, permitindo que o frontend
@@ -518,10 +520,6 @@ Este endpoint é consumido pelo frontend para construção dinâmica de formulá
 </ul>
 
 <hr/>
-
-<p style="text-align:center; font-size:14px; opacity:0.7;">
-Documentação gerada automaticamente — Projeto PEI
-</p>
 
 
 
