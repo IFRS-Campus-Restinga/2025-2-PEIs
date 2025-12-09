@@ -659,7 +659,7 @@ O payload já vem normalizado.
 
 <p>Isso garante que o nome do model → endpoint real seja interpretado corretamente.</p>
 
-<strong>Benefícios do CRUD Dinâmico</strong>
+<strong><p>Benefícios do CRUD Dinâmico</p></strong>
 ✔ Zero repetição de código
 Sem componentes separados para Curso, Aluno, Disciplina, etc.
 
