@@ -660,21 +660,22 @@ O payload já vem normalizado.
 <p>Isso garante que o nome do model → endpoint real seja interpretado corretamente.</p>
 
 <strong><p>Benefícios do CRUD Dinâmico</p></strong>
-<p>✔ Zero repetição de código
-Sem componentes separados para Curso, Aluno, Disciplina, etc.
+<p>✔ Zero repetição de código</p>
+<p>Sem componentes separados para Curso, Aluno, Disciplina, etc.
+</p>
 
-✔ O backend controla a UI
+<p>✔ O backend controla a UI</p>
 Alterou o model?
 O schema muda e o CRUD se adapta automaticamente.
 
-✔ Expansão instantânea
+<p>✔ Expansão instantânea</p>
 Criou um novo model e adicionou ao schema?
 Já funciona no frontend sem desenvolver nenhuma tela.
 
-✔ Redução de bugs
+<p>✔ Redução de bugs</p>
 Menos código duplicado significa menos inconsistências.
 
-✔ Padronização das telas
+<p>✔ Padronização das telas</p>
 Todas as telas CRUD ficam unificadas, limpas e previsíveis.</p>
 
 <strong>Conclusão</strong>
