@@ -8,7 +8,7 @@ import axios from "axios";
 import "../../cssGlobal.css";
 import { useAlert } from "../../context/AlertContext";
 
-const Header = ({ usuario, logado, logout }) => {
+const Header = ({ usuario, logado, logout, toggleAcessibilidade, estadoAcessibilidade}) => {
     
     const { addAlert } = useAlert();
     const [menuAberto, setMenuAberto] = useState(false);
@@ -327,11 +327,39 @@ const Header = ({ usuario, logado, logout }) => {
                                 />
                             </div>
 
-                            <div className={`user-menu ${menuAberto ? "active" : ""}`}>
+                                <div className={`user-menu ${menuAberto ? "active" : ""}`}>
                                 <div className="user-card">
-                                    <p className="user-name">{usuario.nome}</p>
-                                    <Link to="/perfil">Meu Perfil</Link>
-                                    <button onClick={logout}>Sair</button>
+                                    
+                                    {/* 1. NOME (Cabeçalho fixo) */}
+                                    <div className="user-menu-header" title={usuario.nome}>
+                                        Olá, {usuario.nome}
+                                    </div>
+
+                                    {/* 2. MEU PERFIL */}
+                                    <Link to="/perfil" className="user-menu-item" onClick={() => setMenuAberto(false)}>
+                                        <span className="menu-icon">👤</span> 
+                                        Meu Perfil
+                                    </Link>
+                                    
+                                    {/* 3. ACESSIBILIDADE */}
+                                    <button 
+                                        onClick={() => {
+                                            toggleAcessibilidade();
+                                            // setMenuAberto(false); // Opcional: fechar ao clicar ou manter aberto
+                                        }}
+                                        className="user-menu-item"
+                                    >
+                                        <span className="menu-icon">
+                                            {estadoAcessibilidade ? '👁️' : '🕶️'}
+                                        </span>
+                                        {estadoAcessibilidade ? 'Ocultar Acessibilidade' : 'Mostrar Acessibilidade'}
+                                    </button>
+
+                                    {/* 4. SAIR */}
+                                    <button onClick={logout} className="user-menu-item logout">
+                                        <span className="menu-icon">🚪</span> 
+                                        Sair
+                                    </button>
                                 </div>
                             </div>
                         </div>

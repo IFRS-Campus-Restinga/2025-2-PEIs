@@ -163,46 +163,115 @@ body {
 .notif-footer a:hover,
 .notif-footer button:hover { background: rgba(5,92,15,.06); }
 
-/* ----- USER MENU ----- */
+/* ----- USER MENU (Estilo Lista Vertical) ----- */
+
+/* 1. O Gatilho (Avatar no Header) - Mantido igual */
 .user-wrapper { position: relative; }
+
 .user-avatar {
   display: flex; align-items: center; gap: 6px;
   padding: 2px 8px; border-radius: 20px;
   cursor: pointer; background: transparent;
   transition: transform .2s ease, background .2s;
 }
-.user-avatar:hover { transform: scale(1.05); background: rgba(255,255,255,.1); }
-.user-avatar img:first-child { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,.5); }
-.user-avatar-name { font-size: 14px; font-weight: 600; color: #fff; }
-.user-arrow { width: 12px; height: 12px; filter: brightness(0) invert(1); }
-.user-menu {
-  position: absolute; top: 45px; right: 0;
-  min-width: 180px; display: none; flex-direction: column;
-  z-index: 100; opacity: 0; transform: translateY(-10px);
-  transition: opacity .25s ease, transform .25s ease;
-}
-.user-menu.active { display: flex; opacity: 1; transform: translateY(0); }
-.user-card { background: #fff; color: #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.15); overflow: hidden; }
-.user-card p.user-name { padding: 12px 14px; font-weight: 600; font-size: 14px; color: #055C0F; border-bottom: 1px solid #eee; margin: 0; }
-.user-card a,
-.user-card button {
-  padding: 10px 14px; margin: 4px 8px;
-  border-radius: 6px; text-align: center;
-  font-size: 14px; font-weight: 500;
-  text-decoration: none; transition: all .2s ease;
-  cursor: pointer; border: none;
-}
-.user-card a { color: #055C0F; background: #e6f4e6; }
-.user-card a:hover { background: #0a7d2c; color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.2); transform: translateY(-2px); }
-.user-card button { color: #fff; background: #055C0F; }
-.user-card button:hover { background: #dc3545; box-shadow: 0 2px 6px rgba(220,53,69,.3); transform: translateY(-2px); }
 
-/* Responsividade Header */
-@media (max-width: 768px) {
-  .header-center h1 { font-size: 16px; }
-  .header-subtitle { font-size: 11px; }
-  .header-text strong { font-size: 14px; }
-  .header-text span   { font-size: 11px; }
+.user-avatar:hover { transform: scale(1.05); background: rgba(255,255,255,.1); }
+
+.user-avatar img:first-child { 
+  width: 32px; height: 32px; 
+  border-radius: 50%; object-fit: cover; 
+  border: 2px solid rgba(255,255,255,.5); 
+}
+
+.user-avatar-name { font-size: 14px; font-weight: 600; color: #fff; }
+
+.user-arrow { width: 12px; height: 12px; filter: brightness(0) invert(1); }
+
+
+/* 2. O Dropdown (Caixa Branca) - NOVO ESTILO */
+.user-menu {
+  position: absolute; top: 50px; right: 0;
+  width: 240px; /* Mais largo para caber os textos */
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  display: none; flex-direction: column;
+  z-index: 100; opacity: 0; transform: translateY(-10px);
+  transition: opacity .2s ease, transform .2s ease;
+  overflow: hidden; 
+  border: 1px solid #e0e0e0;
+}
+
+.user-menu.active {
+  display: flex; opacity: 1; transform: translateY(0);
+}
+
+.user-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0; /* Zero padding para os itens encostarem nas bordas */
+  background: #fff;
+}
+
+/* 3. Cabeçalho do Menu (Nome do Usuário) */
+.user-menu-header {
+  padding: 16px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  color: #000000;
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 4. Itens da Lista (Links e Botões unificados) */
+.user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Espaço ícone-texto */
+  padding: 14px 20px;
+  width: 100%;
+  background: #fff;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  color: #444;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Hover bonito (Verde claro) */
+.user-menu-item:hover {
+  background-color: #e8f5e9;
+  color: #055C0F;
+}
+
+/* Último item sem borda */
+.user-menu-item:last-child {
+  border-bottom: none;
+}
+
+/* Estilo especial para SAIR (Vermelho suave) */
+.user-menu-item.logout {
+  color: #d32f2f;
+}
+
+.user-menu-item.logout:hover {
+  background-color: #ffebee;
+  color: #b71c1c;
+}
+
+/* Ícones dentro do menu */
+.menu-icon {
+  font-size: 16px;
+  min-width: 20px;
+  text-align: center;
 }
 
 /* ========================================
@@ -2233,4 +2302,188 @@ input:checked + .slider:before {
   background-color: #e2e3e5;
   color: #383d41;
   border: 1px solid #d6d8db;
+}
+
+
+/* ========================================
+   WIDGET DE ACESSIBILIDADE
+   ======================================== */
+
+.accessibility-wrapper {
+    position: fixed;
+    bottom: 80px; /* Acima do footer */
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+/* Botão Flutuante (Azulão para destaque ou Verde do IFRS) */
+.accessibility-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #0056b3; /* Azul Acessibilidade padrão */
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.accessibility-btn:hover {
+    transform: scale(1.1);
+    background-color: #004494;
+}
+
+/* Menu de Opções */
+.accessibility-menu {
+    background: #fff;
+    width: 220px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    margin-bottom: 15px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: all 0.3s ease;
+    border: 1px solid #eee;
+}
+
+.accessibility-menu.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+.acc-header {
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #333;
+}
+
+.acc-reset-btn {
+    background: none; border: none; cursor: pointer; font-size: 16px; color: #666;
+}
+.acc-reset-btn:hover { color: #d32f2f; }
+
+.acc-controls { padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+
+.acc-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; font-weight: 600; color: #555;
+}
+
+.acc-row button {
+    background: #e9ecef; border: 1px solid #ced4da;
+    border-radius: 4px; padding: 4px 10px; cursor: pointer;
+    font-weight: bold; font-size: 12px;
+}
+.acc-row button:hover { background: #dee2e6; }
+
+.acc-value { font-family: monospace; width: 40px; text-align: center; }
+
+/* Switch Toggle (iOS style) */
+.switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .4s; }
+input:checked + .slider { background-color: #0056b3; }
+input:checked + .slider:before { transform: translateX(20px); }
+.slider.round { border-radius: 34px; }
+.slider.round:before { border-radius: 50%; }
+
+/* --- MODO ALTO CONTRASTE (A Mágica) --- */
+body.high-contrast {
+    background: #000 !important; /* Remove o gradiente verde */
+    border-bottom: 2px solid #ffff00; /* Borda amarela para destacar */
+}
+
+/* Força cores em tudo quando ativo */
+body.high-contrast * {
+    background-color: #000 !important;
+    color: #ffff00 !important;
+    border-color: #ffff00 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* Exceção para imagens e ícones para não sumirem */
+body.high-contrast img, 
+body.high-contrast svg {
+    filter: grayscale(100%) contrast(150%);
+}
+
+/* Ajuste no widget para ele não sumir no modo contraste */
+body.high-contrast .accessibility-btn {
+    border: 2px solid #ffff00 !important;
+}
+body.high-contrast .slider {
+    background-color: #333 !important;
+}
+body.high-contrast input:checked + .slider {
+    background-color: #ffff00 !important;
+}
+body.high-contrast input:checked + .slider:before {
+    background-color: #000 !important;
+}
+
+body.high-contrast .header {
+    background: #000 !important; /* Remove o gradiente verde */
+    border-bottom: 2px solid #ffff00; /* Borda amarela para destacar */
+}
+
+/* Garante que o texto do header fique na cor de contraste (amarelo) */
+body.high-contrast .header-text strong,
+body.high-contrast .header-text span,
+body.high-contrast .header-center h1,
+body.high-contrast .header-subtitle {
+    color: #ffff00 !important;
+    text-shadow: none !important;
+}
+
+/* Ajusta o Footer também para garantir */
+body.high-contrast .footer {
+    background: #000 !important;
+    border-top: 1px solid #ffff00;
+}
+
+body.high-contrast .footer-text, 
+body.high-contrast .footer-center {
+    color: #ffff00 !important;
+}
+
+/* --- Botão de Acessibilidade no Menu de Usuário --- */
+.user-card .btn-acessibilidade-menu {
+    background: #f8f9fa; /* Fundo cinza bem claro */
+    color: #555;
+    border: 1px solid #e0e0e0;
+    font-size: 13px;
+    font-weight: 500;
+    margin: 4px 8px; /* Mesma margem dos outros */
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.user-card .btn-acessibilidade-menu:hover {
+    background: #e8f5e9; /* Verde bem clarinho no hover */
+    color: #055C0F;
+    border-color: #c3e6cb;
+    transform: translateY(-1px);
 }

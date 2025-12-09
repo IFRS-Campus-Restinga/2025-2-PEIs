@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from "react-router-dom";
 import "../../cssGlobal.css";
-import LeitorTela from '../leitorTela/LeitorTela';
-// 👇 Import do Modal que criamos
 import ModalReportarProblema from '../modals/ModalReportarProblema';
 
 const Footer = ({ usuario }) => {
     const isAdmin = usuario?.grupos?.some(g => g.toLowerCase() === "admin");
     
-    // 👇 Estado para controlar o modal
+    //  Estado para controlar o modal
     const [mostrarModalReport, setMostrarModalReport] = useState(false);
 
     return (
@@ -22,7 +20,7 @@ const Footer = ({ usuario }) => {
                         <span>Campus Restinga</span>
                     </div>
 
-                    {/* 👇 NOVO BOTÃO DE REPORTAR (Separado por uma barra vertical visual) */}
+                    {/*  NOVO BOTÃO DE REPORTAR (Separado por uma barra vertical visual) */}
                     <div style={{ 
                         marginLeft: '15px', 
                         paddingLeft: '15px', 
@@ -56,7 +54,6 @@ const Footer = ({ usuario }) => {
                 </div>
 
                 <div className="footer-right">
-                    <LeitorTela />
                     
                     {/* OS LOGS E APROVAÇÃO SÓ APARECEM SE FOR ADMIN */}
                     {isAdmin && (
@@ -76,7 +73,7 @@ const Footer = ({ usuario }) => {
                 </div>
             </footer>
 
-            {/* 👇 Renderização do Modal fora do fluxo do footer visual, mas dentro do componente */}
+            {/* Renderização do Modal fora do fluxo do footer visual, mas dentro do componente */}
             {mostrarModalReport && (
                 <ModalReportarProblema aoFechar={() => setMostrarModalReport(false)} />
             )}
