@@ -660,7 +660,7 @@ O payload já vem normalizado.
 <p>Isso garante que o nome do model → endpoint real seja interpretado corretamente.</p>
 
 <strong><p>Benefícios do CRUD Dinâmico</p></strong>
-✔ Zero repetição de código
+<p>✔ Zero repetição de código
 Sem componentes separados para Curso, Aluno, Disciplina, etc.
 
 ✔ O backend controla a UI
@@ -675,7 +675,7 @@ Já funciona no frontend sem desenvolver nenhuma tela.
 Menos código duplicado significa menos inconsistências.
 
 ✔ Padronização das telas
-Todas as telas CRUD ficam unificadas, limpas e previsíveis.
+Todas as telas CRUD ficam unificadas, limpas e previsíveis.</p>
 
 <strong>Conclusão</strong>
 Este componente transforma a aplicação em uma plataforma extremamente escalável, onde novos models podem ser manipulados pelo frontend sem desenvolvimento adicional, graças à integração entre:
