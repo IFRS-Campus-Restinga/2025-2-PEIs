@@ -694,4 +694,132 @@ Este componente transforma a aplicação em uma plataforma extremamente escaláv
 <li>Expansão rápida</li>
 </ul>
 
+<h2>Sistemas de alertas (Toast + Inline + Confirmação)</h2>
+<p>Este módulo fornece um sistema completo de alertas para aplicações React, incluindo:</p>
 
+<ul>
+<li>Toasts (alertas temporários no canto inferior direito)</li>
+<li>Alertas Inline (mensagens associadas a campos de formulário)</li>
+<li>Alertas de Confirmação (modal centralizado com Sim/Não)</li>
+<li>Limpeza automática ao trocar de rota</li>
+<li>Suporte a callbacks onConfirm e onCancel</li>   
+</ul>
+
+<h3>Instalação e Estrutura:</h3>
+<p>O sistema é composto por dois arquivos:</p>
+<pre><code>src/context/AlertContext.jsx
+src/components/AlertComponent.jsx</code></pre>
+
+<p>Basta envolver sua aplicação com o AlertProvider e incluir o AlertComponent.</p>
+
+<h3>Uso</h3>
+
+<h4>Envolvendo a aplicação:</h4>
+<pre><code>import { AlertProvider } from "./context/AlertContext";
+import AlertComponent from "./components/AlertComponent";
+
+function App() {
+  return (
+    <AlertProvider>
+      <AlertComponent />
+      {/** restante da aplicação */}
+    </AlertProvider>
+  );
+}</code></pre>
+
+<h4>API do contexto</h4>
+<p>Você pode usar:</p>
+
+<pre><code>const {
+  addAlert,
+  removeAlert,
+  clearAlerts,
+  clearFieldAlert,
+  alerts,
+  fieldAlerts
+} = useAlert();</code></pre>
+
+<h4>Criando alertas globais (toasts)</h4>
+
+<pre><code>addAlert("Salvo com sucesso!", "success");
+addAlert("Algo deu errado.", "error");
+addAlert("Aviso importante!", "warning");
+addAlert("Informação útil.", "info");</code></pre>
+
+<p><strong>Tipos suportados:</strong></p>
+
+<ul>
+    <li><strong>success:</strong> Limpa todos os alertas anteriores antes de exibir</li>
+    <li><strong>error:</strong> Não limpa outros</li>
+    <li><strong>warning:</strong> Aviso genérico</li>
+    <li><strong>info:</strong> Informação</li>
+    <li><strong>confirm: </strong>Abre modal com botões “Sim” e “Não”</li>
+</ul>
+
+<h4>Alertas Inline (para formulários)</h4>
+<p>Perfeito para exibir erros de validação associados a campos específicos.</p>
+
+<h4>Criar alerta inline:</h4>
+<pre><code>addAlert("Campo obrigatório", "error", { fieldName: "email" });</code></pre>
+
+<h4>Exibir no componente:</h4>
+<pre><code><FieldAlert fieldName="email" /></code></pre>
+
+<h4>Remover alerta inline:</h4>
+<pre><code>clearFieldAlert("email");</code></pre>
+
+<h3>Alertas de Confirmação (com modal)</h3>
+<pre><code>addAlert("Deseja realmente excluir?", "confirm", {
+  onConfirm: () => console.log("Confirmado!"),
+  onCancel: () => console.log("Cancelado!")
+});</code></pre>
+
+<p>Abre uma modal centralizada com Sim / Não.</p>
+
+<h3>Limpeza de alertas ao mudar de rota</h3>
+<pre><code>useEffect(() => {
+  setAlerts([]);
+}, [location]);</code></pre>
+
+<p>Ou seja:</p>
+<ul>
+    <li>✔ Ao trocar de página → toasts desaparecem automaticamente</li>
+    <li>✔ Alertas inline permanecem até serem limpos manualmente</li>
+</ul>
+
+<h3>Funções disponíveis:</h3>
+<ul>
+    <li>addAlert(message, type, options) - Cria qualquer tipo de alerta.</li>
+    <li>removeAlert(id) - Remove um alerta global usando seu ID.</li>
+    <li>clearAlerts() - Remove todos os alertas globais e inline.</li>
+    <li>clearFieldAlert(fieldName) - Remove apenas o alerta inline do campo informado.</li>
+</ul>
+
+<h3>Estilização:</h3>
+<p>O sistema utiliza classes:</p>
+<ul>
+    <li>alert</li>
+    <li>alert success</li>
+    <li>alert error</li>
+    <li>alert warning</li>
+    <li>alert info</li>
+    <li>alert inline</li>
+    <li>alert-confirm-overlay</li>
+    <li>alert-confirm-box</li>
+    <li>alert-close</li>
+</ul>
+<p>Você pode personalizar livremente no cssGlobal.css.</p>
+
+<h3>Resumo do Fluxo</h3>
+<ul>
+    <li>AlertProvider gerencia o estado</li>
+    <li>AlertComponent renderiza toast/modals</li>
+    <li>addAlert decide automaticamente:</li>
+        <ul>
+            <li>toast comum</li>
+            <li>toast de erro</li>
+            <li>inline</li>
+            <li>modal de confirmação</li>
+        </ul>
+    <li>Limpeza automática ao mudar de rota</li>
+</ul>
