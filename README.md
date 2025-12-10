@@ -720,10 +720,10 @@ import AlertComponent from "./components/AlertComponent";
 
 function App() {
   return (
-    <AlertProvider>
-      <AlertComponent />
+    <"AlertProvider">
+      <"AlertComponent" />
       {/** restante da aplicação */}
-    </AlertProvider>
+    </"AlertProvider">
   );
 }</code></pre>
 
