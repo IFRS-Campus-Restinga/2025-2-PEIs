@@ -18,6 +18,7 @@ import AguardandoAprovacao from "./pages/preCadastro/AguardandoAprovacao.jsx";
 import Header from './components/customHeader/Header.jsx';
 import SubHeader from './components/customSubHeader/Subheader.jsx';
 import Footer from './components/customFooter/Footer.jsx';
+import AccessibilityWidget from './components/accessibility/AccessibilityWidget';
 
 // Páginas internas
 import Home from "./pages/home/Home.jsx";
@@ -47,10 +48,21 @@ function App() {
   const [logado, setLogado] = useState(() => !!localStorage.getItem("usuario"));
   const [mensagemErro, setMensagemErro] = useState(null);
   const [perfilSelecionado, setPerfilSelecionado] = useState(null);
+  const [exibirAcessibilidade, setExibirAcessibilidade] = useState(() => {
+    const salvo = localStorage.getItem("pref_acessibilidade");
+    return salvo !== null ? JSON.parse(salvo) : true;
+  });
   const navigate = useNavigate();
   const location = useLocation();
 
   const isAdmin = usuario?.grupos?.some(g => g.toLowerCase() === "admin");
+
+
+  const toggleAcessibilidade = () => {
+    const novoValor = !exibirAcessibilidade;
+    setExibirAcessibilidade(novoValor);
+    localStorage.setItem("pref_acessibilidade", JSON.stringify(novoValor));
+  };
 
   // carregar usuário do localStorage e validar token
   useEffect(() => {
@@ -187,7 +199,13 @@ function App() {
         {/* ======================================================== */}
         {logado ? (
           <div className="app-container">
-            <Header usuario={usuario} logado={logado} logout={logout} />
+            <Header 
+            usuario={usuario} 
+            logado={logado} 
+            logout={logout}
+            toggleAcessibilidade={toggleAcessibilidade}
+            estadoAcessibilidade={exibirAcessibilidade}
+             />
             <hr />
 
             <main className="main-content">
@@ -230,6 +248,7 @@ function App() {
             </main>
 
             <Footer usuario={usuario} />
+            {exibirAcessibilidade && <AccessibilityWidget />}
           </div>
         ) : (
         /* ======================================================== */

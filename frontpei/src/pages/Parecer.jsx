@@ -15,10 +15,38 @@ function Pareceres({ usuario }) {
     peiIdFromState || localStorage.getItem("peiCentralId") || null
   );
 
-  const DBPEI = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
-  const DBPARECERES = axios.create({ baseURL: API_ROUTES.PARECER });
-  const DBCOMPONENTECURRICULAR = axios.create({ baseURL: API_ROUTES.COMPONENTECURRICULAR });
-  const DBUSUARIOS = axios.create({ baseURL: API_ROUTES.USUARIO });
+  function getAuthHeaders() {
+    const token = localStorage.getItem("access") || localStorage.getItem("token");
+    return token ? { Authorization: `token ${token}` } : {};
+  }
+
+  const DBPEI = axios.create({
+    baseURL: API_ROUTES.PEI_CENTRAL,
+    headers: getAuthHeaders()
+  });
+
+  const DBPARECERES = axios.create({
+    baseURL: API_ROUTES.PARECER,
+    headers: getAuthHeaders()
+  });
+
+  const DBCOMPONENTECURRICULAR = axios.create({
+    baseURL: API_ROUTES.COMPONENTECURRICULAR,
+    headers: getAuthHeaders()
+  });
+
+  const DBUSUARIOS = axios.create({
+    baseURL: API_ROUTES.USUARIO,
+    headers: getAuthHeaders()
+  });
+
+
+  [DBPEI, DBPARECERES, DBCOMPONENTECURRICULAR, DBUSUARIOS].forEach(api => {
+    api.interceptors.request.use(config => {
+      config.headers = getAuthHeaders();
+      return config;
+    });
+  });
 
   const [carregando, setCarregando] = useState(true);
   const [componentes, setComponentes] = useState([]);

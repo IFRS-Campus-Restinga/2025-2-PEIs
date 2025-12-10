@@ -5,13 +5,14 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from ..serializers import UsuarioSerializer
 from ..permissions import BackendTokenPermission
+from rest_framework.permissions import DjangoObjectPermissions
 
 User = get_user_model()
 
 class UsuarioViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsuarioSerializer
-    #permission_classes = [BackendTokenPermission]
+    permission_classes = [DjangoObjectPermissions]
     
     def perform_create(self, serializer):
         user = self.request.user

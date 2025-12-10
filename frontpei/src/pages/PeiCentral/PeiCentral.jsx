@@ -33,11 +33,13 @@ function PeiCentral() {
 
   useEffect(() => {
     async function carregarPeis() {
-      try {
-        const res = await axios.get(API_ROUTES.PEI_CENTRAL);
-        const data = Array.isArray(res.data)
-          ? res.data
-          : res.data?.results || [];
+    try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Token de autenticação não encontrado.");
+
+        const headers = { Authorization: `Token ${token}` };
+        const res = await axios.get(API_ROUTES.PEI_CENTRAL, { headers });
+        const data = Array.isArray(res.data) ? res.data : res.data?.results || [];
         setPeiCentral(data);
         setErro(false);
       } catch (e) {

@@ -182,6 +182,7 @@ if pergunta("Refazer migrations?"):
             ("change_peicentral", PeiCentral),
             ("add_parecer", Parecer),
             ("change_componentecurricular", ComponenteCurricular),
+            ("add_componentecurricular", ComponenteCurricular),
             ("add_atadeacompanhamento", AtaDeAcompanhamento),
             ("change_documentocomplementar", DocumentacaoComplementar),
         ],

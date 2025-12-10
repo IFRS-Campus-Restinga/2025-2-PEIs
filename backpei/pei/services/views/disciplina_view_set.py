@@ -5,11 +5,13 @@ from ..permissions import BackendTokenPermission
 from django.core.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import DjangoObjectPermissions
 
 class DisciplinaViewSet(ModelViewSet):
     queryset = Disciplina.objects.prefetch_related('professores', 'cursos').all()    
     serializer_class = DisciplinaSerializer
-    #permission_classes = [BackendTokenPermission]
+    permission_classes = [DjangoObjectPermissions]
+
 
     def create(self, request, *args, **kwargs):
         professores_ids = request.data.pop('professores', [])

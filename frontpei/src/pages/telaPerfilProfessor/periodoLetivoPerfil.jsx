@@ -5,6 +5,8 @@ import { mandaEmail } from "../../lib/mandaEmail";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
+import api from "../../configs/axiosConfig";
+
 
 const PeriodoLetivoPerfil = () => {
   const location = useLocation();
@@ -62,11 +64,19 @@ const PeriodoLetivoPerfil = () => {
     async function carregarDados() {
       try {
         const token = localStorage.getItem("token");
-        if (!token) throw new Error("Token não encontrado");
+        console.log("Token obtido do localStorage:", token);
+        if (!token) throw new Error("Token de autenticação não encontrado.");
+        const headers = {
+          Authorization: `Token ${token}`,
+        };
+        console.log("Headers enviados na requisição:", headers);
 
         const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`, {
-          headers: { Authorization: `Token ${token}` },
+          headers,
         });
+
+        console.log("Resposta do backend:", res.data);
+
         const pei = res.data;
 
         // Aluno

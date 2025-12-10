@@ -18,7 +18,7 @@ from .views.conteudo_view_set import ConteudoViewSet
 from .views.consulta_grupos import ConsultaGrupos
 from .views.model_schema_view import ModelSchemaView
 from .views.dashboard_view import DashboardView
-
+from .views.report_view import ReportarProblemaView
 
 router = DefaultRouter()
 router.register(r'PEIPeriodoLetivo', PEIPeriodoLetivoViewSet, basename='PEIPeriodoLetivo')
@@ -45,5 +45,6 @@ urlpatterns = [
     path("permissoes/", UsuarioPermissoesView.as_view(), name="usuario-permissoes"),
     path('consultaGrupos/', ConsultaGrupos.as_view(), name='consultaGrupos'),
     path('dashboard/', DashboardView.as_view(), name='dashboard-stats'),
+    path('reportar-problema/', ReportarProblemaView.as_view(), name='reportar-problema'),
 
 ]

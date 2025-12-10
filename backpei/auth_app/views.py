@@ -108,12 +108,18 @@ class PreCadastroView(APIView):
 
         if User.objects.filter(email=email).exists():
             return Response({"detail": "Usuário já cadastrado"}, status=400)
+        
+        # Tenta separar nome e sobrenome
+        nome_completo = data["name"].strip().split(" ", 1)
+        first_name = nome_completo[0]
+        last_name = nome_completo[1] if len(nome_completo) > 1 else ""
 
         # Cria usuário pendente
         user = User.objects.create(
             username=email,
             email=email,
-            first_name=data["name"],
+            first_name=first_name,
+            last_name=last_name,
             foto=data.get("picture") or "",
             categoria_solicitada=data["categoria_solicitada"],
             aprovado=False
