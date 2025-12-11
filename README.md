@@ -768,6 +768,40 @@ addAlert("Informação útil.", "info");</code></pre>
 <h4>Remover alerta inline:</h4>
 <pre><code>clearFieldAlert("email");</code></pre>
 
+<h3>Integração com validaCampos</h3>
+<p>O sistema de alertas também possui uma função utilitária para validação de formulários:</p>
+
+<pre><code>import { validaCampos } from "../../utils/validaCampos";
+
+const erros = validaCampos(form, metadata, backendErrors, prefix, addAlert);
+</code></pre>
+
+<h4>Como funciona:</h4>
+<ul>
+    <li>Valida campos obrigatórios (required)</li>
+    <li>Valida regras customizadas (ex.: campo objetivos)</li>
+    <li>Transforma erros de backend em alertas inline</li>
+    <li>Suporta envio de alertas inline usando addAlertFn</li>
+</ul>
+
+<h4>Exemplo de uso com inline no form de criação/edição:</h4>
+<pre><code>import { useAlert } from "../../context/AlertContext";
+import { validaCampos } from "../../utils/validaCampos";
+
+const { addAlert } = useAlert();
+
+// Ao enviar formulário
+const erros = validaCampos(form, metadata, backendErrors, "", addAlert);
+
+if (erros.length > 0) {
+  // os erros já são exibidos inline
+  return;
+}</code></pre>
+
+<p>Cada erro retornado pela função contém { fieldName, message }, e os alertas inline aparecem automaticamente nos componentes <"FieldAlert fieldName="..."" />.</p>
+
+
+
 <h3>Alertas de Confirmação (com modal)</h3>
 <pre><code>addAlert("Deseja realmente excluir?", "confirm", {
   onConfirm: () => console.log("Confirmado!"),
