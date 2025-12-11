@@ -208,7 +208,7 @@ function App() {
             estadoAcessibilidade={exibirAcessibilidade}
              />
             <hr />
-
+            
             <main className="main-content">
               <Routes>
                 <Route path="/" element={
@@ -249,6 +249,7 @@ function App() {
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>
+            
 
             <Footer usuario={usuario} />
             {exibirAcessibilidade && <AccessibilityWidget />}
