@@ -32,7 +32,7 @@ class Parecer(BaseModel):
         help_text="Você tem 1000 caracteres para escrever"
     )
 
-    data = models.DateField(auto_now_add=True)
+    data = models.DateTimeField(auto_now_add=True)
 
     
 

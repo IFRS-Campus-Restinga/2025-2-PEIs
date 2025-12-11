@@ -1389,28 +1389,220 @@ div.dt-container .dt-info {
   position: relative; min-height: 100vh;
 }
 
-/* --- Home / Detalhe PEI --- */
+/* ========================================
+   NOVO LAYOUT PEI (2 COLUNAS)
+   ======================================== */
+
 .pei-detalhe-container {
+
   display: flex; flex-direction: column;
+
   padding: 30px; font-family: "Inter", sans-serif;
+
 }
+
 .pei-header {
+
   display: flex; justify-content: space-between; align-items: flex-start;
+
   border-bottom: 2px solid #ccc; padding-bottom: 15px; margin-bottom: 25px;
+
 }
-.aluno-info { display: flex; align-items: center; gap: 25px; }
+
+.aluno-info { display: flex; align-items: center; gap: 20px; }
 .aluno-fotoPerfil {
-  width: 130px; height: 130px; border-radius: 50%;
-  object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,.15);
+  width: 80px; height: 80px; /* Menor e mais discreto */
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e8f5e9;
 }
-.pei-corpo { display: grid; grid-template-columns: 1fr 2fr; gap: 40px; }
-.pei-documentos { display: flex; flex-direction: column; align-items: flex-start; gap: 25px; }
-.documento-item { display: flex; align-items: center; gap: 12px; }
-.botoes-parecer { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-.pei-pareceres { display: flex; flex-direction: column; gap: 15px; }
+
+/* GRID PRINCIPAL (A Mágica) */
+.pei-corpo-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px; /* Esquerda Flexível | Direita Fixa */
+  gap: 30px;
+  align-items: start; /* Impede que a coluna da direita estique */
+}
+
+/* --- COLUNA ESQUERDA: PARECERES --- */
+.pei-coluna-pareceres {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  overflow: hidden; /* Para o header ficar certinho */
+  height: calc(100vh - 250px); /* Altura fixa para ter scroll interno */
+  display: flex;
+  flex-direction: column;
+}
+
+.pareceres-header {
+  padding: 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #eee;
+}
+.pareceres-header h3 { margin: 0; color: #000000; font-size: 18px; }
+
+/* Área de Scroll dos Pareceres */
+.pareceres-lista-scroll {
+  padding: 20px;
+  overflow-y: auto; /* Scroll AQUI */
+  flex: 1;
+}
+
+/* Scrollbar Bonita */
+.pareceres-lista-scroll::-webkit-scrollbar { width: 8px; }
+.pareceres-lista-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+.pareceres-lista-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+.pareceres-lista-scroll::-webkit-scrollbar-thumb:hover { background: #bbb; }
+
 .parecer-card {
-  background: #f8f8f8; border-radius: 10px; padding: 15px;
-  box-shadow: 0 1px 5px rgba(0,0,0,.1);
+  background: #fff;
+  border: 1px solid #eee;
+  border-left: 4px solid #055C0F; /* Detalhe verde */
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.parecer-topo { 
+  display: flex; justify-content: space-between; margin-bottom: 8px; 
+  font-size: 14px; color: #555; font-weight: 600;
+}
+.parecer-texto { color: #333; line-height: 1.5; font-size: 15px; }
+.parecer-vazio { text-align: center; color: #999; padding: 40px; font-style: italic; }
+
+/* --- Estilo da Data no Parecer --- */
+
+.parecer-info-data {
+  display: flex;
+  flex-direction: column; /* Um em cima do outro */
+  align-items: flex-end;  /* Alinha tudo à direita */
+  line-height: 1.2;
+}
+
+.parecer-data-oficial {
+  font-size: 13px;
+  color: #555;
+  font-weight: 600;
+}
+
+.parecer-tempo-relativo {
+  font-size: 11px;     /* Bem pequenininho */
+  color: #888;      /* Verde do sistema (ou #888 se preferir cinza) */
+  font-weight: 500;
+  margin-top: 2px;
+  text-transform: lowercase;
+}
+
+/* --- Card de Adicionar (Botão Rápido) --- */
+.parecer-card-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%; /* Ocupa largura total da coluna */
+  padding: 20px;
+  margin-bottom: 20px; /* Espaço para o próximo card */
+  
+  background-color: #ffffff; /* Fundo levemente verde */
+  border: 2px dashed #888; /* Borda tracejada moderna */
+  border-radius: 10px;
+  
+  color: #888;
+  font-weight: 700;
+  text-decoration: none; /* Remove sublinhado do Link */
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.parecer-card-add:hover {
+  background-color: #e8f5e9;
+  border-color: #888;
+  transform: translateY(-3px); /* Leve pulinho */
+  box-shadow: 0 4px 12px rgba(5, 92, 15, 0.15);
+}
+
+.icon-plus {
+  font-size: 24px;
+  line-height: 0;
+  font-weight: 300;
+}
+
+
+/* --- COLUNA DIREITA: AÇÕES --- */
+.pei-coluna-acoes {
+  position: sticky; /* Fica fixo se a tela rolar */
+  top: 20px;
+}
+
+.acoes-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.acoes-card h3 {
+  margin-top: 0;
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lista-botoes-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Estilo do Botão Lateral */
+.btn-acao-pei {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Ou flex-start se quiser texto alinhado à esq */
+  padding: 12px 16px;
+  background: #fff; 
+  color: #555;      
+  border: 1px solid #ddd;
+  border-left: 4px solid #055C0F; /* Detalhe verde na borda */
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.btn-acao-pei:hover {
+  background: #055C0F;
+  color: #fff;
+  border-color: #055C0F;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(5, 92, 15, 0.2);
+}
+
+/* Responsividade */
+@media (max-width: 900px) {
+  .pei-corpo-grid {
+    grid-template-columns: 1fr; /* Vira 1 coluna no celular */
+  }
+  .pei-coluna-pareceres {
+    height: auto; /* Remove altura fixa no mobile */
+    max-height: 500px;
+  }
+  .pei-coluna-acoes {
+    order: -1; /* Botões aparecem PRIMEIRO no celular */
+    position: static;
+  }
 }
 .parecer-topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; width: 100%;}
 .parecer-professor { font-weight: 600; color: #333; }

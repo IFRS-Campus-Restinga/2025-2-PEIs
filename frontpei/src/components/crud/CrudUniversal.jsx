@@ -11,7 +11,7 @@ import { api } from "../../services/api";
 
 
 function CrudUniversal({ modelName }) {
-  const { addAlert, clearAlerts } = useAlert();
+  const { addAlert } = useAlert();
 
   const [metadata, setMetadata] = useState(null);
   const [records, setRecords] = useState([]);
@@ -68,9 +68,6 @@ function CrudUniversal({ modelName }) {
     return l.replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
-  useEffect(() => {
-    clearAlerts();
-  }, []);
 
   // Carrega serviços
   useEffect(() => {
@@ -235,22 +232,25 @@ function CrudUniversal({ modelName }) {
   async function handleSubmit(e) {
   e.preventDefault();
 
-  clearAlerts();
-
-  const erros = validaCampos(form, metadata);
-
+  // 1) Valida sem apagar nada
+  const erros = validaCampos(form, metadata, null, "", addAlert);
   if (erros.length > 0) return;
+
+  // 2) Limpa só os toasts
 
   try {
     const payload = normalizePayload(form, metadata);
     await api.post(getEndpoint(modelName), payload);
     await fetchRecords();
+
     addAlert("Registro criado!", "success");
 
-    setForm(Object.fromEntries(Object.keys(form).map((k) => [k, ""])));
+    // 3) Reset form
+    setForm(Object.fromEntries(Object.keys(form).map(k => [k, ""])));
+
   } catch (err) {
     const backendErrors = err.response?.data;
-    validaCampos(form, metadata, backendErrors);
+    validaCampos(form, metadata, backendErrors, "", addAlert);
   }
 }
 
@@ -259,9 +259,9 @@ function CrudUniversal({ modelName }) {
   async function handleEditSubmit(e, id) {
   e.preventDefault();
 
-  clearAlerts();
+  
 
-  const erros = validaCampos(editForm, metadata, null, "edit-");
+  const erros = validaCampos(editForm, metadata, null, "", addAlert);
   if (erros.length > 0) return;
 
   try {
@@ -272,9 +272,10 @@ function CrudUniversal({ modelName }) {
     await fetchRecords();
 
     addAlert("Registro atualizado!", "success");
+    clearAlerts();
   } catch (err) {
     const backendErrors = err.response?.data;
-    validaCampos(editForm, metadata, backendErrors, "edit-");
+    validaCampos(editForm, metadata, backendErrors, "");
   }
 }
 
