@@ -48,28 +48,32 @@ def verificar_periodos_e_gerar_notificacoes():
     periodos = PEIPeriodoLetivo.objects.filter(data_termino__range=(hoje, limite))
 
     for periodo in periodos:
+        try:
         # LÓGICA MELHORADA:
         # Em vez de criar notificação solta, vamos avisar o COORDENADOR do curso
         # Precisamos navegar: Periodo -> PeiCentral -> Aluno -> Curso -> Coordenador
         
         # Tentativa de chegar no coordenador (depende da sua estrutura exata)
-        aluno = periodo.pei_central.aluno
-        if aluno and aluno.curso and aluno.curso.coordenador:
-            coordenador = aluno.curso.coordenador
-            
-            titulo = "Período letivo próximo do fim"
-            mensagem = f"O período do aluno {aluno.nome} termina em {periodo.data_termino.strftime('%d/%m/%Y')}."
+            aluno = periodo.pei_central.aluno
+            if aluno and aluno.curso and aluno.curso.coordenador:
+                coordenador = aluno.curso.coordenador
+                
+                titulo = "Período letivo próximo do fim"
+                mensagem = f"O período do aluno {aluno.nome} termina em {periodo.data_termino.strftime('%d/%m/%Y')}."
 
-            # Evita duplicatas verificando se já existe notificação para este usuário com este título hoje
-            # (Lógica simplificada, pode ser refinada)
-            existe = Notificacao.objects.filter(
-                usuario=coordenador, 
-                titulo=titulo, 
-                mensagem=mensagem
-            ).exists()
+                # Evita duplicatas verificando se já existe notificação para este usuário com este título hoje
+                # (Lógica simplificada, pode ser refinada)
+                existe = Notificacao.objects.filter(
+                    usuario=coordenador, 
+                    titulo=titulo, 
+                    mensagem=mensagem
+                ).exists()
 
-            if not existe:
-                criar_notificacao(coordenador, titulo, mensagem)
+                if not existe:
+                    criar_notificacao(coordenador, titulo, mensagem)
+
+        except Exception as e:
+            print(f"    ☠️ Erro ao processar período: {e}")
 
 def enviar_email_acompanhamento(acompanhamento):
     aluno = acompanhamento.aluno

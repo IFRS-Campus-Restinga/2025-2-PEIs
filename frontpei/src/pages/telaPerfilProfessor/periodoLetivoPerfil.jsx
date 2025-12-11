@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
+import { mandaEmail } from "../../lib/mandaEmail";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import logo_nome from "../../assets/logo-sem-nome.png";
+//import api from "../../configs/axiosConfig";
+import Sidebar from "../../components/layout/Sidebar"; 
 
 const PeriodoLetivoPerfil = () => {
   const location = useLocation();
@@ -21,13 +24,23 @@ const PeriodoLetivoPerfil = () => {
   const [parecerSelecionado, setParecerSelecionado] = useState(null);
   const [modoEdicao, setModoEdicao] = useState(false);
   const [textoEditado, setTextoEditado] = useState("");
-
+  const [statusPEI, setStatusPEI] = useState("em_andamento");
+  const [carregandoStatus, setCarregandoStatus] = useState(false);
+  const [emailCoordenador, setEmailCoordenador] = useState("");
 
   // Funções para abrir e fechar popup de parecer
   function abrirPopup(parecer) {
     setParecerSelecionado(parecer);
     setMostrarPopup(true);
   };
+
+  function formatarDataHora(isoString) {
+    return new Date(isoString).toLocaleString("pt-BR", {
+      dateStyle: "short",
+      timeStyle: "short"
+    });
+  }
+
 
   function ativarEdicao() {
   setModoEdicao(true);
@@ -43,7 +56,7 @@ const PeriodoLetivoPerfil = () => {
         data: parecerSelecionado.data
       };
 
-      await axios.put(
+      await api.put(
         `${API_ROUTES.PARECER}${parecerSelecionado.id}/`,
         payload
       );
@@ -74,6 +87,12 @@ const PeriodoLetivoPerfil = () => {
     setMostrarPopup(false);
     setParecerSelecionado(null);
   }
+
+  // === MODAL ===
+  const [modalAberto, setModalAberto] = useState(false);
+  const [acaoPendente, setAcaoPendente] = useState(null);
+  const [motivo, setMotivo] = useState("");
+  const [justificativa, setJustificativa] = useState("");
 
   // Carrega usuário do localStorage
   useEffect(() => {
@@ -122,6 +141,8 @@ const PeriodoLetivoPerfil = () => {
         }
         setCoordenador(nomeCoord);
         console.log("Coordenador do curso:", nomeCoord);
+        setEmailCoordenador(cursoData?.coordenador?.email || "");
+
 
         // --- PARECERES ---
         const todosPareceres = periodos
@@ -145,6 +166,86 @@ const PeriodoLetivoPerfil = () => {
 
     carregarDados();
   }, [peiCentralId]);
+
+  // === MODAL ===
+  const abrirModal = (acao) => {
+    setAcaoPendente(acao);
+    setMotivo("");
+    setJustificativa("");
+    setModalAberto(true);
+  };
+
+  const fecharModal = () => {
+    setModalAberto(false);
+    setAcaoPendente(null);
+  };
+
+  // === ATUALIZA STATUS + ENVIA E-MAILS ===
+  const atualizarStatusPEI = async () => {
+    if (carregandoStatus || !acaoPendente) return;
+    setCarregandoStatus(true);
+
+    let valorBackend, novoStatusFrontend, acaoTexto;
+
+    if (acaoPendente === "fechado") {
+      valorBackend = "FECHADO";
+      novoStatusFrontend = "fechado";
+      acaoTexto = "finalizado (fechado)";
+    } else if (acaoPendente === "suspenso") {
+      valorBackend = "SUSPENSO";
+      novoStatusFrontend = "suspenso";
+      acaoTexto = "suspenso";
+    } else if (acaoPendente === "reabrir") {
+      valorBackend = "EM ANDAMENTO";
+      novoStatusFrontend = "em_andamento";
+      acaoTexto = "reaberto";
+    }
+
+    try {
+      const token = localStorage.getItem("token") || "";
+      await axios.patch(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`, {
+        status_pei: valorBackend
+      }, { headers: { Authorization: `Token ${token}` } });
+
+      setStatusPEI(novoStatusFrontend);
+      fecharModal();
+
+      const textoEmail = `
+        Prezado(a),
+
+        O PEI do aluno(a) **${aluno.nome}** foi **${acaoTexto}**.
+
+        • Alterado por: ${nomeUsuario}
+        • Motivo: ${motivo || "Não informado"}
+        • Justificativa: ${justificativa || "Sem justificativa detalhada"}
+
+        Acesse o sistema para mais detalhes.
+      `.trim();
+
+      const enviados = [];
+
+      if (aluno.email) {
+        await mandaEmail(aluno.email, `[PEI] Seu PEI foi ${acaoTexto}`, textoEmail);
+        enviados.push(aluno.email);
+      }
+
+      if (emailCoordenador) {
+        await mandaEmail(emailCoordenador, `[PEI] PEI do aluno ${aluno.nome} foi ${acaoTexto}`, textoEmail);
+        enviados.push(emailCoordenador);
+      }
+
+      const emailsProf = [...new Set(pareceres.map(p => p.professorEmail).filter(Boolean))];
+      for (const email of emailsProf) {
+        await mandaEmail(email, `[PEI] PEI do aluno ${aluno.nome} foi ${acaoTexto}`, textoEmail);
+        enviados.push(email);
+      }
+
+    } catch (err) {
+      console.error("Erro:", err);
+    } finally {
+      setCarregandoStatus(false);
+    }
+  };
 
   // Render dos botões baseado no grupo do usuário
   const renderBotoesOriginais = () => {
@@ -191,24 +292,23 @@ const PeriodoLetivoPerfil = () => {
               );
             case "admin":
               return (
-                <>
-                  <Link to="/usuario" className="btn-verde">Gerenciar Usuários</Link>
-                  <Link to="/crud/Curso" className="btn-verde">Gerenciar Cursos</Link>
-                  <Link to="/crud/Disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
-                  <Link to="/crud/PEIPeriodoLetivo" className="btn-verde">Gerenciar Períodos Letivos</Link>
-                  <Link to="/crud/aluno" className="btn-verde">Gerenciar Alunos</Link>
-                  <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/pareceres" state={{ peiCentralId }} className="btn-verde">Cadastrar Parecer</Link>
-                  <Link to="/crud/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
-                  <Link to="/crud/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
-                </>
+                <Sidebar>
+                  <Link to="/usuario" className="sidebar-link">Gerenciar Usuários</Link>
+                  <Link to="/crud/Curso" className="sidebar-link">Gerenciar Cursos</Link>
+                  <Link to="/crud/Disciplina" className="sidebar-link">Gerenciar Disciplinas</Link>
+                  <Link to="/crud/PEIPeriodoLetivo" className="sidebar-link">Gerenciar Períodos Letivos</Link>
+                  <Link to="/crud/aluno" className="sidebar-link">Gerenciar Alunos</Link>
+                  <Link to="/peicentral" className="sidebar-link">Visualizar PEI Central</Link>
+                  <Link to="/pareceres" state={{ peiCentralId }} className="sidebar-link">Cadastrar Parecer</Link>
+                  <Link to="/crud/componenteCurricular" className="sidebar-link">Gerenciar Componentes Curriculares</Link>
+                  <Link to="/ataDeAcompanhamento" className="sidebar-link">Gerenciar Atas de Acompanhamento</Link>
+                  <Link to="/crud/documentacaoComplementar" className="sidebar-link">Gerenciar Documentações Complementares</Link>
+                </Sidebar>
               );
             default:
               return null;
           }
         })}
-        <BotaoVoltar />
       </>
     );
   };
@@ -238,30 +338,59 @@ const PeriodoLetivoPerfil = () => {
         <div className="curso-info">
           <p><b>Curso:</b> {curso?.nome || "—"}</p>
           <p><b>Coordenador do Curso:</b> {coordenador}</p>
+
+          <div style={{ margin: "18px 0" }}>
+            <strong>Status do PEI: </strong>
+            <span className={`status-badge ${statusPEI}`}>
+              {statusPEI === "fechado" ? "Fechado" :
+               statusPEI === "suspenso" ? "Suspenso" :
+               statusPEI === "em_andamento" ? "Em Andamento" : "Aberto"}
+            </span>
+          </div>
+          {/* BOTÕES */}
+          {(gruposUsuario.includes("admin") || gruposUsuario.includes("napne") || gruposUsuario.includes("coordenador")) && (
+            <div style={{ marginTop: "20px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
+              {statusPEI === "suspenso" && (
+                <button className="btn-reabrir-pei" onClick={() => abrirModal("reabrir")} disabled={carregandoStatus}>
+                  Reabrir PEI
+                </button>
+              )}
+              {(statusPEI === "aberto" || statusPEI === "em_andamento") && (
+                <>
+                  <button className="btn-finalizar-pei" onClick={() => abrirModal("fechado")} disabled={carregandoStatus}>
+                    Finalizar PEI
+                  </button>
+                  <button className="btn-suspender-pei" onClick={() => abrirModal("suspenso")} disabled={carregandoStatus}>
+                    Suspender PEI
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       <div className="pei-corpo">
-        <div className="pei-documentos">
-          <h3>Ações Disponíveis</h3>
-          <div className="botoes-parecer">
-            {renderBotoesOriginais()}
-          </div>
-        </div>
-
+        {renderBotoesOriginais()}
         <div className="pei-pareceres">
           <h3>Últimos Pareceres</h3>
           {pareceres.length > 0 ? (
             pareceres.map((p) => (
-              <div key={p.id} className="parecer-card" onClick={() => abrirPopup(p)} style={{ cursor: "pointer" }}>
-                <div className="parecer-topo">
+              <div 
+                key={p.id} 
+                className="parecer-card" 
+                onClick={() => abrirPopup(p)}
+                style={{ cursor: "pointer" }}
+              >
+
+                
                   <span className="parecer-professor">
                     {p.professorNome} ({p.componenteNome})
                   </span>
                   <span className="parecer-data">
                     {p.data ? new Date(p.data).toLocaleDateString("pt-BR") : "—"}
                   </span>
-                </div>
+                
                 <div className="parecer-texto">
                   {p.texto || "Sem texto disponível."}
                 </div>
@@ -294,6 +423,17 @@ const PeriodoLetivoPerfil = () => {
                     <span>Plano Educacional Individualizado</span>
                   </div>
 
+                  <div className="header-right-parecer">
+                    <p><strong>Professor:</strong> {parecerSelecionado.professorNome}</p>
+                    <p><strong>Componente:</strong> {parecerSelecionado.componenteNome}</p>
+                    <p><strong>Criado em:</strong> {formatarDataHora(parecerSelecionado.data)}</p>
+
+                    {/*{parecerSelecionado.data && (
+                      <p><strong>Atualizado em:</strong> {formatarDataHora(parecerSelecionado.data)}</p>
+                    )}*/}
+
+                  </div>
+
                   <div
                     className="header-actions"
                     style={{ 
@@ -305,17 +445,13 @@ const PeriodoLetivoPerfil = () => {
                   </div>
                 </header>
 
-                <h3>Parecer de {parecerSelecionado.professorNome}</h3>
-
-                <p><strong>Componente:</strong> {parecerSelecionado.componenteNome}</p>
-                <p><strong>Data:</strong> {new Date(parecerSelecionado.data).toLocaleDateString("pt-BR")}</p>
                 <div className="popup-texto">
                   {modoEdicao ? (
                     <textarea
                       value={textoEditado}
                       onChange={(e) => setTextoEditado(e.target.value)}
                       style={{
-                        width: "100%",
+                        width: "98%",
                         minHeight: "140px",
                         padding: "10px",
                         fontSize: "16px",
@@ -333,7 +469,7 @@ const PeriodoLetivoPerfil = () => {
                       <button className="botao-editar" onClick={salvarEdicao}>
                         Salvar
                       </button>
-                      <button className="btn-fechar" onClick={() => setModoEdicao(false)}>
+                      <button className="botao-deletar" onClick={() => setModoEdicao(false)}>
                         Cancelar
                       </button>
                     </>
@@ -342,7 +478,7 @@ const PeriodoLetivoPerfil = () => {
                       <button className="botao-editar" onClick={ativarEdicao}>
                         Editar
                       </button>
-                      <button className="btn-fechar" onClick={fecharPopup}>
+                      <button className="botao-deletar" onClick={fecharPopup}>
                         Fechar
                       </button>
                     </>
@@ -352,9 +488,56 @@ const PeriodoLetivoPerfil = () => {
               </div>
             </div>
           )}
-
-        </div>
+        </div>        
       </div>
+      <BotaoVoltar />
+
+      {/* MODAL */}
+      {modalAberto && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
+          <div style={{ background: "#fff", padding: "30px", borderRadius: "12px", maxWidth: "520px", width: "90%" }}>
+            <h3 style={{ margin: "0 0 15px" }}>
+              {acaoPendente === "fechado" ? "Finalizar PEI" : acaoPendente === "suspenso" ? "Suspender PEI" : "Reabrir PEI"}
+            </h3>
+            <p style={{ marginBottom: "20px" }}>
+              {acaoPendente === "fechado" && "O PEI será marcado como FECHADO e não poderá mais ser alterado."}
+              {acaoPendente === "suspenso" && "O PEI será pausado e poderá ser reaberto depois."}
+              {acaoPendente === "reabrir" && "O PEI voltará ao status EM ANDAMENTO."}
+            </p>
+
+            {(acaoPendente === "fechado" || acaoPendente === "suspenso") && (
+              <div style={{ marginBottom: "20px" }}>
+                <label><strong>Motivo:</strong></label>
+                <select style={{ width: "100%", padding: "10px", marginTop: "5px", borderRadius: "6px", border: "1px solid #ccc" }}
+                  value={motivo} onChange={e => setMotivo(e.target.value)}>
+                  <option value="">Selecione...</option>
+                  <option>Conclusão do curso</option>
+                  <option>Desistência</option>
+                  <option>Transferência</option>
+                  <option>Mudança de instituição</option>
+                  <option>Outros</option>
+                </select>
+
+                <label style={{ marginTop: "15px", display: "block" }}><strong>Justificativa (opcional):</strong></label>
+                <textarea
+                  placeholder="Detalhe o motivo..."
+                  rows="4"
+                  style={{ width: "100%", padding: "10px", marginTop: "5px", borderRadius: "6px", border: "1px solid #ccc" }}
+                  value={justificativa}
+                  onChange={e => setJustificativa(e.target.value)}
+                />
+              </div>
+            )}
+
+            <div className="modal-buttons" style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+              <button className="confirmar" onClick={atualizarStatusPEI} disabled={carregandoStatus}>
+                {carregandoStatus ? "Processando..." : "Confirmar"}
+              </button>
+              <button className="cancelar" onClick={fecharModal} disabled={carregandoStatus}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

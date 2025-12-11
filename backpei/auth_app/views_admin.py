@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 
 from django.contrib.auth import get_user_model
@@ -26,7 +26,7 @@ def is_admin(user):
 # LISTAR SOLICITAÇÕES
 # ----------------------------------------------------
 class SolicitacoesPendentesView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request):
         if not is_admin(request.user):

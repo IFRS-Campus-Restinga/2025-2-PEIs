@@ -18,6 +18,7 @@ from .views.permissoes_view_set import UsuarioPermissoesView
 from .views.conteudo_view_set import ConteudoViewSet
 from .views.consulta_grupos import ConsultaGrupos
 from .views.model_schema_view import ModelSchemaView
+from .views.dashboard_view import DashboardView
 from .views.acompanhamento_view import (acompanhar_recusar, acompanhar_aceitar)
 
 
@@ -58,7 +59,8 @@ urlpatterns = [
     path('notificacoes-lista/', listar_notificacoes, name='notificacoes-lista'),
     path("permissoes/", UsuarioPermissoesView.as_view(), name="usuario-permissoes"),
     path('consultaGrupos/', ConsultaGrupos.as_view(), name='consultaGrupos'),
-    
+    path('dashboard/', DashboardView.as_view(), name='dashboard-stats'),
     path("acompanhamentos/<id>/recusar/", acompanhar_recusar, name="recusar_acompanhamento"),
     path("acompanhamentos/<id>/aceitar/", acompanhar_aceitar, name="aceitar_acompanhamento"),
+
 ]
