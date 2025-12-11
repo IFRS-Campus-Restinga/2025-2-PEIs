@@ -40,6 +40,8 @@ import { mandaEmail } from "./lib/mandaEmail";
 import { consultaGrupo } from "./lib/consultaGrupo";
 import CrudWrapper from "./components/crud/crudWrapper.jsx";
 import Acompanhamentos from "./pages/acompanhamentos/Acompanhamentos.jsx";
+import Chat from "./pages/Chat/Chat";
+
 
 function App() {
   const [usuario, setUsuario] = useState(() => {
@@ -233,6 +235,7 @@ function App() {
                 <Route path="/conteudo" element={<PrivateRoute><Conteudo usuario={usuario} /></PrivateRoute>} />
                 <Route path="/crud/:modelKey" element={<PrivateRoute><CrudWrapper /></PrivateRoute>} />
                 <Route path="/acompanhamentos" element={<Acompanhamentos />} />
+                <Route path="/chat" element={<Chat />} />
 
                 <Route path="/todas-notificacoes" element={<PrivateRoute><TodasNotificacoes /></PrivateRoute>} />
                 

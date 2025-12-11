@@ -20,6 +20,7 @@ from .views.consulta_grupos import ConsultaGrupos
 from .views.model_schema_view import ModelSchemaView
 from .views.dashboard_view import DashboardView
 from .views.acompanhamento_view import (acompanhar_recusar, acompanhar_aceitar)
+from .views.mensagem_view_set import MensagemViewSet
 
 from .views.report_view import ReportarProblemaView
 
@@ -47,6 +48,7 @@ router.register(r'notificacoes', NotificacaoViewSet, basename='notificacao')
 router.register(r'usuario', UsuarioViewSet, basename='usuarios')
 router.register(r'conteudo', ConteudoViewSet, basename='conteudos')
 router.register(r'schema', ModelSchemaView, basename="model-schema")
+router.register(r'mensagens', MensagemViewSet, basename='mensagens')
 
 app_name = 'api'
 

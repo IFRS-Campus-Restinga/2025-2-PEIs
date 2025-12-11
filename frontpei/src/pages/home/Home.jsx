@@ -7,6 +7,11 @@ import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import DashboardCards from "./DashboardCards";
 
+import ChatButton from "../../components/chat/ChatButton";
+import ChatPopup from "../../components/chat/ChatPopup";
+import ChatInterno from "../Chat/Chat";
+
+
 DataTable.use(DT);
 
 const HomeView = () => {
@@ -16,6 +21,7 @@ const HomeView = () => {
   const [meusGrupos, setMeusGrupos] = useState([]);
   const [token, setToken] = useState("");
   const [identificadorUsuario, setIdentificadorUsuario] = useState("");
+  const [openChat, setOpenChat] = useState(false);
 
   const navigate = useNavigate();
   
@@ -220,6 +226,7 @@ const HomeView = () => {
     document.addEventListener("click", handler);
     return () => document.removeEventListener("click", handler);
   }, [navigate]);
+  
 
   return (
     <div className="telaPadrao-page">
@@ -307,6 +314,13 @@ const HomeView = () => {
           }}
         />
       )}
+      <ChatButton onClick={() => setOpenChat(true)} />
+
+        {openChat && (
+          <ChatPopup onClose={() => setOpenChat(false)}>
+            <ChatInterno />
+          </ChatPopup>
+        )}
     </div>
   );
 };
