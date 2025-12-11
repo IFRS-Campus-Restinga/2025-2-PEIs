@@ -101,7 +101,7 @@ function CreatePeiCentral() {
   }, []);
 
 
-  // ================== GET PEI CENTRAL (CASO PRECISE LISTAR) ==================
+  {/*// ================== GET PEI CENTRAL (CASO PRECISE LISTAR) ==================
   useEffect(() => {
     async function recuperaPeiCentral() {
       try {
@@ -116,7 +116,8 @@ function CreatePeiCentral() {
     }
     recuperaPeiCentral();
   }, []);
-
+    */}
+    
   // Filtrar alunos por curso
   const alunosFiltrados = cursoSelecionado
     ? alunos.filter((a) => a.curso_obj?.id === Number(cursoSelecionado))
@@ -181,7 +182,7 @@ function CreatePeiCentral() {
         <ErrorMessage message={erroHabilidades} align="center" />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form className="form-padrao" onSubmit={handleSubmit}>
 
         {/* Curso */}
         <label>Selecione o Curso</label>
@@ -229,11 +230,6 @@ function CreatePeiCentral() {
           </label>
 
           <textarea
-            style={{
-              width: "100%",
-              borderWidth: erroHistorico ? "2px" : "1px",
-              borderColor: erroHistorico ? "red" : "#770404",
-            }}
             rows={6}
             name="historico_do_aluno"
             value={form.historico_do_aluno}
@@ -254,11 +250,6 @@ function CreatePeiCentral() {
           </label>
 
           <textarea
-            style={{
-              width: "100%",
-              borderWidth: erroNecessidadesEducacionaisEspecificas ? "2px" : "1px",
-              borderColor: erroNecessidadesEducacionaisEspecificas ? "red" : "#770404",
-            }}
             rows={6}
             value={necessidades_educacionais_especificas}
             onChange={(e) => setNecessidades(e.target.value)}
@@ -274,11 +265,6 @@ function CreatePeiCentral() {
           </label>
 
           <textarea
-            style={{
-              width: "100%",
-              borderWidth: erroHabilidades ? "2px" : "1px",
-              borderColor: erroHabilidades ? "red" : "#770404",
-            }}
             rows={6}
             value={habilidades}
             onChange={(e) => setHabilidades(e.target.value)}
@@ -291,7 +277,6 @@ function CreatePeiCentral() {
           <label className="block mb-1 font-medium">Dificuldades Apresentadas:</label>
 
           <textarea
-            style={{ width: "100%" }}
             rows={6}
             name="dificuldades_apresentadas"
             value={form.dificuldades_apresentadas}
@@ -313,7 +298,6 @@ function CreatePeiCentral() {
           <label className="block mb-1 font-medium">Adaptações:</label>
 
           <textarea
-            style={{ width: "100%" }}
             rows={6}
             value={adaptacoes}
             onChange={(e) => SetAdaptacoes(e.target.value)}

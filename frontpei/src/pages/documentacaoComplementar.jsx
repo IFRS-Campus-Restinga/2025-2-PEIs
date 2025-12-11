@@ -14,6 +14,15 @@ export default function DocumentacaoComplementar() {
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
   const location = useLocation()
   const {matricula} = location.state || {}
+  const deleteURL = `${API_ROUTES.DOCUMENTACAOCOMPLEMENTAR}`
+
+  axios.interceptors.request.use((config) => {
+    const token = localStorage.getItem("access") || localStorage.getItem("token");
+    if (token) config.headers.Authorization = `token ${token}`;
+    return config;
+  });
+
+
   function getAuthHeaders() {
     const token = localStorage.getItem("access") || localStorage.getItem("token");
     return token ? { Authorization: `token ${token}` } : {};
@@ -100,6 +109,11 @@ export default function DocumentacaoComplementar() {
       setForm({ nomeArquivo: ""});
       setArquivo(null);
       recuperaDocs();
+
+      setTimeout(() => {
+        setListando(true);
+      }, 1000)
+      
     } catch (err) {
       if (err.response?.data) {
         // Exibir mensagens inline (por campo)
@@ -326,21 +340,11 @@ export default function DocumentacaoComplementar() {
                         Editar
                       </button>
 
-                      <button
-                        className="botao-deletar"
-                        onClick={async () => {
-                          if (!window.confirm("Deseja excluir?")) return;
-                          try {
-                            await DBDOC.delete(`/${d.id}/`);
-                            addAlert("Documento excluído!", "success");
-                            recuperaDocs();
-                          } catch {
-                            addAlert("Erro ao deletar documento.", "error");
-                          }
-                        }}
-                      >
-                        Deletar
-                      </button>
+                      <BotaoDeletar
+                        id={d.id}
+                        axiosInstance={deleteURL}
+                        onDeletarSucesso={recuperaDocs}
+                      />
                     </div>
                   </div>
                 )}

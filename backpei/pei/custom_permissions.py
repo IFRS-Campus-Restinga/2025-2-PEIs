@@ -102,6 +102,10 @@ def process_group_permissions():
                     for curso in cursos:
                         curso_peis.extend(get_pei_centrals_for_course(curso))
                     curso_peis = list(set(curso_peis))
+                    if model_cls is Curso or model_name == "Curso":
+                        cursos = Curso.objects.filter(coordenador=user)
+                        assign_perm_to_user_on_many(perm_name, user, cursos)
+                        continue
                     if model_cls in [PeiCentral] or model_name == "PeiCentral":
                         assign_perm_to_user_on_many(perm_name, user, curso_peis)
                     elif model_cls is PEIPeriodoLetivo or model_name == "PEIPeriodoLetivo":

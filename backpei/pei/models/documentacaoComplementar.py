@@ -44,3 +44,8 @@ class DocumentacaoComplementar(BaseModel):
     def __str__(self):
         return f"Documentação complementar - {self.aluno}"
     
+    def delete(self, *args, **kwargs):
+        if self.arquivo:
+            self.arquivo.delete(save=False)
+
+        super().delete(*args, **kwargs)

@@ -44,19 +44,13 @@ const PeriodoLetivoPerfil = () => {
         const token = localStorage.getItem("token");
         console.log("Token obtido do localStorage:", token);
         if (!token) throw new Error("Token de autenticação não encontrado.");
-        const headers = {
-          Authorization: `Token ${token}`, 
-        };
+        const headers = { Authorization: `Token ${token}` };
         console.log("Headers enviados na requisição:", headers);
 
-        const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`, {
-          headers,
-        });
-
+        const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`, { headers });
         console.log("Resposta do backend:", res.data);
 
         const pei = res.data;
-
         console.log("PEI Central retornado:", pei);
 
         // --- ALUNO ---
@@ -64,11 +58,12 @@ const PeriodoLetivoPerfil = () => {
         setAluno(alunoData);
         console.log("Aluno retornado:", alunoData);
 
-        // --- PERÍODO PRINCIPAL ---
+        // --- PERÍODOS ---
         const periodos = pei.periodos || [];
+        console.log("Períodos retornados:", periodos);
         setPeriodoPrincipal(periodos[0]?.periodo_principal || "—");
 
-        // --- CURSO E COORDENADOR via novo campo cursos ---
+        // --- CURSO ---
         const cursoData = pei.cursos || null;
         setCurso(cursoData);
         console.log("Curso retornado:", cursoData);
@@ -81,19 +76,35 @@ const PeriodoLetivoPerfil = () => {
         setCoordenador(nomeCoord);
         console.log("Coordenador do curso:", nomeCoord);
 
+        // --- COMPONENTES CURRICULARES ---
+        const componentes = periodos.flatMap(p => p.componentes_curriculares || []);
+        console.log("Componentes curriculares:", componentes);
+
         // --- PARECERES ---
-        const todosPareceres = periodos
-          .flatMap(p => p.componentes_curriculares || [])
-          .flatMap(comp =>
-            (comp.pareceres || []).map(parecer => ({
+        const todosPareceres = componentes.flatMap(comp =>
+          (comp.pareceres || []).map(parecer => {
+            const obj = {
               ...parecer,
               componenteNome: comp.disciplina?.nome || "Sem disciplina",
               professorNome: parecer.professor?.username || parecer.professor?.nome || parecer.professor?.email?.split("@")[0] || "Professor",
-            }))
-          );
+            };
+            console.log("Parecer processado:", obj);
+            return obj;
+          })
+        );
 
-        setPareceres(todosPareceres);
-        console.log("Pareceres processados:", todosPareceres);
+        console.log("Todos pareceres antes do filtro:", todosPareceres);
+
+        // --- FILTRO PELO ALUNO ---
+        const pareceresFiltrados = todosPareceres.filter(parecer => {
+          const match = parecer.aluno?.id === alunoData.id;
+          console.log(`Parecer ${parecer.id} pertence ao aluno?`, match, "parecer.aluno?.id:", parecer.aluno?.id, "alunoData.id:", alunoData.id);
+          return match;
+        });
+
+        console.log("Pareceres filtrados pelo aluno do PEI central:", pareceresFiltrados);
+
+        setPareceres(pareceresFiltrados);
 
       } catch (err) {
         console.error("Erro ao carregar PEI:", err);

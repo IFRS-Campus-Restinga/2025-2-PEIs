@@ -39,11 +39,7 @@ class DocumentacaoComplementarViewSet(ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        try:
-            instance.safe_delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except ValidationError as e:
-            return Response(
-                {"erro": e.message},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        
+        instance.delete()  # Isso chamará o método delete do modelo, que lida com a exclusão do arquivo.
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
