@@ -488,7 +488,7 @@ const PeriodoLetivoPerfil = () => {
                       value={textoEditado}
                       onChange={(e) => setTextoEditado(e.target.value)}
                       style={{
-                        width: "98%",
+                        width: "93%",
                         minHeight: "140px",
                         padding: "10px",
                         fontSize: "16px",
