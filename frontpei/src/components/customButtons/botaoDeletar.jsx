@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useAlert } from "../../context/AlertContext";
-import axios from "axios";
 import "../../cssGlobal.css";
 
-export default function BotaoDeletar({ id, axiosInstance, onDeletarSucesso }) {
+export default function BotaoDeletar({ id, axiosInstance, deleteUrl, onDeletarSucesso }) {
   const { addAlert } = useAlert();
   const [modalAberto, setModalAberto] = useState(false);
   const [erro, setErro] = useState("");
@@ -22,26 +21,24 @@ export default function BotaoDeletar({ id, axiosInstance, onDeletarSucesso }) {
     setErro("");
 
     try {
-      await axios.delete(`${axiosInstance}${id}/`);
+      await axiosInstance.delete(deleteUrl);
       fecharModal();
       if (onDeletarSucesso) onDeletarSucesso();
       addAlert("Registro deletado com sucesso!", "success");
     } catch (err) {
-  console.error("Erro ao deletar:", err);
+      console.error("Erro ao deletar:", err);
 
-  // Extrai mensagem amigável do backend
-  const backendMessage =
-    err.response?.data?.erro || 
-    err.response?.data?.message || 
-    err.response?.data?.detail || 
-    (typeof err.response?.data === "string" ? err.response.data : null);
+      const backendMessage =
+        err.response?.data?.erro ||
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        (typeof err.response?.data === "string" ? err.response.data : null);
 
-  const mensagemFinal = backendMessage || "Erro ao deletar (servidor indisponível).";
+      const mensagemFinal = backendMessage || "Erro ao deletar (servidor indisponível).";
 
-  setErro(mensagemFinal);
-  addAlert(mensagemFinal, "error");
-} finally {
-
+      setErro(mensagemFinal);
+      addAlert(mensagemFinal, "error");
+    } finally {
       setCarregando(false);
     }
   };
@@ -69,6 +66,7 @@ export default function BotaoDeletar({ id, axiosInstance, onDeletarSucesso }) {
               >
                 {carregando ? "Deletando..." : "Sim"}
               </button>
+
               <button className="botao-deletar" onClick={fecharModal} disabled={carregando}>
                 Não
               </button>
