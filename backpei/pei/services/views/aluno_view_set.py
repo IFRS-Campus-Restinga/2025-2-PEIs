@@ -19,14 +19,26 @@ class AlunoViewSet(ModelViewSet):
     search_fields = ['nome', 'matricula']
     # ---------------------------------------------
     
-    # filtragem aluno
+    #filtragem aluno
     def get_queryset(self):  
         queryset = Aluno.objects.all()
         curso_id = self.request.query_params.get('curso_id')
         
         if curso_id:
-            queryset = queryset.filter(curso_id=curso_id) 
+            queryset = queryset.filter(curso_id=curso_id).order_by("nome")
         return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())[:3]
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

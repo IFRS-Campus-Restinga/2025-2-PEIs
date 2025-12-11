@@ -21,7 +21,9 @@ const useDebounce = (value, delay) => {
 };
 
 // --- Componente Autocomplete ---
-const BuscaAutoComplete = ({ onSelectAluno, initialValue = "", disabled = false, clearFieldAlert }) => {
+/*const BuscaAutoComplete = ({ onSelectAluno, initialValue = "", disabled = false, clearFieldAlert }) => {*/
+const BuscaAutoComplete = ({ onSelectAluno, initialValue = "", disabled = false, clearFieldAlert, cursoSelecionado }) => {
+
   const [searchText, setSearchText] = useState(initialValue);
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -66,7 +68,9 @@ const BuscaAutoComplete = ({ onSelectAluno, initialValue = "", disabled = false,
     setIsLoading(true);
     try {
       // Usaremos o endpoint padrão do AlunoViewSet, mas com o parâmetro 'search'
-      const resp = await DBALUNO.get(`/?search=${query}`);
+      {/*const resp = await DBALUNO.get(`/?search=${query}`);*/}
+      const resp = await DBALUNO.get(`/?search=${query}&curso_id=${cursoSelecionado}`);
+
       // Assumindo que o AlunoViewSet retorna um objeto com 'results' (padrão DRF) ou o array direto
       const data = resp.data;
       setSuggestions(Array.isArray(data) ? data : data.results || []);
@@ -106,10 +110,10 @@ const BuscaAutoComplete = ({ onSelectAluno, initialValue = "", disabled = false,
   const showSuggestions = suggestions.length > 0 && !disabled;
 
   return (
-    <div>
+    <div style={{ position: "relative" }}>
      
-      <textarea
-        rows={1} 
+      <input 
+        type="text" 
         value={searchText}
         onChange={handleChange}
         placeholder="Digite ao menos 3+ letras/números para buscar o aluno..."
@@ -117,28 +121,31 @@ const BuscaAutoComplete = ({ onSelectAluno, initialValue = "", disabled = false,
         disabled={disabled}
       />
       
+      
       {/* Indicador de Carregamento (opcional, mas recomendado) */}
       {isLoading && <p style={{ margin: '4px 0', fontSize: '12px', color: '#666' }}>Carregando...</p>}
       
       {/* Lista de Sugestões Clicáveis */}
       {showSuggestions && (
-        <ul style={{
-          position: 'absolute',
-          zIndex: 10,
-          backgroundColor: 'white',
-          border: '1px solid #ccc',
-          maxHeight: '200px',
-          overflowY: 'auto',
-          width: '100%',
-          listStyleType: 'none',
-          padding: 0,
-          margin: 0,
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        <ul 
+          onMouseDown={(e) => e.preventDefault()}
+          style={{
+            position: 'absolute',
+            zIndex: 10,
+            backgroundColor: 'white',
+            border: '1px solid #ccc',
+            maxHeight: '200px',
+            overflowY: 'auto',
+            width: '100%',
+            listStyleType: 'none',
+            padding: 0,
+            margin: 0,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
         }}>
           {suggestions.map((aluno) => (
             <li
               key={aluno.id}
-              onClick={() => handleSelect(aluno)}
+              onMouseDown={() => handleSelect(aluno)}
               style={{
                 padding: '8px 10px',
                 cursor: 'pointer',
