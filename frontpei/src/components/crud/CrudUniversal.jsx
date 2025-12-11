@@ -233,45 +233,51 @@ function CrudUniversal({ modelName }) {
 
   // CREATE
   async function handleSubmit(e) {
-    e.preventDefault();
+  e.preventDefault();
 
+  clearAlerts();
 
-    try {
-      const payload = normalizePayload(form, metadata);
+  const erros = validaCampos(form, metadata);
 
+  if (erros.length > 0) return;
 
-      await api.post(getEndpoint(modelName), payload);
-      await fetchRecords();
+  try {
+    const payload = normalizePayload(form, metadata);
+    await api.post(getEndpoint(modelName), payload);
+    await fetchRecords();
+    addAlert("Registro criado!", "success");
 
-      setForm(
-        Object.fromEntries(Object.keys(form).map((k) => [k, ""]))
-      );
-
-      addAlert("Registro criado!", "success");
-    } catch (err) {
-      handleApiErrors(err);
-    }
+    setForm(Object.fromEntries(Object.keys(form).map((k) => [k, ""])));
+  } catch (err) {
+    const backendErrors = err.response?.data;
+    validaCampos(form, metadata, backendErrors);
   }
+}
+
 
   // UPDATE
   async function handleEditSubmit(e, id) {
-    e.preventDefault();
+  e.preventDefault();
 
+  clearAlerts();
 
-    try {
-      const payload = normalizePayload(editForm, metadata);
+  const erros = validaCampos(editForm, metadata, null, "edit-");
+  if (erros.length > 0) return;
 
+  try {
+    const payload = normalizePayload(editForm, metadata);
+    await api.put(`${getEndpoint(modelName)}${id}/`, payload);
 
-      await api.put(`${getEndpoint(modelName)}${id}/`, payload);
+    setEditId(null);
+    await fetchRecords();
 
-      setEditId(null);
-      await fetchRecords();
-
-      addAlert("Registro atualizado!", "success");
-    } catch (err) {
-      handleApiErrors(err);
-    }
+    addAlert("Registro atualizado!", "success");
+  } catch (err) {
+    const backendErrors = err.response?.data;
+    validaCampos(editForm, metadata, backendErrors, "edit-");
   }
+}
+
 
   const getEndpoint = (model) => servicesMap[exceptions[model] || model];
 
