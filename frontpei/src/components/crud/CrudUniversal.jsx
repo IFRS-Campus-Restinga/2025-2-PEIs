@@ -76,7 +76,6 @@ function CrudUniversal({ modelName }) {
         const res = await api.get("http://localhost:8000/services/");
         setServicesMap(res.data);
       } catch (err) {
-        console.error("[SERVICES] Erro:", err);
         addAlert("Erro ao carregar lista de serviços", "error");
       }
     }
@@ -100,7 +99,6 @@ function CrudUniversal({ modelName }) {
 
       setRecords(data);
     } catch (err) {
-      console.error("[RECORDS] Erro:", err);
       addAlert("Erro ao recuperar registros!", "error");
     }
   }
@@ -157,12 +155,10 @@ function CrudUniversal({ modelName }) {
               [f.name]: options,
             }));
           } catch (err) {
-            console.error(`[SELECT LOAD] Erro carregando ${f.name}:`, err);
             addAlert(`Erro ao carregar opções de ${f.name}`, "error");
           }
         });
       } catch (err) {
-        console.error("[METADATA] Erro:", err);
         addAlert("Erro ao carregar metadata!", "error");
       }
     }
@@ -205,28 +201,26 @@ function CrudUniversal({ modelName }) {
 
   // TRATAMENTO DE ERRO
   function handleApiErrors(err) {
-    console.error("[API ERROR]", err.response?.data || err.message);
+    const data = err.response?.data;
 
-    let data = err.response?.data;
+    const isEdit = !!editId; // estamos editando
+    const prefix = isEdit ? "edit-" : ""; // prefixo "edit-" para formulário de edição
+    const formData = isEdit ? editForm : form;
+
+    if (data && typeof data === "object" && !Array.isArray(data)) {
+      validaCampos(formData, metadata, data, prefix, addAlert);
+      return;
+    }
 
     if (typeof data === "string") {
       addAlert(data, "error");
       return;
     }
 
-    if (typeof data === "object" && !Array.isArray(data)) {
-      Object.entries(data).forEach(([field, msg]) => {
-        if (Array.isArray(msg)) {
-          msg.forEach((m) => addAlert(`${field}: ${m}`, "error"));
-        } else {
-          addAlert(`${field}: ${msg}`, "error");
-        }
-      });
-      return;
-    }
-
     addAlert("Erro desconhecido.", "error");
   }
+
+
 
   // CREATE
   async function handleSubmit(e) {
@@ -249,8 +243,7 @@ function CrudUniversal({ modelName }) {
     setForm(Object.fromEntries(Object.keys(form).map(k => [k, ""])));
 
   } catch (err) {
-    const backendErrors = err.response?.data;
-    validaCampos(form, metadata, backendErrors, "", addAlert);
+    handleApiErrors(err);
   }
 }
 
@@ -274,8 +267,7 @@ function CrudUniversal({ modelName }) {
     addAlert("Registro atualizado!", "success");
     clearAlerts();
   } catch (err) {
-    const backendErrors = err.response?.data;
-    validaCampos(editForm, metadata, backendErrors, "");
+    handleApiErrors(err);
   }
 }
 
@@ -544,7 +536,7 @@ if (f.type === "FileField" || f.type === "file") {
                           setEditForm({ ...editForm, [f.name]: val })
                         )}
 
-                        <FieldAlert fieldName={`edit-${f.name}`} />
+                        <FieldAlert fieldName={f.name} />
                       </div>
                     ))}
 
@@ -580,7 +572,8 @@ if (f.type === "FileField" || f.type === "file") {
                     />
                     <BotaoDeletar
                       id={r.id}
-                      axiosInstance={getEndpoint(modelName)}
+                      axiosInstance={api}                           // usa instância com token!
+                      deleteUrl={`${getEndpoint(modelName)}${r.id}/`}
                       onDeletarSucesso={async () => {
                         await fetchRecords();
                         addAlert("Registro deletado!", "success");
