@@ -17,6 +17,8 @@ class PeiCentralViewSet(ModelViewSet):
         print(">>> RECEBIDO PELO FRONT:", request.data)
         return super().update(request, *args, **kwargs)
     
+    
+    
     def destroy(self, request, *args, **kwargs):
         try:
             instance = self.get_object()

@@ -5,8 +5,6 @@ import { mandaEmail } from "../../lib/mandaEmail";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
-import api from "../../configs/axiosConfig";
-
 
 const PeriodoLetivoPerfil = () => {
   const location = useLocation();
@@ -18,12 +16,10 @@ const PeriodoLetivoPerfil = () => {
 
   useEffect(() => {
     if (!peiCentralId) {
-      alert("PEI não encontrado. Voltando para a home...");
       navigate("/home");
     }
   }, [peiCentralId, navigate]);
 
-  // === ESTADOS ===
   const [aluno, setAluno] = useState(null);
   const [curso, setCurso] = useState(null);
   const [nomeCurso, setNomeCurso] = useState("—");
@@ -31,19 +27,19 @@ const PeriodoLetivoPerfil = () => {
   const [emailCoordenador, setEmailCoordenador] = useState("");
   const [periodoPrincipal, setPeriodoPrincipal] = useState("—");
   const [pareceres, setPareceres] = useState([]);
+  const [emailsProfessores, setEmailsProfessores] = useState([]);
   const [gruposUsuario, setGruposUsuario] = useState([]);
   const [nomeUsuario, setNomeUsuario] = useState("Usuário");
   const [statusPEI, setStatusPEI] = useState("aberto");
   const [carregandoStatus, setCarregandoStatus] = useState(false);
   const [erro, setErro] = useState(false);
 
-  // Modal
   const [modalAberto, setModalAberto] = useState(false);
   const [acaoPendente, setAcaoPendente] = useState(null);
   const [motivo, setMotivo] = useState("");
   const [justificativa, setJustificativa] = useState("");
 
-  // === CARREGA USUÁRIO LOGADO ===
+  // === CARREGA USUÁRIO ===
   useEffect(() => {
     const usuarioSalvo = localStorage.getItem("usuario");
     if (usuarioSalvo) {
@@ -57,76 +53,55 @@ const PeriodoLetivoPerfil = () => {
     }
   }, []);
 
-  // === CARREGA DADOS DO PEI  ===
+  // === CARREGA DADOS DO PEI ===
   useEffect(() => {
     if (!peiCentralId) return;
 
     async function carregarDados() {
       try {
         const token = localStorage.getItem("token");
-        console.log("Token obtido do localStorage:", token);
-        if (!token) throw new Error("Token de autenticação não encontrado.");
-        const headers = {
-          Authorization: `Token ${token}`,
-        };
-        console.log("Headers enviados na requisição:", headers);
-
         const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`, {
-          headers,
+          headers: { Authorization: `Token ${token}` },
         });
-
-        console.log("Resposta do backend:", res.data);
-
         const pei = res.data;
 
-        // Aluno
         setAluno(pei.aluno || { nome: "Aluno não encontrado", email: "" });
+        setPeriodoPrincipal(pei.periodos?.[0]?.periodo_principal || "—");
 
-        // Período principal
-        const primeiroPeriodo = Array.isArray(pei.periodos) ? pei.periodos[0] : pei.periodos;
-        setPeriodoPrincipal(primeiroPeriodo?.periodo_principal || "—");
-
-        // Curso + Coordenador
-        let cursoObj = null;
-        if (pei.cursos) {
-          if (Array.isArray(pei.cursos) && pei.cursos.length > 0) cursoObj = pei.cursos[0];
-          else if (typeof pei.cursos === "object") cursoObj = pei.cursos;
-        }
-
-        if (cursoObj) {
-          setNomeCurso(cursoObj.nome || "—");
-          setCurso(cursoObj);
-
-          const coord = cursoObj.coordenador;
+        const cursoData = pei.cursos || null;
+        setCurso(cursoData);
+        if (cursoData) {
+          setNomeCurso(cursoData.nome || "—");
+          const coord = cursoData.coordenador;
           if (coord) {
             const nomeCoord = coord.nome || coord.username || coord.email?.split("@")[0] || "—";
-            const emailCoord = coord.email || "";
             setCoordenador(nomeCoord);
-            setEmailCoordenador(emailCoord);
+            setEmailCoordenador(coord.email || "");
           }
         }
 
-        // Pareceres
-        const todosPareceres = [];
-        const periodos = Array.isArray(pei.periodos) ? pei.periodos : [pei.periodos || {}];
-        periodos.forEach(p => {
-          const comps = Array.isArray(p.componentes_curriculares) ? p.componentes_curriculares : [];
-          comps.forEach(comp => {
-            const pareceresLista = Array.isArray(comp.pareceres) ? comp.pareceres : [];
-            pareceresLista.forEach(parecer => {
-              const prof = parecer.professor || {};
-              todosPareceres.push({
-                ...parecer,
-                componenteNome: comp.disciplina?.nome || "Sem disciplina",
-                professorNome: prof.nome || prof.username || prof.email?.split("@")[0] || "Professor",
-                professorEmail: prof.email || ""
-              });
+        const todosPareceres = (pei.periodos || [])
+          .flatMap(p => p.componentes_curriculares || [])
+          .flatMap(comp =>
+            (comp.pareceres || []).map(parecer => ({
+              ...parecer,
+              componenteNome: comp.disciplina?.nome || "Sem disciplina",
+              professorNome: parecer.professor?.nome || parecer.professor?.username || "Professor"
+            }))
+          );
+        setPareceres(todosPareceres);
+
+        // E-MAILS DOS PROFESSORES DAS DISCIPLINAS
+        const emailsSet = new Set();
+        (pei.periodos || []).forEach(p => {
+          (p.componentes_curriculares || []).forEach(comp => {
+            (comp.disciplina?.professores || []).forEach(prof => {
+              if (prof?.email) emailsSet.add(prof.email);
             });
           });
         });
-        setPareceres(todosPareceres);
+        setEmailsProfessores(Array.from(emailsSet));
 
-        // Status
         const mapa = {
           "FECHADO": "fechado",
           "SUSPENSO": "suspenso",
@@ -143,7 +118,6 @@ const PeriodoLetivoPerfil = () => {
     carregarDados();
   }, [peiCentralId]);
 
-  // === MODAL ===
   const abrirModal = (acao) => {
     setAcaoPendente(acao);
     setMotivo("");
@@ -156,7 +130,6 @@ const PeriodoLetivoPerfil = () => {
     setAcaoPendente(null);
   };
 
-  // === ATUALIZA STATUS + ENVIA E-MAILS ===
   const atualizarStatusPEI = async () => {
     if (carregandoStatus || !acaoPendente) return;
     setCarregandoStatus(true);
@@ -177,20 +150,28 @@ const PeriodoLetivoPerfil = () => {
       acaoTexto = "reaberto";
     }
 
+    let statusAtualizado = false;
+
+    // TENTA ATUALIZAR O STATUS
     try {
       const token = localStorage.getItem("token");
-      await axios.patch(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`, {
-        status_pei: valorBackend
-      }, { headers: { Authorization: `Token ${token}` } });
-
+      await axios.patch(
+        `${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`,
+        { status_pei: valorBackend },
+        { headers: { Authorization: `Token ${token}` } }
+      );
       setStatusPEI(novoStatusFrontend);
-      fecharModal();
+      statusAtualizado = true;
+    } catch (err) {
+      console.warn("Status não atualizado (sem permissão no objeto):", err.response?.data);
+      
+    }
 
-      // === ENVIO DE E-MAILS  ===
-      const textoEmail = `
+    // ENVIA E-MAILS SEMPRE
+    const textoEmail = `
         Prezado(a),
 
-        O PEI do aluno(a) ${aluno?.nome || "não identificado"} foi ${acaoTexto}.
+        O PEI do aluno(a) ${aluno.nome} foi ${acaoTexto}.
 
         • Alterado por: ${nomeUsuario}
         • Motivo: ${motivo || "Não informado"}
@@ -199,35 +180,24 @@ const PeriodoLetivoPerfil = () => {
         Acesse o sistema para mais detalhes.
       `.trim();
 
-      const enviados = [];
+    const enviados = [];
+    const destinos = new Set();
 
-      // Aluno
-      if (aluno?.email) {
-        try { await mandaEmail(aluno.email, `[PEI] Seu PEI foi ${acaoTexto}`, textoEmail); enviados.push(aluno.email); }
-        catch (e) { console.log("Erro aluno:", e); }
+    if (aluno?.email) destinos.add(aluno.email);
+    if (emailCoordenador) destinos.add(emailCoordenador);
+    emailsProfessores.forEach(e => destinos.add(e));
+
+    for (const email of destinos) {
+      try {
+        await mandaEmail(email, `[PEI] Seu PEI foi ${acaoTexto}`, textoEmail);
+        enviados.push(email);
+      } catch (e) {
+        console.log(`Falha ao enviar para ${email}`, e);
       }
-
-      // Coordenador
-      if (emailCoordenador) {
-        try { await mandaEmail(emailCoordenador, `[PEI] PEI do aluno ${aluno?.nome} foi ${acaoTexto}`, textoEmail); enviados.push(emailCoordenador); }
-        catch (e) { console.log("Erro coordenador:", e); }
-      }
-
-      // Professores
-      const emailsProfessores = [...new Set(pareceres.map(p => p.professorEmail).filter(Boolean))];
-      for (const email of emailsProfessores) {
-        try { await mandaEmail(email, `[PEI] PEI do aluno ${aluno?.nome} foi ${acaoTexto}`, textoEmail); enviados.push(email); }
-        catch (e) { console.log("Erro professor:", e); }
-      }
-
-      alert(`PEI ${acaoTexto} com sucesso!\nE-mails enviados para ${enviados.length} pessoa(s).`);
-
-    } catch (err) {
-      console.error("Erro ao atualizar status:", err);
-      alert("Status atualizado, mas falha ao enviar e-mails.");
-    } finally {
-      setCarregandoStatus(false);
     }
+
+    fecharModal();
+    setCarregandoStatus(false);
   };
 
   // === BOTÕES ORIGINAIS ===
@@ -320,25 +290,24 @@ const PeriodoLetivoPerfil = () => {
           </div>
 
           {/* BOTÕES DE AÇÃO */}
-          {(gruposUsuario.includes("admin") || gruposUsuario.includes("napne") || gruposUsuario.includes("coordenador")) && (
-            <div style={{ marginTop: "20px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
-              {statusPEI === "suspenso" && (
-                <button className="btn-reabrir-pei" onClick={() => abrirModal("reabrir")} disabled={carregandoStatus}>
-                  Reabrir PEI
+          <div style={{ marginTop: "20px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            {statusPEI === "suspenso" && (
+              <button className="btn-reabrir-pei" onClick={() => abrirModal("reabrir")} disabled={carregandoStatus}>
+                Reabrir PEI
+              </button>
+            )}
+            {(statusPEI === "aberto" || statusPEI === "em_andamento") && (
+              <>
+                <button className="btn-finalizar-pei" onClick={() => abrirModal("fechado")} disabled={carregandoStatus}>
+                  Finalizar PEI
                 </button>
-              )}
-              {(statusPEI === "aberto" || statusPEI === "em_andamento") && (
-                <>
-                  <button className="btn-finalizar-pei" onClick={() => abrirModal("fechado")} disabled={carregandoStatus}>
-                    Finalizar PEI
-                  </button>
-                  <button className="btn-suspender-pei" onClick={() => abrirModal("suspenso")} disabled={carregandoStatus}>
-                    Suspender PEI
-                  </button>
-                </>
-              )}
-            </div>
-          )}
+                <button className="btn-suspender-pei" onClick={() => abrirModal("suspenso")} disabled={carregandoStatus}>
+                  Suspender PEI
+                </button>
+              </>
+            )}
+          </div>
+
         </div>
       </div>
 
@@ -362,7 +331,7 @@ const PeriodoLetivoPerfil = () => {
         </div>
       </div>
 
-      {/* MODAL */}
+      {/* MODAL COM MOTIVOS SEPARADOS */}
       {modalAberto && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
           <div style={{ background: "#fff", padding: "30px", borderRadius: "12px", maxWidth: "520px", width: "90%" }}>
@@ -388,9 +357,8 @@ const PeriodoLetivoPerfil = () => {
                   {acaoPendente === "fechado" && (
                     <>
                       <option>Conclusão do curso</option>
-                      <option>Desistência da vaga</option>
-                      <option>Transferência</option>
-                      <option>Outro</option>
+                      <option>Desistência de vaga</option>
+                      <option>Outros</option>
                     </>
                   )}
 
@@ -398,13 +366,13 @@ const PeriodoLetivoPerfil = () => {
                     <>
                       <option>Solicitado pelo aluno</option>
                       <option>Trancamento de matrícula</option>
-                      <option>Outro</option>
+                      <option>Outros</option>
                     </>
                   )}
                 </select>
 
                 <label style={{ marginTop: "15px", display: "block" }}>
-                  <strong>Justificativa {motivo ? "(obrigatória)" : "(opcional)"}:</strong>
+                  <strong>Justificativa</strong>
                 </label>
                 <textarea
                   placeholder={motivo ? "Descreva detalhadamente..." : "Justificativa detalhada (opcional)"}
