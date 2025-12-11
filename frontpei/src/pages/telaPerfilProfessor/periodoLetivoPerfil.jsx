@@ -125,7 +125,7 @@ const PeriodoLetivoPerfil = () => {
               return (
                 <>
                   <Link to="/pareceres" state={{ peiCentralId }} className="btn-verde">Cadastrar Parecer</Link>
-                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
                 </>
               );
@@ -134,7 +134,7 @@ const PeriodoLetivoPerfil = () => {
                 <>
                   <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "napne":
@@ -144,7 +144,7 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
                   <Link to="/crud/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
                   <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "coordenador":
@@ -155,7 +155,7 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
                   <Link to="/crud/aluno" className="btn-verde">Gerenciar Alunos</Link>
                   <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "admin":
@@ -170,7 +170,7 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/pareceres" state={{ peiCentralId }} className="btn-verde">Cadastrar Parecer</Link>
                   <Link to="/crud/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
                   <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             default:
