@@ -71,7 +71,7 @@ const PeriodoLetivoPerfil = () => {
         let nomeCoord = "—";
         if (cursoData?.coordenador) {
           const coord = cursoData.coordenador;
-          nomeCoord = coord.username || coord.nome || coord.email?.split("@")[0] || "—";
+          nomeCoord = coord.first_name || coord.nome || coord.email?.split("@")[0] || "—";
         }
         setCoordenador(nomeCoord);
         console.log("Coordenador do curso:", nomeCoord);
@@ -86,12 +86,13 @@ const PeriodoLetivoPerfil = () => {
             const obj = {
               ...parecer,
               componenteNome: comp.disciplina?.nome || "Sem disciplina",
-              professorNome: parecer.professor?.username || parecer.professor?.nome || parecer.professor?.email?.split("@")[0] || "Professor",
+              professorNome: parecer.professor?.first_name || parecer.professor?.nome || parecer.professor?.email?.split("@")[0] || "Professor",
             };
             console.log("Parecer processado:", obj);
             return obj;
           })
-        );
+        ).sort((a, b) => new Date(b.data) - new Date(a.data));;
+        
 
         console.log("Todos pareceres antes do filtro:", todosPareceres);
 
@@ -115,6 +116,26 @@ const PeriodoLetivoPerfil = () => {
     carregarDados();
   }, [peiCentralId]);
 
+    const formatarTempoDecorrido = (dataString) => {
+        const data = new Date(dataString);
+        const agora = new Date();
+        const diffMs = agora - data;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHoras = Math.floor(diffMs / 3600000);
+        const diffDias = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return "Agora mesmo";
+        if (diffMins < 60) return `Há ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
+        if (diffHoras < 24) return `Há ${diffHoras} hora${diffHoras > 1 ? 's' : ''}`;
+        if (diffDias < 7) return `Há ${diffDias} dia${diffDias > 1 ? 's' : ''}`;
+        
+        return data.toLocaleDateString('pt-BR', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric' 
+        });
+    };
+
   // Render dos botões baseado no grupo do usuário
   const renderBotoesOriginais = () => {
     return (
@@ -124,53 +145,53 @@ const PeriodoLetivoPerfil = () => {
             case "professor":
               return (
                 <>
-                  <Link to="/pareceres" state={{ peiCentralId }} className="btn-verde">Cadastrar Parecer</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
-                  <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
+                  <Link to="/pareceres" state={{ peiCentralId }} className="btn-acao-pei">Cadastrar Parecer</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-acao-pei">Gerenciar Documentações Complementares</Link>
+                  <Link to="/peicentral" className="btn-acao-pei">Visualizar PEI Central</Link>
                 </>
               );
             case "pedagogo":
               return (
                 <>
-                  <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/ataDeAcompanhamento" className="btn-acao-pei">Gerenciar Atas de Acompanhamento</Link>
+                  <Link to="/peicentral" className="btn-acao-pei">Visualizar PEI Central</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-acao-pei">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "napne":
               return (
                 <>
-                  <Link to="/crud/PEIPeriodoLetivo" className="btn-verde">Gerenciar Períodos Letivos</Link>
-                  <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/crud/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
-                  <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/PEIPeriodoLetivo" className="btn-acao-pei">Gerenciar Períodos Letivos</Link>
+                  <Link to="/peicentral" className="btn-acao-pei">Visualizar PEI Central</Link>
+                  <Link to="/crud/componenteCurricular" className="btn-acao-pei">Gerenciar Componentes Curriculares</Link>
+                  <Link to="/ataDeAcompanhamento" className="btn-acao-pei">Gerenciar Atas de Acompanhamento</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-acao-pei">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "coordenador":
               return (
                 <>
-                  <Link to="/crud/Curso" className="btn-verde">Gerenciar Cursos</Link>
-                  <Link to="/crud/Disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
-                  <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/crud/aluno" className="btn-verde">Gerenciar Alunos</Link>
-                  <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/Curso" className="btn-acao-pei">Gerenciar Cursos</Link>
+                  <Link to="/crud/Disciplina" className="btn-acao-pei">Gerenciar Disciplinas</Link>
+                  <Link to="/peicentral" className="btn-acao-pei">Visualizar PEI Central</Link>
+                  <Link to="/crud/aluno" className="btn-acao-pei">Gerenciar Alunos</Link>
+                  <Link to="/ataDeAcompanhamento" className="btn-acao-pei">Gerenciar Atas de Acompanhamento</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-acao-pei">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "admin":
               return (
                 <>
-                  <Link to="/usuario" className="btn-verde">Gerenciar Usuários</Link>
-                  <Link to="/crud/Curso" className="btn-verde">Gerenciar Cursos</Link>
-                  <Link to="/crud/Disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
-                  <Link to="/crud/PEIPeriodoLetivo" className="btn-verde">Gerenciar Períodos Letivos</Link>
-                  <Link to="/crud/aluno" className="btn-verde">Gerenciar Alunos</Link>
-                  <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/pareceres" state={{ peiCentralId }} className="btn-verde">Cadastrar Parecer</Link>
-                  <Link to="/crud/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
-                  <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/usuario" className="btn-acao-pei">Gerenciar Usuários</Link>
+                  <Link to="/crud/Curso" className="btn-acao-pei">Gerenciar Cursos</Link>
+                  <Link to="/crud/Disciplina" className="btn-acao-pei">Gerenciar Disciplinas</Link>
+                  <Link to="/crud/PEIPeriodoLetivo" className="btn-acao-pei">Gerenciar Períodos Letivos</Link>
+                  <Link to="/crud/aluno" className="btn-acao-pei">Gerenciar Alunos</Link>
+                  <Link to="/peicentral" className="btn-acao-pei">Visualizar PEI Central</Link>
+                  <Link to="/pareceres" state={{ peiCentralId }} className="btn-acao-pei">Cadastrar Parecer</Link>
+                  <Link to="/crud/componenteCurricular" className="btn-acao-pei">Gerenciar Componentes Curriculares</Link>
+                  <Link to="/ataDeAcompanhamento" className="btn-acao-pei">Gerenciar Atas de Acompanhamento</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-acao-pei">Gerenciar Documentações Complementares</Link>
                 </>
               );
             default:
@@ -190,59 +211,82 @@ const PeriodoLetivoPerfil = () => {
 
   return (
     <div className="pei-detalhe-container">
+      {/* CABEÇALHO (MANTIDO) */}
       <div className="pei-header">
         <div className="aluno-info">
-          <img
-            src={aluno.foto || "https://img.icons8.com/win10/1200/guest-male--v2.jpg"}
-            alt={aluno.nome}
-            className="aluno-fotoPerfil"
-          />
+          <img src={aluno.foto || "https://img.icons8.com/win10/1200/guest-male--v2.jpg"} alt={aluno.nome} className="aluno-fotoPerfil" />
           <div>
             <p><b>Nome:</b> {aluno.nome}</p>
             <p><b>E-mail:</b> {aluno.email}</p>
             <p><b>Período Principal:</b> {periodoPrincipal || "—"}</p>
           </div>
         </div>
-
         <div className="curso-info">
           <p><b>Curso:</b> {curso?.nome || "—"}</p>
-          <p><b>Coordenador do Curso:</b> {coordenador}</p>
+          <p><b>Coordenador:</b> {coordenador}</p>
         </div>
       </div>
 
-      <div className="pei-corpo">
-        <div className="pei-documentos">
-          <h3>Ações Disponíveis</h3>
-          <div className="botoes-parecer">
-            {renderBotoesOriginais()}
+      {/* CORPO DIVIDIDO EM 2 COLUNAS */}
+      <div className="pei-corpo-grid">
+        
+        {/* ESQUERDA: PARECERES (Scrollável) */}
+        <div className="pei-coluna-pareceres">
+          <div className="pareceres-header">
+             <h3>Últimos Pareceres</h3>
+          </div>
+          
+          <div className="pareceres-lista-scroll">
+            {/* 👇 NOVO BOTÃO DE ADICIONAR (CARD) */}
+            {/* Verifica se o usuário tem permissão */}
+            {(gruposUsuario.includes("professor") || gruposUsuario.includes("admin") || gruposUsuario.includes("napne")) && (
+                <Link to="/pareceres" state={{ peiCentralId }} className="parecer-card-add">
+                  <span className="icon-plus">+</span>
+                  <span>Adicionar Novo Parecer</span>
+                </Link>
+            )}
+            {pareceres.length > 0 ? (
+              pareceres.map((p) => (
+                <div key={p.id} className="parecer-card">
+                    <div className="parecer-topo">
+                    <span className="parecer-professor">
+                      {p.professorNome} <small>({p.componenteNome})</small>
+                    </span>
+                    
+                    
+                    <div className="parecer-info-data">
+                        <span className="parecer-data-oficial">
+                          {p.data ? new Date(p.data).toLocaleDateString("pt-BR") : "—"}
+                        </span>
+                        <span className="parecer-tempo-relativo">
+                          {formatarTempoDecorrido(p.data)}
+                        </span>
+                    </div>
+
+                  </div>
+                  <div className="parecer-texto">
+                    {p.texto || "Sem texto disponível."}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="parecer-vazio">Nenhum parecer registrado neste período.</div>
+            )}
           </div>
         </div>
 
-        <div className="pei-pareceres">
-          <h3>Últimos Pareceres</h3>
-          {pareceres.length > 0 ? (
-            pareceres.map((p) => (
-              <div key={p.id} className="parecer-card">
-                <div className="parecer-topo">
-                  <span className="parecer-professor">
-                    {p.professorNome} ({p.componenteNome})
-                  </span>
-                  <span className="parecer-data">
-                    {p.data ? new Date(p.data).toLocaleDateString("pt-BR") : "—"}
-                  </span>
-                </div>
-                <div className="parecer-texto">
-                  {p.texto || "Sem texto disponível."}
-                </div>
-              </div>
-            ))
-          ) : (
-            <p>Nenhum parecer encontrado.</p>
-          )}
+        {/* DIREITA: AÇÕES (Fixa) */}
+        <div className="pei-coluna-acoes">
+          <div className="acoes-card">
+            <h3>Ações Disponíveis</h3>
+            <div className="lista-botoes-vertical">
+              {renderBotoesOriginais()}
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   );
 };
-
 export default PeriodoLetivoPerfil;
