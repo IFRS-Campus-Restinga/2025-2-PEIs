@@ -29,7 +29,7 @@ class AlunoViewSet(ModelViewSet):
         return queryset
     
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())[:3]
+        queryset = self.filter_queryset(self.get_queryset()) #[:3] comentado pois esse slicing está sendo usado por todos os componentes que utilizam essa viewset
 
         page = self.paginate_queryset(queryset)
         if page is not None:
