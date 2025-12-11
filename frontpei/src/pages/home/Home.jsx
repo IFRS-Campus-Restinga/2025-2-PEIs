@@ -5,6 +5,7 @@ import DT from "datatables.net-dt";
 import DataTable from "datatables.net-react";
 import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
+import DashboardCards from "./DashboardCards";
 
 DataTable.use(DT);
 
@@ -135,33 +136,41 @@ const HomeView = () => {
         const meuNomeNorm = normalizar(nomeCompleto);
         const souCoordenador = meusGrupos.includes("coordenador");
         const souProfessor = meusGrupos.includes("professor");
+        const souAdmin = meusGrupos.includes("admin");
 
         // Processa PEIs
         const dados = peis.map(pei => {
           const comps = pei.periodos?.[0]?.componentes_curriculares || [];
           const disciplinasDoPei = comps.map(c => c.disciplina).filter(Boolean);
 
-          // Filtra apenas disciplinas do professor logado
-          const disciplinasDoProf = disciplinasDoPei.filter(d => {
-            const discSistema = todasDisciplinas.find(td => td.id === d.id);
-            if (!discSistema?.professores) return false;
+          let disciplinasDoProf;
 
-            return discSistema.professores.some(prof => {
-              const candidatos = [
-                prof.nome,
-                prof.username,
-                prof.email?.split("@")[0]
-              ].filter(Boolean).map(normalizar);
+          if (souAdmin) {
+            // Admin vê todas as disciplinas
+            disciplinasDoProf = disciplinasDoPei;
+          } else {
+            // Professores veem apenas as disciplinas vinculadas a eles
+            disciplinasDoProf = disciplinasDoPei.filter(d => {
+              const discSistema = todasDisciplinas.find(td => td.id === d.id);
+              if (!discSistema?.professores) return false;
 
-              return candidatos.includes(meuIdentificadorNorm);
+              return discSistema.professores.some(prof => {
+                const candidatos = [
+                  prof.nome,
+                  prof.username,
+                  prof.email?.split("@")[0]
+                ].filter(Boolean).map(normalizar);
+
+                return candidatos.includes(meuIdentificadorNorm);
+              });
             });
-          });
+          }
 
           const coordInfo = getCoordenadorInfo(pei);
 
           return {
             nome: pei.aluno_nome || pei.aluno?.nome || "Sem nome",
-            componente: disciplinasDoProf[0]?.nome || "Diversos",
+            componente: disciplinasDoProf.map(d => d.nome).join(", ") || "Nenhuma",
             status: pei.status_pei || "ABERTO",
             coordenador: coordInfo?.nomeExibicao || "—",
             coordPossiveisNomes: coordInfo?.possiveisNomes || [],
@@ -173,6 +182,10 @@ const HomeView = () => {
 
         // Filtra PEIs visíveis para o usuário
         const dadosFiltrados = dados.filter(item => {
+          if (souAdmin) {
+            return true; // Admin vê todos os PEIs
+          }
+
           if (souCoordenador) {
             if (!item.coordPossiveisNomes?.length) return false;
             return item.coordPossiveisNomes.some(nomeC =>
@@ -220,6 +233,7 @@ const HomeView = () => {
 
   return (
     <div className="telaPadrao-page">
+      <DashboardCards />
       {loading ? (
         <p style={{ textAlign: "center", padding: "100px", fontSize: "1.8em", fontWeight: "bold" }}>
           Carregando seus PEIs...
@@ -232,7 +246,7 @@ const HomeView = () => {
           <p style={{ fontSize: "1.2em", color: "#7f8c8d" }}>
             {meusGrupos.includes("coordenador") && `${nomeCompleto}, você ainda não tem alunos nos seus cursos.`}
             {meusGrupos.includes("professor") && !meusGrupos.includes("coordenador") && `${nomeCompleto}, você ainda não cadastrou parecer em nenhum aluno.`}
-            {!meusGrupos.some(g => ["coordenador", "professor"].includes(g)) && "Não há PEIs registrados no sistema no momento."}
+            {!meusGrupos.some(g => ["coordenador", "professor", "admin"].includes(g)) && "Não há PEIs registrados no sistema no momento."}
           </p>
         </div>
       ) : (
@@ -241,7 +255,24 @@ const HomeView = () => {
           columns={[
             { title: "Aluno", data: "nome" },
             { title: "Componente", data: "componente" },
-            { title: "Status", data: "status" },
+            { title: "Status",
+              data: "status",
+              render: (data) => {
+                let classe = "status-fechado";
+                let texto = data || "Indefinido";
+
+                // Normaliza para comparar sem erros
+                const statusUpper = String(texto).toUpperCase();
+
+                if (statusUpper === "ABERTO") {
+                  classe = "status-aberto";
+                } else if (statusUpper === "EM ANDAMENTO") {
+                  classe = "status-em-andamento";
+                }
+
+                return `<span class="status-badge ${classe}">${texto}</span>`;
+              },
+            },
             { title: "Coordenador", data: "coordenador" },
             {
               title: "Ação",
@@ -258,10 +289,17 @@ const HomeView = () => {
           options={{
             destroy: true,
             pageLength: 10,
+            layout: {
+            topStart: null,             // Remove o seletor do topo esquerdo
+            topEnd: 'search',           // Mantém a busca no topo direito
+            bottomStart: 'info',        // Mantém "Mostrando 1 a 10" na esquerda
+            bottomEnd: ['pageLength', 'paging'] // Joga o seletor para a direita, junto com os botões de página
+            },
             lengthMenu: [10, 15, 25, 50, 100],
             language: {
-              search: "Pesquisar aluno:",
-              lengthMenu: "_MENU_ PEIs por página",
+              search: "",
+              searchPlaceholder: "Pesquisar",
+              lengthMenu: " _MENU_ PEIs por página",
               info: "Mostrando _START_ a _END_ de _TOTAL_ alunos",
               infoEmpty: "Nenhum aluno encontrado",
               infoFiltered: "(filtrado de _MAX_ registros)",

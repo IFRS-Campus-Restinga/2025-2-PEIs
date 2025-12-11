@@ -4,7 +4,6 @@ import { useLocation } from "react-router-dom";
 const AlertContext = createContext();
 let globalAlertManager = null;
 
-// Normaliza qualquer tipo de mensagem para string
 const normalize = (msg) => {
   if (Array.isArray(msg)) return msg.join(", ");
   if (typeof msg === "object") return JSON.stringify(msg);
@@ -12,35 +11,37 @@ const normalize = (msg) => {
 };
 
 export function AlertProvider({ children }) {
-  const [alerts, setAlerts] = useState([]);        // Toasts globais
-  const [fieldAlerts, setFieldAlerts] = useState({}); // Mensagens inline
+  const [alerts, setAlerts] = useState([]); // TOASTS
+  const [fieldAlerts, setFieldAlerts] = useState({}); // INLINE
   const location = useLocation();
 
-  // Fecha toasts ao trocar de rota
   useEffect(() => {
     setAlerts([]);
   }, [location]);
 
-  // Adiciona alerta global ou inline
   const addAlert = (message, type = "info", options = {}) => {
     message = normalize(message);
 
-    // Se for alerta inline (de campo)
-    if (options.fieldName) {
-      setFieldAlerts(prev => ({
+    const isInline = !!options.fieldName;
+
+    // Sempre cria o inline primeiro
+    if (isInline) {
+      setFieldAlerts((prev) => ({
         ...prev,
-        [options.fieldName]: { message, type }
+        [options.fieldName]: { message, type },
       }));
-      return;
+      // NÃO retorna — queremos criar o toast global também
     }
 
-    // Se for sucesso, limpa tudo antes
+    // Limpa tudo antes para alerts de sucesso
     if (type === "success") {
-      setAlerts([]);      
+      setAlerts([]);
       setFieldAlerts({});
     }
 
-    const id = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    // Criar o toast global
+    const id =
+      Math.random().toString(36).substring(2) + Date.now().toString(36);
 
     const newAlert = {
       id,
@@ -48,24 +49,22 @@ export function AlertProvider({ children }) {
       type,
       isConfirm: type === "confirm",
       onConfirm: options.onConfirm || null,
-      onCancel: options.onCancel || null
+      onCancel: options.onCancel || null,
     };
 
-    setAlerts(prev => [...prev, newAlert]);
+    setAlerts((prev) => [...prev, newAlert]);
   };
 
   const removeAlert = (id) => {
-    setAlerts(prev => prev.filter(alert => alert.id !== id));
+    setAlerts((prev) => prev.filter((alert) => alert.id !== id));
   };
 
   const clearFieldAlert = (fieldName) => {
-    setFieldAlerts(prev => {
+    setFieldAlerts((prev) => {
       const copy = { ...prev };
       delete copy[fieldName];
       return copy;
     });
-
-    setAlerts(prev => prev.filter(alert => alert.type !== "error"));
   };
 
   const clearAlerts = () => {
@@ -83,7 +82,7 @@ export function AlertProvider({ children }) {
         addAlert,
         removeAlert,
         clearAlerts,
-        clearFieldAlert
+        clearFieldAlert,
       }}
     >
       {children}

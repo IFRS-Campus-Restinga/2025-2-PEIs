@@ -106,7 +106,7 @@ def criar_pedagogos():
 
 def criar_professores():
     nomes = [
-        "Gabriel Lisboa Costa", "Fernanda Lima", "Rafael Souza",
+        "Faustão Silva", "Fernanda Lima", "Rafael Souza",
         "Juliana Torres", "Marcelo Cunha", "Patrícia Mendes"
     ]
     for nome in nomes:
@@ -240,20 +240,27 @@ def criar_componentes_curriculares():
     for i, disc in enumerate(disciplinas):
         periodo = periodos[i % len(periodos)]
 
-        ComponenteCurricular.objects.create(
+        componente = ComponenteCurricular.objects.create(
             objetivos="Objetivos do componente.",
             conteudo_prog="1",
             metodologia="Metodologia padrão.",
-            disciplinas=disc,
-            periodo_letivo=periodo
+            disciplinas=disc
         )
 
+        componente.periodos_letivos.add(periodo)
+
     print("Componentes curriculares criados")
+
 
 
 def criar_pareceres():
     professores = list(User.objects.filter(groups__name="Professor"))
     componentes = list(ComponenteCurricular.objects.all())
+    alunos = list(Aluno.objects.all())
+
+    if not alunos:
+        print("Nenhum aluno encontrado. Crie alunos antes de criar pareceres.")
+        return
 
     textos = [
         "Excelente desempenho.",
@@ -264,13 +271,16 @@ def criar_pareceres():
     ]
 
     for comp in componentes:
+        professor_escolhido = random.choice(professores)
+        aluno_escolhido = random.choice(alunos)
         Parecer.objects.create(
             componente_curricular=comp,
-            professor=random.choice(professores),
+            professor=professor_escolhido,
+            aluno=aluno_escolhido,
             texto=random.choice(textos)
         )
 
-    print("Pareceres criados")
+    print("Pareceres criados e vinculados a alunos")
 
 
 # ==============================================================================
@@ -296,11 +306,35 @@ def rodar():
     # -----------------------------
     # Teste para ver permissões do usuário
     # -----------------------------
-    user = User.objects.get(username="Marcelo Cunha")
-    print("is_superuser:", user.is_superuser)
-    print("is_staff:", user.is_staff)
-    print("user_permissions:", list(user.user_permissions.all()))
-    print("all permissions:", list(user.get_all_permissions()))
+    print("\n================= TESTANDO PERMISSÕES =================\n")
+
+    # Escolher um usuário de cada grupo
+    testes = {
+        "Professor": User.objects.filter(groups__name="Professor").first(),
+        "Pedagogo": User.objects.filter(groups__name="Pedagogo").first(),
+        "Coordenador": User.objects.filter(groups__name="Coordenador").first(),
+        "Admin": User.objects.filter(groups__name="Admin").first(),
+    }
+
+    for grupo, user in testes.items():
+        print(f"\n--- {grupo.upper()} ---")
+        print("Usuário:", user.username)
+        print("email:", user.email)
+
+        print("is_superuser:", user.is_superuser)
+        print("is_staff:", user.is_staff)
+
+        print("Grupo(s):", [g.name for g in user.groups.all()])
+
+        print("Permissões individuais:", user.user_permissions.count())
+
+        print("Permissões vindas do grupo:")
+        for perm in user.get_group_permissions():
+            print("   •", perm)
+
+        print("TODAS permissões (user + grupo):")
+        for perm in user.get_all_permissions():
+            print("   →", perm)
 
 
 if __name__ == '__main__':

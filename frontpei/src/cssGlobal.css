@@ -4,12 +4,12 @@
 *,
 *::before,
 *::after {
-  box-sizing: inherit;
+  box-sizing: border-box;
 }
 html,
 body {
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -22,6 +22,13 @@ body {
   line-height: 1.6;
   padding-bottom: 60px;
 }
+#root {
+  height: 100%;
+}
+.hover-scale:hover {
+    transform: translateY(-5px);
+    cursor: pointer;
+}
 .app-container {
   display: flex;
   flex-direction: column;
@@ -30,6 +37,9 @@ body {
 .main-content {
   flex: 1;
   padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 80px;
 }
 .text-block {
   white-space: pre-wrap;
@@ -165,46 +175,115 @@ body {
 .notif-footer a:hover,
 .notif-footer button:hover { background: rgba(5,92,15,.06); }
 
-/* ----- USER MENU ----- */
+/* ----- USER MENU (Estilo Lista Vertical) ----- */
+
+/* 1. O Gatilho (Avatar no Header) - Mantido igual */
 .user-wrapper { position: relative; }
+
 .user-avatar {
   display: flex; align-items: center; gap: 6px;
   padding: 2px 8px; border-radius: 20px;
   cursor: pointer; background: transparent;
   transition: transform .2s ease, background .2s;
 }
-.user-avatar:hover { transform: scale(1.05); background: rgba(255,255,255,.1); }
-.user-avatar img:first-child { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,.5); }
-.user-avatar-name { font-size: 14px; font-weight: 600; color: #fff; }
-.user-arrow { width: 12px; height: 12px; filter: brightness(0) invert(1); }
-.user-menu {
-  position: absolute; top: 45px; right: 0;
-  min-width: 180px; display: none; flex-direction: column;
-  z-index: 100; opacity: 0; transform: translateY(-10px);
-  transition: opacity .25s ease, transform .25s ease;
-}
-.user-menu.active { display: flex; opacity: 1; transform: translateY(0); }
-.user-card { background: #fff; color: #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.15); overflow: hidden; }
-.user-card p.user-name { padding: 12px 14px; font-weight: 600; font-size: 14px; color: #055C0F; border-bottom: 1px solid #eee; margin: 0; }
-.user-card a,
-.user-card button {
-  padding: 10px 14px; margin: 4px 8px;
-  border-radius: 6px; text-align: center;
-  font-size: 14px; font-weight: 500;
-  text-decoration: none; transition: all .2s ease;
-  cursor: pointer; border: none;
-}
-.user-card a { color: #055C0F; background: #e6f4e6; }
-.user-card a:hover { background: #0a7d2c; color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.2); transform: translateY(-2px); }
-.user-card button { color: #fff; background: #055C0F; }
-.user-card button:hover { background: #dc3545; box-shadow: 0 2px 6px rgba(220,53,69,.3); transform: translateY(-2px); }
 
-/* Responsividade Header */
-@media (max-width: 768px) {
-  .header-center h1 { font-size: 16px; }
-  .header-subtitle { font-size: 11px; }
-  .header-text strong { font-size: 14px; }
-  .header-text span   { font-size: 11px; }
+.user-avatar:hover { transform: scale(1.05); background: rgba(255,255,255,.1); }
+
+.user-avatar img:first-child { 
+  width: 32px; height: 32px; 
+  border-radius: 50%; object-fit: cover; 
+  border: 2px solid rgba(255,255,255,.5); 
+}
+
+.user-avatar-name { font-size: 14px; font-weight: 600; color: #fff; }
+
+.user-arrow { width: 12px; height: 12px; filter: brightness(0) invert(1); }
+
+
+/* 2. O Dropdown (Caixa Branca) - NOVO ESTILO */
+.user-menu {
+  position: absolute; top: 50px; right: 0;
+  width: 240px; /* Mais largo para caber os textos */
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  display: none; flex-direction: column;
+  z-index: 100; opacity: 0; transform: translateY(-10px);
+  transition: opacity .2s ease, transform .2s ease;
+  overflow: hidden; 
+  border: 1px solid #e0e0e0;
+}
+
+.user-menu.active {
+  display: flex; opacity: 1; transform: translateY(0);
+}
+
+.user-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0; /* Zero padding para os itens encostarem nas bordas */
+  background: #fff;
+}
+
+/* 3. Cabeçalho do Menu (Nome do Usuário) */
+.user-menu-header {
+  padding: 16px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  color: #000000;
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 4. Itens da Lista (Links e Botões unificados) */
+.user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Espaço ícone-texto */
+  padding: 14px 20px;
+  width: 100%;
+  background: #fff;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  color: #444;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Hover bonito (Verde claro) */
+.user-menu-item:hover {
+  background-color: #e8f5e9;
+  color: #055C0F;
+}
+
+/* Último item sem borda */
+.user-menu-item:last-child {
+  border-bottom: none;
+}
+
+/* Estilo especial para SAIR (Vermelho suave) */
+.user-menu-item.logout {
+  color: #d32f2f;
+}
+
+.user-menu-item.logout:hover {
+  background-color: #ffebee;
+  color: #b71c1c;
+}
+
+/* Ícones dentro do menu */
+.menu-icon {
+  font-size: 16px;
+  min-width: 20px;
+  text-align: center;
 }
 
 /* ========================================
@@ -235,15 +314,25 @@ body {
     FOOTER
    ======================================== */
 .footer {
-  background: #f2f2f2; color: #333;
-  padding: 12px 6px; display: flex;
-  justify-content: space-between; align-items: center;
-  flex-wrap: wrap; font-size: 13px;
-  box-shadow: 0 -2px 8px rgba(0,0,0,.1);
-  position: fixed; bottom: 0; width: 98%;
-  border-top: 2px solid #ccc; font-family: 'Roboto', sans-serif;
-  opacity: 0; transform: translateY(20px);
-  animation: footerFadeIn .5s ease forwards;
+  background: #f2f2f2;
+  color: #333;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 13px;
+  box-shadow: 0 -2px 8px rgba(0,0,0,.05);
+  border-top: 1px solid #e0e0e0;
+  font-family: 'Roboto', sans-serif;
+  z-index: 10;
+
+  /* MUDANÇA CRUCIAL: */
+  position: relative; /* Solta ele da tela */
+  width: 100%;
+  margin-top: auto;   /* Empurra para o fundo */
+  bottom: auto;
+  z-index: 10;
 }
 @keyframes footerFadeIn { to { opacity: 1; transform: translateY(0); } }
 .footer-left { display: flex; flex-direction: row; align-items: center; gap: 12px; }
@@ -918,7 +1007,7 @@ body {
 .erro { color: red; margin-top: 10px; }
 
 /* ========================================
-    TABELAS (DataTables)
+   TABELAS (DataTables) - ESTILO MODERNO
    ======================================== */
 
 /* Wrapper principal */
@@ -928,12 +1017,30 @@ body {
   color: #333;
 }
 
+/* --- NOVO: BARRA DE FERRAMENTAS SUPERIOR --- */
+/* Cria a "caixa branca" que segura o Search e o Length */
+div.dt-container .row:first-child {
+  background: #fff;
+  padding: 15px 20px;
+  border-radius: 12px 12px 0 0; /* Arredonda só em cima */
+  margin-bottom: 0; /* Cola na tabela */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #f0f0f0;
+  border-bottom: none; /* Remove borda de baixo para fundir */
+}
+
 /* Tabela */
 .display {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
-  border-radius: 12px;
+  
+  /* MUDANÇA: Arredonda só embaixo para colar na toolbar */
+  border-radius: 0 0 12px 12px; 
+  border-top: none;
+  
   overflow: hidden;
   box-shadow: 0 4px 14px rgba(0,0,0,.06);
   font-size: .9rem;
@@ -950,13 +1057,10 @@ body {
   font-weight: 600;
   letter-spacing: .4px;
   font-size: .95rem;
-}
-
-/* Setinhas de ordenação (voltaram!) */
-.display thead th {
   position: relative;
 }
 
+/* Setinhas de ordenação */
 .display thead th::after,
 .display thead th::before {
   content: '';
@@ -1043,33 +1147,100 @@ body {
   font-weight: bold;
 }
 
-/*  Caixa "Mostrar" - MENOR */
-div.dt-container div.dt-length select {
-  width: 60px !important;
-  padding: 4px 8px !important;
-  font-size: 13px !important;
-  height: 36px !important;
-  border: 1px solid #ccc !important;
-  border-radius: 8px !important;
+/* --- CONTROLES (PESQUISA E ITENS POR PÁGINA) --- */
+
+div.dt-container .row:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px; /* Espaço extra no rodapé */
+  background: #fff;   /* Garante fundo branco se precisar */
+  border-radius: 0 0 12px 12px;
 }
 
-/*  "Pesquisar" - À DIREITA + AJUSTE FINO */
+/* 1. Dropdown "X itens por página" */
+div.dt-container div.dt-length {
+  margin-right: 15px;
+}
+
+div.dt-container div.dt-length select {
+  width: auto !important;
+  padding: 4px 8px !important;
+  font-size: 13px !important;
+  height: 32px !important; /* Um pouco mais compacto no rodapé */
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 6px !important;
+  background-color: #fff;
+  cursor: pointer;
+  color: #555;
+  font-weight: 500;
+}
+
+div.dt-container div.dt-length label {
+  font-weight: 500;
+  color: #666;
+  margin-left: 8px;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+div.dt-container div.dt-length select:hover {
+  border-color: #055C0F !important;
+  background-color: #fff;
+}
+
+div.dt-container div.dt-length select:focus {
+  outline: none;
+  border-color: #055C0F !important;
+  box-shadow: 0 0 0 2px rgba(5, 92, 15, 0.1);
+}
+
+
+/* 2. Input "Pesquisar" */
 div.dt-container div.dt-search {
+  float: none !important;
   text-align: right !important;
-  margin-top: -30px !important;
-  margin-bottom: 2rem !important;
-  margin-right: 20px !important;
+  margin: 0 !important;
+  position: relative;
+}
+
+div.dt-container div.dt-search label {
+  display: none; /* Esconde o texto "Pesquisar:" */
 }
 
 div.dt-container div.dt-search input {
-  min-width: 180px !important;
-  padding: 6px 12px !important;
+  width: 220px !important;
+  height: 38px !important;
+  padding: 8px 16px !important;
+  padding-left: 36px !important; /* Espaço para lupa */
   font-size: 13px !important;
-  border: 1px solid #ccc !important;
-  border-radius: 8px !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 20px !important; /* Formato Pílula */
+  background-color: #f9f9f9;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  
+  /* Ícone de Lupa (SVG inline) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 12px center;
 }
 
-/*  Paginação - CENTRALIZADA */
+/* Efeito ao focar na busca */
+div.dt-container div.dt-search input:focus {
+  width: 300px !important; /* Estica a barra */
+  border-color: #055C0F !important;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  outline: none;
+}
+
+div.dt-container div.dt-search input::placeholder {
+  color: #999;
+  font-weight: 500;
+}
+
+/* Paginação - CENTRALIZADA */
 div.dt-container div.dt-paging {
   display: flex !important;
   justify-content: center !important;
@@ -1093,18 +1264,25 @@ div.dt-container .dt-info {
   margin-top: 10px !important;
 }
 
-/* Responsivo: mantém em coluna */
-@media (max-width: 767px) {
-  div.dt-container .row:last-child {
-    align-items: center;
+/* Responsivo */
+@media (max-width: 768px) {
+  /* No celular, empilha a toolbar */
+  div.dt-container .row:first-child {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
   }
+  
+  div.dt-container div.dt-search input {
+    width: 100% !important; /* Ocupa tudo no mobile */
+  }
+
   div.dt-container .dt-info,
   div.dt-container .dt-paging {
     width: 100%;
     text-align: center;
   }
 }
-
 /* ========================================
    PAGINAÇÃO DATATABLES
    ======================================== */
@@ -1226,23 +1404,269 @@ div.dt-container .dt-info {
 .parecer-data { font-size: .85rem; color: #777; }
 .parecer-texto { color: #444; line-height: 1.4; }
 
-/* --- Login --- */
-.login-container { display: flex; min-height: 100vh; width: 100%; background: #f5f5f5; text-align: center;}
-.login-info-side {
-  flex: 1; background: linear-gradient(135deg, #055C0F 0%, #0a7d2c 50%, #0d9939 100%);
-  color: #fff; padding: 60px; display: flex; align-items: center; justify-content: center;
-  position: relative; overflow: hidden;
-}
-.login-info-side::before,
-.login-info-side::after { content: ''; position: absolute; width: 500px; height: 500px; background: rgba(255,255,255,.05); border-radius: 50%; }
-.login-info-side::before { top: -200px; left: -200px; }
-.login-info-side::after { bottom: -150px; right: -150px; }
-.login-form-side {
-  flex: 0 0 480px; background: #fff;
-  display: flex; align-items: center; justify-content: center;
-  padding: 10px; box-shadow: -4px 0 20px rgba(0,0,0,.08);
+/* ========================================
+   LOGIN PAGE - ESTILO CORRIGIDO
+   ======================================== */
+
+.login-container {
+  display: flex;
+  height: 100vh;      /* Altura exata da viewport */
+  width: 100vw;       /* Largura exata da viewport */
+  overflow: hidden;   /* PROIBIDO ROLAR a página inteira */
+  background: #fff;
+  position: absolute; /* Garante que fique sobre tudo */
+  top: 0;
+  left: 0;
 }
 
+/* --- LADO ESQUERDO (VERDE) --- */
+.login-info-side {
+  flex: 1.2; 
+  height: 100%; 
+  background: linear-gradient(135deg, #03490b 0%, #055C0F 50%, #087f17 100%);
+  color: #fff; 
+  padding: 40px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  position: relative; 
+  z-index: 1; /* Nível base */
+  box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+  overflow: hidden; /* Permite rolar se a tela for muito baixa */
+}
+
+/* Bolhas Decorativas (Fundo) */
+.login-info-side::before,
+.login-info-side::after { 
+  content: ''; 
+  position: absolute; 
+  border-radius: 50%; 
+  pointer-events: none; /* Deixa clicar através delas */
+  z-index: 0; /* Fica ATRÁS do texto */
+}
+
+.login-info-side::before { 
+  width: 600px; height: 600px; 
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); 
+  top: -150px; left: -150px; 
+}
+
+.login-info-side::after { 
+  width: 500px; height: 500px; 
+  background: rgba(255,255,255,0.05); 
+  bottom: -100px; right: -100px; 
+}
+
+/* Wrapper do Conteúdo de Texto (IMPORTANTE: Z-INDEX) */
+.login-info-content {
+  position: relative;
+  z-index: 10; /* Traz o texto para FRENTE das bolhas */
+  max-width: 650px;
+  width: 100%;
+  text-align: left;
+}
+
+/* Brand / Logo */
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.login-brand-logo {
+  height: 60px;
+  width: auto;
+  filter: brightness(0) invert(1); /* Deixa logo branco */
+}
+
+.login-brand-text h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1;
+}
+
+.login-brand-text p {
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Features List */
+.login-features h2 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.login-description {
+  font-size: 16px;
+  opacity: 0.9;
+  margin-bottom: 40px;
+  line-height: 1.5;
+  max-width: 500px;
+}
+
+.login-feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.login-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.feature-icon {
+  font-size: 24px;
+  background: rgba(255,255,255,0.2);
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.feature-text h3 {
+  font-size: 18px;
+  margin: 0 0 4px 0;
+  font-weight: 600;
+}
+
+.feature-text p {
+  font-size: 14px;
+  margin: 0;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+.login-footer-info {
+  margin-top: 60px;
+  font-size: 12px;
+  opacity: 0.6;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  padding-top: 20px;
+}
+
+/* --- LADO DIREITO (FORMULÁRIO) --- */
+.login-form-side {
+  flex: 1; 
+  height: 100%;
+  background: #f8f9fa; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  padding: 40px; 
+  overflow-y: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.login-form-container {
+  background: #fff;
+  width: 100%;
+  max-width: 450px;
+  padding: 50px 40px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+  text-align: center;
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-form-header h2 {
+  color: #055C0F;
+  font-size: 28px;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.login-form-header p {
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 40px;
+}
+
+.login-button-wrapper {
+  margin: 30px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.login-help-text {
+  font-size: 13px;
+  color: #555;
+  background: #f1f8f1;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #d4ebd6;
+  line-height: 1.5;
+}
+
+.login-divider {
+  height: 1px;
+  background: #eee;
+  margin: 30px 0;
+}
+
+.login-support h4 {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 5px;
+  font-weight: 700;
+}
+
+.login-support p {
+  font-size: 13px;
+  color: #777;
+  margin: 0 0 5px 0;
+}
+
+.login-support a {
+  color: #055C0F;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.login-support a:hover {
+  text-decoration: underline;
+}
+
+/* Responsividade Login */
+@media (max-width: 900px) {
+  .login-container {
+    flex-direction: column;
+    overflow-y: auto; /* Permite rolar em mobile */
+  }
+  
+  .login-info-side {
+    display: none; /* Esconde o lado decorativo em telas pequenas/mobile */
+  }
+  
+  .login-form-side {
+    width: 100%;
+    flex: 1;
+    padding: 20px;
+    background: #fff;
+  }
+  
+  .login-form-container {
+    box-shadow: none;
+    padding: 20px;
+  }
+}
 /* --- Perfil Admin --- */
 .perfil-admin-container {
   width: 90%; margin: 40px auto; text-align: center;
@@ -2283,17 +2707,9 @@ Pop-up dos Pareceres
 }
 
 .status-em-andamento {
-  background-color: #ecfeff;  
-  color: #0e7490;               
-  border: 1.5px solid #67e8f9;  
- 
-}
-
-.status-suspenso {
-  background-color: #fffbeb;  
-  color: #856404;               
-  border: 1.5px solid #fcd34d;  
-  
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
 }
 
 .status-fechado, 
@@ -2301,4 +2717,188 @@ Pop-up dos Pareceres
   background-color: #e2e3e5;
   color: #383d41;
   border: 1px solid #d6d8db;
+}
+
+
+/* ========================================
+   WIDGET DE ACESSIBILIDADE
+   ======================================== */
+
+.accessibility-wrapper {
+    position: fixed;
+    bottom: 80px; /* Acima do footer */
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+/* Botão Flutuante (Azulão para destaque ou Verde do IFRS) */
+.accessibility-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #0056b3; /* Azul Acessibilidade padrão */
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.accessibility-btn:hover {
+    transform: scale(1.1);
+    background-color: #004494;
+}
+
+/* Menu de Opções */
+.accessibility-menu {
+    background: #fff;
+    width: 220px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    margin-bottom: 15px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: all 0.3s ease;
+    border: 1px solid #eee;
+}
+
+.accessibility-menu.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+.acc-header {
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #333;
+}
+
+.acc-reset-btn {
+    background: none; border: none; cursor: pointer; font-size: 16px; color: #666;
+}
+.acc-reset-btn:hover { color: #d32f2f; }
+
+.acc-controls { padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+
+.acc-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; font-weight: 600; color: #555;
+}
+
+.acc-row button {
+    background: #e9ecef; border: 1px solid #ced4da;
+    border-radius: 4px; padding: 4px 10px; cursor: pointer;
+    font-weight: bold; font-size: 12px;
+}
+.acc-row button:hover { background: #dee2e6; }
+
+.acc-value { font-family: monospace; width: 40px; text-align: center; }
+
+/* Switch Toggle (iOS style) */
+.switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .4s; }
+input:checked + .slider { background-color: #0056b3; }
+input:checked + .slider:before { transform: translateX(20px); }
+.slider.round { border-radius: 34px; }
+.slider.round:before { border-radius: 50%; }
+
+/* --- MODO ALTO CONTRASTE (A Mágica) --- */
+body.high-contrast {
+    background: #000 !important; /* Remove o gradiente verde */
+    border-bottom: 2px solid #ffff00; /* Borda amarela para destacar */
+}
+
+/* Força cores em tudo quando ativo */
+body.high-contrast * {
+    background-color: #000 !important;
+    color: #ffff00 !important;
+    border-color: #ffff00 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* Exceção para imagens e ícones para não sumirem */
+body.high-contrast img, 
+body.high-contrast svg {
+    filter: grayscale(100%) contrast(150%);
+}
+
+/* Ajuste no widget para ele não sumir no modo contraste */
+body.high-contrast .accessibility-btn {
+    border: 2px solid #ffff00 !important;
+}
+body.high-contrast .slider {
+    background-color: #333 !important;
+}
+body.high-contrast input:checked + .slider {
+    background-color: #ffff00 !important;
+}
+body.high-contrast input:checked + .slider:before {
+    background-color: #000 !important;
+}
+
+body.high-contrast .header {
+    background: #000 !important; /* Remove o gradiente verde */
+    border-bottom: 2px solid #ffff00; /* Borda amarela para destacar */
+}
+
+/* Garante que o texto do header fique na cor de contraste (amarelo) */
+body.high-contrast .header-text strong,
+body.high-contrast .header-text span,
+body.high-contrast .header-center h1,
+body.high-contrast .header-subtitle {
+    color: #ffff00 !important;
+    text-shadow: none !important;
+}
+
+/* Ajusta o Footer também para garantir */
+body.high-contrast .footer {
+    background: #000 !important;
+    border-top: 1px solid #ffff00;
+}
+
+body.high-contrast .footer-text, 
+body.high-contrast .footer-center {
+    color: #ffff00 !important;
+}
+
+/* --- Botão de Acessibilidade no Menu de Usuário --- */
+.user-card .btn-acessibilidade-menu {
+    background: #f8f9fa; /* Fundo cinza bem claro */
+    color: #555;
+    border: 1px solid #e0e0e0;
+    font-size: 13px;
+    font-weight: 500;
+    margin: 4px 8px; /* Mesma margem dos outros */
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.user-card .btn-acessibilidade-menu:hover {
+    background: #e8f5e9; /* Verde bem clarinho no hover */
+    color: #055C0F;
+    border-color: #c3e6cb;
+    transform: translateY(-1px);
 }

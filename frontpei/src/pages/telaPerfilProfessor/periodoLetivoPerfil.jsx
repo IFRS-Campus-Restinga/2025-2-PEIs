@@ -5,8 +5,9 @@ import { mandaEmail } from "../../lib/mandaEmail";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import { API_ROUTES } from "../../configs/apiRoutes";
 import logo_nome from "../../assets/logo-sem-nome.png";
-//import api from "../../configs/axiosConfig";
 import Sidebar from "../../components/layout/Sidebar"; 
+import api from "../../configs/axiosConfig";
+
 
 const PeriodoLetivoPerfil = () => {
   const location = useLocation();
@@ -115,9 +116,16 @@ const PeriodoLetivoPerfil = () => {
 
     async function carregarDados() {
       try {
-        const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`);
-        const pei = res.data;
+        const token = localStorage.getItem("token");
+        console.log("Token obtido do localStorage:", token);
+        if (!token) throw new Error("Token de autenticação não encontrado.");
+        const headers = { Authorization: `Token ${token}` };
+        console.log("Headers enviados na requisição:", headers);
 
+        const res = await axios.get(`${API_ROUTES.PEI_CENTRAL}${peiCentralId}/`, { headers });
+        console.log("Resposta do backend:", res.data);
+
+        const pei = res.data;
         console.log("PEI Central retornado:", pei);
 
         // --- ALUNO ---
@@ -125,11 +133,12 @@ const PeriodoLetivoPerfil = () => {
         setAluno(alunoData);
         console.log("Aluno retornado:", alunoData);
 
-        // --- PERÍODO PRINCIPAL ---
+        // --- PERÍODOS ---
         const periodos = pei.periodos || [];
+        console.log("Períodos retornados:", periodos);
         setPeriodoPrincipal(periodos[0]?.periodo_principal || "—");
 
-        // --- CURSO E COORDENADOR via novo campo cursos ---
+        // --- CURSO ---
         const cursoData = pei.cursos || null;
         setCurso(cursoData);
         console.log("Curso retornado:", cursoData);
@@ -144,19 +153,35 @@ const PeriodoLetivoPerfil = () => {
         setEmailCoordenador(cursoData?.coordenador?.email || "");
 
 
+        // --- COMPONENTES CURRICULARES ---
+        const componentes = periodos.flatMap(p => p.componentes_curriculares || []);
+        console.log("Componentes curriculares:", componentes);
+
         // --- PARECERES ---
-        const todosPareceres = periodos
-          .flatMap(p => p.componentes_curriculares || [])
-          .flatMap(comp =>
-            (comp.pareceres || []).map(parecer => ({
+        const todosPareceres = componentes.flatMap(comp =>
+          (comp.pareceres || []).map(parecer => {
+            const obj = {
               ...parecer,
               componenteNome: comp.disciplina?.nome || "Sem disciplina",
               professorNome: parecer.professor?.username || parecer.professor?.nome || parecer.professor?.email?.split("@")[0] || "Professor",
-            }))
-          );
+            };
+            console.log("Parecer processado:", obj);
+            return obj;
+          })
+        );
 
-        setPareceres(todosPareceres);
-        console.log("Pareceres processados:", todosPareceres);
+        console.log("Todos pareceres antes do filtro:", todosPareceres);
+
+        // --- FILTRO PELO ALUNO ---
+        const pareceresFiltrados = todosPareceres.filter(parecer => {
+          const match = parecer.aluno?.id === alunoData.id;
+          console.log(`Parecer ${parecer.id} pertence ao aluno?`, match, "parecer.aluno?.id:", parecer.aluno?.id, "alunoData.id:", alunoData.id);
+          return match;
+        });
+
+        console.log("Pareceres filtrados pelo aluno do PEI central:", pareceresFiltrados);
+
+        setPareceres(pareceresFiltrados);
 
       } catch (err) {
         console.error("Erro ao carregar PEI:", err);
@@ -257,7 +282,7 @@ const PeriodoLetivoPerfil = () => {
               return (
                 <>
                   <Link to="/pareceres" state={{ peiCentralId }} className="btn-verde">Cadastrar Parecer</Link>
-                  <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
                 </>
               );
@@ -266,28 +291,28 @@ const PeriodoLetivoPerfil = () => {
                 <>
                   <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "napne":
               return (
                 <>
-                  <Link to="/periodo" className="btn-verde">Gerenciar Períodos Letivos</Link>
+                  <Link to="/crud/PEIPeriodoLetivo" className="btn-verde">Gerenciar Períodos Letivos</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
+                  <Link to="/crud/componenteCurricular" className="btn-verde">Gerenciar Componentes Curriculares</Link>
                   <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "coordenador":
               return (
                 <>
-                  <Link to="/curso" className="btn-verde">Gerenciar Cursos</Link>
-                  <Link to="/disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
+                  <Link to="/crud/Curso" className="btn-verde">Gerenciar Cursos</Link>
+                  <Link to="/crud/Disciplina" className="btn-verde">Gerenciar Disciplinas</Link>
                   <Link to="/peicentral" className="btn-verde">Visualizar PEI Central</Link>
-                  <Link to="/aluno" className="btn-verde">Gerenciar Alunos</Link>
+                  <Link to="/crud/aluno" className="btn-verde">Gerenciar Alunos</Link>
                   <Link to="/ataDeAcompanhamento" className="btn-verde">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
+                  <Link to="/crud/documentacaoComplementar" className="btn-verde">Gerenciar Documentações Complementares</Link>
                 </>
               );
             case "admin":

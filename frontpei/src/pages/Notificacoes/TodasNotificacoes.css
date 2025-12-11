@@ -1,0 +1,149 @@
+.notificacoes-page {
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    font-family: 'Roboto', sans-serif;
+}
+
+.notif-header-page {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.notif-tabs {
+    display: flex;
+    gap: 10px;
+    background: #f1f1f1;
+    padding: 5px;
+    border-radius: 8px;
+}
+
+.notif-tab {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 500;
+    color: #666;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.notif-tab.active {
+    background: #fff;
+    color: #055C0F;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-weight: 700;
+}
+
+.notif-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.notif-full-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.notif-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
+}
+
+.notif-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-color: #055C0F;
+}
+
+.notif-card.unread {
+    background: #f0f9f0; /* Verde bem clarinho */
+    border-left: 5px solid #055C0F;
+}
+
+.notif-card.read {
+    background: #fff;
+    border-left: 5px solid #ccc;
+    opacity: 0.85;
+}
+
+.notif-icon-area {
+    display: flex;
+    align-items: flex-start;
+    padding-top: 2px;
+}
+
+.icon-circle {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #055C0F;
+}
+
+.notif-content-area {
+    flex: 1;
+}
+
+.notif-top-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.notif-subject {
+    font-weight: 700;
+    font-size: 16px;
+    color: #333;
+}
+
+.notif-date {
+    font-size: 12px;
+    color: #888;
+}
+
+.notif-body {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.notif-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn-small-outline {
+    background: transparent;
+    border: 1px solid #ccc;
+    padding: 4px 10px;
+    font-size: 11px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #555;
+}
+
+.btn-small-outline:hover {
+    border-color: #333;
+    color: #000;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px;
+    color: #999;
+}

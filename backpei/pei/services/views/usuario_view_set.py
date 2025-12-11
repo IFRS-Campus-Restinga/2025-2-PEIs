@@ -8,13 +8,14 @@ from django.contrib.auth import get_user_model
 from ..serializers import UsuarioSerializer
 from ..permissions import BackendTokenPermission
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import DjangoObjectPermissions
 
 User = get_user_model()
 
 class UsuarioViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsuarioSerializer
-    permission_classes = [BackendTokenPermission]
+    permission_classes = [DjangoObjectPermissions]
     
     def perform_create(self, serializer):
         user = self.request.user
@@ -32,16 +33,12 @@ class UsuarioViewSet(ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except ValidationError as e:
             return Response({"erro": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
+        
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        grupo = self.request.query_params.get("grupo")
 
+        if grupo:
+            queryset = queryset.filter(groups__name=grupo)
 
-    #def destroy(self, request, *args, **kwargs):
-    #    instance = self.get_object()
-    #    try:
-    #        instance.safe_delete()
-    #        return Response(status=status.HTTP_204_NO_CONTENT)
-    #    except ValidationError as e:
-    #        return Response(
-    #            {"erro": str(e)},
-    #            status=status.HTTP_400_BAD_REQUEST
-    #        )
+        return queryset

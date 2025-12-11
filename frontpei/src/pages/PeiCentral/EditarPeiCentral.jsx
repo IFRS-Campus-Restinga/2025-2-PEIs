@@ -16,7 +16,12 @@ function EditarPeiCentral() {
     clearAlerts();
   }, []);
 
-  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
+  const DB = axios.create({
+    baseURL: API_ROUTES.PEI_CENTRAL,
+    headers: {
+      Authorization: `Token ${localStorage.getItem("token") || ""}`
+    }
+  });
 
   /*const [status_pei, setStatus] = useState("");
   const [historico_do_aluno, setHistorico] = useState("");

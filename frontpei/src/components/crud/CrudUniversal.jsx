@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAlert, FieldAlert } from "../../context/AlertContext";
@@ -6,6 +7,8 @@ import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 import BotaoDeletar from "../../components/customButtons/botaoDeletar";
 import BotaoEditar from "../../components/customButtons/botaoEditar";
 import "../../cssGlobal.css";
+import { api } from "../../services/api";
+
 
 function CrudUniversal({ modelName }) {
   const { addAlert, clearAlerts } = useAlert();
@@ -15,12 +18,11 @@ function CrudUniversal({ modelName }) {
   const [form, setForm] = useState({});
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({});
-  useEffect(() => {
-  console.log("🟩 FORM atualizado:", form);
-}, [form]);
   const [selectOptions, setSelectOptions] = useState({});
   const [servicesMap, setServicesMap] = useState({});
 
+
+  // Mapeamento de exceções
   const exceptions = {
     Disciplina: "disciplinas",
     ComponenteCurricular: "componenteCurricular",
@@ -32,477 +34,564 @@ function CrudUniversal({ modelName }) {
   };
 
   function normalizeRecordForEdit(record, metadata) {
-  console.log("Metadata completo:", metadata);
-
   const normalized = { ...record };
 
-  // ----------------------------------------------
-  // 🔥 1) Primeiro: converter automaticamente
-  // qualquer campo X → X_id
-  // ----------------------------------------------
-  Object.keys(record).forEach(key => {
-    const idKey = key + "_id";
+  metadata.fields.forEach((f) => {
+    const value = record[f.name];
 
-    if (metadata.fields.some(f => f.name === idKey)) {
-      if (record[key] && typeof record[key] === "object") {
-        normalized[idKey] = record[key].id;
-      } else {
-        normalized[idKey] = record[key]; // caso já venha como número
+    if (f.name === "disciplinas") {
+      // Backend manda "disciplina: { id, nome }"
+      if (record.disciplina) {
+        normalized.disciplinas = record.disciplina.id;
       }
-      delete normalized[key]; // remove o campo antigo
-    }
-  });
-
-  // ----------------------------------------------
-  // 🔥 2) Agora processa conforme o metadata
-  // ----------------------------------------------
-  metadata.fields.forEach(f => {
-    const original = record[f.name];
-
-    console.log(
-      "Campo:", f.name,
-      "| type:", f.type,
-      "| related_model:", f.related_model,
-      "| valor original:", original
-    );
-
-    // FOREIGN KEY → se vier objeto, vira ID
-    if (f.type === "foreignkey") {
-      if (original && typeof original === "object") {
-        normalized[f.name] = original.id;
-      }
+      return;
     }
 
-    // MULTISELECT → array de objetos para array de IDs
+    if (f.type === "select") {
+      normalized[f.name] =
+        typeof value === "object" && value !== null ? value.id : value;
+    }
+
     if (f.type === "multiselect") {
-      if (Array.isArray(original)) {
-        normalized[f.name] = original.map(v =>
-          typeof v === "object" ? v.id : v
-        );
-      }
+      normalized[f.name] = Array.isArray(value)
+        ? value.map((v) => (typeof v === "object" ? v.id : v))
+        : [];
     }
   });
 
   return normalized;
 }
 
-
-
   const formatLabel = (label) => {
     if (!label) return "";
     let l = label.replace(/_/g, " ");
-    l = l.replace(/\b\w/g, char => char.toUpperCase());
-    return l;
+    return l.replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
-  useEffect(() => { clearAlerts(); }, []);
+  useEffect(() => {
+    clearAlerts();
+  }, []);
 
-  // Carrega lista de serviços
+  // Carrega serviços
   useEffect(() => {
     async function fetchServices() {
       try {
-        const res = await axios.get("http://localhost:8000/services/");
+        const res = await api.get("http://localhost:8000/services/");
         setServicesMap(res.data);
       } catch (err) {
+        console.error("[SERVICES] Erro:", err);
         addAlert("Erro ao carregar lista de serviços", "error");
-        setServicesMap({});
       }
     }
     fetchServices();
   }, []);
 
+  // Carrega registros
   async function fetchRecords() {
     const mappedModel = exceptions[modelName] || modelName;
-    if (!servicesMap[mappedModel]) return;
+    const url = servicesMap[mappedModel];
+
+
+    if (!url) return;
+
     try {
-      const res = await axios.get(servicesMap[mappedModel]);
+      const res = await api.get(url);
+
+
       const data = Array.isArray(res.data) ? res.data : res.data?.results || [];
+
+
       setRecords(data);
     } catch (err) {
+      console.error("[RECORDS] Erro:", err);
       addAlert("Erro ao recuperar registros!", "error");
     }
   }
 
   useEffect(() => {
-    if (!servicesMap || Object.keys(servicesMap).length === 0) return;
+    if (Object.keys(servicesMap).length === 0) return;
     fetchRecords();
   }, [servicesMap, modelName]);
 
-  // Fetch metadata e opções de select
+  // Carrega metadata
   useEffect(() => {
-    async function fetchMetadata() {
+    async function loadMetadata() {
       if (!servicesMap.schema) return;
 
+      
+
       try {
-        const res = await axios.get(`${servicesMap.schema}${modelName}`);
+        const res = await api.get(`${servicesMap.schema}${modelName}`);
+
         const data = res.data;
         setMetadata(data);
 
-        const initialForm = {};
-        data.fields?.forEach(f => initialForm[f.name] = "");
-        setForm(initialForm);
-        setEditForm(initialForm);
+        // Carregar opções de selects/multiselects
+        data.fields.forEach(async (f) => {
 
-        data.fields?.forEach(async f => {
-          const isFK = f.type === "foreignkey";
+          const isSelect = f.type === "select";
           const isMulti = f.type === "multiselect";
-          const isSelectWithModel = f.type === "select" && f.related_model;
 
-          if (isFK || isMulti || isSelectWithModel) {
-            try {
-              const modelKey = f.related_model;
-              const mappedKey = exceptions[modelKey] || modelKey;
+          if (f.choices) {
+            return;
+          }
 
-              const endpoint =
-                f.related_endpoint ||
-                servicesMap[mappedKey] ||
-                `http://localhost:8000/services/${mappedKey}/`;
+          if (!isSelect && !isMulti) return;
+          if (!f.related_model) return;
 
-              const r = await axios.get(endpoint);
-              const options = Array.isArray(r.data) ? r.data : r.data?.results || [];
+          try {
+            const mappedKey = exceptions[f.related_model] || f.related_model;
 
-              setSelectOptions(prev => ({ ...prev, [f.name]: options }));
-            } catch (err) {
-              addAlert(`Erro ao carregar opções de ${f.name}`, "error");
-            }
+            const endpoint =
+              f.related_endpoint ||
+              servicesMap[mappedKey] ||
+              `http://localhost:8000/services/${mappedKey}/`;
+
+
+            const r = await api.get(endpoint);
+
+            const options = Array.isArray(r.data)
+              ? r.data
+              : r.data?.results || [];
+
+
+            setSelectOptions((prev) => ({
+              ...prev,
+              [f.name]: options,
+            }));
+          } catch (err) {
+            console.error(`[SELECT LOAD] Erro carregando ${f.name}:`, err);
+            addAlert(`Erro ao carregar opções de ${f.name}`, "error");
           }
         });
       } catch (err) {
-        addAlert("Erro ao carregar metadados do modelo.", "error");
+        console.error("[METADATA] Erro:", err);
+        addAlert("Erro ao carregar metadata!", "error");
       }
     }
-    fetchMetadata();
+
+    loadMetadata();
   }, [modelName, servicesMap]);
 
+  // Normalização do payload
+  function normalizePayload(data, metadata) {
+
+    const payload = { ...data };
+
+    metadata.fields.forEach((f) => {
+      if (f.type === "select") {
+        if (!f.choices) {
+          payload[f.name] = payload[f.name]
+            ? Number(payload[f.name])
+            : null;
+        }
+      }
+
+      if (f.type === "multiselect") {
+        payload[f.name] = payload[f.name] || [];
+      }
+    });
+     // --- CONDIÇÃO CUSTOM PARA ComponenteCurricular ---
+    if (modelName === "ComponenteCurricular") {
+
+      // Se o form tiver periodos_letivos (multiselect), enviamos isso como periodos_letivos_id
+      if (Array.isArray(payload.periodos_letivos)) {
+        payload.periodos_letivos_id = payload.periodos_letivos.map(Number);
+      }
+
+      // Segurança: remove a chave errada caso exista
+      delete payload.periodos_letivos;
+    }
+    
+    return payload;
+  }
+
+  // TRATAMENTO DE ERRO
   function handleApiErrors(err) {
-  console.error("Erro da requisição:", err.response?.data || err.message);
+    console.error("[API ERROR]", err.response?.data || err.message);
 
-  let data = err.response?.data;
+    let data = err.response?.data;
 
-  // Caso o servidor retorne JSON como string
-  if (typeof data === "string") {
-    try {
-      data = JSON.parse(data);
-    } catch {
-      // Se não for JSON válido, simplesmente exibe a string
+    if (typeof data === "string") {
       addAlert(data, "error");
       return;
     }
-  }
 
-  // Caso padrão do backend: { erro: "mensagem..." }
-  if (data?.erro) {
-    addAlert(data.erro, "error");
-    return;
-  }
+    if (typeof data === "object" && !Array.isArray(data)) {
+      Object.entries(data).forEach(([field, msg]) => {
+        if (Array.isArray(msg)) {
+          msg.forEach((m) => addAlert(`${field}: ${m}`, "error"));
+        } else {
+          addAlert(`${field}: ${msg}`, "error");
+        }
+      });
+      return;
+    }
 
-  // Se for objeto com mensagens por campo
-  if (typeof data === "object" && !Array.isArray(data)) {
-    Object.entries(data).forEach(([field, messages]) => {
-      if (Array.isArray(messages)) {
-        messages.forEach(msg => addAlert(`${field}: ${msg}`, "error"));
-      } else {
-        addAlert(`${field}: ${messages}`, "error");
-      }
-    });
-    return;
-  }
-
-  // Se vier array de erros
-  if (Array.isArray(data)) {
-    data.forEach(msg => addAlert(msg, "error"));
-    return;
-  }
-
-  // Fallback
-  addAlert("Erro na requisição: " + (err.message || "desconhecido"), "error");
-}
-
-  const getEndpoint = (model) => servicesMap[exceptions[model] || model];
-
-  function normalizePayload(data, metadata) {
-    const payload = { ...data };
-    metadata.fields.forEach(f => {
-      if (f.type === "foreignkey") payload[f.name] = payload[f.name] ? Number(payload[f.name]) : null;
-      if (f.type === "multiselect") payload[f.name] = payload[f.name] || [];
-    });
-    return payload;
+    addAlert("Erro desconhecido.", "error");
   }
 
   // CREATE
   async function handleSubmit(e) {
-    e.preventDefault();
-    const mensagens = validaCampos(form, e.target);
-    if (mensagens.length > 0) {
-      mensagens.forEach(m => addAlert(m.message, "error", { fieldName: m.fieldName }));
-      return;
-    }
-    try {
-      const payload = normalizePayload(form, metadata);
-      console.log("🟪 PAYLOAD enviado no CREATE:", payload);
-      console.log("🟪 PAYLOAD antes da correção:", payload);
+  e.preventDefault();
 
-      if (payload.curso_id !== undefined) {
-          payload.curso = payload.curso_id;
-          delete payload.curso_id;
-      }
+  clearAlerts();
 
-      console.log("🟩 PAYLOAD final enviado:", payload);
-      
-      await axios.post(getEndpoint(modelName), payload);
-      await fetchRecords();
-      setForm(Object.fromEntries(Object.keys(form).map(k => [k, ""])));
-      addAlert("Registro cadastrado com sucesso!", "success");
-    } catch (err) {
-      handleApiErrors(err);
-    }
+  const erros = validaCampos(form, metadata);
+
+  if (erros.length > 0) return;
+
+  try {
+    const payload = normalizePayload(form, metadata);
+    await api.post(getEndpoint(modelName), payload);
+    await fetchRecords();
+    addAlert("Registro criado!", "success");
+
+    setForm(Object.fromEntries(Object.keys(form).map((k) => [k, ""])));
+  } catch (err) {
+    const backendErrors = err.response?.data;
+    validaCampos(form, metadata, backendErrors);
   }
+}
+
 
   // UPDATE
   async function handleEditSubmit(e, id) {
-    e.preventDefault();
-    const mensagens = validaCampos(editForm, e.target);
-    if (mensagens.length > 0) {
-      mensagens.forEach(m => addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}` }));
-      return;
-    }
-    
-    try {
-      const payload = normalizePayload(editForm, metadata);
-      await axios.put(`${getEndpoint(modelName)}${id}/`, payload);
-      setEditId(null);
-      setEditForm(Object.fromEntries(Object.keys(editForm).map(k => [k, ""])));
-      await fetchRecords();
-      addAlert("Registro atualizado com sucesso!", "success");
-    } catch (err) {
-      handleApiErrors(err);
-    }
-  }
+  e.preventDefault();
 
-  // RENDER INPUT
+  clearAlerts();
+
+  const erros = validaCampos(editForm, metadata, null, "edit-");
+  if (erros.length > 0) return;
+
+  try {
+    const payload = normalizePayload(editForm, metadata);
+    await api.put(`${getEndpoint(modelName)}${id}/`, payload);
+
+    setEditId(null);
+    await fetchRecords();
+
+    addAlert("Registro atualizado!", "success");
+  } catch (err) {
+    const backendErrors = err.response?.data;
+    validaCampos(editForm, metadata, backendErrors, "edit-");
+  }
+}
+
+
+  const getEndpoint = (model) => servicesMap[exceptions[model] || model];
+
+  // Renderização dos inputs
   const renderInput = (f, value, onChange) => {
-  
-
-  if (f.type === "textarea") 
-    return <textarea value={value || ""} onChange={e => onChange(e.target.value)} />;
-
-  if (f.type === "DateField") 
-    return <input type="date" value={value || ""} onChange={e => onChange(e.target.value)} />;
-
-  if (f.type === "DateTimeField") 
-    return <input type="datetime-local" value={value || ""} onChange={e => onChange(e.target.value)} />;
-
-  if (f.choices) {
-    return (
-      <select value={value || ""} onChange={e => onChange(e.target.value)}>
-        <option value="">Selecione...</option>
-        {f.choices.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-      </select>
-    );
-  }
-
-  if (f.type === "foreignkey" || (f.type === "select" && f.related_model)) {
-    const options = selectOptions[f.name] || [];
     
+    // Normalização dos tipos vindos do schema DRF
+    let fieldType = f.type;
 
-    return (
-      <select
-        value={value || ""}
-        onChange={e => {
-  const val = e.target.value ? Number(e.target.value) : null;
-  console.log("🟦 SELECT CHANGE → campo:", f.name, "| valor selecionado:", val);
-  onChange(val);
-}}
-      >
-        <option value="">Selecione...</option>
-        {options.map(opt => {
-          // Escolhe o melhor label disponível
-          const label =
-            opt.nome ||
-            opt.label ||
-            (opt.first_name || opt.last_name ? `${opt.first_name || ""} ${opt.last_name || ""}`.trim() : opt.username) ||
-            opt.id;
-          return <option key={opt.id} value={opt.id}>{label}</option>;
-        })}
-      </select>
-    );
-  }
+    // DateField → date
+    if (f.type === "DateField") {
+      fieldType = "date";
+    }
 
-  if (f.type === "multiselect") {
-    const options = selectOptions[f.name] || [];
-    
+    // DateTimeField → datetime
+    if (f.type === "DateTimeField") {
+      fieldType = "datetime";
+    }
+    // FileField → file
+    if (f.type === "FileField") {
+      fieldType = "file";
+    }
+    // SELECT (ENUM)
+    if (f.type === "select" && f.choices) {
+      return (
+        <select
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          <option value="">Selecione...</option>
+          {f.choices.map((c) => (
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+      );
+    }
 
-    return (
-      <div className="checkbox-group">
-        {options.map(opt => {
-          const label =
-            opt.nome ||
-            opt.label ||
-            (opt.first_name || opt.last_name ? `${opt.first_name || ""} ${opt.last_name || ""}`.trim() : opt.username) ||
-            opt.id;
-          return (
+    // SELECT FK
+    if (f.type === "select") {
+      const options = selectOptions[f.name] || [];
+
+
+      return (
+        <select
+          value={value || ""}
+          onChange={(e) =>
+            onChange(e.target.value ? Number(e.target.value) : null)
+          }
+        >
+          <option value="">Selecione...</option>
+          {options.map((opt) => (
+            <option key={opt.id} value={opt.id}>
+              {opt.nome || opt.aluno_nome || opt.label || opt.username || opt.id}
+            </option>
+          ))}
+        </select>
+      );
+    }
+
+    // MULTISELECT
+    if (f.type === "multiselect") {
+      const options = selectOptions[f.name] || [];
+
+
+      return (
+        <div>
+          {options.map((opt) => (
             <label key={opt.id} style={{ display: "block" }}>
               <input
                 type="checkbox"
                 checked={(value || []).includes(opt.id)}
-                onChange={e => {
-                  const selected = new Set(value || []);
-                  e.target.checked ? selected.add(opt.id) : selected.delete(opt.id);
-                  onChange([...selected]);
+                onChange={(e) => {
+                  const list = new Set(value || []);
+                  e.target.checked
+                    ? list.add(opt.id)
+                    : list.delete(opt.id);
+                  onChange([...list]);
                 }}
               />
-              {label}
+              {opt.nome ||
+                opt.username ||
+                opt.label ||
+                opt.periodo_principal ||
+                opt.id}
             </label>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      );
+    }
+    // DATE
+    if (fieldType === "date") {
+      return (
+        <input
+          type="date"
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      );
+    }
+    // DATETIME
+    if (fieldType === "datetime") {
+      return (
+        <input
+          type="datetime-local"
+          value={value ? value.substring(0, 16) : ""}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      );
+    }
+    // FILE
+    if (fieldType === "file") {
+      return (
+        <input
+          type="file"
+          onChange={(e) => onChange(e.target.files[0])}
+        />
+      );
+    }
+    // TEXT
+    return (
+      <input
+        type="text"
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+      />
     );
-  }
+  };
 
-  if (f.type === "file") 
-    return <input type="file" onChange={e => onChange(e.target.files[0])} />;
+  // Renderiza valores na listagem
+  const renderFieldValue = (f, record) => {
 
-  return <input type="text" value={value || ""} onChange={e => onChange(e.target.value)} />;
-};
-
-
-  // RENDER FIELD VALUE
-  // RENDER FIELD VALUE (ajustada para objetos no registro)
-// Mapeamento de campos _id para o nome real do objeto no registro
-const idFieldMap = {
-  disciplinas_id: "disciplina",
-  periodo_letivo_id: "periodo_letivo",
-  // adicione outros se houver
-};
-
-const renderFieldValue = (f, record) => {
-  let value = record[f.name];
-
-  // Se for campo *_id, tenta pegar o objeto correspondente
-  if (f.name.endsWith("_id")) {
-    const objField = idFieldMap[f.name] || f.name.replace(/_id$/, "");
-    if (record[objField] && typeof record[objField] === "object") {
-      value = record[objField];
-    }
-  }
-
-  // Para foreign keys ou selects com related_model
-  if ((f.type === "foreignkey" || (f.type === "select" && f.related_model)) && value) {
-    if (typeof value === "object") {
-      return (
-        value.nome ||
-        (value.first_name || value.last_name ? `${value.first_name || ""} ${value.last_name || ""}`.trim() : null) ||
-        value.username ||
-        "-"
-      );
-    }
+    const value = record[f.name];
     const options = selectOptions[f.name] || [];
-    const found = options.find(opt => String(opt.id) === String(value));
-    if (found) {
-      return (
-        found.nome ||
-        (found.first_name || found.last_name ? `${found.first_name || ""} ${found.last_name || ""}`.trim() : null) ||
-        found.username ||
-        "-"
-      );
-    }
-    return "-";
-  }
 
-  // Multiselect
-  if (f.type === "multiselect") {
-    let values = record[f.name];
-    const options = selectOptions[f.name] || [];
-    if (Array.isArray(values)) {
-      return values
-        .map(v => {
-          const found = options.find(opt => String(opt.id) === String(v));
-          return found
-            ? found.nome ||
-                (found.first_name || found.last_name ? `${found.first_name || ""} ${found.last_name || ""}`.trim() : found.username) ||
-                v
-            : v;
+    if (f.name === "disciplinas") {
+      
+      // Se for multiselect, usa a lógica padrão de multiselect
+      if (f.type === "multiselect") {
+        return value && value.length
+          ? value
+              .map((v) => {
+                if (typeof v === "object") {
+                  return v.nome || v.label || v.id;
+                }
+                const found = selectOptions["disciplinas"]?.find(
+                  (o) => o.id === v
+                );
+                return found?.nome || v;
+              })
+              .join(", ")
+          : "-";
+      }
+      
+      // Se NÃO for multiselect, usa sua lógica original (para outro model)
+      const obj = record["disciplina"];
+      return obj?.nome || "-";
+    }
+
+    if (f.type === "select" && f.choices) {
+      const found = f.choices.find((c) => c.value === value);
+      return found?.label || value || "-";
+    }
+
+    if (f.type === "select") {
+      const id = typeof value === "object" ? value.id : value;
+      const found = options.find((o) => o.id === id);
+      return found?.nome || found?.aluno_nome || found?.label || found?.username || id || "-";
+    }
+
+    if (f.type === "multiselect") {
+      if (!Array.isArray(value)) return "-";
+
+      return value
+        .map((v) => {
+          if (typeof v === "object") {
+            return v.nome || v.label || v.periodo_principal || v.username || v.id;
+          }
+
+          const found = options.find((o) => o.id === v);
+
+          if (found) {
+            return (
+              (found.label ||
+                found.nome ||
+                found.username ||
+                found.periodo_principal ||
+                found.periodo_letivo) ??
+              found.id
+            );
+          }
+
+          return v;
         })
         .join(", ");
     }
-    return "-";
+    // FILE FIELD
+if (f.type === "FileField" || f.type === "file") {
+  if (!value) return "-";
+
+  // Se vier objeto com URL
+  if (typeof value === "object" && value.url) {
+    return (
+      <a href={value.url} target="_blank" rel="noreferrer">
+        {value.name || "Arquivo"}
+      </a>
+    );
   }
 
-  return value ?? "-";
-};
+  // Se vier somente a URL
+  if (typeof value === "string") {
+    return (
+      <a href={value} target="_blank" rel="noreferrer">
+        {value.split("/").pop()}
+      </a>
+    );
+  }
 
-
+  return "-";
+}
+    return value ?? "-";
+  };
 
   return (
     <div className="container-padrao">
       <h1>Gerenciar {metadata?.model}</h1>
 
+      {/* FORM CREATE */}
       <form className="form-padrao" onSubmit={handleSubmit}>
-        {metadata?.fields?.filter(f => f.name !== "id").map(f => (
-          <div key={f.name}>
-            <label>{f.label ? f.label : formatLabel(f.name)}:</label>
-            {renderInput(f, form[f.name], val => setForm({ ...form, [f.name]: val }))}
-            <FieldAlert fieldName={f.name} />
-          </div>
-        ))}
-        <button type="submit" className="submit-btn">Adicionar</button>
+        {metadata?.fields
+          ?.filter((f) => f.name !== "id")
+          .map((f) => (
+            <div key={f.name}>
+              <label>{formatLabel(f.name)}:</label>
+              {renderInput(f, form[f.name], (val) =>
+                setForm({ ...form, [f.name]: val })
+              )}
+              <FieldAlert fieldName={f.name} />
+            </div>
+          ))}
+        <button type="submit" className="submit-btn">
+          Adicionar
+        </button>
       </form>
 
+      {/* LIST */}
       <div className="list-padrao">
-  <h3>Registros</h3>
-  <ul>
-    {records.length === 0 && <li>Nenhum registro.</li>}
-    {records.map(r => {
-      
-      return (
-        <li key={r.id}>
-          {editId === r.id ? (
-            <form onSubmit={e => handleEditSubmit(e, r.id)}>
-              {metadata?.fields?.filter(f => f.name !== "id").map(f => (
-                <div key={f.name}>
-                  <label>{f.label ? f.label : formatLabel(f.name)}:</label>
-                  {renderInput(f, editForm[f.name], val => setEditForm({ ...editForm, [f.name]: val }))}
-                  <FieldAlert fieldName={`edit-${f.name}`} />
-                </div>
-              ))}
-              <div className="posicao-buttons esquerda">
-                <button type="submit" className="btn-salvar">Salvar</button>
-                <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
-              </div>
-            </form>
-          ) : (
-            <div>
-              {metadata?.fields?.filter(f => f.name !== "id").map(f => {
-                const valor = renderFieldValue(f, r);
-                
-                return (
-                  <div key={f.name}>
-                    <strong>{f.label ? f.label : formatLabel(f.name)}:</strong>{" "}
-                    {valor}
+        <h3>Registros</h3>
+        <ul>
+          {records.length === 0 && <li>Nenhum registro.</li>}
+          {records.map((r) => (
+            <li key={r.id}>
+              {editId === r.id ? (
+                <form onSubmit={(e) => handleEditSubmit(e, r.id)}>
+                  {metadata?.fields
+                    ?.filter((f) => f.name !== "id")
+                    .map((f) => (
+                      <div key={f.name}>
+                        <label>{formatLabel(f.name)}:</label>
+
+                        {renderInput(f, editForm[f.name], (val) =>
+                          setEditForm({ ...editForm, [f.name]: val })
+                        )}
+
+                        <FieldAlert fieldName={`edit-${f.name}`} />
+                      </div>
+                    ))}
+
+                  <div className="posicao-buttons esquerda">
+                    <button type="submit" className="btn-salvar">
+                      Salvar
+                    </button>
+                    <button type="button" class="botao-deletar" onClick={() => setEditId(null)}>
+                      Cancelar
+                    </button>
                   </div>
-                );
-              })}
-              <div className="posicao-buttons">
-                <BotaoEditar id={r.id} onClickInline={() => {
-                  console.log("=== Abrindo edição ===");
-                  console.log("Registro r recebido:", r);
-                  const normalized = normalizeRecordForEdit(r, metadata);
-                  console.log("Registro normalizado para edição:", normalized);
-                  setEditId(r.id);
-                  setEditForm(normalized); }} />
-                <BotaoDeletar
-                  id={r.id}
-                  axiosInstance={getEndpoint(modelName)}
-                  onDeletarSucesso={async () => { await fetchRecords(); addAlert("Registro deletado!", "success"); }}
-                />
-              </div>
-            </div>
-          )}
-        </li>
-      );
-    })}
-  </ul>
-</div>
+                </form>
+              ) : (
+                <div>
+                  {metadata?.fields
+                    ?.filter((f) => f.name !== "id")
+                    .map((f) => (
+                      <div key={f.name}>
+                        <strong>{formatLabel(f.name)}:</strong>{" "}
+                        {renderFieldValue(f, r)}
+                      </div>
+                    ))}
+
+                  <div className="posicao-buttons">
+                    <BotaoEditar
+                      id={r.id}
+                      onClickInline={() => {
+                        const normalized = normalizeRecordForEdit(r, metadata);
+
+                        setEditId(r.id);
+                        setEditForm(normalized);
+                      }}
+                    />
+                    <BotaoDeletar
+                      id={r.id}
+                      axiosInstance={getEndpoint(modelName)}
+                      onDeletarSucesso={async () => {
+                        await fetchRecords();
+                        addAlert("Registro deletado!", "success");
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <BotaoVoltar />
     </div>
