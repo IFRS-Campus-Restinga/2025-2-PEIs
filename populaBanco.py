@@ -84,7 +84,7 @@ def criar_admin_master():
     """
     Admin principal: ALTERE AQUI CASO QUEIRA SER CADASTRADO COMO ADMIN → 2023017316@aluno.restinga.ifrs.edu.br
     """
-    email = "2023017316@aluno.restinga.ifrs.edu.br"
+    email = "2022012487@aluno.restinga.ifrs.edu.br"
     nome = "Admin_Master"
 
     existente = User.objects.filter(email=email).first()
@@ -106,7 +106,7 @@ def criar_pedagogos():
 
 def criar_professores():
     nomes = [
-        "Gabriel Lisboa Costa", "Fernanda Lima", "Rafael Souza",
+        "Faustão Silva", "Fernanda Lima", "Rafael Souza",
         "Juliana Torres", "Marcelo Cunha", "Patrícia Mendes"
     ]
     for nome in nomes:
@@ -256,6 +256,11 @@ def criar_componentes_curriculares():
 def criar_pareceres():
     professores = list(User.objects.filter(groups__name="Professor"))
     componentes = list(ComponenteCurricular.objects.all())
+    alunos = list(Aluno.objects.all())
+
+    if not alunos:
+        print("Nenhum aluno encontrado. Crie alunos antes de criar pareceres.")
+        return
 
     textos = [
         "Excelente desempenho.",
@@ -266,13 +271,16 @@ def criar_pareceres():
     ]
 
     for comp in componentes:
+        professor_escolhido = random.choice(professores)
+        aluno_escolhido = random.choice(alunos)
         Parecer.objects.create(
             componente_curricular=comp,
-            professor=random.choice(professores),
+            professor=professor_escolhido,
+            aluno=aluno_escolhido,
             texto=random.choice(textos)
         )
 
-    print("Pareceres criados")
+    print("Pareceres criados e vinculados a alunos")
 
 
 # ==============================================================================
