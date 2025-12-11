@@ -10,6 +10,7 @@ import { API_ROUTES } from "../configs/apiRoutes";
 import { useLocation} from "react-router-dom";
 
 function DocumentacaoComplementar() {
+  const [listando, setListando] = useState(true);
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
   const location = useLocation()
   const {matricula} = location.state || {}
@@ -132,13 +133,13 @@ function DocumentacaoComplementar() {
       ["arquivo"] // ← campo opcional na edição
     );
 
-    if (mensagens.length > 0) {
+    /*if (mensagens.length > 0) {
       mensagens.forEach((m) =>
         addAlert(m.message, "error", { fieldName: `edit-${m.fieldName}` })
       );
       addAlert("Existem campos obrigatórios não preenchidos.", "warning");
       return;
-    }
+    }*/
 
     try {
       await DBDOC.put(

@@ -9,6 +9,5 @@ from .models.aluno import Aluno
 from .models.componenteCurricular import ComponenteCurricular
 from .models.CustomUser import CustomUser
 from .models.conteudo import Conteudo
-from pei.models.documentacaoComplementar import DocumentacaoComplementar
 
-admin.site.register((PEIPeriodoLetivo, Parecer, Curso, Disciplina, Aluno, PeiCentral, CustomUser, ComponenteCurricular, Conteudo, DocumentacaoComplementar))
+admin.site.register((PEIPeriodoLetivo, Parecer, Curso, Disciplina, Aluno, PeiCentral, CustomUser, ComponenteCurricular, Conteudo))
