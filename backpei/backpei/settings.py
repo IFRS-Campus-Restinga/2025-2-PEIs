@@ -187,8 +187,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATIC_URL = 'static/'
 
-MEDIA_URL = '/exportProDrive/'
-MEDIA_ROOT = BASE_DIR / 'exportProDrive'
+MEDIA_URL = '/Documentacao/'
+MEDIA_ROOT = 'Documentacao'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

@@ -36,13 +36,6 @@ class Acompanhamento(models.Model):
         default="pendente"
     )
 
-    """# Dados da recusa (se houver)
-    motivo_recusa = models.TextField(null=True, blank=True)
-    data_recusa = models.DateTimeField(null=True, blank=True)
-
-    # Dados do aceite (se houver)
-    data_aceite = models.DateTimeField(null=True, blank=True)"""
-
     # Controle de datas
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
@@ -65,23 +58,10 @@ class Acompanhamento(models.Model):
             f"Um novo acompanhamento foi criado para você.\n\n"
             f"Título: {self.titulo}\n"
             f"Descrição: {self.descricao}\n\n"
+            f"Qualquer dúvida, entre em contato com a instituição de ensino.\n\n"
             f"Atenciosamente,\nEquipe PEI"
         )
-        mensagem = f"""
-
-        Por favor, escolha uma opção:
-
-        Aceitar acompanhamento:
-        {aceitar_url}
-
-        Recusar acompanhamento:
-        {recusar_url}
-
-        Caso não reconheça esta mensagem, entre em contato com a escola.
-
-        Atenciosamente,
-        PEI - Instituto Federal do Rio Grande do Sul - Campus Restinga
-        """
+    
         try:
             send_mail(
                 assunto,
