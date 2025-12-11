@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from .base_model import BaseModel
+from pei.models.aluno import Aluno
 
 User = get_user_model()
 
@@ -19,6 +20,12 @@ class Parecer(BaseModel):
         related_name="pareceres",
         limit_choices_to={'groups__name': 'Professor'},
         help_text="Selecione apenas usuários do grupo Professor"
+    )
+    aluno = models.ForeignKey(
+        "pei.Aluno",
+        on_delete=models.CASCADE,
+        related_name="pareceres",
+        help_text="Aluno ao qual este parecer pertence"
     )
 
     texto = models.TextField(

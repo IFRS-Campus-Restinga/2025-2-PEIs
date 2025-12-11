@@ -40,7 +40,6 @@ function Pareceres({ usuario }) {
     headers: getAuthHeaders()
   });
 
-
   [DBPEI, DBPARECERES, DBCOMPONENTECURRICULAR, DBUSUARIOS].forEach(api => {
     api.interceptors.request.use(config => {
       config.headers = getAuthHeaders();
@@ -51,7 +50,8 @@ function Pareceres({ usuario }) {
   const [carregando, setCarregando] = useState(true);
   const [componentes, setComponentes] = useState([]);
   const [disciplinas, setDisciplinas] = useState([]);
-  const [usuarioId, setUsuarioId] = useState(null); // id do usuário logado
+  const [usuarioId, setUsuarioId] = useState(null);
+  const [peiCentral, setPeiCentral] = useState(null);
   const [form, setForm] = useState({ disciplina: "", texto: "" });
 
   useEffect(() => {
@@ -76,6 +76,7 @@ function Pareceres({ usuario }) {
       try {
         const resPEI = await DBPEI.get(`${peiCentralId}/`);
         const dadosPEI = resPEI.data || {};
+        setPeiCentral(dadosPEI);
         console.log("Dados do PEI Central recebidos:", dadosPEI);
 
         const disciplinasPEI = (dadosPEI.periodos || [])
@@ -152,6 +153,11 @@ function Pareceres({ usuario }) {
       return;
     }
 
+    if (!peiCentral || !peiCentral.aluno) {
+      addAlert("PEI Central ou aluno não carregado ainda.", "error");
+      return;
+    }
+
     console.log("Form enviado:", form);
     console.log("Componentes carregados:", componentes);
 
@@ -172,6 +178,7 @@ function Pareceres({ usuario }) {
     const novoParecer = {
       professor_id: usuarioId,
       componente_curricular_id: componenteSelecionado.id,
+      aluno_id: peiCentral.aluno.id, // <-- aqui enviamos o aluno do PEI central
       texto: form.texto
     };
 
