@@ -1,8 +1,4 @@
-import { getAlertManager } from "../context/AlertContext";
-
-const alertManager = getAlertManager();
-
-export function validaCampos(form, metadata, backendErrors = null, prefix = "") {
+export function validaCampos(form, metadata, backendErrors = null, prefix = "", addAlertFn = null) {
   const mensagens = [];
 
   if (!metadata || !metadata.fields) {
@@ -32,14 +28,14 @@ export function validaCampos(form, metadata, backendErrors = null, prefix = "") 
       if (!regex.test(texto)) {
         const msg = `Não use caracteres especiais. Use apenas letras, números e espaços.`;
         mensagens.push({ fieldName: fieldKey, message: msg });
-        alertManager?.addAlert(msg, "error", { fieldName: fieldKey });
+        addAlertFn?.(msg, "error", { fieldName: fieldKey });
       }
 
       // Tamanho mínimo
       if (texto.length < 7) {
         const msg = `Certifique-se de que este campo tenha mais de 7 caracteres.`;
         mensagens.push({ fieldName: fieldKey, message: msg });
-        alertManager?.addAlert(msg, "error", { fieldName: fieldKey });
+        addAlertFn?.(msg, "error", { fieldName: fieldKey });
       }
     }
 
@@ -47,7 +43,7 @@ export function validaCampos(form, metadata, backendErrors = null, prefix = "") 
     if (isRequired && texto === "") {
       const msg = `Preencha o campo: ${label}`;
       mensagens.push({ fieldName: fieldKey, message: msg });
-      alertManager?.addAlert(msg, "error", { fieldName: fieldKey });
+      addAlertFn?.(msg, "error", { fieldName: fieldKey });
     }
   });
 
@@ -56,11 +52,21 @@ export function validaCampos(form, metadata, backendErrors = null, prefix = "") 
     Object.entries(backendErrors).forEach(([field, msgs]) => {
       const fieldKey = prefix + field;
 
-      msgs.forEach((m) => {
+      let lista = [];
+
+      if (Array.isArray(msgs)) {
+        lista = msgs;
+      } else if (typeof msgs === "string") {
+        lista = [msgs];
+      } else if (msgs !== null && msgs !== undefined) {
+        lista = [JSON.stringify(msgs)];
+      }
+
+      lista.forEach((m) => {
         mensagens.push({ fieldName: fieldKey, message: m });
-        alertManager?.addAlert(m, "error", { fieldName: fieldKey });
+        addAlertFn?.(m, "error", { fieldName: fieldKey });
       });
-    });
+      });
   }
 
   return mensagens;
