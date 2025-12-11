@@ -185,8 +185,8 @@ function DocumentacaoComplementar() {
 
   return (
     <div className="container-padrao">
+      {listando ? (}
       <h1>Gerenciar Documentação Complementar</h1>
-
       <h2>Adicionar Documento</h2>
       <form className="form-padrao" onSubmit={adicionaDoc}>
         <label>Nome do arquivo:</label>
