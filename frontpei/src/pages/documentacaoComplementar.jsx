@@ -9,7 +9,7 @@ import "../cssGlobal.css";
 import { API_ROUTES } from "../configs/apiRoutes";
 import { useLocation} from "react-router-dom";
 
-function DocumentacaoComplementar() {
+export default function DocumentacaoComplementar() {
   const [listando, setListando] = useState(true);
   const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
   const location = useLocation()
@@ -185,148 +185,174 @@ function DocumentacaoComplementar() {
 
   return (
     <div className="container-padrao">
-      {listando ? (}
       <h1>Gerenciar Documentação Complementar</h1>
-      <h2>Adicionar Documento</h2>
-      <form className="form-padrao" onSubmit={adicionaDoc}>
-        <label>Nome do arquivo:</label>
-        <input
-          type="text"
-          name="nomeArquivo"
-          value={form.nomeArquivo}
-          onChange={(e) => {
-            setForm({ ...form, nomeArquivo: e.target.value });
-            if (e.target.value.trim()) clearFieldAlert("nomeArquivo");
-          }}
-          placeholder="Ex: Plano de Ensino Matemática 2025/1"
-        />
-        <FieldAlert fieldName="nomeArquivo" />
 
-        <label>Arquivo:</label>
-        <input
-          type="file"
-          name="arquivo"
-          accept=".pdf,.docx,.png,.jpg"
-          onChange={(e) => {
-            setArquivo(e.target.files[0]);
-            if (e.target.value) clearFieldAlert("arquivo");
-          }}
-        />
-        <FieldAlert fieldName="arquivo" />
-
-        <button type="submit" className="submit-btn">
-          Adicionar Documento
+      {/* BOTÃO PARA IR PARA CADASTRO */}
+      {listando && (
+        <button
+          className="submit-btn"
+          style={{ marginBottom: "20px" }}
+          onClick={() => setListando(false)}
+        >
+          Adicionar novo documento
         </button>
-      </form>
+      )}
 
-      <div className="list-padrao">
-        <h3>Documentos Cadastrados</h3>
-        <ul>
-          {docs.length === 0 && <li>Nenhum documento.</li>}
-          {docs.map((d) => (
-            <li key={d.id} className="componente-item">
-              {editId === d.id ? (
-                <form
-                  id="editForm"
-                  className="form-padrao"
-                  onSubmit={(e) => atualizaDoc(e, d.id)}
-                >
-                  <label>Nome do arquivo:</label>
-                  <input
-                    type="text"
-                    name="nomeArquivo"
-                    value={editForm.nomeArquivo}
-                    onChange={(e) => {
-                      setEditForm({ ...editForm, nomeArquivo: e.target.value });
-                      if (e.target.value.trim()) clearFieldAlert("nomeArquivo");
-                    }}
-                    placeholder="Ex: Plano de Ensino Matemática 2025/1"
-                  />
-                  <FieldAlert fieldName="nomeArquivo" />
+      {/* FORMULÁRIO DE CADASTRO */}
+      {!listando && (
+        <>
+          <h2>Adicionar Documento</h2>
+          <form className="form-padrao" onSubmit={adicionaDoc}>
+            <label>Nome do arquivo:</label>
+            <input
+              type="text"
+              name="nomeArquivo"
+              value={form.nomeArquivo}
+              onChange={(e) => {
+                setForm({ ...form, nomeArquivo: e.target.value });
+                if (e.target.value.trim()) clearFieldAlert("nomeArquivo");
+              }}
+              placeholder="Ex: Plano de Ensino Matemática 2025/1"
+            />
+            <FieldAlert fieldName="nomeArquivo" />
 
-                  <label>Trocar arquivo (opcional):</label>
-                  <input
-                    type="file"
-                    name="arquivo"
-                    accept=".pdf,.docx,.png,.jpg"
-                    onChange={(e) => {
-                      setEditArquivo(e.target.files[0]);
-                      if (e.target.value) clearFieldAlert("arquivo");
-                    }}
-                  />
-                  <FieldAlert fieldName="arquivo" />
+            <label>Arquivo:</label>
+            <input
+              type="file"
+              name="arquivo"
+              accept=".pdf,.docx,.png,.jpg"
+              onChange={(e) => {
+                setArquivo(e.target.files[0]);
+                if (e.target.value) clearFieldAlert("arquivo");
+              }}
+            />
+            <FieldAlert fieldName="arquivo" />
 
-                  <div className="posicao-buttons esquerda">
-                    <button type="submit" className="btn-salvar">Salvar</button>
+            <div className="posicao-buttons esquerda">
+              <button type="submit" className="btn-salvar">
+                Salvar
+              </button>
 
-                    <button
-                      type="button"
-                      className="botao-deletar"
-                      onClick={() => {
-                        setEditId(null);
-                        setEditArquivo(null);
-                        setEditForm({ nomeArquivo: "" });
+              <button
+                type="button"
+                className="botao-deletar"
+                onClick={() => setListando(true)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </>
+      )}
+
+      {/* LISTAGEM */}
+      {listando && (
+        <div className="list-padrao">
+          <h3>Documentos Cadastrados</h3>
+
+          <ul>
+            {docs.length === 0 && <li>Nenhum documento.</li>}
+
+            {docs.map((d) => (
+              <li key={d.id} className="componente-item">
+                {editId === d.id ? (
+                  <form
+                    id="editForm"
+                    className="form-padrao"
+                    onSubmit={(e) => atualizaDoc(e, d.id)}
+                  >
+                    <label>Nome do arquivo:</label>
+                    <input
+                      type="text"
+                      value={editForm.nomeArquivo}
+                      onChange={(e) => {
+                        setEditForm({ ...editForm, nomeArquivo: e.target.value });
+                        if (e.target.value.trim()) clearFieldAlert("nomeArquivo");
                       }}
-                    >
-                      Cancelar
-                    </button>
+                    />
+                    <FieldAlert fieldName="nomeArquivo" />
+
+                    <label>Trocar arquivo (opcional):</label>
+                    <input
+                      type="file"
+                      onChange={(e) => {
+                        setEditArquivo(e.target.files[0]);
+                        if (e.target.value) clearFieldAlert("arquivo");
+                      }}
+                    />
+                    <FieldAlert fieldName="arquivo" />
+
+                    <div className="posicao-buttons esquerda">
+                      <button type="submit" className="btn-salvar">Salvar</button>
+
+                      <button
+                        type="button"
+                        className="botao-deletar"
+                        onClick={() => {
+                          setEditId(null);
+                          setEditArquivo(null);
+                          setEditForm({ nomeArquivo: "" });
+                        }}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="componente-detalhe">
+                    <strong>Nome do arquivo:</strong> {d.nomeArquivo || "-"}
+
+                    {d.arquivo ? (
+                      <a
+                        href={d.arquivo}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="link-arquivo"
+                      >
+                        Download
+                      </a>
+                    ) : (
+                      <span>Sem arquivo</span>
+                    )}
+
+                    <div className="posicao-buttons">
+                      <button
+                        className="botao-editar"
+                        onClick={() => {
+                          setEditId(d.id);
+                          setEditForm({ nomeArquivo: d.nomeArquivo });
+                        }}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        className="botao-deletar"
+                        onClick={async () => {
+                          if (!window.confirm("Deseja excluir?")) return;
+                          try {
+                            await DBDOC.delete(`/${d.id}/`);
+                            addAlert("Documento excluído!", "success");
+                            recuperaDocs();
+                          } catch {
+                            addAlert("Erro ao deletar documento.", "error");
+                          }
+                        }}
+                      >
+                        Deletar
+                      </button>
+                    </div>
                   </div>
-                </form>
-              ) : (
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-                <div className="componente-detalhe">
-                  <strong>Nome do arquivo: </strong> {d.nomeArquivo || "-"} 
-                  {d.arquivo ? (
-                    <a
-                      href={d.arquivo}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="link-arquivo"
-                      
-                    >
-                      Fazer download do arquivo
-                    </a>
-                  ) : (
-                    <span>Sem arquivo</span>
-                  )}
-                  <div className="posicao-buttons">
-                    <button
-                      className="botao-editar"
-                      onClick={() => {
-                        setEditId(d.id);
-                        setEditForm({ nomeArquivo: d.nomeArquivo });
-                      }}
-                    >
-                      Editar
-                    </button>
-
-                    <button
-                      className="botao-deletar"
-                      onClick={async () => {
-                        if (!window.confirm("Tem certeza que deseja excluir este arquivo?")) return;
-
-                        try {
-                          await DBDOC.delete(`/${d.id}/`);
-                          addAlert("Documento deletado com sucesso!", "success");
-                          recuperaDocs();
-                        } catch (err) {
-                          addAlert("Erro ao deletar documento.", "error");
-                        }
-                      }}
-                    >
-                      Deletar
-                    </button>
-                  </div>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <BotaoVoltar />
+      {/* VOLTAR */}
+      {listando && <BotaoVoltar />}
     </div>
   );
-}
 
-export default DocumentacaoComplementar;
+}

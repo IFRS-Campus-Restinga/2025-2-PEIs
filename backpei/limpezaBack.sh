@@ -17,6 +17,7 @@ APAGAR="
 /app/pei/services/migrations/__pycache__
 /app/pei/services/serializers/__pycache__
 /app/pei/services/views/__pycache__
+/app/Documentacao
 "
 
 for item in $APAGAR; do
