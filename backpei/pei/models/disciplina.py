@@ -21,13 +21,5 @@ class Disciplina(BaseModel):
         blank=False  
     )
 
-    def clean(self):
-        if not self.pk or self.professores.count() == 0:
-            raise ValidationError("A disciplina deve ter pelo menos um professor vinculado.")
-
-        for prof in self.professores.all():
-            if prof.categoria != "PROFESSOR":
-                raise ValidationError(f"O usuário {prof.username} não é professor.")
-
     def __str__(self):
         return f"{self.nome}"

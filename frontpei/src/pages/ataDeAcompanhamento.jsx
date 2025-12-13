@@ -5,7 +5,6 @@ import { useAlert, FieldAlert } from "../context/AlertContext";
 import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import BotaoEditar from "../components/customButtons/botaoEditar";
 import BotaoDeletar from "../components/customButtons/botaoDeletar";
-import "../cssGlobal.css";
 import { API_ROUTES } from "../configs/apiRoutes";
 
 function AtaDeAcompanhamento({ usuario }) {
@@ -14,14 +13,18 @@ function AtaDeAcompanhamento({ usuario }) {
   useEffect(() => {
     clearAlerts();
   }, []);
+  const TOKEN_BEARER = localStorage.getItem("access") || localStorage.getItem("token") || "";
 
-  const DBATA = axios.create({ baseURL: API_ROUTES.ATADEACOMPANHAMENTO });
-  // injeta email do usuario nas requisições (ator)
-  if (usuario && usuario.email) {
-    DBATA.defaults.headers.common["X-User-Email"] = usuario.email;
-  }
+  const DBATA = axios.create({
+    baseURL: API_ROUTES.ATADEACOMPANHAMENTO,
+    headers: { Authorization: TOKEN_BEARER ? `token ${TOKEN_BEARER}` : undefined }
+  });
 
-  const PERIODO_LETIVO_API = axios.create({ baseURL: API_ROUTES.PEIPERIODOLETIVO });
+  const PERIODO_LETIVO_API = axios.create({
+    baseURL: API_ROUTES.PEIPERIODOLETIVO,
+    headers: { Authorization: TOKEN_BEARER ? `token ${TOKEN_BEARER}` : undefined }
+  });
+
 
   const [form, setForm] = useState({
     dataReuniao: "",

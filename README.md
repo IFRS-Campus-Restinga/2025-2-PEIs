@@ -342,3 +342,518 @@ const sucessoLoginGoogle = (credentialResponse) => {
 <h2>Cadastro de Usuário do Sistema</h2>
 
 <p>...</p>
+
+<h2> API de Schema Dinâmico — Mapeamento de Models para Formulários e Listagens</h2>
+<p>Caminho para o arquivo dentro do projeto:</p>
+<pre><code>backpei/pei/services/views/model_schema_view.py</code></pre>
+
+<p>
+Esta API fornece metadados completos dos <strong>models</strong> da aplicação, permitindo que o frontend
+gere formulários e interfaces totalmente dinâmicas, sem necessidade de códigos fixos (hardcoded).
+</p>
+
+<hr/>
+
+<h3> Visão Geral</h3>
+
+<p>A API oferece:</p>
+
+<ul>
+    <li> Lista de todos os endpoints reais associados aos models</li>
+    <li> Estrutura detalhada de cada model, incluindo:
+        <ul>
+            <li>Nome e tipo de cada campo</li>
+            <li>Informação sobre obrigatoriedade</li>
+            <li>Choices (opções pré-definidas)</li>
+            <li>Campos de relacionamento (FK e ManyToMany)</li>
+            <li>Tipos adequados para construção de inputs no frontend</li>
+            <li>Endpoints especializados para filtragem (ex: professores, coordenadores)</li>
+        </ul>
+    </li>
+    <li> Respeito a regras internas:
+        <ul>
+            <li>Campos ocultos definidos em <code>HIDDEN_FIELDS</code></li>
+            <li>Ignora campos reverse (relações automáticas)</li>
+            <li>Ignora campos marcados como não editáveis</li>
+        </ul>
+    </li>
+</ul>
+
+<p>O objetivo central é permitir geração automática de formulários e páginas CRUD,
+reduzindo retrabalho e garantindo consistência com o backend.</p>
+
+<hr/>
+
+<h3> Endpoint Principal</h3>
+
+<pre><code>GET http://localhost:8000/services/schema/</code></pre>
+
+<p>Este endpoint funciona como o índice do schema. Ele:</p>
+
+<ul>
+    <li>Retorna todos os models configurados em <code>ENDPOINT_MAP</code></li>
+    <li>Mapeia cada model ao seu endpoint real da API</li>
+    <li>Inclui o próprio link para acessar o schema individual de cada model</li>
+</ul>
+
+<h3> Exemplo de Resposta</h3>
+
+<pre><code>{
+    "usuario": "http://localhost:8000/services/usuario/",
+    "conteudo": "http://localhost:8000/services/conteudo/",
+    "parecer": "http://localhost:8000/services/parecer/",
+    "cursos": "http://localhost:8000/services/cursos/",
+    "aluno": "http://localhost:8000/services/aluno/",
+    "pei_central": "http://localhost:8000/services/pei_central/",
+    "PEIPeriodoLetivo": "http://localhost:8000/services/PEIPeriodoLetivo/",
+    "disciplinas": "http://localhost:8000/services/disciplinas/",
+    "componenteCurricular": "http://localhost:8000/services/componenteCurricular/",
+    "ataDeAcompanhamento": "http://localhost:8000/services/ataDeAcompanhamento/",
+    "documentacaoComplementar": "http://localhost:8000/services/documentacaoComplementar/",
+    "notificacoes": "http://localhost:8000/services/notificacoes/",
+    "schema": "http://localhost:8000/services/schema/"
+}
+</code></pre>
+
+<hr/>
+
+<h3> Endpoint de Schema por Model</h3>
+
+<pre><code>GET /services/schema/&lt;model&gt;/</code></pre>
+
+<p>
+Retorna a estrutura completa do model especificado.  
+Este endpoint é consumido pelo frontend para construção dinâmica de formulários, listas, selects, multiselects etc.
+</p>
+
+<h3> Exemplo real:</h3>
+
+<pre><code>GET /services/schema/componenteCurricular/</code></pre>
+
+<h3>Resposta:</h3>
+
+<pre><code>{
+    "model": "componenteCurricular",
+    "fields": [
+        {
+            "name": "id",
+            "required": true,
+            "type": "BigAutoField"
+        },
+        {
+            "name": "objetivos",
+            "required": true,
+            "type": "CharField"
+        },
+        {
+            "name": "conteudo_prog",
+            "required": true,
+            "type": "CharField"
+        },
+        {
+            "name": "metodologia",
+            "required": true,
+            "type": "CharField"
+        },
+        {
+            "name": "disciplinas",
+            "required": true,
+            "type": "select",
+            "related_model": "Disciplina"
+        },
+        {
+            "name": "periodos_letivos",
+            "required": true,
+            "type": "multiselect",
+            "related_model": "PEIPeriodoLetivo"
+        }
+    ]
+}
+</code></pre>
+
+<hr/>
+
+<h3> O que cada campo representa?</h3>
+
+<p>Cada item dentro de <code>fields[]</code> contém:</p>
+
+<ul>
+    <li><strong>name</strong> — nome do campo no model</li>
+    <li><strong>required</strong> — se é obrigatório no formulário</li>
+    <li><strong>type</strong> — tipo esperado no frontend:
+        <ul>
+            <li><code>file</code></li>
+            <li><code>select</code></li>
+            <li><code>multiselect</code></li>
+            <li><code>CharField</code>, <code>IntegerField</code>, etc.</li>
+        </ul>
+    </li>
+    <li><strong>choices</strong> — lista de opções (caso o campo tenha choices)</li>
+    <li><strong>related_model</strong> — nome do model relacionado (FK / M2M)</li>
+    <li><strong>related_endpoint</strong> — endpoint especializado (quando aplicável)</li>
+</ul>
+
+<hr/>
+
+<h3>Regras Internas</h3>
+
+<ul>
+    <li> <strong>Campos ocultos</strong> definidos em <code>HIDDEN_FIELDS</code> não aparecem no schema</li>
+    <li> Campos reverse (relações automáticas) são ignorados</li>
+    <li> Campos com <code>editable = False</code> são descartados</li>
+    <li> <strong>ForeignKeys</strong> são retornados como <code>select</code></li>
+    <li> <strong>ManyToMany</strong> são retornados como <code>multiselect</code></li>
+    <li> <strong>FileField</strong> é retornado como <code>file</code></li>
+</ul>
+
+<hr/>
+
+<h3> Benefícios deste Serviço</h3>
+
+<ul>
+    <li>✔ Criação automática de formulários dinâmicos</li>
+    <li>✔ Geração de telas CRUD sem repetição de código</li>
+    <li>✔ Redução drástica de acoplamento entre frontend e backend</li>
+    <li>✔ Consistência total com os models reais</li>
+    <li>✔ Facilidade para adicionar novos models sem modificar o frontend</li>
+    <li>✔ Ideal para arquiteturas baseadas em componentes</li>
+</ul>
+
+<hr/>
+
+<h2>Componente de CRUD Dinâmico</h2>
+
+<p>caminho para o componente no frontend:
+<pre><code>frontpei/src/components/crud</code></pre></p>
+
+<h3>Geração de formulários, telas de edição e listagens sem código repetido</h3>
+<p>Este módulo implementa um CRUD Universal Dinâmico, capaz de gerar telas completas de criação, edição e listagem de registros sem necessidade de escrever componentes manuais para cada model.
+Ele funciona consumindo a API de mapeamento de models (/services/schema/)</p>
+
+<h3>1. Visão geral do funcionamento:</h3>
+<p><strong>O fluxo de funcionamento é:</strong>
+<ul>
+<li>React envia o nome do model para o componente CrudUniversal.</li>
+<li>O componente consulta o endpoint de serviços (/services/) para descobrir os links de cada model.</li>
+<li>Em seguida, consulta o endpoint de schema:</li>
+</ul>
+<pre><code>GET /services/schema/{model}/</code></pre>
+
+<p>Este endpoint retorna metadados completos do model.</p>
+
+<p>O CRUD renderiza automaticamente:</p>
+<ul>
+<li>Formulário de criação</li>
+<li>Listagem de registros</li>
+<li>Edição inline</li>
+<li>Remoção</li>
+</ul>
+
+<p>Nenhum componente específico para cada model é necessário.</p>
+
+<h3>2. Arquitetura do CRUD Universal:</h3>
+<p>Mapeia todos os endpoints reais da API:</p>
+
+<pre><code>const [servicesMap, setServicesMap] = useState({}); </code></pre>
+
+<p><strong>Carregamento da Metadata do Model</strong></p>
+<pre><code>api.get(`${servicesMap.schema}${modelName}`); </code></pre>
+
+<p>Aqui o CRUD recebe:</p>
+<ul>
+<li>Campos</li>
+<li>Tipos</li>
+<li>Choices</li>
+<li>Relacionamentos</li>
+<li>Campo obrigatórios</li>
+<li>Campos editáveis</li>
+</ul>
+
+<p>Essa metadata passa a controlar toda a lógica da tela.</p>
+
+<strong>Carregamento Dinâmico de Selects e MultiSelects</strong>
+
+<p>Para cada campo select ou multiselect, o componente: </p>
+<ul>
+<li>Identifica o related_model</li>
+<li>Converte nomes que precisam de exceção (Disciplina → disciplinas) </li>
+<li>Busca automaticamente o endpoint correto</li>
+<li>Carrega as opções</li>
+</ul>
+<pre><code>setSelectOptions((prev) => ({
+  ...prev,
+  [f.name]: options,
+}));</code></pre>
+
+Assim, uma FK pode aparecer automaticamente como dropdown.
+
+<strong>Normalização de Payload:</strong>
+
+<p>Antes de enviar ao backend, o CRUD transforma o payload:</p>
+<ul>
+<li>Converte IDs de selects para número</li>
+<li>Converte arrays de multiselects</li>
+<li>Adapta campos especiais (ex.: periodos_letivos_id)</li>
+<li>Remove campos ignorados</li>
+</ul>
+Isso garante compatibilidade com o serializer no backend.
+
+<strong>Criação de Registro (POST)</strong>
+<pre><code>await api.post(getEndpoint(modelName), payload);</code></pre>
+
+O payload já vem normalizado.
+
+<strong>Edição Inline (PUT)</strong>
+
+<p>Quando o usuário clica em Editar, o CRUD:</p>
+<ul>
+<li>Normaliza o registro retornado do backend</li>
+<li>Preenche o formulário com os valores corretos</li>
+<li>Salva via PUT</li>
+</ul>
+<pre><code>await api.put(`${getEndpoint(modelName)}${id}/`, payload);</code></pre>
+
+<strong>Exclusão</strong>
+
+<p>A deleção usa um componente dedicado:</p>
+<pre><code><BotaoDeletar id={r.id} axiosInstance={getEndpoint(modelName)} /></pre></code>
+
+<strong>Renderização Dinâmica de Inputs</strong>
+
+<p>O método renderInput decide qual componente utilizar:</p>
+
+| Tipo DRF           | Tipo do Form        | Exemplo                     |
+|--------------------|---------------------|------------------------------|
+| CharField          | text                | `<input type="text">`        |
+| IntegerField       | number              | `<input type="number">`      |
+| DateField          | date                | `<input type="date">`        |
+| FileField          | file                | `<input type="file">`        |
+| select + choices   | enum                | `<select>`                   |
+| select + FK        | dropdown (API)      | `<select>`                   |
+| multiselect        | checkbox list       | *lista de checkboxes*        |
+
+<p>Não é necessário escrever nenhum input manual. </p>
+
+<strong>Renderização da Listagem</strong>
+
+<p>O componente lista todos os registros usando a mesma metadata, formatando:</p>
+<ul>
+<li>Selects</li>
+<li>Choices</li>
+<li>Many-to-many</li>
+<li>Arquivos</li>
+<li>Datas</li>
+</ul>
+<p>Tudo baseado no tipo do campo detectado dinamicamente.</p>
+
+<strong>Exceções de Models</strong>
+
+<p>Alguns nomes de models precisam ser ajustados, por exemplo:</p>
+
+<pre><code>const exceptions = {
+  Disciplina: "disciplinas",
+  ComponenteCurricular: "componenteCurricular",
+  CustomUser: "usuario",
+  Curso: "cursos",
+};</code></pre>
+
+<p>Isso garante que o nome do model → endpoint real seja interpretado corretamente.</p>
+
+<strong><p>Benefícios do CRUD Dinâmico</p></strong>
+<p>✔ Zero repetição de código</p>
+<p>Sem componentes separados para Curso, Aluno, Disciplina, etc.
+</p>
+
+<p>✔ O backend controla a UI</p>
+Alterou o model?
+O schema muda e o CRUD se adapta automaticamente.
+
+<p>✔ Expansão instantânea</p>
+Criou um novo model e adicionou ao schema?
+Já funciona no frontend sem desenvolver nenhuma tela.
+
+<p>✔ Redução de bugs</p>
+Menos código duplicado significa menos inconsistências.
+
+<p>✔ Padronização das telas</p>
+Todas as telas CRUD ficam unificadas, limpas e previsíveis.</p>
+
+<strong>Conclusão</strong>
+Este componente transforma a aplicação em uma plataforma extremamente escalável, onde novos models podem ser manipulados pelo frontend sem desenvolvimento adicional, graças à integração entre:
+<ul>
+<li>API de Metadados</li>
+<li>CRUD Universal Dinâmico</li>
+</ul>
+
+<p>Essa abordagem combina:</p>
+<ul>
+<li>Flexibilidade</li>
+<li>Padronização</li>
+<li>Redução de esforço/li>
+<li>Baixa manutenção</li>
+<li>Expansão rápida</li>
+</ul>
+
+<h2>Sistemas de alertas (Toast + Inline + Confirmação)</h2>
+<p>Este módulo fornece um sistema completo de alertas para aplicações React, incluindo:</p>
+
+<ul>
+<li>Toasts (alertas temporários no canto inferior direito)</li>
+<li>Alertas Inline (mensagens associadas a campos de formulário)</li>
+<li>Alertas de Confirmação (modal centralizado com Sim/Não)</li>
+<li>Limpeza automática ao trocar de rota</li>
+<li>Suporte a callbacks onConfirm e onCancel</li>   
+</ul>
+
+<h3>Instalação e Estrutura:</h3>
+<p>O sistema é composto por dois arquivos:</p>
+<pre><code>src/context/AlertContext.jsx
+src/components/AlertComponent.jsx</code></pre>
+
+<p>Basta envolver sua aplicação com o AlertProvider e incluir o AlertComponent.</p>
+
+<h3>Uso</h3>
+
+<h4>Envolvendo a aplicação:</h4>
+<pre><code>import { AlertProvider } from "./context/AlertContext";
+import AlertComponent from "./components/AlertComponent";
+
+function App() {
+  return (
+    <"AlertProvider">
+      <"AlertComponent" />
+      {/** restante da aplicação */}
+    </"AlertProvider">
+  );
+}</code></pre>
+
+<h4>API do contexto</h4>
+<p>Você pode usar:</p>
+
+<pre><code>const {
+  addAlert,
+  removeAlert,
+  clearAlerts,
+  clearFieldAlert,
+  alerts,
+  fieldAlerts
+} = useAlert();</code></pre>
+
+<h4>Criando alertas globais (toasts)</h4>
+
+<pre><code>addAlert("Salvo com sucesso!", "success");
+addAlert("Algo deu errado.", "error");
+addAlert("Aviso importante!", "warning");
+addAlert("Informação útil.", "info");</code></pre>
+
+<p><strong>Tipos suportados:</strong></p>
+
+<ul>
+    <li><strong>success:</strong> Limpa todos os alertas anteriores antes de exibir</li>
+    <li><strong>error:</strong> Não limpa outros</li>
+    <li><strong>warning:</strong> Aviso genérico</li>
+    <li><strong>info:</strong> Informação</li>
+    <li><strong>confirm: </strong>Abre modal com botões “Sim” e “Não”</li>
+</ul>
+
+<h4>Alertas Inline (para formulários)</h4>
+<p>Perfeito para exibir erros de validação associados a campos específicos.</p>
+
+<h4>Criar alerta inline:</h4>
+<pre><code>addAlert("Campo obrigatório", "error", { fieldName: "email" });</code></pre>
+
+<h4>Exibir no componente:</h4>
+<pre><code><FieldAlert fieldName="email" /></code></pre>
+
+<h4>Remover alerta inline:</h4>
+<pre><code>clearFieldAlert("email");</code></pre>
+
+<h3>Integração com validaCampos</h3>
+<p>O sistema de alertas também possui uma função utilitária para validação de formulários:</p>
+
+<pre><code>import { validaCampos } from "../../utils/validaCampos";
+
+const erros = validaCampos(form, metadata, backendErrors, prefix, addAlert);
+</code></pre>
+
+<h4>Como funciona:</h4>
+<ul>
+    <li>Valida campos obrigatórios (required)</li>
+    <li>Valida regras customizadas (ex.: campo objetivos)</li>
+    <li>Transforma erros de backend em alertas inline</li>
+    <li>Suporta envio de alertas inline usando addAlertFn</li>
+</ul>
+
+<h4>Exemplo de uso com inline no form de criação/edição:</h4>
+<pre><code>import { useAlert } from "../../context/AlertContext";
+import { validaCampos } from "../../utils/validaCampos";
+
+const { addAlert } = useAlert();
+
+// Ao enviar formulário
+const erros = validaCampos(form, metadata, backendErrors, "", addAlert);
+
+if (erros.length > 0) {
+  // os erros já são exibidos inline
+  return;
+}</code></pre>
+
+<p>Cada erro retornado pela função contém { fieldName, message }, e os alertas inline aparecem automaticamente nos componentes <"FieldAlert fieldName="..."" />.</p>
+
+
+
+<h3>Alertas de Confirmação (com modal)</h3>
+<pre><code>addAlert("Deseja realmente excluir?", "confirm", {
+  onConfirm: () => console.log("Confirmado!"),
+  onCancel: () => console.log("Cancelado!")
+});</code></pre>
+
+<p>Abre uma modal centralizada com Sim / Não.</p>
+
+<h3>Limpeza de alertas ao mudar de rota</h3>
+<pre><code>useEffect(() => {
+  setAlerts([]);
+}, [location]);</code></pre>
+
+<p>Ou seja:</p>
+<ul>
+    <li>✔ Ao trocar de página → toasts desaparecem automaticamente</li>
+    <li>✔ Alertas inline permanecem até serem limpos manualmente</li>
+</ul>
+
+<h3>Funções disponíveis:</h3>
+<ul>
+    <li>addAlert(message, type, options) - Cria qualquer tipo de alerta.</li>
+    <li>removeAlert(id) - Remove um alerta global usando seu ID.</li>
+    <li>clearAlerts() - Remove todos os alertas globais e inline.</li>
+    <li>clearFieldAlert(fieldName) - Remove apenas o alerta inline do campo informado.</li>
+</ul>
+
+<h3>Estilização:</h3>
+<p>O sistema utiliza classes:</p>
+<ul>
+    <li>alert</li>
+    <li>alert success</li>
+    <li>alert error</li>
+    <li>alert warning</li>
+    <li>alert info</li>
+    <li>alert inline</li>
+    <li>alert-confirm-overlay</li>
+    <li>alert-confirm-box</li>
+    <li>alert-close</li>
+</ul>
+<p>Você pode personalizar livremente no cssGlobal.css.</p>
+
+<h3>Resumo do Fluxo</h3>
+<ul>
+    <li>AlertProvider gerencia o estado</li>
+    <li>AlertComponent renderiza toast/modals</li>
+    <li>addAlert decide automaticamente:</li>
+        <ul>
+            <li>toast comum</li>
+            <li>toast de erro</li>
+            <li>inline</li>
+            <li>modal de confirmação</li>
+        </ul>
+    <li>Limpeza automática ao mudar de rota</li>
+</ul>

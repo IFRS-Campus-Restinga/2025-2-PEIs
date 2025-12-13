@@ -5,11 +5,12 @@ from ..permissions import BackendTokenPermission
 from django.core.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import DjangoObjectPermissions
 
 class ParecerViewSet(ModelViewSet):
     queryset = Parecer.objects.all()
     serializer_class = ParecerSerializer
-    #permission_classes = [BackendTokenPermission]
+    permission_classes = [DjangoObjectPermissions]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

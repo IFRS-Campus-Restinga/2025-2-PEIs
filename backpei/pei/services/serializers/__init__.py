@@ -10,3 +10,4 @@ from .pei_central_serializer import *
 from .notificacao_serializer import *
 from .usuario_serializer import *
 from .conteudo_serializer import *
+from .acompanhamento_serializer import *

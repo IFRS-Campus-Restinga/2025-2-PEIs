@@ -3,8 +3,8 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useAlert, FieldAlert } from "../../context/AlertContext";
 import { validaCampos } from "../../utils/validaCampos";
-import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
+import "../../cssGlobal.css";
 
 function EditarPeiCentral() {
   const { id } = useParams();
@@ -16,7 +16,12 @@ function EditarPeiCentral() {
     clearAlerts();
   }, []);
 
-  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
+  const DB = axios.create({
+    baseURL: API_ROUTES.PEI_CENTRAL,
+    headers: {
+      Authorization: `Token ${localStorage.getItem("token") || ""}`
+    }
+  });
 
   /*const [status_pei, setStatus] = useState("");
   const [historico_do_aluno, setHistorico] = useState("");

@@ -4,64 +4,72 @@ import { Link, useNavigate } from "react-router-dom";
 import { validaCampos } from "../../utils/validaCampos";
 import { FieldAlert, useAlert } from "../../context/AlertContext";
 import BotaoVoltar from "../../components/customButtons/botaoVoltar";
-import "../../cssGlobal.css";
 import { API_ROUTES } from "../../configs/apiRoutes";
+import "../../cssGlobal.css";
+import BuscaAutoComplete from "../../components/BuscaAutoComplete";
+import ErrorMessage from "../../components/errorMessage/ErrorMessage";
 
 function CreatePeiCentral() {
-  const [historico_do_aluno, setHistorico] = useState("");
-  const [necessidades_educacionais_especificas, setNecessidades] = useState("");
-  const [habilidades, setHabilidades] = useState("");
-  const [dificuldades_apresentadas, setDificuldadesApresentadas] = useState("");
-  const [adaptacoes, setAdaptacoes] = useState("");
-  const [status_pei, setStatus] = useState("");
-
-  const [alunos, setAlunos] = useState([]);
-  const [alunoSelecionado, setAlunoSelecionado] = useState("");
-
-  // NOVO — cursos
-  const [cursos, setCursos] = useState([]);
-  const [cursoSelecionado, setCursoSelecionado] = useState("");
-
-  const [form, setForm] = useState({
-    historico_do_aluno: "",
-    necessidades_educacionais_especificas: "",
-    habilidades: "",
-    dificuldades_apresentadas: "",
-    adaptacoes: "",
-    status_pei: "",
-    aluno_id: "",
-  });
-
-  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
-
-  useEffect(() => {
-    clearAlerts();
-  }, []);
-
   const navigate = useNavigate();
 
-  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
-  const DBALUNO = axios.create({ baseURL: API_ROUTES.ALUNO });
+  // CAMPOS SIMPLES
+  const [necessidades_educacionais_especificas, setNecessidades] = useState("");
+  const [habilidades, setHabilidades] = useState("");
+  const [adaptacoes, SetAdaptacoes] = useState("");
+  const [status_pei, setStatus] = useState("");
 
-  // NOVO — rota cursos (confirmar se é API_ROUTES.CURSO ou CURSOS)
-  const DBCURSOS = axios.create({ baseURL: API_ROUTES.CURSOS });
+  // ALERTAS
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
-  // Carrega alunos na abertura da tela
-  useEffect(() => {
-    async function recuperaAlunos() {
-      try {
-        const resp = await DBALUNO.get("/");
-        const data = resp.data;
-        console.log("ALUNOS:", data);
-        setAlunos(Array.isArray(data) ? data : data.results || []);
-      } catch (err) {
-        addAlert("Erro ao carregar alunos!", "error");
-      }
-    }
-    recuperaAlunos();
-  }, []);
+  // FORM COMPLEXO
+  const [form, setForm] = useState({
+    aluno_id: "",
+    historico_do_aluno: "",
+    dificuldades_apresentadas: "",
+  });
 
-  // NOVO — carregar cursos na tela
+  // CONTEXT DO ALERT
+  const { addAlert, clearFieldAlert } = useAlert();
+
+  // ERROS DE CAMPOS
+  const [erroHistorico, setErroHistorico] = useState("");
+  const [erroNecessidadesEducacionaisEspecificas, setErroNecessidadesEducacionaisEspecificas] = useState("");
+  const [erroHabilidades, setErroHabilidades] = useState("");
+
+  // CURSOS E ALUNOS
+  const [cursos, setCursos] = useState([]);
+  const [cursoSelecionado, setCursoSelecionado] = useState("");
+  const [alunos, setAlunos] = useState([]);
+
+  // API
+  function getAuthHeaders() {
+    const token = localStorage.getItem("access") || localStorage.getItem("token");
+    return token ? { Authorization: `token ${token}` } : {};
+  }
+  const DB = axios.create({
+    baseURL: API_ROUTES.PEI_CENTRAL,
+    headers: getAuthHeaders()
+  });
+
+  const DBALUNO = axios.create({
+    baseURL: API_ROUTES.ALUNO,
+    headers: getAuthHeaders()
+  });
+
+  const DBCURSOS = axios.create({
+    baseURL: API_ROUTES.CURSOS,
+    headers: getAuthHeaders()
+  });
+
+  [DB, DBALUNO, DBCURSOS].forEach(api => {
+    api.interceptors.request.use(config => {
+      config.headers = getAuthHeaders();
+      return config;
+    });
+  });
+
+  // ================== GET CURSOS ==================
   useEffect(() => {
     async function recuperaCursos() {
       try {
@@ -69,13 +77,48 @@ function CreatePeiCentral() {
         const data = resp.data;
         setCursos(Array.isArray(data) ? data : data.results || []);
       } catch (err) {
+        console.error("Erro ao carregar cursos:", err);
         addAlert("Erro ao carregar cursos!", "error");
       }
     }
     recuperaCursos();
   }, []);
 
-  // NOVO — lista filtrada de alunos
+
+  // ================== GET ALUNOS ==================
+  useEffect(() => {
+    async function recuperaAlunos() {
+      try {
+        const resp = await DBALUNO.get("/");
+        const data = resp.data;
+        setAlunos(Array.isArray(data) ? data : data.results || []);
+      } catch (err) {
+        console.error("Erro ao carregar alunos:", err);
+        addAlert("Erro ao carregar alunos!", "error");
+      }
+    }
+    recuperaAlunos();
+  }, []);
+
+
+  {/*// ================== GET PEI CENTRAL (CASO PRECISE LISTAR) ==================
+  useEffect(() => {
+    async function recuperaPeiCentral() {
+      try {
+        const resp = await DB.get("/");
+        const data = resp.data;
+        console.log("PEI Central carregado:", data);
+        // se quiser salvar no state, coloque abaixo:
+        // setPeis(Array.isArray(data) ? data : data.results || []);
+      } catch (err) {
+        console.error("Erro ao carregar PEI Central:", err);
+      }
+    }
+    recuperaPeiCentral();
+  }, []);
+    */}
+    
+  // Filtrar alunos por curso
   const alunosFiltrados = cursoSelecionado
     ? alunos.filter((a) => a.curso_obj?.id === Number(cursoSelecionado))
     : alunos;
@@ -84,6 +127,7 @@ function CreatePeiCentral() {
     e.preventDefault();
 
     const mensagens = validaCampos(form, e.target);
+
     if (mensagens.length > 0) {
       mensagens.forEach((m) =>
         addAlert(m.message, "error", { fieldName: m.fieldName })
@@ -95,65 +139,58 @@ function CreatePeiCentral() {
     try {
       const resposta = await DB.post("/", {
         historico_do_aluno: form.historico_do_aluno,
-        necessidades_educacionais_especificas:
-          form.necessidades_educacionais_especificas,
-        habilidades: form.habilidades,
         dificuldades_apresentadas: form.dificuldades_apresentadas,
-        adaptacoes: form.adaptacoes,
-        status_pei: form.status_pei,
-        aluno_id: Number(form.aluno_id),
+        necessidades_educacionais_especificas,
+        habilidades,
+        adaptacoes,
+        status_pei,
+        aluno_id: form.aluno_id,
       });
 
-      addAlert("PEI Central criado com sucesso!", "success");
+      console.log("Criado:", resposta.data);
+      setSucesso("PEI CENTRAL CRIADO!!!");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      setTimeout(() => setSucesso(""), 3000);
 
       setForm({
-        historico_do_aluno: "",
-        necessidades_educacionais_especificas: "",
-        habilidades: "",
-        dificuldades_apresentadas: "",
-        adaptacoes: "",
-        status_pei: "",
         aluno_id: "",
+        historico_do_aluno: "",
+        dificuldades_apresentadas: "",
       });
 
-      setTimeout(() => navigate("/peicentral"), 1500);
+      setStatus("");
+
+      setTimeout(() => navigate("/peicentral"), 3500);
     } catch (err) {
-      if (err.response?.data) {
-        Object.entries(err.response.data).forEach(([f, m]) => {
-          addAlert(Array.isArray(m) ? m.join(", ") : m, "error", {
-            fieldName: f,
-          });
-        });
-
-        const msg = Object.entries(err.response.data)
-          .map(([f, m]) => {
-            const nomeCampo = f.charAt(0).toUpperCase() + f.slice(1);
-            const mensagens = Array.isArray(m) ? m.join(", ") : m;
-            return `Campo ${nomeCampo}: ${mensagens}`;
-          })
-          .join("\n");
-
-        addAlert(`Erro ao cadastrar:\n${msg}`, "error", { persist: true });
-      } else {
-        addAlert("Erro ao cadastrar PEI.", "error", { persist: true });
-      }
+      console.error(err);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setErro("ERRO! Não foi possível criar Pei Central");
     }
   }
 
   return (
     <div className="container-padrao">
-      <h1 className="text-xl font-bold mb-4">Criar PEI Central</h1>
+      <h1 className="text-xl font-bold mb-4">Criar Pei Central</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Mensagens */}
+      <div>
+        {sucesso && <div className="text-sucesso">{sucesso}</div>}
+        <ErrorMessage message={erro} align="center" />
+        <ErrorMessage message={erroHistorico} align="center" />
+        <ErrorMessage message={erroNecessidadesEducacionaisEspecificas} align="center" />
+        <ErrorMessage message={erroHabilidades} align="center" />
+      </div>
 
-        {/* Seleção de Curso */}
+      <form className="form-padrao" onSubmit={handleSubmit}>
+
+        {/* Curso */}
         <label>Selecione o Curso</label>
-        <br />
         <select
           value={cursoSelecionado}
           onChange={(e) => {
             setCursoSelecionado(e.target.value);
-            setForm({ ...form, aluno_id: "" }); // limpa aluno ao trocar curso
+            setForm({ ...form, aluno_id: "" });
             clearFieldAlert("aluno_id");
           }}
         >
@@ -165,95 +202,81 @@ function CreatePeiCentral() {
           ))}
         </select>
 
-        {/* Seleção do Aluno agora filtrado */}
-        <label>Selecione o Aluno</label>
-        <br />
-        <select
-          value={form.aluno_id}
-          name="aluno_id"
-          onChange={(e) => {
-            setForm({ ...form, aluno_id: e.target.value });
-            if (e.target.value.trim()) clearFieldAlert("aluno_id");
-          }}
-        >
-          <option value="">-- Selecione --</option>
-
-          {alunosFiltrados.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.nome ?? `#${a.id}`} - {a.matricula}
-            </option>
-          ))}
-        </select>
-        <FieldAlert fieldName="aluno_id" />
-
-        {/* Histórico do aluno */}
+        {/* Aluno */}
         <div>
-          <label className="block mb-1 font-medium">Histórico do Aluno:</label>
+          <label className="block mb-1 font-medium">
+            Selecione o Aluno (Busca por Nome/Matrícula)
+          </label>
+
+          <BuscaAutoComplete
+            onSelectAluno={(alunoId) => {
+              setForm({ ...form, aluno_id: alunoId });
+            }}
+            disabled={!cursoSelecionado}
+            clearFieldAlert={clearFieldAlert}
+            alunosFiltrados={alunosFiltrados}
+            cursoSelecionado={cursoSelecionado}
+          />
+
+          <FieldAlert fieldName="aluno_id" />
+          <input type="hidden" name="aluno_id" value={form.aluno_id} />
+        </div>
+
+        {/* HISTÓRICO */}
+        <div>
+          <label className="block mb-1 font-medium">
+            Histórico do Aluno:
+            {erroHistorico && <span>⚠️</span>}
+          </label>
+
           <textarea
-            style={{ width: "100%" }}
             rows={6}
             name="historico_do_aluno"
             value={form.historico_do_aluno}
             onChange={(e) => {
               setForm({ ...form, historico_do_aluno: e.target.value });
-              if (e.target.value.trim())
-                clearFieldAlert("historico_do_aluno");
+              if (e.target.value.trim()) clearFieldAlert("historico_do_aluno");
             }}
-            className="border px-2 py-1 rounded w-full h-32 resize-y"
             placeholder="Digite o histórico completo do aluno"
+            required
           />
-          <FieldAlert fieldName="historico_do_aluno" />
         </div>
 
-        {/* Necessidades */}
+        {/* NECESSIDADES */}
         <div>
           <label className="block mb-1 font-medium">
             Necessidades Educacionais Específicas:
+            {erroNecessidadesEducacionaisEspecificas && <span>⚠️</span>}
           </label>
+
           <textarea
-            style={{ width: "100%" }}
             rows={6}
-            name="necessidades_educacionais_especificas"
-            value={form.necessidades_educacionais_especificas}
-            onChange={(e) => {
-              setForm({
-                ...form,
-                necessidades_educacionais_especificas: e.target.value,
-              });
-              if (e.target.value.trim())
-                clearFieldAlert("necessidades_educacionais_especificas");
-            }}
-            className="border px-2 py-1 rounded w-full h-32 resize-y"
-            placeholder="Ex: Se o estudante é cego, precisa de Braille, leitor de telas..."
+            value={necessidades_educacionais_especificas}
+            onChange={(e) => setNecessidades(e.target.value)}
+            placeholder="Ex: Se o estudante é cego, precisa de Braille..."
           />
-          <FieldAlert fieldName="necessidades_educacionais_especificas" />
         </div>
 
-        {/* Habilidades */}
-        <div>
-          <label className="block mb-1 font-medium">Habilidades:</label>
-          <textarea
-            style={{ width: "100%" }}
-            rows={6}
-            name="habilidades"
-            value={form.habilidades}
-            onChange={(e) => {
-              setForm({ ...form, habilidades: e.target.value });
-              if (e.target.value.trim()) clearFieldAlert("habilidades");
-            }}
-            className="border px-2 py-1 rounded w-full h-32 resize-y"
-            placeholder="Conhecimentos, habilidades, interesses, afinidades..."
-          />
-          <FieldAlert fieldName="habilidades" />
-        </div>
-
-        {/* Dificuldades */}
+        {/* HABILIDADES */}
         <div>
           <label className="block mb-1 font-medium">
-            Dificuldades Apresentadas:
+            Habilidades:
+            {erroHabilidades && <span>⚠️</span>}
           </label>
+
           <textarea
-            style={{ width: "100%" }}
+            rows={6}
+            value={habilidades}
+            onChange={(e) => setHabilidades(e.target.value)}
+            placeholder="Conhecimentos, habilidades, interesses..."
+          />
+        </div>
+
+        {/* DIFICULDADES */}
+        <div>
+          <label className="block mb-1 font-medium">Dificuldades Apresentadas:</label>
+
+          <textarea
             rows={6}
             name="dificuldades_apresentadas"
             value={form.dificuldades_apresentadas}
@@ -265,52 +288,42 @@ function CreatePeiCentral() {
               if (e.target.value.trim())
                 clearFieldAlert("dificuldades_apresentadas");
             }}
-            className="border px-2 py-1 rounded w-full h-32 resize-y"
-            placeholder="Dificuldades apresentadas pelo aluno"
+            placeholder="Dificuldades Apresentadas"
+            required
           />
-          <FieldAlert fieldName="dificuldades_apresentadas" />
         </div>
 
-        {/* Adaptações */}
+        {/* ADAPTAÇÕES */}
         <div>
           <label className="block mb-1 font-medium">Adaptações:</label>
+
           <textarea
-            style={{ width: "100%" }}
             rows={6}
-            name="adaptacoes"
-            value={form.adaptacoes}
-            onChange={(e) => {
-              setForm({ ...form, adaptacoes: e.target.value });
-              if (e.target.value.trim()) clearFieldAlert("adaptacoes");
-            }}
-            className="border px-2 py-1 rounded w-full h-32 resize-y"
-            placeholder="Adaptações razoáveis e/ou acessibilidades curriculares"
+            value={adaptacoes}
+            onChange={(e) => SetAdaptacoes(e.target.value)}
+            placeholder="Adaptações Razoáveis e/ou Acessibilidades Curriculares"
+            required
           />
-          <FieldAlert fieldName="adaptacoes" />
         </div>
 
-        {/* Status */}
+        {/* STATUS */}
         <div>
           <label className="block mb-1 font-medium">Status:</label>
+
           <select
-            value={form.status_pei}
-            name="status_pei"
-            onChange={(e) => {
-              setForm({ ...form, status_pei: e.target.value });
-              if (e.target.value.trim()) clearFieldAlert("status_pei");
-            }}
-            className="border px-2 py-1 rounded w-full"
+            value={status_pei}
+            onChange={(e) => setStatus(e.target.value)}
+            required
           >
-            <option value="">-- Selecione --</option>
+            <option value="">Selecione um status</option>
             <option value="ABERTO">Aberto</option>
             <option value="EM ANDAMENTO">Em Andamento</option>
             <option value="FECHADO">Fechado</option>
           </select>
-          <FieldAlert fieldName="status_pei" />
         </div>
 
+        {/* BOTÃO */}
         <br />
-
         <button className="submit-btn">Salvar</button>
       </form>
 

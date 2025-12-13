@@ -13,4 +13,9 @@ class CustomUser(AbstractUser):
     foto = models.URLField(max_length=500, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.username} - {self.first_name} - [{self.categoria}] - ({'Aprovado' if self.aprovado else 'Pendente'})"
+        # Prioriza o nome completo (first + last)
+        nome_completo = f"{self.first_name} {self.last_name}".strip()
+        if nome_completo:
+            return f"{nome_completo} [{self.categoria}]"
+        # Se não tiver nome, usa o username (email)
+        return f"{self.username} [{self.categoria}]"

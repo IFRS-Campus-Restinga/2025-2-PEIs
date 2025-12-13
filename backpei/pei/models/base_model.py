@@ -4,6 +4,8 @@ import json
 from logs.models import Log
 from django.core.exceptions import ValidationError
 from ..validators.relationship_validator import RelationshipValidator
+# FUNÇÃO QUE PEGA O USUÁRIO DA THREAD (MIDDLEWARE)
+from pei.services.middleware import get_current_user
 
 from pei.services.middleware import get_current_user
 
@@ -11,11 +13,22 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+    #  MÉTODO AUXILIAR PARA PEGAR QUEM ESTÁ LOGADO
     def _get_usuario_log(self):
         user = get_current_user()
         if user and user.is_authenticated:
-            # Salva como "ID - Username" (ex: "1 - Admin")
-            return f"{user.id} - {user.username}"
+            # Tenta pegar o nome completo
+            nome = user.get_full_name().strip()
+            if not nome:
+                # Se não tiver last_name, tenta só o first_name (comum no login Google simples)
+                nome = user.first_name.strip()
+            
+            # Fallback final: username (email)
+            if not nome:
+                nome = user.username
+
+            return f"{nome} (ID: {user.id})"
+            
         return "Sistema/Anônimo"
 
     def save(self, *args, **kwargs):
@@ -43,6 +56,7 @@ class BaseModel(models.Model):
 
         super().save(*args, **kwargs)
 
+        
         Log.objects.create(
             acao=acao,
             modelo=self.__class__.__name__,
@@ -60,10 +74,9 @@ class BaseModel(models.Model):
         """
         validator = RelationshipValidator()
         try:
-            validator(self)  # Chama o validador antes de excluir
+            validator(self)
             super().delete(*args, **kwargs)
         except ValidationError as e:
-            # Repassa a exceção para o DRF tratar
             raise e
 
     def delete(self, *args, **kwargs):
@@ -78,6 +91,7 @@ class BaseModel(models.Model):
 
         safe_old = {k: safe_json(v) for k, v in old_values.items()}
 
+        
         Log.objects.create(
             acao="Exclusão",
             modelo=self.__class__.__name__,

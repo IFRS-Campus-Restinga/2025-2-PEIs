@@ -1,9 +1,15 @@
+# pei/services/serializers/usuario_serializer.py
+
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 
 User = get_user_model()
 
+
+# --------------------------
+# Serializer do modelo USUÁRIO
+# --------------------------
 class UsuarioSerializer(serializers.ModelSerializer):
     grupos = serializers.SlugRelatedField(
         many=True,

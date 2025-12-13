@@ -1,0 +1,46 @@
+// backpei/pei/static/js/admin_aprovar_registration.js
+
+function aprovar(id) {
+    if (!confirm("Aprovar este cadastro e criar o usuário?")) return;
+
+    fetch("/services/registration-request/" + id + "/review/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+        },
+        body: JSON.stringify({ acao: "APROVAR" })
+    })
+    .then(r => {
+        if (r.ok) {
+            alert("✓ Usuário aprovado com sucesso! E-mail com senha enviado.");
+            location.reload();
+        } else {
+            alert("Erro ao aprovar. Veja o console (F12).");
+            console.error(r);
+        }
+    })
+    .catch(err => {
+        alert("Erro de rede");
+        console.error(err);
+    });
+}
+
+function rejeitar(id) {
+    if (!confirm("Rejeitar este cadastro?")) return;
+
+    fetch("/services/registration-request/" + id + "/review/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+        },
+        body: JSON.stringify({ acao: "REJEITAR" })
+    })
+    .then(r => {
+        if (r.ok) {
+            alert("✗ Cadastro rejeitado.");
+            location.reload();
+        }
+    });
+}
