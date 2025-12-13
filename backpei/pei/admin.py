@@ -19,5 +19,7 @@ from .models.componenteCurricular import ComponenteCurricular
 from .models.CustomUser import CustomUser
 from .models.conteudo import Conteudo
 from .models.acompanhamento import Acompanhamento
+from .models.aceite_eletronico import AceiteEletronico
+from .models.ataDeAcompanhamento import AtaDeAcompanhamento
 
-admin.site.register((PEIPeriodoLetivo, Parecer, Curso, Disciplina, Aluno, PeiCentral, CustomUser, ComponenteCurricular, Conteudo, Acompanhamento))
+admin.site.register((PEIPeriodoLetivo, Parecer, Curso, Disciplina, Aluno, PeiCentral, CustomUser, ComponenteCurricular, Conteudo, Acompanhamento, AceiteEletronico, AtaDeAcompanhamento))
