@@ -21,7 +21,7 @@ from .views.model_schema_view import ModelSchemaView
 from .views.dashboard_view import DashboardView
 from .views.acompanhamento_view import (acompanhar_recusar, acompanhar_aceitar)
 from .views.mensagem_view_set import MensagemViewSet
-
+from .views.aceite_views import create_aceite, accept_page, list_aceites
 from .views.report_view import ReportarProblemaView
 
 # === OUTRAS VIEWS ===
@@ -66,5 +66,8 @@ urlpatterns = [
     path("acompanhamentos/<id>/recusar/", acompanhar_recusar, name="recusar_acompanhamento"),
     path("acompanhamentos/<id>/aceitar/", acompanhar_aceitar, name="aceitar_acompanhamento"),
     path('reportar-problema/', ReportarProblemaView.as_view(), name='reportar-problema'),
+    path('aceite/', list_aceites, name='list_aceites'),
+    path('aceite/create/', create_aceite, name='create_aceite'),
+    path('aceite/<str:token>/', accept_page, name='accept_aceite'),
 
 ]
