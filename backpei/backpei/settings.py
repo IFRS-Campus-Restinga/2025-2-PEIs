@@ -30,7 +30,7 @@ DEBUG = True
 # alterado para funcionar apenas requisicoes da propria maquina
 # evitando que um ataque de outro endereco acesso os dados
 #ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "testserver"]
 
 
 # Application definition
@@ -220,3 +220,4 @@ CSRF_TRUSTED_ORIGINS = [
 
 BACKEND_URL = "http://localhost:8000"
 DEFAULT_FROM_EMAIL = "pei@restinga.com"
+BACKEND_TOKEN = os.environ.get("BACKEND_TOKEN")

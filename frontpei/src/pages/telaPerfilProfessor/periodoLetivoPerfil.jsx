@@ -289,94 +289,26 @@ const PeriodoLetivoPerfil = () => {
     fecharModal();
     setCarregandoStatus(false);
   };
+  
+  const formatarTempoDecorrido = (dataString) => {
+      const data = new Date(dataString);
+      const agora = new Date();
+      const diffMs = agora - data;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHoras = Math.floor(diffMs / 3600000);
+      const diffDias = Math.floor(diffMs / 86400000);
 
-  // === BOTÕES ORIGINAIS ===
-    const formatarTempoDecorrido = (dataString) => {
-        const data = new Date(dataString);
-        const agora = new Date();
-        const diffMs = agora - data;
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHoras = Math.floor(diffMs / 3600000);
-        const diffDias = Math.floor(diffMs / 86400000);
-
-        if (diffMins < 1) return "Agora mesmo";
-        if (diffMins < 60) return `Há ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
-        if (diffHoras < 24) return `Há ${diffHoras} hora${diffHoras > 1 ? 's' : ''}`;
-        if (diffDias < 7) return `Há ${diffDias} dia${diffDias > 1 ? 's' : ''}`;
-        
-        return data.toLocaleDateString('pt-BR', { 
-            day: '2-digit', 
-            month: '2-digit', 
-            year: 'numeric' 
-        });
-    };
-
-  // Render dos botões baseado no grupo do usuário
-  const renderBotoesOriginais = () => {
-    return (
-      <>
-        {gruposUsuario.map((grupo) => {
-          switch (grupo) {
-            case "professor":
-              return (
-                <>
-                  <Link to="/pareceres" state={{ peiCentralId }} className="btn-acao-pei">Cadastrar Parecer</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-acao-pei">Gerenciar Documentações Complementares</Link>
-                  <Link to="/peicentral" className="btn-acao-pei">Visualizar PEI Central</Link>
-                </>
-              );
-            case "pedagogo":
-              return (
-                <>
-                  <Link to="/ataDeAcompanhamento" className="btn-acao-pei">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/peicentral" className="btn-acao-pei">Visualizar PEI Central</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-acao-pei">Gerenciar Documentações Complementares</Link>
-                </>
-              );
-            case "napne":
-              return (
-                <>
-                  <Link to="/crud/PEIPeriodoLetivo" className="btn-acao-pei">Gerenciar Períodos Letivos</Link>
-                  <Link to="/peicentral" className="btn-acao-pei">Visualizar PEI Central</Link>
-                  <Link to="/crud/componenteCurricular" className="btn-acao-pei">Gerenciar Componentes Curriculares</Link>
-                  <Link to="/ataDeAcompanhamento" className="btn-acao-pei">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-acao-pei">Gerenciar Documentações Complementares</Link>
-                </>
-              );
-            case "coordenador":
-              return (
-                <>
-                  <Link to="/crud/Curso" className="btn-acao-pei">Gerenciar Cursos</Link>
-                  <Link to="/crud/Disciplina" className="btn-acao-pei">Gerenciar Disciplinas</Link>
-                  <Link to="/peicentral" className="btn-acao-pei">Visualizar PEI Central</Link>
-                  <Link to="/crud/aluno" className="btn-acao-pei">Gerenciar Alunos</Link>
-                  <Link to="/ataDeAcompanhamento" className="btn-acao-pei">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-acao-pei">Gerenciar Documentações Complementares</Link>
-                </>
-              );
-            case "admin":
-              return (
-                <>
-                  <Link to="/usuario" className="btn-acao-pei">Gerenciar Usuários</Link>
-                  <Link to="/crud/Curso" className="btn-acao-pei">Gerenciar Cursos</Link>
-                  <Link to="/crud/Disciplina" className="btn-acao-pei">Gerenciar Disciplinas</Link>
-                  <Link to="/crud/PEIPeriodoLetivo" className="btn-acao-pei">Gerenciar Períodos Letivos</Link>
-                  <Link to="/crud/aluno" className="btn-acao-pei">Gerenciar Alunos</Link>
-                  <Link to="/peicentral" className="btn-acao-pei">Visualizar PEI Central</Link>
-                  <Link to="/pareceres" state={{ peiCentralId }} className="btn-acao-pei">Cadastrar Parecer</Link>
-                  <Link to="/crud/componenteCurricular" className="btn-acao-pei">Gerenciar Componentes Curriculares</Link>
-                  <Link to="/ataDeAcompanhamento" className="btn-acao-pei">Gerenciar Atas de Acompanhamento</Link>
-                  <Link to="/documentacaoComplementar" state={{matricula: aluno.matricula}} className="btn-acao-pei">Gerenciar Documentações Complementares</Link>
-                </>
-              );
-            default:
-              return null;
-          }
-        })}
-        <BotaoVoltar />
-      </>
-    );
-  };
+      if (diffMins < 1) return "Agora mesmo";
+      if (diffMins < 60) return `Há ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
+      if (diffHoras < 24) return `Há ${diffHoras} hora${diffHoras > 1 ? 's' : ''}`;
+      if (diffDias < 7) return `Há ${diffDias} dia${diffDias > 1 ? 's' : ''}`;
+      
+      return data.toLocaleDateString('pt-BR', { 
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric' 
+      });
+  };  
 
   if (erro) return <p style={{ textAlign: "center", color: "red", padding: "50px" }}>Erro ao carregar o PEI.</p>;
   if (!aluno) return <p style={{ textAlign: "center", padding: "50px" }}>Carregando perfil do aluno...</p>;
@@ -428,155 +360,143 @@ const PeriodoLetivoPerfil = () => {
         </div>
       </div>
 
-      {/* CORPO DIVIDIDO EM 2 COLUNAS */}
-      <div className="pei-corpo-grid">
+      
         
-        {/* ESQUERDA: PARECERES (Scrollável) */}
-        <div className="pei-coluna-pareceres">
-          <div className="pareceres-header">
-             <h3>Últimos Pareceres</h3>
-          </div>
-          
-          <div className="pareceres-lista-scroll">
-            {/* 👇 NOVO BOTÃO DE ADICIONAR (CARD) */}
-            {/* Verifica se o usuário tem permissão */}
-            {(gruposUsuario.includes("professor") || gruposUsuario.includes("admin") || gruposUsuario.includes("napne")) && (
-                <Link to="/pareceres" state={{ peiCentralId }} className="parecer-card-add">
-                  <span className="icon-plus">+</span>
-                  <span>Adicionar Novo Parecer</span>
-                </Link>
-            )}
-            {pareceres.length > 0 ? (
-              pareceres.map((p) => (
-                <div key={p.id} className="parecer-card" onClick={() => abrirPopup(p)}
-                style={{ cursor: "pointer" }}>
-                    <div className="parecer-topo">
-                    <span className="parecer-professor">
-                      {p.professorNome} <small>({p.componenteNome})</small>
-                    </span>
-                    
-                    
-                    <div className="parecer-info-data">
-                        <span className="parecer-data-oficial">
-                          {p.data ? new Date(p.data).toLocaleDateString("pt-BR") : "—"}
-                        </span>
-                        <span className="parecer-tempo-relativo">
-                          {formatarTempoDecorrido(p.data)}
-                        </span>
-                    </div>
+      {/* ESQUERDA: PARECERES (Scrollável) */}
+      <div className="pei-coluna-pareceres">
+        <div className="pareceres-header">
+            <h3>Últimos Pareceres</h3>
+        </div>
+        
+        <div className="pareceres-lista-scroll">
+          {/* 👇 NOVO BOTÃO DE ADICIONAR (CARD) */}
+          {/* Verifica se o usuário tem permissão */}
+          {(gruposUsuario.includes("professor") || gruposUsuario.includes("admin") || gruposUsuario.includes("napne")) && (
+              <Link to="/pareceres" state={{ peiCentralId }} className="parecer-card-add">
+                <span className="icon-plus">+</span>
+                <span>Adicionar Novo Parecer</span>
+              </Link>
+          )}
+          {pareceres.length > 0 ? (
+            pareceres.map((p) => (
+              <div key={p.id} className="parecer-card" onClick={() => abrirPopup(p)}
+              style={{ cursor: "pointer" }}>
+                  <div className="parecer-topo">
+                  <span className="parecer-professor">
+                    {p.professorNome} <small>({p.componenteNome})</small>
+                  </span>
+                  
+                  
+                  <div className="parecer-info-data">
+                      <span className="parecer-data-oficial">
+                        {p.data ? new Date(p.data).toLocaleDateString("pt-BR") : "—"}
+                      </span>
+                      <span className="parecer-tempo-relativo">
+                        {formatarTempoDecorrido(p.data)}
+                      </span>
+                  </div>
 
-                  </div>
-                  <div className="parecer-texto">
-                    {p.texto || "Sem texto disponível."}
-                  </div>
                 </div>
-              ))
-            ) : (
-              <div className="parecer-vazio">Nenhum parecer registrado neste período.</div>
-            )}
-            {mostrarPopup && (
-            <div className="popup-overlay" onClick={fecharPopup}>
-              <div 
-                className="popup-content" 
-                onClick={(e) => e.stopPropagation()} // impede fechar ao clicar dentro
+                <div className="parecer-texto">
+                  {p.texto || "Sem texto disponível."}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="parecer-vazio">Nenhum parecer registrado neste período.</div>
+          )}
+          {mostrarPopup && (
+          <div className="popup-overlay" onClick={fecharPopup}>
+            <div 
+              className="popup-content" 
+              onClick={(e) => e.stopPropagation()} // impede fechar ao clicar dentro
+            >
+              <header 
+                className="header"
               >
-                <header 
-                  className="header"
+                <div className="header-left">
+                  <img src={logo_nome} alt="Logo IFRS" className="header-logo" />
+                </div>
+
+                <div style={{ marginRight: "auto" }} className="header-text">
+                  <strong>INSTITUTO FEDERAL</strong>
+                  <span>Rio Grande do Sul</span>
+                  <span>Campus Restinga</span>
+                </div>
+
+                <div className="header-center">
+                  <h1>Visualização do Parecer</h1>
+                  <span>Plano Educacional Individualizado</span>
+                </div>
+
+                <div className="header-right-parecer">
+                  <p><strong>Professor:</strong> {parecerSelecionado.professorNome}</p>
+                  <p><strong>Componente:</strong> {parecerSelecionado.componenteNome}</p>
+                  <p><strong>Criado em:</strong> {formatarDataHora(parecerSelecionado.data)}</p>
+
+                  {/*{parecerSelecionado.data && (
+                    <p><strong>Atualizado em:</strong> {formatarDataHora(parecerSelecionado.data)}</p>
+                  )}*/}
+
+                </div>
+
+                <div
+                  className="header-actions"
+                  style={{ 
+                    display: "flex", 
+                    gap: "8px", 
+                    marginLeft: "20px" 
+                  }}
                 >
-                  <div className="header-left">
-                    <img src={logo_nome} alt="Logo IFRS" className="header-logo" />
-                  </div>
+                </div>
+              </header>
 
-                  <div style={{ marginRight: "auto" }} className="header-text">
-                    <strong>INSTITUTO FEDERAL</strong>
-                    <span>Rio Grande do Sul</span>
-                    <span>Campus Restinga</span>
-                  </div>
-
-                  <div className="header-center">
-                    <h1>Visualização do Parecer</h1>
-                    <span>Plano Educacional Individualizado</span>
-                  </div>
-
-                  <div className="header-right-parecer">
-                    <p><strong>Professor:</strong> {parecerSelecionado.professorNome}</p>
-                    <p><strong>Componente:</strong> {parecerSelecionado.componenteNome}</p>
-                    <p><strong>Criado em:</strong> {formatarDataHora(parecerSelecionado.data)}</p>
-
-                    {/*{parecerSelecionado.data && (
-                      <p><strong>Atualizado em:</strong> {formatarDataHora(parecerSelecionado.data)}</p>
-                    )}*/}
-
-                  </div>
-
-                  <div
-                    className="header-actions"
-                    style={{ 
-                      display: "flex", 
-                      gap: "8px", 
-                      marginLeft: "20px" 
+              <div className="popup-texto">
+                {modoEdicao ? (
+                  <textarea
+                    value={textoEditado}
+                    onChange={(e) => setTextoEditado(e.target.value)}
+                    style={{
+                      width: "93%",
+                      minHeight: "140px",
+                      padding: "10px",
+                      fontSize: "16px",
+                      borderRadius: "8px"
                     }}
-                  >
-                  </div>
-                </header>
+                  />
+                ) : (
+                  parecerSelecionado.texto
+                )}
+              </div>
 
-                <div className="popup-texto">
-                  {modoEdicao ? (
-                    <textarea
-                      value={textoEditado}
-                      onChange={(e) => setTextoEditado(e.target.value)}
-                      style={{
-                        width: "93%",
-                        minHeight: "140px",
-                        padding: "10px",
-                        fontSize: "16px",
-                        borderRadius: "8px"
-                      }}
-                    />
-                  ) : (
-                    parecerSelecionado.texto
-                  )}
-                </div>
-
-                <div className="popup-botoes">
-                  {modoEdicao ? (
-                    <>
-                      <button className="botao-editar" onClick={salvarEdicao}>
-                        Salvar
-                      </button>
-                      <button className="botao-deletar" onClick={() => setModoEdicao(false)}>
-                        Cancelar
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button className="botao-editar" onClick={ativarEdicao}>
-                        Editar
-                      </button>
-                      <button className="botao-deletar" onClick={fecharPopup}>
-                        Fechar
-                      </button>
-                    </>
-                  )}
-                </div>
-
+              <div className="popup-botoes">
+                {modoEdicao ? (
+                  <>
+                    <button className="botao-editar" onClick={salvarEdicao}>
+                      Salvar
+                    </button>
+                    <button className="botao-deletar" onClick={() => setModoEdicao(false)}>
+                      Cancelar
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button className="botao-editar" onClick={ativarEdicao}>
+                      Editar
+                    </button>
+                    <button className="botao-deletar" onClick={fecharPopup}>
+                      Fechar
+                    </button>
+                  </>
+                )}
               </div>
             </div>
-          )}
           </div>
-        </div>      
-
-        {/* DIREITA: AÇÕES (Fixa) */}
-        <div className="pei-coluna-acoes">
-          <div className="acoes-card">
-            <h3>Ações Disponíveis</h3>
-            <div className="lista-botoes-vertical">
-              {renderBotoesOriginais()}
-            </div>
-          </div>
+        )}
         </div>
-
       </div>
+      <BotaoVoltar />
+      
 
       {/* MODAL */}
       {modalAberto && (

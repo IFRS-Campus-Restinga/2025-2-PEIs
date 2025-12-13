@@ -1,18 +1,18 @@
-from django.conf import settings
 from rest_framework.permissions import BasePermission
+from django.conf import settings
 
 class BackendTokenPermission(BasePermission):
+    message = "Você não tem permissão para executar essa ação."
+
     def has_permission(self, request, view):
-        # liberacao pra receber o email do front
-        if request.method == "OPTIONS":
+        # ✅ 1. Usuário logado (Guardian / Django Auth)
+        if request.user and request.user.is_authenticated:
             return True
-        # segue a configuracao de token
-        token_recebido = request.headers.get("X-BACKEND-TOKEN")
-        origin = request.headers.get("Origin")
-        referer = request.headers.get("Referer")
 
-        origem_permitida = origin in settings.CORS_ALLOWED_ORIGINS or (
-            referer and any(r in referer for r in settings.CORS_ALLOWED_ORIGINS)
-        )
+        # ✅ 2. Token de backend (serviços)
+        token = request.headers.get("X-Backend-Token")
 
-        return token_recebido == settings.API_TOKEN and origem_permitida
+        if not token:
+            return False
+
+        return token == settings.BACKEND_TOKEN

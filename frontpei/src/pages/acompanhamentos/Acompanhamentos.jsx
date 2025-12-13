@@ -1,61 +1,97 @@
 import { useEffect, useState } from "react";
-import api from "../../configs/api";
-import { API_ROUTES } from "../../configs/apiRoutes";
-import AcompanhamentoCard from "./AcompanhamentoCard";
-import RecusaModal from "./RecusaModal";
+import apiBackend from "../../configs/apiBackend";
+import "./Acompanhamentos.css";
+import '../../cssGlobal.css';
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
 
-export default function Acompanhamentos() {
-  const [acompanhamentos, setAcompanhamentos] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [acompanhamentoSelecionado, setAcompanhamentoSelecionado] = useState(null);
+const Acompanhamentos = () => {
+  const [alunos, setAlunos] = useState([]);
+  const [form, setForm] = useState({
+    aluno: "",
+    titulo: "",
+    descricao: "",
+    status: "pendente",
+  });
 
-  async function carregarAcompanhamentos() {
-    try {
-      const resp = await api.get(API_ROUTES.ACOMPANHAMENTOS_MEUS);
-      console.log("RETORNO API ACOMPANHAMENTOS:", resp.data);
-      setAcompanhamentos(resp.data);
-    } catch (e) {
-      console.error("Erro ao carregar acompanhamentos:", e);
-
-      if (e.response) {
-        console.log("STATUS:", e.response.status);
-        console.log("DATA:", e.response.data);
-        console.log("HEADERS ENVIADOS:", e.config.headers);
-      }
-    }
-  }
+  const [loading, setLoading] = useState(false);
+  const [mensagem, setMensagem] = useState(null);
 
   useEffect(() => {
-    carregarAcompanhamentos();
+    apiBackend
+      .get("/aluno/")
+      .then((res) => {
+        const dados = res.data.results ?? res.data;
+        setAlunos(Array.isArray(dados) ? dados : []);
+      })
+      .catch((err) => {
+        console.error("ERRO ALUNOS:", err);
+      });
   }, []);
 
-  function abrirModalRecusa(acompanhamento) {
-    setAcompanhamentoSelecionado(acompanhamento);
-    setModalOpen(true);
-  }
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMensagem(null);
+
+    try {
+      const response = await apiBackend.post("/acompanhamentos/", form);
+      if (response.data?.email_enviado) {
+        setMensagem({ tipo: "sucesso", texto: "Acompanhamento criado e e-mail enviado com sucesso!" });
+      } else {
+        setMensagem({ tipo: "alerta", texto: "Acompanhamento criado, mas o e-mail não foi enviado." });
+      }
+      setForm({ aluno: "", titulo: "", descricao: "", status: "pendente" });
+    } catch (error) {
+      console.error("ERRO AO SALVAR ACOMPANHAMENTO:", error);
+      setMensagem({ tipo: "erro", texto: "Erro ao salvar acompanhamento." });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="acompanhamentos-container">
-      <h2>Meus Acompanhamentos</h2>
+    <div className="page-container">
 
-      <div className="lista-acompanhamentos">
-        {acompanhamentos.map((ac) => (
-          <AcompanhamentoCard
-            key={ac.id}
-            acompanhamento={ac}
-            abrirModalRecusa={abrirModalRecusa}
-            atualizar={carregarAcompanhamentos}
-          />
-        ))}
-      </div>
+      <h1>Meus Acompanhamentos</h1>
 
-      {modalOpen && (
-        <RecusaModal
-          acompanhamento={acompanhamentoSelecionado}
-          fechar={() => setModalOpen(false)}
-          atualizar={carregarAcompanhamentos}
-        />
-      )}
+      <form onSubmit={handleSubmit} className="card">
+        <label>Aluno</label>
+        <select name="aluno" value={form.aluno} onChange={handleChange} required>
+          <option value="">Selecione um aluno</option>
+          {Array.isArray(alunos) && alunos.map((aluno) => (
+            <option key={aluno.id} value={aluno.id}>
+              {aluno.nome || `${aluno.first_name} ${aluno.last_name}`}
+            </option>
+          ))}
+        </select>
+
+        <label>Título</label>
+        <input type="text" name="titulo" value={form.titulo} onChange={handleChange} required />
+
+        <label>Status</label>
+        <select name="status" value={form.status} onChange={handleChange}>
+          <option value="pendente">Pendente</option>
+          <option value="aceito">Aceito</option>
+          <option value="recusado">Recusado</option>
+          <option value="concluido">Concluído</option>
+        </select>
+
+        <label>Descrição</label>
+        <textarea name="descricao" rows="5" value={form.descricao} onChange={handleChange} required />
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Salvando..." : "Salvar"}
+        </button>
+
+        {mensagem && <p className={`msg ${mensagem.tipo}`}>{mensagem.texto}</p>}
+      </form>
+      <BotaoVoltar />
     </div>
   );
-}
+};
+
+export default Acompanhamentos;

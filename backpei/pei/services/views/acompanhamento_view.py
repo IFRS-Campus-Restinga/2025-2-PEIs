@@ -4,7 +4,7 @@ from pei.models import Acompanhamento
 def acompanhar_aceitar(request, id):
     try:
         acompanhamento = Acompanhamento.objects.get(id=id)
-        acompanhamento.status = "ACEITO"
+        acompanhamento.status = "aceito"
         acompanhamento.save()
         return HttpResponse("Acompanhamento ACEITO com sucesso.")
     except Acompanhamento.DoesNotExist:
@@ -14,7 +14,7 @@ def acompanhar_aceitar(request, id):
 def acompanhar_recusar(request, id):
     try:
         acompanhamento = Acompanhamento.objects.get(id=id)
-        acompanhamento.status = "RECUSADO"
+        acompanhamento.status = "recusado"
         acompanhamento.save()
         return HttpResponse("Acompanhamento RECUSADO com sucesso.")
     except Acompanhamento.DoesNotExist:

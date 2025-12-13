@@ -19,7 +19,8 @@ from .views.conteudo_view_set import ConteudoViewSet
 from .views.consulta_grupos import ConsultaGrupos
 from .views.model_schema_view import ModelSchemaView
 from .views.dashboard_view import DashboardView
-from .views.acompanhamento_view import (acompanhar_recusar, acompanhar_aceitar)
+#from .views.acompanhamento_view import (acompanhar_recusar, acompanhar_aceitar)
+from .views.acompanhamento_viewset import AcompanhamentoViewSet
 from .views.mensagem_view_set import MensagemViewSet
 
 from .views.report_view import ReportarProblemaView
@@ -49,6 +50,7 @@ router.register(r'usuario', UsuarioViewSet, basename='usuarios')
 router.register(r'conteudo', ConteudoViewSet, basename='conteudos')
 router.register(r'schema', ModelSchemaView, basename="model-schema")
 router.register(r'mensagens', MensagemViewSet, basename='mensagens')
+router.register(r'acompanhamentos', AcompanhamentoViewSet, basename='acompanhamentos')
 
 app_name = 'api'
 
@@ -63,8 +65,8 @@ urlpatterns = [
     path("permissoes/", UsuarioPermissoesView.as_view(), name="usuario-permissoes"),
     path('consultaGrupos/', ConsultaGrupos.as_view(), name='consultaGrupos'),
     path('dashboard/', DashboardView.as_view(), name='dashboard-stats'),
-    path("acompanhamentos/<id>/recusar/", acompanhar_recusar, name="recusar_acompanhamento"),
-    path("acompanhamentos/<id>/aceitar/", acompanhar_aceitar, name="aceitar_acompanhamento"),
+    #path("acompanhamentos/<id>/recusar/", acompanhar_recusar, name="recusar_acompanhamento"),
+    #path("acompanhamentos/<id>/aceitar/", acompanhar_aceitar, name="aceitar_acompanhamento"),
     path('reportar-problema/', ReportarProblemaView.as_view(), name='reportar-problema'),
 
 ]
