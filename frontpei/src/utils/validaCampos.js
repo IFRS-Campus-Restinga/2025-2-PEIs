@@ -1,52 +1,72 @@
-import { getAlertManager } from "../context/AlertContext";
-
-// 🔹 Mantém um gerenciador global para exibir alertas inline sem hooks
-const alertManager = getAlertManager();
-
-/**
- * Valida campos obrigatórios de um formulário
- * e adiciona mensagens inline persistentes até o usuário corrigir o valor.
- *
- * @param {Object} form - estado atual do formulário (ex: { nome: "abc", email: "" })
- * @param {HTMLElement} formElement - elemento <form> para percorrer os inputs
- * @param {Object} [backendErrors] - opcional: erros vindos do backend (ex: { nome: ["já existe"], email: ["inválido"] })
- * @returns {Array<{ fieldName: string, message: string }>}
- */
-export function validaCampos(form, formElement, backendErrors = null) {
+export function validaCampos(form, metadata, backendErrors = null, prefix = "", addAlertFn = null) {
   const mensagens = [];
 
-  if (!formElement) return mensagens;
+  if (!metadata || !metadata.fields) {
+    console.warn("[validaCampos] metadata inválido");
+    return mensagens;
+  }
 
-  const inputs = formElement.querySelectorAll("[name]");
+  metadata.fields.forEach((f) => {
+    if (f.name === "id") return;
 
-  // Verifica campos obrigatórios
-  inputs.forEach((input) => {
-    const nome = input.getAttribute("name");
-    const label =
-      input.previousElementSibling?.innerText.replace(/:$/, "") || nome;
+    const nome = f.name;
+    const label = f.label || f.name.replace(/_/g, " ");
+    const fieldKey = prefix + nome;
 
-    const valor =
-      form[nome] !== undefined && form[nome] !== null
-        ? form[nome].toString().trim()
-        : "";
+    const isRequired = f.required === true;
 
-    // Campo obrigatório vazio
-    if (valor === "" || valor.length === 0) {
+    let valor = form[nome];
+    if (valor === undefined || valor === null) valor = "";
+    const texto = valor.toString().trim();
+
+    // ====== VALIDAÇÃO PARA "objetivos" ======
+    if (nome === "objetivos" && texto !== "") {
+
+      // Somente letras, números e espaço
+      const regex = /^[A-Za-z0-9À-ÿ ]+$/;
+
+      if (!regex.test(texto)) {
+        const msg = `Não use caracteres especiais. Use apenas letras, números e espaços.`;
+        mensagens.push({ fieldName: fieldKey, message: msg });
+        addAlertFn?.(msg, "error", { fieldName: fieldKey });
+      }
+
+      // Tamanho mínimo
+      if (texto.length < 7) {
+        const msg = `Certifique-se de que este campo tenha mais de 7 caracteres.`;
+        mensagens.push({ fieldName: fieldKey, message: msg });
+        addAlertFn?.(msg, "error", { fieldName: fieldKey });
+      }
+    }
+
+    // ====== OBRIGATÓRIO ======
+    if (isRequired && texto === "") {
       const msg = `Preencha o campo: ${label}`;
-      mensagens.push({ fieldName: nome, message: msg });
-      alertManager?.addAlert(msg, "error", { fieldName: nome });
+      mensagens.push({ fieldName: fieldKey, message: msg });
+      addAlertFn?.(msg, "error", { fieldName: fieldKey });
     }
   });
 
-  //  Integração com erros do backend
+  // ====== ERROS DO BACKEND ======
   if (backendErrors && typeof backendErrors === "object") {
     Object.entries(backendErrors).forEach(([field, msgs]) => {
-      if (Array.isArray(msgs) && msgs.length > 0) {
-        const msg = msgs.join(", ");
-        mensagens.push({ fieldName: field, message: msg });
-        alertManager?.addAlert(msg, "error", { fieldName: field });
+      const fieldKey = prefix + field;
+
+      let lista = [];
+
+      if (Array.isArray(msgs)) {
+        lista = msgs;
+      } else if (typeof msgs === "string") {
+        lista = [msgs];
+      } else if (msgs !== null && msgs !== undefined) {
+        lista = [JSON.stringify(msgs)];
       }
-    });
+
+      lista.forEach((m) => {
+        mensagens.push({ fieldName: fieldKey, message: m });
+        addAlertFn?.(m, "error", { fieldName: fieldKey });
+      });
+      });
   }
 
   return mensagens;

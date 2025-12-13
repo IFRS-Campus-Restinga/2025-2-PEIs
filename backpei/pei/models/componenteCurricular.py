@@ -16,7 +16,7 @@ class ComponenteCurricular(BaseModel):
         max_length=100,
         validators=[MinLengthValidator(7), MaxLengthValidator(255)], blank=False, null=False )
     
-    disciplinas = models.OneToOneField(
+    disciplinas = models.ForeignKey(
         "Disciplina", 
         related_name="componentes_curriculares", 
         on_delete=models.CASCADE, 
@@ -24,10 +24,10 @@ class ComponenteCurricular(BaseModel):
         null=False
     )
 
-    periodo_letivo = models.ForeignKey(
+    periodos_letivos = models.ManyToManyField(
         "pei.PEIPeriodoLetivo",
-        on_delete=models.CASCADE,  
-        related_name="componentes_curriculares"   
+        related_name="componentes_curriculares",
+        blank=True
     )
     
     def __str__(self):

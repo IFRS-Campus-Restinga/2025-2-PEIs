@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { API_ROUTES, BACKEND_TOKEN } from "../../configs/apiRoutes";
 import { useNavigate } from "react-router-dom";
-import "./Perfil.css";
+import "../../cssGlobal.css";
 import defaultAvatar from "../../assets/user.svg";
 
 const Perfil = () => {

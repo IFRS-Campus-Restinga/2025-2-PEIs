@@ -1,7 +1,7 @@
 import React from 'react';
-import './Login.css';
 import { GoogleLogin } from '@react-oauth/google';
-import ErrorMessage from "../../components/errorMessage/errorMessage.jsx";
+import ErrorMessage from "../../components/errorMessage/ErrorMessage.jsx";
+import "../../cssGlobal.css";
 
 const LoginPage = ({ onLoginSuccess, onLoginError, mensagemErro }) => {
   return (

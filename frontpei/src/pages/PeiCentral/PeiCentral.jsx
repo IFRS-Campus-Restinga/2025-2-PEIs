@@ -1,280 +1,240 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { API_ROUTES } from "../../configs/apiRoutes";
-import "../peiPeriodoLetivo/pei_periodo_letivo.css";
-import "../peiPeriodoLetivo/listar_pei_periodo_letivo.css";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import { API_ROUTES, BACKEND_TOKEN } from "../../configs/apiRoutes";
+import "../../cssGlobal.css";
+import DT from "datatables.net-dt";
+import DataTable from "datatables.net-react";
+import logo from '../../assets/logo.png';
+import logo_nome from '../../assets/logo-sem-nome.png';
+import PeiVisualizarModal from "../../components/PeiVisualizarModal";
+
+DataTable.use(DT);
+
+function getUltimoPeriodo(pei) {
+  if (!pei.periodos || pei.periodos.length === 0) return null;
+
+  return [...pei.periodos].sort(
+    (a, b) => new Date(b.data_criacao) - new Date(a.data_criacao)
+  )[0];
+}
 
 function PeiCentral() {
-  const [pei_central, setPeiCentral] = useState([]);
+  const [peiCentral, setPeiCentral] = useState([]);
   const [erro, setErro] = useState(false);
   const [selectPei, setSelectPei] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const navigate = useNavigate();
+  const [gruposUsuario, setGruposUsuario] = useState([]);
 
-  const DB = axios.create({ baseURL: API_ROUTES.PEI_CENTRAL });
+
+  const navigate = useNavigate();
+  const wrapperRef = useRef(null);
 
   useEffect(() => {
-    async function carregarPeiCentral() {
+    async function carregarPeis() {
       try {
-        const resposta = await DB.get("/");
-        console.log("Dados recebidos:", resposta.data);
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("Token de autenticação não encontrado.");
 
-        if (Array.isArray(resposta.data)) {
-          setPeiCentral(resposta.data);
-        } else if (Array.isArray(resposta.data.results)) {
-          setPeiCentral(resposta.data.results);
-        } else {
-          console.error("Formato inesperado da API:", resposta.data);
-          setPeiCentral([]);
-        }
+        const headers = { Authorization: `Token ${token}` };
+        const res = await axios.get(API_ROUTES.PEI_CENTRAL, { headers });
+        const data = Array.isArray(res.data)
+          ? res.data
+          : res.data?.results || [];
+
+        setPeiCentral(data);
         setErro(false);
-      } catch (err) {
-        console.error("Erro ao buscar períodos:", err);
+      } catch (e) {
+        console.error("Erro ao carregar PEIs:", e);
         setErro(true);
       }
     }
-
-    carregarPeiCentral();
+    carregarPeis();
   }, []);
 
-  // === Função para gerar PDF ===
-  /*const gerarPDF = async () => {
+  useEffect(() => {
+    const usuarioSalvo = localStorage.getItem("usuario");
+    if (usuarioSalvo) {
+      try {
+        const user = JSON.parse(usuarioSalvo);
+        setGruposUsuario((user.grupos || []).map(g => g.toLowerCase()));
+      } catch (err) {
+        console.error("Erro ao ler usuário do localStorage:", err);
+      }
+    }
+  }, []);
+
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const handleClick = (e) => {
+      const visualizarBtn = e.target.closest(".visualizar-btn");
+      const listarBtn = e.target.closest(".listar-periodos-btn");
+      const editarBtn = e.target.closest(".editar-btn");
+
+      if (visualizarBtn) {
+        const id = visualizarBtn.getAttribute("data-id");
+        const pei = peiCentral.find((p) => Number(p.id) === Number(id));
+
+        if (pei) {
+          setSelectPei(pei);
+          setModalOpen(true);
+        }
+        return;
+      }
+
+      if (listarBtn) {
+        const id = listarBtn.getAttribute("data-id");
+        navigate("/listar_periodos/" + id);
+        return;
+      }
+
+      if (editarBtn) {
+        const id = editarBtn.getAttribute("data-id");
+        navigate("/editar_peicentral/" + id);
+      }
+    };
+
+    wrapper.addEventListener("click", handleClick);
+    return () => wrapper.removeEventListener("click", handleClick);
+  }, [peiCentral]);
+
+  const gerarPDF = async () => {
     if (!selectPei) return;
 
     const { jsPDF } = await import("jspdf");
     const html2canvas = (await import("html2canvas")).default;
 
-    const elemento = document.getElementById("conteudo-pei-pdf");
-    if (!elemento) return;
+    const conteudo = document.getElementById("conteudo-pei-pdf");
+    if (!conteudo) return;
 
-    const canvas = await html2canvas(elemento, { scale: 2 });
+    const canvas = await html2canvas(conteudo, { scale: 2 });
     const imgData = canvas.toDataURL("image/png");
 
     const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const imgWidth = pageWidth - 20;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const largura = pdf.internal.pageSize.getWidth() - 20;
+    const altura = (canvas.height * largura) / canvas.width;
 
-    pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+    pdf.addImage(imgData, "PNG", 10, 10, largura, altura);
     pdf.save(`PEI_${selectPei.aluno?.nome || "aluno"}.pdf`);
-  }; */
+  };
 
+  const dadosTabela = useMemo(() => {
+    return peiCentral.map((pei) => {
+      const ultimo = getUltimoPeriodo(pei);
+      return {
+        nome: pei.aluno?.nome || "Sem aluno vinculado",
+        curso: pei.cursos?.nome || "Sem curso",
+        status: pei.status_pei || "Sem status",
+        periodo: ultimo?.periodo_principal || "Sem período",
+        id: pei.id,
+      };
+    });
+  }, [peiCentral]);
+
+  const podeCriarEditarPei = gruposUsuario.includes("admin") || gruposUsuario.includes("napne");
+  console.log("GRUPOS DO USUÁRIO:", gruposUsuario);
+  console.log("PODE EDITAR?:", podeCriarEditarPei);
   return (
-    <div className="container">
+    <div className="telaPadrao-page">
       <h1 style={{ textAlign: "center" }}>PEI CENTRAL</h1>
-      <button
-        type="button"
-        style={{ fontSize: "21px" }}
-        onClick={() => navigate("/create_peicentral")}
-      >
-        Criar novo PEI
-      </button>
-      <br />
-      <br />
 
-      <div>
-        {erro ? (
-          <p style={{ color: "red" }}>Não foi possível carregar os períodos.</p>
-        ) : (
-          pei_central.map((pei) => (
-            <div
-              key={pei.id}
-              style={{
-                marginBottom: "20px",
-                padding: "10px",
-                border: "1px solid #ccc",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  gap: "10px",
-                  alignItems: "center",
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => navigate("/editar_peicentral/" + pei.id)}
-                >
-                  Editar
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectPei(pei);
-                    setModalOpen(true);
-                  }}
-                >
-                  Visualizar
-                </button>
-              </div>
-
-              <br />
-              <div
-                className="periodo-card"
-                style={{
-                  textAlign: "center",
-                  fontSize: "20px",
-                  margin: "10px",
-                  background: "#d3d3d3ff",
-                }}
-              >
-                <br />
-                <b>Aluno:</b> {pei.aluno.nome} - <b>Matrícula:</b>{" "}
-                {pei.aluno.matricula}
-                <br /> <b>E-mail:</b> {pei.aluno.email}
-                <br />
-                <br />
-              </div>
-
-              <div style={{ textAlign: "justify" }}>
-                <b>Status:</b> <p>{pei.status_pei}</p>
-                <b>Histórico do Aluno:</b>
-                <p>{pei.historico_do_aluno}</p>
-                <b>Necessidades:</b>
-                <p>{pei.necessidades_educacionais_especificas}</p>
-                <b>Habilidades:</b> <p>{pei.habilidades}</p>
-                <b>Dificuldades Apresentadas:</b>{" "}
-                <p>{pei.dificuldades_apresentadas}</p>
-                <b>Adaptações:</b> <p>{pei.adaptacoes}</p>
-              </div>
-
-              <br />
-
-              {pei.periodos && pei.periodos.length > 0 ? (
-                <div>
-                  <b>Períodos:</b>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "10px",
-                      marginTop: "8px",
-                    }}
-                  >
-                    {pei.periodos.map((periodo) => (
-                      <div className="periodo-card" key={periodo.id}>
-                        <p>
-                          <b>Data de Criação:</b> {periodo.data_criacao}{" "}
-                          <b>Data de Término:</b> {periodo.data_termino}
-                        </p>
-                        <p>
-                          <b>Período Letivo:</b> {periodo.periodo_principal}
-                          <div style={{ display: "flex", gap: "20px" }}>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                navigate("/listar_periodos/" + periodo.id)
-                              }
-                            >
-                              Visualizar Período
-                            </button>
-                          </div>
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <p>
-                  <i>Nenhum período vinculado</i>
-                </p>
-              )}
-              <hr />
-            </div>
-          ))
-        )}
-
-        <button type="button" onClick={() => navigate("/")}>
-          Voltar
-        </button>
-      </div>
-
-      {/* === MODAL === */}
-      {modalOpen && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0,0,0,0.6)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
+      {podeCriarEditarPei && (
+        <button
+          className="submit-btn"
+          style={{ fontSize: "21px" }}
+          onClick={() => navigate("/create_peicentral")}
         >
-          <div
-            style={{
-              background: "white",
-              width: "80%",
-              height: "80%",
-              padding: "20px",
-              borderRadius: "8px",
-              overflowY: "auto",
-              position: "relative",
+        Criar novo PEI
+        </button>
+      )}  
+
+      <br />
+      <br />
+
+      {erro ? (
+        <p style={{ color: "red" }}>Erro ao carregar PEIs.</p>
+      ) : (
+        <div ref={wrapperRef}>
+          <DataTable
+            key={podeCriarEditarPei ? "admin" : "user"}
+            data={dadosTabela}
+            columns={[
+              { title: "Nome do aluno", data: "nome" },
+              { title: "Curso", data: "curso" },
+              { title: "Status", data: "status" },
+              { title: "Período Atual", data: "periodo" },
+              {
+                title: "Visualizar todos os Períodos",
+                data: "id",
+                render: (id) => `
+                  <button 
+                    class="btn btn btn-sm btn-primary listar-periodos-btn" 
+                    data-id="${id}"
+                  >
+                    Listar
+                  </button>
+                `,
+              },
+              {
+                title: "Visualizar",
+                data: "id",
+                render: (id) => `
+                  <button class="btn btn-sm btn-primary visualizar-btn" data-id="${id}">
+                    Visualizar
+                  </button>
+                `,
+              },
+              {
+                title: "Editar",
+                data: "id",
+                render: (id) =>
+                  podeCriarEditarPei 
+                    ? `
+                      <button class="btn btn-sm btn-primary editar-btn" data-id="${id}">
+                        Editar
+                      </button>
+                    `
+                    : "",
+              }
+            ]}
+            className="display table table-striped table-hover w-100"
+            options={{
+              pageLength: 10,
+              language: {
+                decimal: ",",
+                thousands: ".",
+                searchPlaceholder: "Pesquisar",
+                lengthMenu: "Mostrar _MENU_ PEIs",
+                zeroRecords: "Nenhum PEI encontrado",
+                paginate: {
+                  first: "Primeiro",
+                  previous: "Anterior",
+                  next: "Próximo",
+                  last: "Último",
+                },
+              },
             }}
-          >
-            <button
-              style={{
-                position: "absolute",
-                top: 10,
-                right: 10,
-                background: "red",
-                color: "white",
-                border: "none",
-                padding: "8px 12px",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-              onClick={() => setModalOpen(false)}
-            >
-              X
-            </button>
-
-            <h2>Visualização do PEI</h2>
-
-            {/* Botão PDF */}
-            <button
-              style={{
-                background: "#2b6cb0",
-                color: "white",
-                padding: "10px 16px",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                marginBottom: "15px",
-              }}
-              onClick={gerarPDF}
-            >
-              Gerar PDF
-            </button>
-
-            {/* Conteúdo capturado */}
-            <div id="conteudo-pei-pdf" style={{ padding: "10px", fontSize: "16px" }}>
-              {selectPei && (
-                <div>
-                  <p><b>Aluno:</b> {selectPei.aluno?.nome}</p>
-                  <p><b>Matrícula:</b> {selectPei.aluno?.matricula}</p>
-                  <p><b>E-mail:</b> {selectPei.aluno?.email}</p>
-                  <p><b>Status:</b> {selectPei.status_pei}</p>
-                  <p><b>Histórico do Aluno:</b> {selectPei.historico_do_aluno}</p>
-                  <p><b>Necessidades Educacionais:</b> {selectPei.necessidades_educacionais_especificas}</p>
-                  <p><b>Habilidades:</b> {selectPei.habilidades}</p>
-                  <p><b>Dificuldades Apresentadas:</b> {selectPei.dificuldades_apresentadas}</p>
-                  <p><b>Adaptações:</b> {selectPei.adaptacoes}</p>
-                </div>
-              )}
-            </div>
-          </div>
+          />
         </div>
+      )}
+
+      <BotaoVoltar />
+
+      {/* MODAL FINAL — usando componente externo */}
+      {modalOpen &&(
+        <PeiVisualizarModal
+          selectPei={selectPei}
+          onClose={() => setModalOpen(false)}
+          gerarPDF={gerarPDF}
+        />
       )}
     </div>
   );
 }
+
 
 export default PeiCentral;

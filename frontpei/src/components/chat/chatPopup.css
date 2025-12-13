@@ -1,0 +1,56 @@
+/* ESCURECE A TELA QUANDO O POPUP ABRE */
+.chat-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999; /* DEIXA POR CIMA DE TUDO */
+}
+
+/* JANELA DO POPUP */
+.chat-popup-window {
+  width: 400px;
+  height: 520px;
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+  animation: slide-up 0.2s ease-out;
+}
+
+/* ANIMAÇÃO DE ENTRADA */
+@keyframes slide-up {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* BOTÃO DE FECHAR */
+.chat-popup-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  transition: 0.2s;
+}
+
+.chat-popup-close:hover {
+  color: #000;
+}

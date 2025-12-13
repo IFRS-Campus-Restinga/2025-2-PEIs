@@ -43,8 +43,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework', 'rest_framework.authtoken', "corsheaders",
-    'pei', 'logs',
+    'pei', 'logs', 'auth_app',
+    'guardian',
 ]
+
+GOOGLE_OAUTH2_CLIENT_ID = "992049438235-9m3g236g0p0mu0bsaqn6id0qc2079tub.apps.googleusercontent.com"
+
+AUTH_USER_MODEL = "pei.CustomUser"
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',        
+    'guardian.backends.ObjectPermissionBackend',        
+)
+
+ANONYMOUS_USER_NAME = "anonymous_user"
+
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -53,6 +66,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "pei.services.middleware.CurrentUserMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "pei.services.middleware.AddBackendTokenHeaderMiddleware",
@@ -61,6 +75,7 @@ MIDDLEWARE = [
 # configuracao para uso de token para autenticacao
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
@@ -91,6 +106,8 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
     "x-backend-token",  # permite o header customizado
+	"x-user-email", # permite receber o email do frontend
+	"x-user-group", # permite receber o grupo do frontend
 ]
 
 # adiciona nosso token do usuario administrador
@@ -163,14 +180,15 @@ USE_I18N = True
 
 USE_TZ = True
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
 
-MEDIA_URL = '/exportProDrive/'
-MEDIA_ROOT = BASE_DIR / 'exportProDrive'
+MEDIA_URL = '/Documentacao/'
+MEDIA_ROOT = 'Documentacao'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -191,3 +209,14 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "ifrspei@gmail.com"
 EMAIL_HOST_PASSWORD = "sfer mxfq ouoz hkkq"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SECURE = False
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+BACKEND_URL = "http://localhost:8000"
+DEFAULT_FROM_EMAIL = "pei@restinga.com"

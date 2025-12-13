@@ -1,0 +1,31 @@
+.chat-button {
+  position: fixed;
+  bottom: 90px;        /* Afastado do footer */
+  right: 100px;
+
+  padding: 14px 22px;
+  background: #055C0F;
+  color: white;
+  font-weight: bold;
+
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+
+  z-index: 500;        /* Não fica acima do footer */
+  transition: opacity 0.2s ease, bottom 0.2s ease;
+}
+
+.chat-button:hover {
+  opacity: 0.9;
+}
+
+/* Quando o usuário chegar no final da página,
+   o botão automaticamente recua para trás do footer */
+@media (hover: hover) {
+  body:has(footer:hover) .chat-button {
+    z-index: 99; /* ainda acessível */
+  }
+}

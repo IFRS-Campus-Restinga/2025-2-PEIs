@@ -1,223 +1,234 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
-import { useAlert, FieldAlert } from "../context/AlertContext"; 
+import { useAlert, FieldAlert } from "../context/AlertContext";
+import BotaoVoltar from "../components/customButtons/botaoVoltar";
 import { validaCampos } from "../utils/validaCampos";
+import "../cssGlobal.css";
 import { API_ROUTES } from "../configs/apiRoutes";
+import { useLocation } from "react-router-dom";
 
-function Pareceres() {
-  const { addAlert, clearFieldAlert } = useAlert();
+function Pareceres({ usuario }) {
+  const { addAlert, clearFieldAlert, clearAlerts } = useAlert();
+  const location = useLocation();
+  const peiIdFromState = location.state?.peiCentralId;
+  const [peiCentralId, setPeiCentralId] = useState(
+    peiIdFromState || localStorage.getItem("peiCentralId") || null
+  );
 
-  const DBCOMPONENTES = axios.create({ baseURL: API_ROUTES.COMPONENTECURRICULAR });
-  const DBDISCIPLINAS = axios.create({ baseURL: API_ROUTES.DISCIPLINAS });
-  const DBPROF = axios.create({ baseURL: API_ROUTES.PROFESSOR });
-  const DBPARECERES = axios.create({ baseURL: API_ROUTES.PARECER });
+  function getAuthHeaders() {
+    const token = localStorage.getItem("access") || localStorage.getItem("token");
+    return token ? { Authorization: `token ${token}` } : {};
+  }
 
+  const DBPEI = axios.create({
+    baseURL: API_ROUTES.PEI_CENTRAL,
+    headers: getAuthHeaders()
+  });
+
+  const DBPARECERES = axios.create({
+    baseURL: API_ROUTES.PARECER,
+    headers: getAuthHeaders()
+  });
+
+  const DBCOMPONENTECURRICULAR = axios.create({
+    baseURL: API_ROUTES.COMPONENTECURRICULAR,
+    headers: getAuthHeaders()
+  });
+
+  const DBUSUARIOS = axios.create({
+    baseURL: API_ROUTES.USUARIO,
+    headers: getAuthHeaders()
+  });
+
+  [DBPEI, DBPARECERES, DBCOMPONENTECURRICULAR, DBUSUARIOS].forEach(api => {
+    api.interceptors.request.use(config => {
+      config.headers = getAuthHeaders();
+      return config;
+    });
+  });
+
+  const [carregando, setCarregando] = useState(true);
   const [componentes, setComponentes] = useState([]);
   const [disciplinas, setDisciplinas] = useState([]);
-  const [professores, setProfessores] = useState([]);
+  const [usuarioId, setUsuarioId] = useState(null);
+  const [peiCentral, setPeiCentral] = useState(null);
+  const [form, setForm] = useState({ disciplina: "", texto: "" });
 
-  const[form, setForm] = useState({componente: "", professor: "", texto: ""});
-
-  const [componenteSelecionado, setComponenteSelecionado] = useState("");
-  const [professorSelecionado, setProfessorSelecionado] = useState("");
-  const [texto, setTexto] = useState("");
-
-  async function recuperaComponentes() {
-    try {
-      const resp = await DBCOMPONENTES.get("/");
-      const data = resp.data;
-      setComponentes(Array.isArray(data) ? data : data.results || []);
-    } catch (err) {
-      console.error("Erro ao buscar componentes:", err);
-      addAlert("Erro ao carregar componentes curriculares!", "error");
+  useEffect(() => {
+    if (peiIdFromState) {
+      localStorage.setItem("peiCentralId", peiIdFromState);
+      setPeiCentralId(peiIdFromState);
+      console.log("PEI Central do state:", peiIdFromState);
     }
-  }
+  }, [peiIdFromState]);
 
-  async function recuperaDisciplinas() {
-    try {
-      const resp = await DBDISCIPLINAS.get("/");
-      const data = resp.data;
-      setDisciplinas(Array.isArray(data) ? data : data.results || []);
-    } catch (err) {
-      console.error("Erro ao buscar disciplinas:", err);
-      addAlert("Erro ao carregar disciplinas!", "error");
-    }
-  }
+  useEffect(() => {
+    async function carregarDisciplinas() {
+      clearAlerts();
+      setCarregando(true);
 
-  async function recuperaProfessores() {
-    try {
-      const resp = await DBPROF.get("/");
-      const data = resp.data;
-      setProfessores(Array.isArray(data) ? data : data.results || []);
-    } catch (err) {
-      console.error("Erro ao buscar professores:", err);
-      addAlert("Erro ao carregar professores!", "error");
+      if (!peiCentralId) {
+        addAlert("PEI Central não encontrado.", "error");
+        setCarregando(false);
+        return;
+      }
+
+      try {
+        const resPEI = await DBPEI.get(`${peiCentralId}/`);
+        const dadosPEI = resPEI.data || {};
+        setPeiCentral(dadosPEI);
+        console.log("Dados do PEI Central recebidos:", dadosPEI);
+
+        const disciplinasPEI = (dadosPEI.periodos || [])
+          .flatMap(p => p.componentes_curriculares || [])
+          .map(c => c.disciplina)
+          .filter(Boolean);
+
+        const disciplinasDoProfessor = disciplinasPEI.filter(d => 
+          Array.isArray(d.professores) && d.professores.some(p => p.email === usuario.email)
+        );
+
+        console.log("Disciplinas do PEI filtradas pelo professor logado:", disciplinasDoProfessor);
+        setDisciplinas(disciplinasDoProfessor);
+
+        if (disciplinasDoProfessor.length === 0) {
+          addAlert("Nenhuma disciplina encontrada para o professor logado.", "error");
+        }
+
+        const resComponentes = await DBCOMPONENTECURRICULAR.get("/");
+        const todosComponentes = Array.isArray(resComponentes.data)
+          ? resComponentes.data
+          : resComponentes.data.results || [];
+
+        console.log("Todos componentes curriculares do sistema:", todosComponentes);
+
+        const componentesFiltrados = todosComponentes.filter(c =>
+          disciplinasDoProfessor.some(d => d.nome === c.disciplina?.nome)
+        );
+
+        console.log("Componentes filtrados pelas disciplinas do PEI:", componentesFiltrados);
+        setComponentes(componentesFiltrados);
+
+        const resUsuarios = await DBUSUARIOS.get("/");
+        const todosUsuarios = Array.isArray(resUsuarios.data)
+          ? resUsuarios.data
+          : resUsuarios.data.results || [];
+
+        console.log("Todos usuários do sistema:", todosUsuarios);
+
+        const usuarioLogado = todosUsuarios.find(u => u.email === usuario.email);
+        if (!usuarioLogado) {
+          addAlert("Usuário logado não encontrado no sistema.", "error");
+        } else {
+          console.log("Usuário logado encontrado:", usuarioLogado);
+          setUsuarioId(usuarioLogado.id);
+        }
+
+      } catch (err) {
+        console.error(err);
+        addAlert("Erro ao carregar dados do PEI Central, componentes ou usuários.", "error");
+      } finally {
+        setCarregando(false);
+      }
     }
-  }
+
+    carregarDisciplinas();
+  }, [peiCentralId, usuario.email]);
 
   async function adicionaParecer(e) {
     e.preventDefault();
-
-    const mensagens = validaCampos(form, e.target);
+    const mensagens = validaCampos({ disciplina: form.disciplina, texto: form.texto }, e.target);
     if (mensagens.length > 0) {
-      // ALERTAS INLINE por campo
-      mensagens.forEach((m) =>
-      addAlert(m.message, "error", { fieldName: m.fieldName })
-      );
-
-      // ALERTA GLOBAL
-      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
+      mensagens.forEach((m) => addAlert(m.message, "error", { fieldName: m.fieldName }));
       return;
     }
 
-    //const confereTexto = texto.trim();
-
-    /* if (confereTexto.length > 1000) {
-      addAlert("O texto do parecer ultrapassa 1000 caracteres.", "warning");
+    if (!form.disciplina) {
+      addAlert("Selecione uma disciplina.", "error");
       return;
     }
+
+    if (!usuarioId) {
+      addAlert("ID do usuário logado não definido.", "error");
+      return;
+    }
+
+    if (!peiCentral || !peiCentral.aluno) {
+      addAlert("PEI Central ou aluno não carregado ainda.", "error");
+      return;
+    }
+
+    console.log("Form enviado:", form);
+    console.log("Componentes carregados:", componentes);
+
+    const disciplinaSelecionada = disciplinas.find(d => d.id === Number(form.disciplina));
+    console.log("Disciplina selecionada no dropdown:", disciplinaSelecionada);
+
+    const componenteSelecionado = componentes.find(
+      c => c.disciplina?.nome === disciplinaSelecionada?.nome
+    );
+
+    console.log("Componente curricular encontrado:", componenteSelecionado);
 
     if (!componenteSelecionado) {
-      addAlert("Preencha o campo: componente", "error", { fieldName: "componente" });
-      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
+      addAlert(`Componente curricular não encontrado para a disciplina: ${disciplinaSelecionada?.nome}`, "error");
       return;
     }
-
-    if (!professorSelecionado) {
-      addAlert("Preencha o campo: professor", "error", { fieldName: "professor" });
-      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
-      return;
-    }
-
-    if (!confereTexto) {
-      addAlert("Preencha o campo: texto", "error", { fieldName: "texto" });
-      addAlert("Existem campos obrigatórios não preenchidos.", "warning");
-      return;
-    } */
 
     const novoParecer = {
-        professor_id: Number(form.professor),
-        componente_curricular: Number(form.componente),
-        texto: form.texto,
-    };  
+      professor_id: usuarioId,
+      componente_curricular_id: componenteSelecionado.id,
+      aluno_id: peiCentral.aluno.id, // <-- aqui enviamos o aluno do PEI central
+      texto: form.texto
+    };
 
     try {
       await DBPARECERES.post("/", novoParecer);
-      setForm({componente: "", professor: "", texto: ""});
-      recuperaComponentes();
-      recuperaDisciplinas();
-      recuperaProfessores();
+      setForm({ disciplina: "", texto: "" });
       addAlert("Parecer cadastrado com sucesso!", "success");
     } catch (err) {
-      console.error("Erro ao criar parecer:", err);
-      if (err.response?.data) {
-        // Exibe mensagens inline específicas do backend
-        Object.entries(err.response.data).forEach(([field, msgs]) => {
-          addAlert(msgs.join(", "), "error", { fieldName: field });
-        });
-
-        // Monta o texto completo para o toast
-        const messages = Object.entries(err.response.data)
-          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
-          .join("\n");
-
-        addAlert(`Erro ao cadastrar:\n${messages}`, "error");
-      } else {
-        addAlert("Erro ao cadastrar (erro desconhecido).", "error");
-      }
+      console.error(err);
+      addAlert("Erro ao cadastrar parecer.", "error");
     }
   }
 
-  useEffect(() => {
-    recuperaComponentes();
-    recuperaDisciplinas();
-    recuperaProfessores();
-  }, []);
-
   return (
-    <div className="parecer-container">
+    <div className="container-padrao">
       <h1>Gerenciar Pareceres</h1>
       <hr />
       <h2>Cadastrar Parecer</h2>
+      {carregando && <p>Carregando dados do PEI...</p>}
 
-      <form onSubmit={adicionaParecer}>
-        <label>Componente Curricular:</label>
-        <br />
+      <form className="form-padrao" onSubmit={adicionaParecer}>
+        <label>Disciplina:</label>
         <select
-          name="componente"
-          value={form.componente}
-          onChange={(e) => {
-            setForm({ ...form, componente: e.target.value })
-            if (e.target.value.trim() !== "") {
-              clearFieldAlert("componente");
-            }
-            }
-          }
+          name="disciplina"
+          value={form.disciplina}
+          onChange={(e) => { setForm({ ...form, disciplina: e.target.value }); clearFieldAlert("disciplina"); }}
         >
           <option value="">-- selecione --</option>
-          {componentes.map((c) => {
-            const disciplina = disciplinas.find((d) => d.id === c.disciplinas);
-            return (
-              <option key={c.id} value={c.id}>
-                {disciplina?.nome ?? "Disciplina não definida"} - {c.objetivos ?? "-"}
-              </option>
-            );
-          })}
+          {disciplinas.length === 0 && <option disabled>Nenhuma disciplina encontrada</option>}
+          {disciplinas.map((d) => <option key={d.id} value={d.id}>{d.nome}</option>)}
         </select>
-        <FieldAlert fieldName="componente" />
+        <FieldAlert fieldName="disciplina" />
 
-        <br /><br />
-
-        <label>Professor:</label>
         <br />
-        <select
-          name="professor"
-          value={form.professor}
-          onChange={(e) => {
-            setForm({ ...form, professor: e.target.value })
-            if (e.target.value.trim() !== "") {
-              clearFieldAlert("professor");
-            }
-            }
-          }
-        >
-          <option value="">-- selecione --</option>
-          {professores.map((prof) => (
-            <option key={prof.id} value={prof.id}>
-              {prof.nome ?? prof.full_name ?? `#${prof.id}`}
-            </option>
-          ))}
-        </select>
-        <FieldAlert fieldName="professor" />
-
-        <br /><br />
-
         <label>Texto (máx. 1000 caracteres):</label>
-        <br />
         <textarea
           name="texto"
           value={form.texto}
-          onChange={(e) => {
-            setForm({ ...form, texto: e.target.value })
-            if (e.target.value.trim() !== "") {
-              clearFieldAlert("texto");
-            }
-            }
-          }
-          placeholder="Escreva o parecer (até 1000 caracteres)"
+          onChange={(e) => { setForm({ ...form, texto: e.target.value }); clearFieldAlert("texto"); }}
           rows={6}
           maxLength={1000}
           style={{ width: "100%" }}
         />
         <FieldAlert fieldName="texto" />
 
-        <br /><br />
-        <button type="submit">Adicionar Parecer</button>
+        <br />
+        <button className="submit-btn">Adicionar Parecer</button>
       </form>
-
       <br />
-      <Link to="/" className="voltar-btn">Voltar</Link>
+      <BotaoVoltar />
     </div>
   );
 }

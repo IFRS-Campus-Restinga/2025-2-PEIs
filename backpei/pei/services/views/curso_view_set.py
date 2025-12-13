@@ -4,14 +4,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import FileResponse
 from ..serializers.curso_serializer import CursoSerializer
-from pei.models import Curso
+from pei.models.curso import Curso
 from ..permissions import BackendTokenPermission
 from django.core.exceptions import ValidationError
+from rest_framework.permissions import DjangoObjectPermissions
 
 class CursoViewSet(ModelViewSet):
-    queryset = Curso.objects.all()
+    queryset = Curso.objects.all().order_by('nome')
     serializer_class = CursoSerializer
-    permission_classes = [BackendTokenPermission]
+    permission_classes = [DjangoObjectPermissions]
 
     # Create padrão (DRF já trata o arquivo automaticamente)
     def create(self, request, *args, **kwargs):

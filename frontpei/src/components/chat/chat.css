@@ -1,0 +1,51 @@
+/* BOTÃO FIXO */
+.chat-button {
+  position: fixed;
+  bottom: 20px; /* distância do rodapé sem ficar em cima dele */
+  right: 20px;  /* colado na lateral */
+  background-color: #2a66ff;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  z-index: 9999; /* garante que fica **acima de tudo** */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* POPUP FIXO */
+.chat-popup {
+  position: fixed;
+  bottom: 80px;   /* sobe para não encostar no botão */
+  right: 20px;
+  width: 350px;
+  height: 420px;
+
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+
+  display: flex;
+  flex-direction: column; /* ESSENCIAL */
+  z-index: 9999;
+}
+
+/* HEADER */
+.chat-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #2a66ff;
+  color: white;
+  border-radius: 10px 10px 0 0;
+}
+
+/* CORPO DO CHAT */
+.chat-popup-body {
+  flex: 1; /* ocupa todo o espaço restante */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* impede scroll duplo */
+}

@@ -3,12 +3,12 @@ from .curso_view_set import CursoViewSet
 from .aluno_view_set import AlunoViewSet
 from .ataDeAcompanhamento_view_set import AtaDeAcompanhamentoViewSet
 from .componenteCurricular_view_set import ComponenteCurricularViewSet
-from .coordenadorCurso_view_set import CoordenadorCursoViewSet
 from .documentacaoComplementar_view_set import DocumentacaoComplementarViewSet
-from .professor_view_set import ProfessorViewSet
 from .PEIPeriodoLetivo_view_set import PEIPeriodoLetivoViewSet
-from .pedagogo_view_set import PedagogoViewSet
 from .parecer_view_set import ParecerViewSet
 from .manda_email import manda_email
 from .notificacao_view import NotificacaoViewSet
 from .usuario_view_set import UsuarioViewSet
+from .conteudo_view_set import ConteudoViewSet
+from .consulta_grupos import ConsultaGrupos
+from .acompanhamento_view import *

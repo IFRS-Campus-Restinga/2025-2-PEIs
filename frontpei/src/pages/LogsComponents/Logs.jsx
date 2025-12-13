@@ -4,9 +4,8 @@ import DataTable from "datatables.net-react";
 import DT from "datatables.net-dt";
 import { Link } from "react-router-dom";
 import eyeIcon from "../../assets/eye-show.svg";
-import "../../utils/dataTables.css";
-import "./Logs.css";
-import "./ModalLog.css";
+import BotaoVoltar from "../../components/customButtons/botaoVoltar";
+import "../../cssGlobal.css";
 
 DataTable.use(DT);
 
@@ -98,7 +97,8 @@ function Logs() {
             decimal: ",",
             thousands: ".",
             processing: "Processando...",
-            search: "Pesquisar 🔍",
+            search: "",
+            searchPlaceholder: "Pesquisar",
             lengthMenu: '<span class="custom-lengthMenu-text">Mostrar _MENU_ registros',
             info: "Mostrando de _START_ até _END_ de _TOTAL_ registros",
             infoEmpty: "Mostrando 0 até 0 de 0 registros",
@@ -233,7 +233,7 @@ function Logs() {
   </div>
 )}
 
-      <Link to="/" className="voltar-btn">Voltar</Link>
+      <BotaoVoltar />
     </div>
   );
 }

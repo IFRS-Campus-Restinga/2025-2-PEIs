@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "./LeitorTela.css";
+import "../../cssGlobal.css";
 
 /*
 Esse componente ativa globalmente um leitor de tela ao passar o mouse por cima.

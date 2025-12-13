@@ -4,8 +4,12 @@ from pei.services.serializers.componenteCurricular_serializer import ComponenteC
 
 
 class PEIPeriodoLetivoSerializer(serializers.ModelSerializer): 
-    componentes_curriculares = ComponenteCurricularSerializer(many=True, read_only=True)  
+    componentes_curriculares = ComponenteCurricularSerializer(many=True, read_only=True)
+    aluno_nome = serializers.CharField(source="pei_central.aluno.nome", read_only=True)
 
     class Meta:
         model = PEIPeriodoLetivo
         fields = '__all__'
+
+    def get_periodo_formatado(self, obj):
+        return obj.periodo_formatado
