@@ -35,7 +35,7 @@ import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx';
 import Conteudo from './pages/Conteudo.jsx';
 import TelaSolicitacoesPendentes from "./pages/admin/TelaSolicitacoesPendentes";
 import TodasNotificacoes from "./pages/Notificacoes/TodasNotificacoes.jsx";
-
+import CriarAceite from './pages/CriarAceite.jsx';
 import { mandaEmail } from "./lib/mandaEmail";
 import { consultaGrupo } from "./lib/consultaGrupo";
 import CrudWrapper from "./components/crud/crudWrapper.jsx";
@@ -236,7 +236,7 @@ function App() {
                 <Route path="/crud/:modelKey" element={<PrivateRoute><CrudWrapper /></PrivateRoute>} />
                 <Route path="/acompanhamentos" element={<Acompanhamentos />} />
                 <Route path="/chat" element={<Chat />} />
-
+                <Route path="/aceite" element={<PrivateRoute><CriarAceite usuario={usuario} /></PrivateRoute>} />
                 <Route path="/todas-notificacoes" element={<PrivateRoute><TodasNotificacoes /></PrivateRoute>} />
                 
                 {isAdmin && (
