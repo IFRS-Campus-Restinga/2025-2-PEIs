@@ -10,6 +10,3 @@ class PEIPeriodoLetivoSerializer(serializers.ModelSerializer):
     class Meta:
         model = PEIPeriodoLetivo
         fields = '__all__'
-
-    def get_periodo_formatado(self, obj):
-        return obj.periodo_formatado

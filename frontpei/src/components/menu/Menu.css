@@ -1,0 +1,54 @@
+.pei-coluna-acoes {
+  position: sticky; /* Fica fixo se a tela rolar */
+  top: 20px;
+}
+
+.acoes-card {
+  background: #fff;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  background: linear-gradient(180deg, #055C0F 30%, #f2f2f2 100%);
+}
+
+.acoes-card h3 {
+  margin-top: 0;
+  font-size: 16px;
+  color: #ffffff;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lista-botoes-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-acao-pei-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Ou flex-start se quiser texto alinhado à esq */
+  padding: 12px 16px;
+  background: #fff; 
+  color: #555;      
+  border: 1px solid #ddd;
+  border-left: 4px solid #055c0f; /* Detalhe verde na borda */
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.btn-acao-pei-menu:hover {
+  background: #055c0f;
+  color: #fff;
+  border-color: #055C0F;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(5, 92, 15, 0.2);
+}

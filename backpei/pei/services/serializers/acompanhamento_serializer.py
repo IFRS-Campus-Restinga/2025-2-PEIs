@@ -22,7 +22,7 @@ class AcompanhamentoSerializer(serializers.ModelSerializer):
             "atualizado_em",
         ]
         read_only_fields = [
-            "status",
+            #"status",
             "motivo_recusa",
             "data_recusa",
             "data_aceite",
@@ -33,9 +33,11 @@ class AcompanhamentoSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         acompanhamento = super().create(validated_data)
 
+        email_enviado = True
         try:
             enviar_email_acompanhamento(acompanhamento)
-        except Exception as e:
-            print("Erro ao enviar email de acompanhamento:", e)
-
+        except Exception:
+            email_enviado = False
+            
+        self.context['email_enviado'] = email_enviado
         return acompanhamento

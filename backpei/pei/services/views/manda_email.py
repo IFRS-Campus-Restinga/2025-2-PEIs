@@ -105,15 +105,3 @@ END:VCALENDAR
         return Response({"status": "ok", "message": "Convite enviado"}, status=200)
     except Exception as e:
         return Response({"erro": str(e)}, status=500)
-
-
-# ==============================
-# FUNCAO QUE CANCELA REUNIAO # =
-# ==============================
-def send_cancellation_email(instance, destinos):
-    msg = EmailMessage(
-        subject=f"Reunião cancelada: {instance.tituloReuniao}",
-        body="A reunião foi cancelada pelo organizador.",
-        to=destinos,
-    )
-    msg.send(fail_silently=False)

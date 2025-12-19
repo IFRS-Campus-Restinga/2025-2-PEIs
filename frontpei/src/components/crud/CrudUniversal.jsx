@@ -31,6 +31,7 @@ function CrudUniversal({ modelName }) {
     Curso: "cursos",
     Parecer: "parecer",
     PeiCentral: "pei_central",
+    FormAHSD: "formahsd",
   };
 
   function normalizeRecordForEdit(record, metadata) {

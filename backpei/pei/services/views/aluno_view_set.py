@@ -1,35 +1,53 @@
 from rest_framework.viewsets import ModelViewSet
-from ..serializers.aluno_serializer import *
-from pei.models.aluno import *
+from ..serializers.aluno_serializer import AlunoSerializer
+from pei.models.aluno import Aluno
 from ..permissions import BackendTokenPermission
+from rest_framework import filters
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ValidationError
-from rest_framework import filters  # Manter o SearchFilter
-from rest_framework.permissions import DjangoObjectPermissions
+from rest_framework.authentication import BaseAuthentication, SessionAuthentication, TokenAuthentication
 
+
+class NoAuthentication(BaseAuthentication):
+    """
+    🔓 Desativa autenticação padrão do DRF
+    """
+    def authenticate(self, request):
+        return None
 
 
 class AlunoViewSet(ModelViewSet):
     serializer_class = AlunoSerializer
-    permission_classes = [BackendTokenPermission, DjangoObjectPermissions]
+    queryset = Aluno.objects.all()
 
-    # --- ATIVAÇÃO DO FILTRO DE BUSCA POR TEXTO ---
+    # 🔥 ISSO É O QUE RESOLVE
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [BackendTokenPermission]
+
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome', 'matricula']
-    # ---------------------------------------------
-    
-    #filtragem aluno
-    def get_queryset(self):  
-        queryset = Aluno.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        print("========== DEBUG ALUNO LIST ==========")
+        print("USER:", request.user)
+        print("IS AUTH:", request.user.is_authenticated)
+        print("HEADERS:", dict(request.headers))
+        print("=====================================")
+
+        return super().list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
         curso_id = self.request.query_params.get('curso_id')
-        
+
         if curso_id:
             queryset = queryset.filter(curso_id=curso_id).order_by("nome")
+
         return queryset
-    
+
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset()) #[:3] comentado pois esse slicing está sendo usado por todos os componentes que utilizam essa viewset
+        queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -38,7 +56,6 @@ class AlunoViewSet(ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

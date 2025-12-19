@@ -1,35 +1,24 @@
-// frontpei/src/configs/api.js
-
 import axios from "axios";
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-
 const api = axios.create({
-  baseURL,
-  headers: {
-    "Content-Type": "application/json",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+});
+
+// 🔐 Interceptor para enviar o token do backend
+api.interceptors.request.use(
+  (config) => {
+    const backendToken = import.meta.env.VITE_BACKEND_TOKEN;
+
+    if (backendToken) {
+      config.headers["X-Backend-Token"] = backendToken;
+    }
+
+    return config;
   },
-  withCredentials: false,
-});
+  (error) => Promise.reject(error)
+);
 
-// Interceptor — injeta o token JWT corretamente em TODAS as requisições
-api.interceptors.request.use((config) => {
-  // Pegamos o token correto salvo no login
-  const token = localStorage.getItem("access_token");
-
-  if (token) {
-    // Backend Django JWT usa Bearer <token>
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  // Garantia para evitar interferência de CSRF em APIs REST
-  delete config.headers["X-CSRFToken"];
-  delete config.headers["X-Csrftoken"];
-
-  return config;
-});
-
-// Interceptor de resposta — apenas registra erros
+// 🔎 Log de erro padronizado
 api.interceptors.response.use(
   (response) => response,
   (error) => {

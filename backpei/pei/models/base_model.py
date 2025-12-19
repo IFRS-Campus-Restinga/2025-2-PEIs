@@ -7,8 +7,6 @@ from ..validators.relationship_validator import RelationshipValidator
 # FUNÇÃO QUE PEGA O USUÁRIO DA THREAD (MIDDLEWARE)
 from pei.services.middleware import get_current_user
 
-from pei.services.middleware import get_current_user
-
 class BaseModel(models.Model):
     class Meta:
         abstract = True

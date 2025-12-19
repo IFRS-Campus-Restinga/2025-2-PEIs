@@ -16,6 +16,7 @@ import AguardandoAprovacao from "./pages/preCadastro/AguardandoAprovacao.jsx";
 
 // Layout
 import Header from './components/customHeader/Header.jsx';
+import Menu from './components/menu/Menu.jsx';
 import SubHeader from './components/customSubHeader/Subheader.jsx';
 import Footer from './components/customFooter/Footer.jsx';
 import AccessibilityWidget from './components/accessibility/AccessibilityWidget';
@@ -35,12 +36,13 @@ import DocumentacaoComplementar from './pages/documentacaoComplementar.jsx';
 import Conteudo from './pages/Conteudo.jsx';
 import TelaSolicitacoesPendentes from "./pages/admin/TelaSolicitacoesPendentes";
 import TodasNotificacoes from "./pages/Notificacoes/TodasNotificacoes.jsx";
-import CriarAceite from './pages/CriarAceite.jsx';
+
 import { mandaEmail } from "./lib/mandaEmail";
 import { consultaGrupo } from "./lib/consultaGrupo";
 import CrudWrapper from "./components/crud/crudWrapper.jsx";
 import Acompanhamentos from "./pages/acompanhamentos/Acompanhamentos.jsx";
 import Chat from "./pages/Chat/Chat";
+import FormAHSD from "./pages/FormAHSD/FormAHSD.jsx";
 
 
 function App() {
@@ -209,48 +211,52 @@ function App() {
             toggleAcessibilidade={toggleAcessibilidade}
             estadoAcessibilidade={exibirAcessibilidade}
              />
-            <hr />
+            {/*<hr />*/}
             
             <main className="main-content">
-              <Routes>
-                <Route path="/" element={
-                  <PrivateRoute>
-                    <Home 
-                      usuario={usuario} 
-                      perfilSelecionado={perfilSelecionado} 
-                      setPerfilSelecionado={setPerfilSelecionado} 
-                    />
-                  </PrivateRoute>
-                } />
+              <div className="pei-corpo-grid">
+                <Menu/>
+                <Routes>
+                  <Route path="/" element={
+                    <PrivateRoute>
+                      <Home 
+                        usuario={usuario} 
+                        perfilSelecionado={perfilSelecionado} 
+                        setPerfilSelecionado={setPerfilSelecionado} 
+                      />
+                    </PrivateRoute>
+                  } />
 
-                <Route path="/pareceres" element={<PrivateRoute><Pareceres usuario={usuario} /></PrivateRoute>} />
-                <Route path="/periodoLetivoPerfil" element={<PrivateRoute><PeriodoLetivoPerfil /></PrivateRoute>} />
-                <Route path="/peicentral" element={<PrivateRoute><PeiCentral /></PrivateRoute>} />
-                <Route path="/create_peicentral" element={<PrivateRoute><CreatePeiCentral /></PrivateRoute>} />
-                <Route path="/editar_peicentral/:id" element={<PrivateRoute><EditarPeiCentral /></PrivateRoute>} />
-                <Route path="/deletar_peicentral/:id" element={<PrivateRoute><DeletarPeiCentral /></PrivateRoute>} />
-                <Route path="/ataDeAcompanhamento" element={<PrivateRoute><AtaDeAcompanhamento usuario={usuario} /></PrivateRoute>} />
-                <Route path="/documentacaoComplementar" element={<PrivateRoute><DocumentacaoComplementar /></PrivateRoute>} />
-                <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
-                <Route path="/conteudo" element={<PrivateRoute><Conteudo usuario={usuario} /></PrivateRoute>} />
-                <Route path="/crud/:modelKey" element={<PrivateRoute><CrudWrapper /></PrivateRoute>} />
-                <Route path="/acompanhamentos" element={<Acompanhamentos />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/aceite" element={<PrivateRoute><CriarAceite usuario={usuario} /></PrivateRoute>} />
-                <Route path="/todas-notificacoes" element={<PrivateRoute><TodasNotificacoes /></PrivateRoute>} />
-                
-                {isAdmin && (
-                  <Route path="/admin/solicitacoes" element={<PrivateRoute><TelaSolicitacoesPendentes /></PrivateRoute>} />
-                )}
-                
-                <Route path="/logs" element={
-                  <PrivateRoute>
-                    {isAdmin ? <Logs /> : <Navigate to="/" replace />}
-                  </PrivateRoute>
-                } />
+                  <Route path="/pareceres" element={<PrivateRoute><Pareceres usuario={usuario} /></PrivateRoute>} />
+                  <Route path="/periodoLetivoPerfil" element={<PrivateRoute><PeriodoLetivoPerfil /></PrivateRoute>} />
+                  <Route path="/peicentral" element={<PrivateRoute><PeiCentral /></PrivateRoute>} />
+                  <Route path="/create_peicentral" element={<PrivateRoute><CreatePeiCentral /></PrivateRoute>} />
+                  <Route path="/editar_peicentral/:id" element={<PrivateRoute><EditarPeiCentral /></PrivateRoute>} />
+                  <Route path="/deletar_peicentral/:id" element={<PrivateRoute><DeletarPeiCentral /></PrivateRoute>} />
+                  <Route path="/ataDeAcompanhamento" element={<PrivateRoute><AtaDeAcompanhamento usuario={usuario} /></PrivateRoute>} />
+                  <Route path="/documentacaoComplementar" element={<PrivateRoute><DocumentacaoComplementar /></PrivateRoute>} />
+                  <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
+                  <Route path="/conteudo" element={<PrivateRoute><Conteudo usuario={usuario} /></PrivateRoute>} />
+                  <Route path="/crud/:modelKey" element={<PrivateRoute><CrudWrapper /></PrivateRoute>} />
+                  <Route path="/acompanhamentos" element={<Acompanhamentos />} />
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/formahsd" element={<FormAHSD />} />
 
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+                  <Route path="/todas-notificacoes" element={<PrivateRoute><TodasNotificacoes /></PrivateRoute>} />
+                  
+                  {isAdmin && (
+                    <Route path="/admin/solicitacoes" element={<PrivateRoute><TelaSolicitacoesPendentes /></PrivateRoute>} />
+                  )}
+                  
+                  <Route path="/logs" element={
+                    <PrivateRoute>
+                      {isAdmin ? <Logs /> : <Navigate to="/" replace />}
+                    </PrivateRoute>
+                  } />
+
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </div>
             </main>
             
 

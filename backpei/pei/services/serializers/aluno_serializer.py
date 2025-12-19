@@ -9,8 +9,8 @@ class AlunoSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True
     )
-    
-    curso_obj = CursoSerializer(read_only=True, source="curso")
+
+    curso_obj = CursoSerializer(read_only=True, source="curso_completo")
 
 
 

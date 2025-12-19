@@ -184,7 +184,10 @@ const Header = ({ usuario, logado, logout, toggleAcessibilidade, estadoAcessibil
                     <>
                         {/* 🔔 Notificações */}
                         <div className="notif-wrapper" ref={notifRef}>
-                            <button className="header-icon-btn" onClick={() => setNotificacoesAbertas(!notificacoesAbertas)}>
+                            <button
+                                className="header-icon-btn"
+                                onClick={() => setNotificacoesAbertas(!notificacoesAbertas)}
+                            >
                                 <img src={bellIcon} alt="Notificações" />
                                 {naoLidasCount > 0 && (
                                     <span className="notif-badge">{naoLidasCount}</span>
