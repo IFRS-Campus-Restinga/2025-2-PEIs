@@ -7,6 +7,8 @@ from django.core.exceptions import ValidationError as Erro
 from rest_framework.exceptions import ValidationError
 
 class PeiCentral(BaseModel):
+
+    
     historico_do_aluno = models.TextField(
         blank = False, 
         null = False,

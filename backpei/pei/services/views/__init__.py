@@ -12,3 +12,4 @@ from .usuario_view_set import UsuarioViewSet
 from .conteudo_view_set import ConteudoViewSet
 from .consulta_grupos import ConsultaGrupos
 from .acompanhamento_view import *
+from .registro_acompanhamento_view import *

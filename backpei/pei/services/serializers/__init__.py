@@ -11,3 +11,4 @@ from .notificacao_serializer import *
 from .usuario_serializer import *
 from .conteudo_serializer import *
 from .acompanhamento_serializer import *
+from .registro_acompanhamento_serializer import *

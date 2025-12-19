@@ -23,6 +23,7 @@ from .views.acompanhamento_view import (acompanhar_recusar, acompanhar_aceitar)
 from .views.mensagem_view_set import MensagemViewSet
 from .views.aceite_views import create_aceite, accept_page, list_aceites
 from .views.report_view import ReportarProblemaView
+from .views.registro_acompanhamento_view import RegistroAcompanhamentoViewSet
 
 # === OUTRAS VIEWS ===
 from .views.manda_email import manda_email
@@ -49,6 +50,7 @@ router.register(r'usuario', UsuarioViewSet, basename='usuarios')
 router.register(r'conteudo', ConteudoViewSet, basename='conteudos')
 router.register(r'schema', ModelSchemaView, basename="model-schema")
 router.register(r'mensagens', MensagemViewSet, basename='mensagens')
+router.register(r'registroacompanhamento', RegistroAcompanhamentoViewSet, basename='registro acompanhamento')
 
 app_name = 'api'
 

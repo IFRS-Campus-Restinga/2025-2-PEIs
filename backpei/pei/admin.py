@@ -21,5 +21,6 @@ from .models.conteudo import Conteudo
 from .models.acompanhamento import Acompanhamento
 from .models.aceite_eletronico import AceiteEletronico
 from .models.ataDeAcompanhamento import AtaDeAcompanhamento
+from .models.registro_acompanhamento import RegistroAcompanhamento
 
-admin.site.register((PEIPeriodoLetivo, Parecer, Curso, Disciplina, Aluno, PeiCentral, CustomUser, ComponenteCurricular, Conteudo, Acompanhamento, AceiteEletronico, AtaDeAcompanhamento))
+admin.site.register((PEIPeriodoLetivo, Parecer, Curso, Disciplina, Aluno, PeiCentral, CustomUser, ComponenteCurricular, Conteudo, Acompanhamento, AceiteEletronico, AtaDeAcompanhamento, RegistroAcompanhamento))
