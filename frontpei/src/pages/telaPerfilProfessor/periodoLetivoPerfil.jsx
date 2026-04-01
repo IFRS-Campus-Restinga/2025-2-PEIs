@@ -336,7 +336,7 @@ const PeriodoLetivoPerfil = () => {
             case "napne":
               return (
                 <>
-                  <Link to="/crud/PEIPeriodoLetivo" className="btn-acao-pei">Gerenciar Períodos Letivos</Link>
+                  <Link to="/crud/PEIPeriodoLetivo" className="btn-acao-pei">Gerenciar PEI Período Letivo</Link>
                   <Link to="/peicentral" className="btn-acao-pei">Visualizar PEI Central</Link>
                   <Link to="/crud/componenteCurricular" className="btn-acao-pei">Gerenciar Componentes Curriculares</Link>
                   <Link to="/ataDeAcompanhamento" className="btn-acao-pei">Gerenciar Atas de Acompanhamento</Link>
@@ -360,7 +360,7 @@ const PeriodoLetivoPerfil = () => {
                   <Link to="/usuario" className="btn-acao-pei">Gerenciar Usuários</Link>
                   <Link to="/crud/Curso" className="btn-acao-pei">Gerenciar Cursos</Link>
                   <Link to="/crud/Disciplina" className="btn-acao-pei">Gerenciar Disciplinas</Link>
-                  <Link to="/crud/PEIPeriodoLetivo" className="btn-acao-pei">Gerenciar Períodos Letivos</Link>
+                  <Link to="/crud/PEIPeriodoLetivo" className="btn-acao-pei">Gerenciar PEI Período Letivo</Link>
                   <Link to="/crud/aluno" className="btn-acao-pei">Gerenciar Alunos</Link>
                   <Link to="/peicentral" className="btn-acao-pei">Visualizar PEI Central</Link>
                   <Link to="/pareceres" state={{ peiCentralId }} className="btn-acao-pei">Cadastrar Parecer</Link>

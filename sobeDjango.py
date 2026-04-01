@@ -110,6 +110,7 @@ if pergunta("Refazer migrations?"):
 
     roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "makemigrations"])
     roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "migrate"])
+    roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "assign_object_perms"])
     roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "showmigrations"])
 
     # ------------------------------------------
@@ -214,6 +215,7 @@ else:
     print("\nMantendo banco. Apenas garantindo migrations.")
     roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "makemigrations"])
     roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "migrate"])
+    roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "assign_object_perms"])
     roda([rodapy, os.path.join(baseDir, "backpei", "manage.py"), "showmigrations"])
 
 
